@@ -1,0 +1,57 @@
+## related packages
+/TimDavis/
+/dag_trans_red/
+/doc/references/
+/tprod/
+
+## examples from others
+/examples/calvin/
+/examples/cvxgen/
+/examples/david/
+/examples/gilbert/
+/examples/scott/
+/examples/sharad/
+/examples/phase_recovery/
+/examples/steven/
+/examples/victor/
+
+## old files
+old/
+
+## files still to be fixed up
+/examples/*RSS*
+/examples/*rss*
+/examples/sphereSample.m
+/examples/dist2convex.m
+/examples/estimation.m
+/examples/estimates.eps
+/examples/*gps*.m
+/examples/*imu*.m
+/examples/minmax.m
+/examples/csparse/
+/examples/mpcmhe/mpcmhe_2integratorLatCS2.m
+/examples/mpcmhe/mpcmhe_transfer_function_known_zero.m
+/examples/mpcmhe/mpcmhe_unicycleLatCS.m
+/examples/regression*
+/examples/Regression*
+/test-asm/
+/test/
+/lib/tools/
+/doc/instructionscheduling.*
+
+## private files
+COPYING-GPLv3-statement.txt
+TODO.txt
+CONVERGENCE_DEBUG.txt
+
+## temporary scripts for testing
+/doc/StudyInfeasibility.nb
+/lib/@csparse/testldl.m
+
+## automatically generated files
+/lib/tools/output
+tmp*
+@tmp*
+/lib/*.tex
+
+

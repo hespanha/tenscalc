@@ -1,0 +1,911 @@
+\documentclass[11pt]{article}
+
+% \usepackage{amsmath,amssymb,mathtools,amsfonts}
+\usepackage{url} 
+\usepackage{fullpage}
+% \usepackage{setspace}      % \singlespace, \doublespace \onehalfspacing
+% \usepackage{ifthen}      % \ifthenelse,\boolean,\newboolean,\setboolean
+% \usepackage{mathptmx} % slightly more compressed font. 
+\usepackage[T1]{fontenc}\usepackage[condensed,math]{kurier} % fancy font
+% \usepackage{makeidx}  % to make a keyword index: \index{}
+% \usepackage{showidx}  % prints index entries in the left margin (debug)
+% \usepackage{needspace}     % \needspace{5\baselineskip} no page breaks for 5 lines
+% \usepackage{mparhack} % correct Latex bug in \marginpar
+% \usepackage{chemarr}  % arrows 4 chem: \xrightleftharpoons[]{} \xrightarrow{}
+% \usepackage{listings} % source code printer for latex
+% \lstset{language=Matlab}
+% \lstset{basicstyle=\small,morekeywords={cvx_begin,cvx_end,variables,maximize,minimize,subject,to,linprog,quadprog,ones,optimset}}
+
+%%%% Figure packages
+% \usepackage{graphicx,psfrag}
+% \usepackage{pstool}           % \psfrag for pdflatex -- preferable(?), not transparent 
+% \usepackage{auto-pst-pdf}      % \psfrag & PStricks for pdflatex -- transparent!!!
+% \usepackage[pdftex]{graphics}
+% \usepackage{subfigure}         % \subfigure[a]{\includegraphics\ldots\label{fi:\ldots}}
+% \usepackage{sidecaption}       % \sidecaption (to be placed inside figure env.
+% \graphicspath{{./figuresdir1/}{./figuresdir2/}{./figuresdir3/}}
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%% Bibliography packages (order is important)
+% \usepackage{bibentry}% \nobibliography* \ldots  \bibentry{..} inserts a bib entry
+% apparently incompatible with hyperef
+% \makeatletter\let\NAT@parse\undefined\makeatother % enbl natbib with IEEE cls 
+\usepackage[numbers,sort&compress,sectionbib]{natbib} % \cite,\citet,\citep,\ldots
+\usepackage[colorlinks=true,linkcolor=blue,backref=page]{hyperref}
+\renewcommand*{\backref}[1]{\small (cited in p.~#1)}
+\usepackage[norefs,nocites]{refcheck} % options:norefs,nocites,msgs,chkunlbld
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%%%%%%%%%%%% source code formatting for latex %%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+%%%% Matlab language
+\lstset{
+  basicstyle={\footnotesize\tt},
+  keywordstyle={\footnotesize\tt\color{blue}},
+  commentstyle={\footnotesize\sl},
+  frame=shadowbox,
+  columns={[l]fixed},  % character alignment
+  %columns={[l]fullflexible},
+  basewidth={.5em,.4em}, 
+  xleftmargin=3em, xrightmargin=3em,
+  numbers=left, numberstyle=\tiny, numbersep=5pt,
+  escapeinside={(*}{*)},
+  numberblanklines=false,
+  firstnumber=last,
+}
+
+\lstdefinelanguage[extended]{Matlab}[]{Matlab}{
+  morekeywords={linprog,quadprog,ones,optimset,ode23s,expand},
+  deletekeywords={hess}
+}
+%%%% StochDynTools dialect of Matlab, based on Matlab without dialect
+\lstdefinelanguage[TC]{Matlab}[extended]{Matlab}{
+  morekeywords={Tvariable,parameter,Teye,Tones,Tzeros,Tconstant,gradient,norm2},
+  morekeywords={csparse,declareSet,declareGet,declareCopy,declareAlias,compile2matlab,compile2C,
+    begin_csparse,end_csparse,getFunction,setFunction,copyFunction}
+}
+
+%%%% set default language
+\lstset{language=[TC]Matlab}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
+%\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+
+%% Macros & options for this Document
+
+\allowdisplaybreaks
+
+\newcommand{\tprod}[2]{\,\,^{#1}\!\!*^{#2}}
+\newcommand{\TC}{\texttt{TensCalcTools}}
+\newcommand{\CS}{\texttt{CSparse}}
+\newcommand{\CMEX}{\texttt{cmexTools}}
+
+\newcommand{\codesize}{\footnotesize}
+
+\newcommand{\toidx}[1]{\index{\lstinline{#1}}}%\addcontentsline{toc}{subsubsection}{\lstinline{#1}}}
+
+\newenvironment{command}[1]{\toidx{#1}\addcontentsline{toc}{subsection}{\lstinline{#1}}\paragraph*{\lstinline[basicstyle=\large,columns={[l]flexible}]{#1}}~\\\noindent\rule{\textwidth}{2pt}\\\vspace{-3ex}\codesize}{\vspace{-3ex}\rule{\textwidth}{1pt}\medskip\noindent}
+
+% \makeindex
+
+%% Start of Document
+
+\title{\sc \CS \\[1em]\Large A \matlab{} Class for Compiled Sparse Computations}
+\author{\jph}
+\date{September 8, 2014}
+
+\begin{document}                        \maketitle
+
+\begin{abstract}
+  This class enables very fast repeated computations of (potentially
+  sparse) tensors (i.e., multi-dimensional arrays). The speed gains
+  are enabled by (i) detecting at compile time the (structural)
+  sparsity patterns of the final results and also of all intermediate
+  variables, (ii) determining at compile time all the memory indexing
+  to access the sparse arrays (iii) performing at initialization time
+  all the memory allocation needed for the intermediate results, (iv)
+  reusing as much as possible previously used computations, (v)
+  performing most of the run-time computations by optimized C
+  functions.
+\end{abstract}
+
+\tableofcontents
+
+\newpage
+
+\section{Phylosophy}
+
+We start by introducing the key concepts behind \CS{} that
+differentiate this tool from ``standard'' \matlab-to-C compilers.
+
+\subsection{When to use \CS?}
+
+The \CS{} class is used when one needs to perform computations
+involving tensors (i.e., multi-dimensional arrays) and results in very
+significant gains in computation speed in any of the following scenarios:
+\begin{enumerate}
+\item \label{en:sparse} The final results or some of the intermediate
+  computations involve tensors that are structurally sparse (i.e.,
+  with many entries that are equal to zero); e.g.,
+  \lstinline{C=A.*diag(b)} (where \lstinline{b} is a vector).
+
+  An entry of a tensor is said to be \emph{structurally zero} if once
+  can (symbolically) guarantee that it is always zero; e.g., as in the
+  non-diagonal entries of \lstinline{diag(b)}. \emph{Structural
+    sparsity}, refers to the pattern of entries of a tensor that are
+  structurally zero.
+
+\item \label{en:intermediate} One needs to perform several tensor
+  computations that share intermediate results that can be
+  reused; e.g. \lstinline{C=A*B+C;D=A*B-C}.
+
+\item \label{en:iterations} One needs to perform the same computation
+  multiple times and one can reuse intermediate results from one
+  computation to the next; e.g., \lstinline{for i=1:5; C=C+A*B; end}.
+
+\item One needs to perform the same computation multiple times and
+  therefore one can reuse previously allocated memory from one
+  computation to the next; e.g., \lstinline{for i=1:5; C=C+rand(N); end}.
+
+\item One needs to perform the computation using C code that does
+  not use specialized libraries.
+\end{enumerate}
+While illustrative, the examples under items
+\ref{en:sparse}--\ref{en:iterations} above are sufficiently simple
+that it would be straighforward to optimize the \matlab{} code to take
+advantage of the special structures of the expressions. The goal of
+the \CS{} class is to do this automatically for much more complicated
+expression.
+
+\subsection{\CS{} compile-time optimization}
+
+The CS{} class takes as inputs a collection of \TC{} symbolic
+tensor-valued expressions (STVEs) and generates C code to evaluate
+these expressions. The code generation process performs two important
+operations at \emph{compile time} to enable very fast \emph{run-time}
+evaluation of the STVEs:
+\begin{enumerate}
+\item It detects the \emph{structural sparsity patterns} of the STVEs
+  to be computed, as well as the sparsity patterns of all intermediate
+  expressions needed to evaluate the STVEs. This permits the discovery
+  (at compile time) of the total memory that needs to be allocated to
+  perform all the computations and also to precompute all the indexing
+  needed to access the sparse multi-dimensional arrays in memory.
+
+\item It breaks all the computations into elementary operations and
+  builds a \emph{dependency tree} for these operations to determine
+  all the computations that can be resused from the computation of one
+  STVE to another, within a single STVE, or across successive
+  computations of the same set of STVEs.\footnote{The dependency tree
+    could also be used to distribute computation among several
+    processors/threads, but currently this is not done and a single
+    thread is used.}
+\end{enumerate}
+
+\section{\CS{} declarations}
+
+The C code generated uses a single continuous one-dimensional array to
+store all the (nonzero) entries of all the \TC{} tensors with input
+data, all the intermediate computations, and the output data. We call
+this array the \emph{scratchboard}.
+
+\medskip
+
+The following \CS{} functions are used to determine which STVEs one
+wants to specify which STVEs one wants to compute, which \TC{}
+variables should be regarded as input parameters. These declarations
+implicitely allocate blocks of the scratchbook to all the \TC{}
+tensors needed to perform the computations.
+
+\begin{command}{csparse}
+\begin{lstlisting}
+code=csparse();
+\end{lstlisting}
+\end{command}
+
+This function returns an empty \CS{} object that will eventually be
+compiled into run-time code (after adding STVEs to it). The
+scratchbook associated with this object is initially empty.
+
+\begin{command}{declareSet}
+\begin{lstlisting}
+declareSet(code,STVE,'funname');
+\end{lstlisting}
+\end{command}
+
+This function adds the given \TC{} STVE to the \CS{} object
+\lstinline{code}, specifying that the STVE should be regarded as an
+input variable to be provided externally to the run-time \CS{}
+code. \lstinline{STVE} is taken to be a \emph{structurally full}
+tensor in the sense that all its entries are assumed to be nonzero.
+
+\medskip
+
+The function \lstinline{declareSet} implicitly requests the creation
+of a C function \lstinline{void funname(double *inputData)} that takes
+a pointer \lstinline{inputData} to a (non-sparse) tensor with input
+data and copies this data to an appropriate location in the
+scratchboard for subsequent computations. This C function keeps track
+in run-time of which entries of the scratchboard have been modified to
+determine which (dependent) entries of the scratchboard need to
+be subsequently recomputed.
+
+\medskip
+
+Typically, \lstinline{STVE} is a \TC() \lstinline{Tvariables} or some
+direct indexing of a \lstinline{Tvariables}, as in
+\begin{lstlisting}
+% MATLAB declarations 
+Tvariable x [5]
+Tvariable y [5]
+z = 2*(x+y)
+declareSet(code,x,'setX') 
+declareSet(code,y(1:3),'setY13') 
+declareSet(code,y(4:5),'setY45') 
+\end{lstlisting}
+  which could be used to eventually create code that compute
+  $2*(x+y)$ using the collowing C code
+\begin{lstlisting}
+// C code
+double x[5],y13[3],y45[2];
+// ... code to compute x, y13, y45 goes here ...
+setX(&x);
+setY(&y13);
+setY(&y45);
+// ... code to retrieve z from the scratchbook goes here (see declareGet())
+\end{lstlisting}
+  STVEs that are more general \TC{} expressions may lead to
+  ``unexpected'' results: e.g., with
+\begin{lstlisting}
+% MATLAB declarations 
+Tvariable x [5]
+Tvariable y [5]
+z = 2*(x+y)
+declareSet(x+y,'setX_plus_Y') 
+\end{lstlisting}
+  the C function \lstinline{setX_plus_Y()} allows one to set directly
+  the intermediate expression $x+y$, which is then doubled to obtain
+  $z$ (without ever adding $x$ and $y$). However, in the
+  ``apparently similar'' code
+\begin{lstlisting}
+% MATLAB declarations 
+Tvariable x [5]
+Tvariable y [5]
+z = 2*x+2*y
+declareSet(x+y,'setX_plus_Y') 
+\end{lstlisting}
+  the C function \lstinline{setX_plus_Y()} allows one to set values in
+  the scratchbook for the expression $x+y$, but the computation of $z$
+  does not explicitely use $x+y$ so by setting the value of $x+y$ this
+  does not affect the value of $z$. This arises because no attempt is
+  mode within \TC{} or \CS{} to identify $2*(x+y)$ with $2*x+2*y$. In
+  fact, these toolbox do not recognize many algebraic rule (including
+  the distributivity rule, etc.). However, they do recognize a few
+  rules (including the roles of the multiplicative and additive
+  identities and some forms of commutativity and associativity). Since
+  the user cannot be sure of what types of symbolic manipulations will
+  be done internally, one may get ``unpredictable'' behavior when
+  \lstinline{STVE} in the \lstinline{declareSet} is not a
+  \lstinline{Tvariables} or some direct indexing of a
+  \lstinline{Tvariables}
+
+\begin{command}{declareGet}
+\begin{lstlisting}
+declareGet(code,STVE,'funname');
+\end{lstlisting}
+\end{command}
+
+This function adds the given \TC{} STVE to the \CS{} object
+\lstinline{code}, specifying that the STVE should be regarded as an
+output variable to be computed by the run-time \CS{}
+code. \lstinline{STVE} must be a \emph{structurally full}\footnote{The
+  current implementation of \CS{} actually allows
+  \lstinline{declareGet} to be called with a sparse STVE for
+  2-dimensional tensors. However, this has not been tested.} tensor in
+the sense that all its entries are assumed to be nonzero. If that is
+not the case, one can always use
+\begin{lstlisting}
+declareGet(code,full(STVE),'funname');
+\end{lstlisting}
+where the \lstinline{full} operator ``fills-in'' any structurally
+nonzero entries.
+
+\medskip
+
+The function \lstinline{declareGet} implicitly requests the creation
+of a C function \lstinline{void funname(double *outputBuffer)} that
+that performs any required recomputations needed to obtain the value
+of \lstinline{STVE} and copies the corresponding locations of the
+scratchbook to \lstinline{outputBuffer}. This C function keeps track
+of which entries of the scratchbook have been modified (by previous
+calls to C functions generated by \lstinline{declareGet} and
+\lstinline{declareCopy}) to make sure that a minimum ammount of
+scratchbook entries are recomputed.
+
+\begin{command}{declareCopy}
+\begin{lstlisting}
+declareCopy(code,STVEdest,STVEsrc,'funname');
+\end{lstlisting}
+\end{command}
+
+This function adds the given \TC{} STVEs to the \CS{} object
+\lstinline{code}. The given STVEs may be full or sparse, but in the
+latter case they need to have the same exact structural sparsity
+pattern.
+
+\medskip
+
+The function \lstinline{declareCopy} implicitly requests the creation
+of a C function \lstinline{void funname()} that copies the value of
+\lstinline{STVEsrc} in the scratcbook to the location of
+\lstinline{STVEdest} in the scratchbook. Like the C functions created
+by \lstinline{declareGet}, this C function keeps track of which
+entries of the scratchbook have been modified (by previous calls to C
+functions generated by declareGet and declareCopy) to make sure that a
+minimum ammount of scratchbook entries are recomputed. In addition,
+like the C functions created by \lstinline{declareSet}, this C
+function keeps track in run-time of which entries of the scratchboard
+have been modified to determine which (dependent) entries of the
+scratchboard need to be subsequently recomputed.
+
+\medskip
+
+As with \lstinline{declareSet}, care must be exercise when the
+destination STVE \lstinline{STVEdest} are not \lstinline{Tvariable}.
+
+\medskip
+
+Unlike \lstinline{declareSet} and \lstinline{declareGet},
+\lstinline{declareCopy} may operate on groups of tensors, i.e.,
+\lstinline{STVEsrc} and \lstinline{STVEdest} may be cell arrays of
+STVEs. This is important because the copy is carried out atomically
+without regard to dependencies betweem the tensors in the group. To
+understand this consider the two alternative \matlab{} declarations
+and the corresponding C code that calls the copy functions so
+generated:
+\begin{lstlisting}
+% MATLAB declarations
+declareCopy(code,{A2,B2},{A1,B1},'copyA1B1toA2B2');
+\\ C code
+copyA1B1toA2B2();
+\end{lstlisting}
+and
+\begin{lstlisting}
+% MATLAB declarations
+declareCopy(code,A2,A1,'copyA1toA2');
+declareCopy(code,B2,B1,'copyB1toB2');
+\\ C code
+copyA1toB1();
+copyA2toB2();
+\end{lstlisting}
+In the first option \lstinline{copyA1B1toA2B2()} starts by
+(re)computing \lstinline{A1,B1}, then makes the copy, and finally
+marks \lstinline{A2,B2} as having been modified (which eventually may
+trigger other computations). In the second option
+\lstinline{copyA1toB1();copyA2toB2();} starts by (re)computing
+\lstinline{A1}, then makes the copy of the value of \lstinline{A1} to
+\lstinline{A2}, then marks \lstinline{A2} as modified, and only after
+that re(computes) \lstinline{B2} --- potentially taking into account
+the changes made to \lstinline{A2}.
+
+\begin{command}{declareAlias}
+\begin{lstlisting}
+[SVTEout]=declareAlias(code,STVE,'name');
+[SVTEout]=declareAlias(code,STVE,'name',atomic);
+[SVTEout,subscripts]=declareAlias(code,STVE,'name');
+\end{lstlisting}
+\end{command}
+
+This function adds the given \TC{} STVE to the \CS{} object
+\lstinline{code} without declaring it an input or output variable, but
+returns a \TC{} STVE \lstinline{Tvariable} called
+\lstinline{name} that is linked to the value of \lstinline{STVE} in
+the scratchbook. 
+
+\medskip
+
+When called with more than 1 output argument, the sparsity structure
+of the tensor \lstinline{STVE} is returned in \lstinline{subscripts},
+which is a matrix with one row per dimension of the tensor
+\lstinline{STVE} and one column per structurally nonzero entry of
+\lstinline{STVE}. Each column of \lstinline{subscripts} contains the
+subscripts of a structurally nonzero entry of \lstinline{STVE}.
+
+\paragraph*{Atomic operations}
+
+When the boolean input parameter \lstinline{atomic} is
+\lstinline{true}, the C-code used to compute the top operator of the
+STVEs will not store its output tensor entries in the
+scratchbook. Instead, its output will be dynamically
+allocated/deallocated as a block. This has several consequences:
+\begin{enumerate}
+\item The operator's output is not stored statically in the
+  scratchbook. Instead, each time it needs to be recomputed, memory is
+  allocated to store its value. In case a previous version of the
+  computation existed in memory, it is freed prior to allocating the
+  memory for the new computation.
+
+\item Atomic operators can be computed by algorithms for which the
+  sparsity structure of the result cannot be determined at compile
+  time, such as the LU factorization of a sparse matrix with pivoting
+  adapted to the specific matrix.
+
+\item Atomic operators are always recomputed as a whole, even if only
+  a small subset of its operands have changed.
+\end{enumerate}
+Declaring an operator as \emph{atomic} will not affect the generation
+of \matlab{} code.
+
+\paragraph*{Working with aliases.}
+
+Aside from learning at compile time the structural sparsity pattern of
+\lstinline{STVE} (when called with multiple output arguments), the
+main use of \lstinline{declareAlias} is to obtain a ``simple''
+\TC{} \lstinline{Tvariable} that represents a (potentially very
+complex) \TC{} expression, which reduces the overhead of subsequent
+\TC{} symbolic manipulations. To understand this, consider the
+following declaration
+\begin{lstlisting}
+% MATLAB declarations
+J=norm2(A*x-b);
+g=gradient(J,x);
+z=g(1:3)-g(4:6); (*\label{li:z-big}*)
+declareGet(code,z,'getZ')
+\end{lstlisting}
+which results in the following values of the \TC{} STVEs
+\begin{lstlisting}
+g=mytprod(A,[1,-1],x,[-1])-b,[-1],A,[-1, 1]);   % same as A'*(A*x-b)
+z= subsref(mytprod(2,[],mytprod(A,[1,-1],x,[-1])-b,[-1],A,[-1, 1]),...
+           struct('type','()','subs',{{(1:3)}}))...
+  -subsref(mytprod(2,[],mytprod(A,[1,-1],x,[-1])-b,[-1],A,[-1, 1]),...
+           struct('type','()','subs',{{(4:6)}}))
+\end{lstlisting}
+where one can see the gradient appearing twice in \lstinline{z}. In
+spite of this, \TC{} is ``smart enough'' to detect the duplication and
+generates code tha does not compute the gradient twice when it
+evaluates \lstinline{z}. Nevertheless, \TC{} STVEs tend to grow
+rapidly and their processing results can result in large overhead ---
+at compile time, not at run time!
+
+\medskip
+
+Unwieldy \TC{} STVEs can be avoided in \lstinline{declareAlias},
+as in
+\begin{lstlisting}
+% MATLAB declarations
+J=norm2(A*x-b);
+g=gradient(J,x);  (*\label{li:g}*)
+g=declareAlias(code,g,'z');
+z=g(1:3)-g(4:6); (*\label{li:z-small}*)
+declareGet(code,z,'getZ')
+\end{lstlisting}
+which results in the following values of the \TC{} STVEs
+\begin{lstlisting}
+g=mytprod(A,[1,-1],x,[-1])-b,[-1],A,[-1, 1]);   % same as A'*(A*x-b)
+z=g(1:3)-g(4:6); 
+\end{lstlisting}
+with the understanding that \CS{} internally knows that \lstinline{g}
+is actually given by the expression in line \ref{li:g} and will take
+that into account in the generation of any C code. However, as far as
+\TC{} goes \lstinline{g} is a freshly created new variable, unrelated
+to \lstinline{A}, \lstinline{x}, or \lstinline{b}.
+
+\medskip
+
+Two items must be taken into account:
+\begin{enumerate}
+\item The link between the input STVE \lstinline{STVE} and the output
+  STVE \lstinline{STVEout} is known to the \CS{} object
+  \lstinline{code}, but the dependence of \lstinline{STVEout} with
+  respect to other variables that appear in \lstinline{STVE} is unkown
+  to \TC{}.
+
+  This affects \TC{}'s ability to perform some symbolic
+  manipulations. E.g., \lstinline{gradient(z,x)} will return
+  \lstinline{A'*A} when \lstinline{z} is computed using line
+  \ref{li:z-big}, but will return 0 when \lstinline{z} is computed
+  using line \ref{li:z-small}.
+  
+\item Space will be reserved in the scrapbook to hold the tensor
+  \lstinline{STVE} and all the intermediate tensors needed to compute
+  it, regardless of whether or not this tensor is needed for the C
+  functions generated by \lstinline{declareSet} and
+  \lstinline{declareGet}, \lstinline{declareCopy}. \joao{One should
+    probably eventually do some ``garbage collection'' within the
+    scratchbook before generating code to (i) removed entries that are
+  not called by any C function and (ii) reuse scrapbook memory.}
+\end{enumerate}
+
+\begin{command}{declareSave}
+\begin{lstlisting}
+declareSave(code,STVE,'funname','filename_subscripts');
+\end{lstlisting}
+\end{command}
+
+This function adds the given \TC{} STVE to the \CS{} object
+\lstinline{code} and writes the sparsity structure of the STVE to a
+(binary) file called \lstinline{filename_subscripts}. 
+
+\medskip
+
+The function \lstinline{declareSave} implicitely request the creation
+of a C function \lstinline{void funname(char *filename_values)} that
+writes to a (binary) file called \lstinline{filename_values} the
+values in the scrapbook corresponding to the given STVE. Opposite to
+the C function created by \lstinline{declareGet}, the C function
+created by \lstinline{declareSave} \emph{does not} trigger any
+recomputations of values in the scrapbook; it simply write the current
+values in the scrapbook. 
+
+\medskip
+
+The structures of the files \lstinline{filename_subscripts} and
+\lstinline{filename_values} are described in
+Tables~\ref{tab:subscripts-file} and \ref{tab:values-file},
+respectively. These files can be read using the \CS{} command
+\begin{lstlisting}
+[subscripts,values]=loadCSparse(filename_subscripts,filename_values)
+\end{lstlisting}
+The filename can also be passed to the \TC{} function \lstinline{lu}
+as a ``typical'' value for the matrix to be factorized. This
+``typical'' value is used by \CS{} to determine ``optimal'' pivoting,
+row/column permutations (and potentially scaling\footnote{Not yet
+  implemented.}).
+
+\begin{table}[h]
+  \centering
+  \caption{Structure of the binary file \lstinline{filename\_subscripts}.}
+  \begin{tabular}{p{.1\textwidth}p{.3\textwidth}p{.5\textwidth}}
+    \hline
+    name  & length & description\\\hline
+    magic & {1 x sizeof(int64\_t)} & random number that is common to
+    {filename\_subscripts} and {filename\_values}
+    that can be used to make sure the the two files are compatible\\
+    nDim  & {1 x sizeof(int32\_t)} & number of dimensions of the tensor\\
+    osize & {nDim x sizeof(int64\_t)} & size of the tensor in each dimension\\
+    subscripts & {nDim x nnz x sizeof(int64\_t)} & matrix with 0-based
+    subscripts of the nonzero dimensions (one nonzero entry after another)\\\hline
+  \end{tabular}
+  \label{tab:subscripts-file}
+\end{table}
+
+\begin{table}[h]
+  \centering
+  \caption{Structure of the binary files \lstinline{filename_values}.}
+  \begin{tabular}{p{.1\textwidth}p{.3\textwidth}p{.5\textwidth}}
+    \hline
+    name  & length & description\\\hline
+    magic & {1 x sizeof(int64\_t)} & random number that is common to
+    {filename\_subscripts} and {filename\_values}
+    that can be used to make sure the the two files are compatible\\
+    values & {nnz x sizeof(double)} & values of the nonzero entries in
+    the order the subscripts appear in the file {filename\_subscripts}.\\\hline
+  \end{tabular}
+  \label{tab:values-file}
+\end{table}
+
+
+\begin{command}{declareCfunction}
+\begin{lstlisting}
+declareCfunction(code,'funfile.c','funname',inputs,outputs,defines);
+\end{lstlisting}
+\end{command}
+
+This functions adds to the \CS{} object \lstinline{code} a C function
+called \lstinline{void funname()} found in the file
+\lstinline{funfile.c}. This function does not operate directly on the
+scrapbook, but will typically call C functions created through
+\lstinline{declareSet}, \lstinline{declareGet},
+\lstinline{declareCopy}, and \lstinline{declareSave}.
+
+The function declared is of type
+\lstinline{void funname()} with its input parameters defined by the structure arrays \lstinline{inputs} and \lstinline{outputs}, respectively, according to the following templates:
+\begin{lstlisting}
+inputs(1).name = {string with the name of the variable}
+inputs(1).type = {string describing the matlab input type as in
+                  (uint8|uint16|uint32|uint64|int8|int16|int32|int64|float|double)}
+inputs(1).size = {numeric array with the size of matrix}
+inputs(2).type = ...
+   ...
+outputs(1).name = {string with the name of the variable}
+outputs(1).type = {string describing the matlab input type as in
+                  (uint8|uint16|uint32|uint64|int8|int16|int32|int64|float|double)}
+outputs(1).size = {numeric array with the size of matrix}
+outputs(2).type = ...
+\end{lstlisting}
+All inputs and outputs are passed by reference, with all the inputs
+first, followed by the outputs.  The structure \lstinline{defines}
+specifies a set of \lstinline{#define} pre-processor directives that
+should precede the C function definition and can be used to pass
+(hardcoded) parameters to the C function, according to the following
+templates:
+\begin{lstlisting}
+defines.name1 = {string or scalar}
+defines.name2 = {string or scalar}
+   ...
+\end{lstlisting}
+
+
+
+\begin{command}{saveVectorized}
+\begin{lstlisting}
+saveVectorized(code,filename);
+\end{lstlisting}
+\end{command}
+
+This function saves the \CS{} object as a computational graph whose
+nodes are functions that operate on STVEs, using the format described
+in \texttt{computationalGraphs.pdf}. The filenames for the different
+files are constructed from \lstinline{filename}, which should not have
+an extension.
+
+
+\begin{command}{compile2C}
+\begin{lstlisting}
+compile2C(code);
+\end{lstlisting}
+\end{command}
+
+\section{Run-time Considerations}
+
+The existence of the scratchboard is transparent to the user, who does
+not need to worry about where in the scratchboard values will be
+stored or how they are addressed. Because of this, the user does not
+need to pass any information about scratchboard locations to the
+functions \lstinline{declareSet}, \lstinline{declareGet}, and
+\lstinline{declareCopy}. Obviously, \CS{} object internally keep
+track of where everything is in the scratchboard.
+
+\medskip
+
+From the C-code prespective, the scratchboard is an one-dimensional
+array of floating point variables (typically double for matlab
+compatility) that is accessed by all the run-time C functions as a
+global variable. The whole array can either be declared as a global
+variable or it can be allocated in run time using
+\lstinline{malloc}. In the latter case, two C functions named
+\lstinline{initializer()} and \lstinline{finalizer()} are generated to
+allocate the scratchbook and deallocate it, respectively; and any
+calls to the C functions generated through \lstinline{declareSet},
+\lstinline{declareGet}, and \lstinline{declareCopy} must be made
+between calls to \lstinline{initializer()} and
+\lstinline{finalizer()}. Aside from the scratchbook, a few more global
+variables are used to keep track of scratchbook dependencies.
+
+
+\newpage
+
+\section{Quick Start}
+
+The following code demonstrates the use \CS.
+
+\subsection{Standalone C code}
+
+We first show how to use \CS{} to create a standalone C program that
+solves a simple optimization using gradient descent.
+
+\medskip
+
+We start by defining the dimensions of the variables an constants to
+be used later:
+\begin{lstlisting}
+N=10000;
+n=800;
+b=rand(N,1);
+\end{lstlisting}
+We are now ready to define the \TC{} STVEs that we want to compile. To
+do this one uses \lstinline{Tvariable} to define symbolic variables,
+which one can then use in several matlab functions that have been
+redefined to accept such variables. The new function
+\lstinline{gradient} permits symbolic differentiation. At this time no
+computations are performed.
+\begin{lstlisting}
+Tvariable A [N,n];
+Tvariable x n;
+y=A*x-b;
+J=norm2(y);
+grad=gradient(J,x);
+ngrad2=norm2(grad);
+xx=x-.1/(N*n)*grad;
+\end{lstlisting}
+The next step is to define the computations that we want to
+compile. The class \lstinline{csparse} is used for this purpose, with
+the methods \lstinline{declareSet} used to declare input variables and
+expressions that we want to compile, \lstinline{declareGet} to declare
+the output variables that we want to compute, and
+\lstinline{declareCopy} to declare assignments between variables that
+we want to do in run-time. 
+\begin{lstlisting}
+code=csparse();
+declareSet(code,A,'setA');           % ask for function to set value of A
+declareSet(code,x,'setX');           % ask for function to set value of x
+declareGet(code,J,'getJ');           % ask for function to get value of J
+declareGet(code,x,'getX');           % ask for function to set value of xx
+declareGet(code,ngrad2,'getNgrad2'); % ask for function to get value of getNgrad2
+declareCopy(code,x,xx,'copyXx2X');   % ask for a function to copy value of xx to x
+\end{lstlisting}
+The method \lstinline{compile2C} now generates the appropriate C code:
+\begin{lstlisting}
+!rm -f tmpC_docStandAlone.c          % erase previous version since compile2C appends
+compile2C(code,'tmpC_docStandAlone.c');
+\end{lstlisting}
+Finally, the computations are ready to be performed within a C
+program, e.g., using the following standalone code:
+\begin{lstlisting}[language=C]
+#include <stdlib.h> // needed for rand()
+#include "tmpC_docStandAlone.c"
+
+#define N 100
+#define n 8
+
+int main()
+{
+  double A[N*n],x[n],J,ngrad2,gamma=.1;
+  int i;
+  
+  for (i=0;i<N*n;i++) A[i]=(double)rand()/(double)RAND_MAX;
+  for (i=0;i<n;i++) x[i]=(double)rand()/(double)RAND_MAX;
+
+  printf("Before:\n");
+  getNgrad2(&ngrad2);   
+  getJ(&J);             
+  printf("  ngrad2 = %10lf, J = %10lf\n",ngrad2,J);
+
+  for (i=0;;i++) {
+    getNgrad2(&ngrad2);
+    if (ngrad2<1e-3) break;
+    copyXx2X();
+  } 
+
+  printf("After %d iterations:\n",i);
+  getX(x); 
+  for (i=0;i<n;i++) 
+    printf("  x[%3d] = %10lf\n",i,x[i]);
+  getNgrad2(&ngrad2);   
+  getJ(&J);             
+  printf("  ngrad2 = %10lf, J = %10lf\n",ngrad2,J);
+}
+\end{lstlisting}
+
+\subsection{C-code called from \matlab{}}
+
+We now show how to use \CS{} to create a cmex \matlab{} function that
+solves the same simple oprimization using gradient descent. The cmex
+function now takes the input data from \matlab{} variable and returns
+the result also to \matlab{} variables. To accomplish this we use the
+\CMEX{} toolbox.
+
+\medskip
+
+The following \CMEX{} template does the trick:
+\begin{lstlisting}
+#ifdef createGateway
+
+function tmpC_docCmex       % name of the cmex (gateway) function
+Cfunction docCmex_raw       % function called by the gateway for the computations
+include docCmex.c           % include this function before the gateway
+
+inputs                      % inputs to the cmex function
+      double A[N,n]
+      double x0[n]
+outputs                     % outputs of the cmex function
+      double J[1]
+      double x[n]
+
+preprocess(N,n,b)           % matlab code executed before creating the gateway function
+     Tvariable A [N,n];
+     Tvariable x n;
+
+     y=A*x-b;
+     J=norm2(y);
+     grad=gradient(J,x);
+     ngrad2=norm2(grad);
+     xx=x-.1/(N*n)*grad;
+
+     code=csparse();
+     declareSet(code,A,'setA');           % ask for function to set value of A
+     declareSet(code,x,'setX');           % ask for function to set value of x
+     declareGet(code,J,'getJ');           % ask for function to get value of J
+     declareGet(code,x,'getX');           % ask for function to set value of xx
+     declareGet(code,ngrad2,'getNgrad2'); % ask for function to get value of getNgrad2
+     declareCopy(code,x,xx,'copyXx2X');   % ask for a function to copy value of xx to x
+
+     compile2C(code,'tmpC_docCmex.c');    % to be appended to the gateway function
+#endif
+
+void docCmex_raw(/* inputs */
+                 double *A,
+                 double *x0,
+                 /* outputs */
+                 double *J,
+                 double *x,
+                 /* sizes */
+                 mwSize N,
+                 mwSize n)
+{
+  double ngrad2;
+  int i;
+
+  setA(A);
+  setX(x0);
+
+  printf("Before:\n");
+  for (i=0;i<n;i++) 
+    printf("  x[%3d] = %10lf\n",i,x[i]);
+  getNgrad2(&ngrad2);   
+  getJ(J);             
+  printf("  ngrad2 = %10lf, J = %10lf\n",ngrad2,J);
+
+  for (i=0;;i++) {
+    getNgrad2(&ngrad2);
+    if (ngrad2<1e-3) break;
+    copyXx2X();
+  } 
+  printf("After %d iterations:\n",i);
+  getX(x); 
+  for (i=0;i<n;i++) 
+    printf("  x[%3d] = %10lf\n",i,x[i]);
+  getNgrad2(&ngrad2);   
+  getJ(J);             
+  printf("  ngrad2 = %10lf, J = %10lf\n",ngrad2,J);
+}
+\end{lstlisting}
+The following matlab code uses \CMEX{} to create the cmex function and
+then calls it:
+\begin{lstlisting}
+N=100;
+n=8;
+b=rand(N,1);
+
+createGateway('template','docCmex.c',... % template describing the cmex function
+              'compile',true,...
+              'preprocessParameters',{N,n,b});
+
+A=rand(N,n);
+x0=rand(n,1);
+
+[J,x]=tmpC_docCmex(A,x0);
+\end{lstlisting}
+
+
+
+
+\subsection{Matlab class}
+
+Alternatively\footnote{Not (yet?) implemented.}, by using
+\begin{lstlisting}
+compile2matlab(code,'tmpM_testDoc.m');
+\end{lstlisting}
+instead of the above \lstinline{compile2C} command, one can generate a
+\matlab{} class to perform the same computions from within \matlab{},
+e.g., using the following code:
+\begin{lstlisting}
+obj=tmpC_testDoc();
+setA(obj,rand(N,n));
+x=zeros(n,1);
+setX(obj,x);
+ while 1
+   ngrad=getNgrad(obj);
+   if sqrt(ngrad)<1e-3, break; end
+   copyXx2X(obj);
+ end
+j=getJ(obj);
+\end{lstlisting}
+
+
+
+
+% \bibliographystyle{ieeetr}
+% \bibliographystyle{abbrvnat}
+% \bibliography{strings,jph,crossrefs}
+
+% \printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% eval: (tex-pdf-mode)  ; only for pdflatex
+%%% TeX-master: t
+%%% End: 

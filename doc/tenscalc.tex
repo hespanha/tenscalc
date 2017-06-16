@@ -1,0 +1,1485 @@
+\documentclass[11pt]{article}
+
+%\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{url} 
+\usepackage{fullpage}
+%\usepackage{setspace}      % \singlespace, \doublespace \onehalfspacing
+%\usepackage{ifthen}      % \ifthenelse,\boolean,\newboolean,\setboolean
+%\usepackage{mathptmx} % slightly more compressed font. 
+\usepackage[T1]{fontenc}\usepackage[condensed,math]{kurier} % fancy font
+%\usepackage{makeidx}  % to make a keyword index: \index{}
+%\usepackage{showidx}  % prints index entries in the left margin (debug)
+%\usepackage{needspace}     % \needspace{5\baselineskip} no page breaks for 5 lines
+%\usepackage{mparhack} % correct Latex bug in \marginpar
+%\usepackage{chemarr}  % arrows 4 chem: \xrightleftharpoons[]{} \xrightarrow{}
+%\usepackage{listings} % source code printer for latex
+%\lstset{language=Matlab}
+%\lstset{basicstyle=\small,morekeywords={cvx_begin,cvx_end,variables,maximize,minimize,subject,to,linprog,quadprog,ones,optimset}}
+
+%%%% Figure packages
+%\usepackage{graphicx,psfrag}
+%\usepackage{pstools}           % \psfrag for pdflatex
+%\usepackage{auto-pst-pdf}      % \psfrag & PStricks for pdflatex
+%\usepackage[pdftex]{graphics}
+%\usepackage{subfigure}         % \subfigure[a]{\includegraphics\ldots\label{fi:\ldots}}
+%\usepackage{sidecaption}       % \sidecaption (to be placed inside figure env.
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%% Bibliography packages (order is important)
+%\usepackage{bibentry}% \nobibliography* \ldots  \bibentry{..} inserts a bib entry
+         % apparently incompatible with hyperef
+%\makeatletter\let\NAT@parse\undefined\makeatother % enbl natbib with IEEE cls 
+\usepackage[numbers,sort&compress,sectionbib]{natbib} % \cite,\citet,\citep,\ldots
+\usepackage[letterpaper,colorlinks=true,linkcolor=blue,backref=page]{hyperref}
+\renewcommand*{\backref}[1]{\small (cited in p.~#1)}
+\usepackage[norefs,nocites]{refcheck} % options:norefs,nocites,msgs,chkunlbld
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%% source code formatting for latex %%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+%%%% Matlab language
+\lstset{basicstyle=\footnotesize\tt}
+\lstset{commentstyle={\footnotesize\sl}}
+\lstset{frame=none}
+%\lstset{frame=shadowbox}
+%\lstset{columns={[l]fixed}}  % character alignment
+\lstset{columns={[l]fixed},basewidth={.55em,.4em}}  % character alignment
+%\lstset{columns={[l]fullflexible},basewidth={.6em,.45em}}  % character alignment
+\lstdefinelanguage[extended]{Matlab}[]{Matlab}{morekeywords={linprog,quadprog,ones,optimset,ode23s,expand}}
+
+%%%% Tenscalc dialect of Matlab, based on Matlab without dialect
+\lstdefinelanguage[TC]{Matlab}[extended]{Matlab}{morekeywords={Tvariable,Teye,Tones,Tzeros,Tconstant,gradient}}
+
+%%%% set default language
+\lstset{language=[TC]Matlab}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
+%\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+
+%% Macros & options for this Document
+
+\newcommand{\tprod}[2]{\,\,^{#1}\!\!*^{#2}}
+\newcommand{\TC}{\texttt{TensCalc}}
+\newcommand{\CS}{\texttt{CSparse}}
+
+\newcommand{\codesize}{\footnotesize}
+
+\newcommand{\toidx}[1]{\index{\lstinline{#1}}}%\addcontentsline{toc}{subsubsection}{\lstinline{#1}}}
+
+\newenvironment{command}[1]{\toidx{#1}\addcontentsline{toc}{subsection}{\lstinline{#1}}\paragraph*{\lstinline[basicstyle=\large,columns={[l]flexible}]{#1}}~\\\noindent\rule{\textwidth}{2pt}\\\vspace{-3ex}\codesize}{\vspace{-3ex}\rule{\textwidth}{1pt}\medskip\noindent}
+
+\theoremstyle{remark}
+\newtheorem{technical}{Technical note}
+
+\makeindex
+
+\allowdisplaybreaks
+
+%% Start of Document
+
+\title{\sc \TC \\[1em]\Large A \matlab{} Toolbox for \\
+  Nonlinear Optimization Using Symbolic Tensor Calculus}
+
+\author{\jph}
+\date{May 11, 2016}
+
+\begin{document}                        \maketitle
+
+\begin{abstract}
+  This tool provides an environments for performing nonlinear
+  constrained optimization. The variables to be optimized can be
+  multi-dimensional arrays of any dimension (tensors) and the cost
+  functions and inequality constraints are specified using
+  \matlab-like formulas. Interior point methods are used for the
+  numerical optimization, which uses formulas for the gradient and the
+  hessian matrix that are computed symbolically in an automated
+  fashion.  The package can either produce optimized \matlab{} code or
+  C code. The former is preferable for very large problems, whereas
+  the latter for small to mid-size problems that need to be solved in
+  just a few milliseconds. The C code can be used from inside
+  \matlab{} using an (automatically generated) cmex interface or in
+  standalone applications. No libraries are required for the
+  standalone code.
+\end{abstract}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Quick Start}
+
+\paragraph{What are tensors?} Tensors are essentially multi-dimensional arrays,
+but one needs to keep in mind that in \matlab{} every variable is an
+array of dimension 2 or larger. Unfortunately, this is not suitable
+for \TC{}, which also needs arrays of dimension 0 (i.e., scalars) and
+1 (i.e., vectors). This can create confusion because \matlab{}
+automatically ``upgrades'' scalars and vectors to matrices (by adding
+singleton dimensions), but this is not done for \TC{}
+expressions. More on this later, but for now let us keep going with
+the quick start.
+
+\paragraph{STVEs?} The basic objects in \TC{} are symbolic
+tensor-valued expressions (STVEs). These expressions typically involve
+symbolic variables that can be manipulated symbolically, evaluated for
+specific values of its variables, and optimized.
+
+\paragraph{Need speed?}
+Prior to numerical optimization, STVEs must be ``compiled'' for
+efficient computation. This compilation can take a few seconds or even
+minutes but results in highly efficient \matlab{} or C code. Big
+payoffs arise when you need to evaluate or optimize an expression
+multiple time, for different values of input variables. \TC{}'s
+compilation functions thus always ask you to specify input
+parameters. Much more on \TC{}'s compilations tools can be found in
+\CS{}'s documentation.
+
+\subsection{The examples you've been waiting for...}
+
+\paragraph{Creating STVEs.} The following sequence of \TC{} command can
+be used to declare an STVE to be used in a simple least-squares
+optimization problem
+\begin{lstlisting}
+N=100;
+n=8;
+
+Tvariable A [N,n];
+Tvariable b N;
+Tvariable x n;
+
+y=A*x-b;
+J=norm2(y);
+\end{lstlisting}
+
+\paragraph{Optimizing STVEs.}
+To perform an optimization also need to create an appropriate
+specialized \matlab{} class, say called \lstinline{minslsu}, using the
+following command:
+\begin{lstlisting}
+class2optimizeCS('classname','minslsu',...
+                 'objective',J,...
+                 'optimizationVariables',{x},...
+                 'outputExpressions',{J,x},...
+                 'parameters',{A,b},...
+                 'solverVerboseLevel',3);
+\end{lstlisting}
+The goal of this class is to minimize the symbolic expression
+\lstinline{J} with respect to the variable \lstinline{x}. The symbolic
+variables \lstinline{A} and \lstinline{b} were declared as parameters
+that can be changed from optimization to optimization. Setting the
+\lstinline{solverVerboseLevel} to 3, asks for a moderate amount of
+debugging information to be printed while the command is executed (one
+line per iteration of the solver). More details on the
+\lstinline{class2optimizeCS} function can be found in
+Section~\ref{se:optimization-matlab}.
+
+
+\medskip
+
+Once can see the methods available for the class \lstinline{minslsu}
+generated by \lstinline{class2optimizeCS} using the usual
+\lstinline{help} command, which produces:
+\begin{lstlisting}
+>> help minslsu
+  % Create object
+  obj=minslsu();
+  % Set parameters
+  setP_A(obj,{[10000,800] matrix});
+  setP_b(obj,{[10000,1] matrix});
+  % Initialize primal variables
+  setV_x(obj,{[800,1] matrix});
+  % Solve optimization
+  [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
+  % Get outputs
+  [y1,y2]=getOutputs(obj);
+\end{lstlisting}
+
+\medskip
+
+The following commands creates an instance of the class and preforms
+the optimization for specific parameter values:
+\begin{lstlisting}
+thisA=rand(N,n);
+thisb=rand(N,1);
+x0=.02*rand(n,1);
+
+obj=minslsu();
+setP_A(obj,thisA);
+setP_b(obj,thisb);
+setV_x(obj,x0);
+mu0=1;
+maxIter=20;
+[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(-1));
+[Justar,xustar]=getOutputs(obj);
+\end{lstlisting}
+The parameters \lstinline{mu0} and \lstinline{maxIter} passed to the
+solver are the initial value of the barrier variable and the maximum
+number of Newton iterations, respectively. On a 2012 MacBook Pro, the
+solve command above takes about 43ms. More details on the inputs and
+outputs to the \lstinline{solve} method can be found in
+Section~\ref{se:optimization-matlab}.
+
+\medskip
+
+If we want instead to perform a constrained optimization, we can use
+the following command to create the appropriate optimization class:
+\begin{lstlisting}
+class2optimizeCS('classname','minslsc',...
+                 'objective',J,...
+                 'optimizationVariables',{x},...
+                 'constraints',{x>=0,x<=.05},...
+                 'outputExpressions',{J,x},...
+                 'parameters',{A,b},...
+                 'solverVerboseLevel',3);
+\end{lstlisting}
+To perform this optimization one would follow similar steps for the
+new class:
+\begin{lstlisting}
+obj=minslsc();
+setP_A(obj,thisA);
+setP_b(obj,thisb);
+setV_x(obj,x0);
+[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(-1));
+[Justar,xustar]=getOutputs(obj);
+\end{lstlisting}
+On a 2012 MacBook Pro, this solve command  takes about 195ms.
+
+\paragraph{Turn on the turbo.} For really fast results the
+optimization needs to be done entirely on C, which can be interfaced
+with \matlab{} using cmex functions. All this is hidden from the user,
+which simply needs to replace \lstinline{class2optimizeCS} by
+\lstinline{cmex2optimizeCS} to generate the optimization class:
+\begin{lstlisting}
+cmex2optimizeCS('classname','Cminslsc',...
+                'method','primalDual',...
+                'objective',J,...
+                'optimizationVariables',{x},...
+                'constraints',{x>=Tzeros([n]),x<=.05*Tones([n])},...
+                'outputExpressions',{J,x},...
+                'parameters',{A,b},...
+                'solverVerboseLevel',2);
+\end{lstlisting}
+The command follows the same syntax, but we decreased the
+\lstinline{solverVerboseLevel} to 2, which ask for a small amount of
+debugging information to be printed while the command is executed (one
+status line when the solver terminates).  More details on the
+\lstinline{cmex2optimizeCS} function can be found in
+Section~\ref{se:optimization-C}.
+
+\begin{lstlisting}
+obj=Cminslsc();
+setP_A(obj,thisA);
+setP_b(obj,thisb);
+setV_x(obj,x0);
+[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(-1));
+[Jcstar,xcstar]=getOutputs(obj);
+\end{lstlisting}
+The optimization now takes only 6ms on the same 2012 MacBook Pro.
+
+\paragraph{Need more examples...} This and many other examples can be
+found in \TC's \lstinline{examples} folder.
+
+\section{Constructing tensor-valued expressions in \TC}
+\label{se:expressions}
+
+In \TC{}, an \emph{$\alpha$-index tensor} is an array in $\R^{n_1\times n_2\times\cdots\times
+  n_\alpha}$ where $\alpha$ is an integer in $\Z_{\ge 0}$. By convention, the case
+$\alpha=0$ corresponds to a \emph{scalar} in $\R$. We use the terminology
+\emph{vector} and \emph{matrix} for the cases $\alpha=1$ and $\alpha=2$,
+respectively. The integar $\alpha$ is called the \emph{index} of the tensor
+and the vector of integers $[n_1,n_2,\dots,n_\alpha]$ (possibly empty for
+$\alpha=0$) is called the \emph{dimension} of the tensor.
+
+\medskip
+
+\emph{It needs to be emphasizes that from \TC's perspective there is a
+  difference between a scalar in $\R$ (which is a 0-index tensor), a
+  vector with dimension one also in $\R^1$ (which is a 1-index tensor),
+  and a $1\times 1$ matrix in $\R^{1\times 1}$ (which is a 1-index tensor).} This
+distinction is ignored by \matlab{}, which represents scalars and
+vectors as 2-index matrices, but is important for several tensor
+operations.
+
+\medskip
+
+\TC expressions are constructed using commands similar to the ones
+used in \matlab{}'s to perform numerical computation.
+
+\subsection{\TC{} building blocks}\label{se:tokens}
+
+The building blocks of STVEs are
+\begin{description}
+\item[symbolic variables] that can eventually be replaced by specific
+  numerical values both prior to expression evaluations and prior to
+  expression optimization. A scalar-valued parameter ($0$-index tensor) is
+  declared using
+\begin{lstlisting}
+  Tvariable parameter_name []
+\end{lstlisting}
+  and an $a$-index tensor-valued parameter is declared using
+\begin{lstlisting}
+  Tvariable parameter_name [n1,n2,...,na]
+\end{lstlisting}
+  for vectors \lstinline{a=1}, for matrices \lstinline{a=2}, and for
+  higher-index tensors \lstinline{na>2}. The integers
+  \lstinline{n1,n2,...,na} specify the dimension of the
+  tensor. These commands create an STVE with the given name.
+
+\item[special-structure numeric-valued tensors] that are recognize by \TC's symbolic
+  processing engine, such as tensors with zeros, tensors with ones,
+  or identify tensors. A special-structure tensor is created using any
+  of the following commands
+\begin{lstlisting}
+var = Tzeros([])
+var = Tzeros([n1,n2,...,na])
+var = Tones([])
+var = Tones([n1,n2,...,na])
+var = Teye([])
+var = Teye([n1,n2,...,na,n1,n2,...,na])
+\end{lstlisting}
+  The integers
+  \lstinline{n1,n2,...,na} specify the dimension of each index of the
+  tensor. Note that an identity tensor is expected to have the first
+  half of the dimensions equal to the second half.
+
+\item[unstructured numeric-valued tensors] for which \TC's symbolic processing engine
+  only takes into account their sparcity pattern. Unstructured tensors
+  are created using
+\begin{lstlisting}
+var = Tconstant(numeric_expression)
+\end{lstlisting}
+  where \lstinline{numeric_expression} is any valid numeric matlab
+  expression. The above command will actually attempt to find any special
+  structure in \lstinline{numeric_expression} and returns a
+  special-structure tensor if it detects a tensor with zeros, a tensor
+  with ones, or an identify matrix (2-index).
+
+  Because of the different approach used by \matlab{} and \TC{} to
+  represent scalars and vectors, the following rules are used to
+  determine the size of the tensor returned:
+  \begin{enumerate}
+  \item $1\times1$ \matlab{} matrices are converted to scalars (0-index
+    tensors);
+  \item $n\times1$ with $n>1$ \matlab{} matrices are converted to vectors
+    (1-index tensors);
+  \item all other \matlab{} matrices (including row-vectors) are kept
+    with the same dimension.
+  \end{enumerate}
+  When these rules need to be overwritten one can use
+\begin{lstlisting}
+var = Tconstant(numeric_expression,[n1,n2,...,na])
+\end{lstlisting}
+  where the integers \lstinline{n1,n2,...,na} specify the dimension of
+  each index of the tensor.
+
+  When numeric \matlab{} expressions appear within STVEs, they are
+  automatically converted into special structure or unstructured
+  numeric-valued tensors using \lstinline{Tconstant} and the rules
+  above to determine the tensor size. An exception to this rule arises
+  when numeric \matlab{} expressions appear within the STVE
+  functions \lstinline{vertcat} and \lstinline{horzcat}, in which case
+  the values are kept as matrices (2-indexes).
+
+\end{description}
+
+\subsection{STVE operators}
+
+The building blocks described above can be combined into complex
+mathematical expressions using the following operators:
+\begin{description}
+\item[(.)/subsref] The following command returns a selected set of
+  entries of \lstinline{stve}:
+\begin{lstlisting}
+subsref(stve,vec1,vec2,...,vecn)
+stve(vec1,vec2,...,vecn)
+\end{lstlisting}
+  Either of these commands return a subtensor of \lstinline{stve}
+  consisting of the entries specified by the vectors of indices
+  \lstinline{vec1,vec2,...,vecn}. The subtensor returned has the same
+  index as \lstinline{stve}, even if the vectors of indices are
+  singletons, e.g., \lstinline{stve(1,1)} is still a 2-index tensor.
+
+  \medskip
+
+  As in regular matlab, one can use the keyword \lstinline{end} to
+  construct any of the vectors \lstinline{vec1,vec2,...,vecn}, e.g.,
+  as in \lstinline{stve(3,2:end-1)}.
+  
+
+\item[uplus] The following command returns \lstinline{stve}:
+\begin{lstlisting}
+uplus(stve)
++stve
+\end{lstlisting}
+
+\item[uminus] The following command returns \lstinline{-stve}:
+\begin{lstlisting}
+uminus(stve)
+-stve
+\end{lstlisting}
+
+\item[ctranspose/transpose] Any of the following command returns the
+  transpose of \lstinline{stve}:
+\begin{lstlisting}
+ctranspose(stve)
+tranpose(stve)
+stve'
+stve.'
+\end{lstlisting}
+Note that all \TC{} tensors are real-values so \lstinline{transpose}
+and \lstinline{ctranspose} return the same object. 
+
+\textbf{Attention!} Transposes only make sense for 2-index tensors
+(matrices) and the flexibility provided by the tensor product makes
+the use of transposes unnecessary so \emph{this operator should not be
+  used}. In fact, \TC{} is unable to compute gradients of expressions
+involving transposes\draftnote{One could compute the gradient
+  precisely by converting \lstinline{ctranspose} to \lstinline{tprod}}.
+
+\item[plus] The following command returns the sum of \lstinline{stve1}
+  and \lstinline{stve2}:
+\begin{lstlisting}
+stve1+stve2
+plus(stve1,stve2)
+\end{lstlisting}
+  The two STVEs must have the same dimension or one of them must be a
+  scalar (0-index tensor). In the latter case, the scalar is added to
+  each entry of the other tensor\footnote{In practice, the scalar is
+    multiplied by a tensor of ones of appropriate size.}.
+
+\item[minus] The following command returns the difference between
+  \lstinline{stve1} and \lstinline{stve2}:
+\begin{lstlisting}
+stve1-stve2
+minus(stve1,stve2)
+\end{lstlisting}
+  The two STVEs must have the same dimension or one of them must be a
+  scalar (0-index tensor). In the latter case, the scalar is added to
+  each entry of the other tensor\footnote{In practice, the scalar is
+    multiplied by a tensor of ones of appropriate size.}.
+
+\item[ge, >=] The following command returns 1 (true) is
+  \lstinline{stve1>=stve2} and 0 (false) otherwise:
+\begin{lstlisting}
+stve1>=stve2
+ge(stve1,stve2)
+\end{lstlisting}
+
+\item[>] The following command returns 1 (true) is
+  \lstinline{stve1>stve2} and 0 (false) otherwise:
+\begin{lstlisting}
+stve1>stve2
+\end{lstlisting}
+
+\item[le, <=] The following command returns 1 (true) is
+  \lstinline{stve1<=stve2} and 0 (false) otherwise:
+\begin{lstlisting}
+stve1<=stve2
+le(stve1,stve2)
+\end{lstlisting}
+
+\item[<] The following command returns 1 (true) is
+  \lstinline{stve1<stve2} and 0 (false) otherwise:
+\begin{lstlisting}
+stve1<stve2
+\end{lstlisting}
+
+\item[tprod] The following command returns the
+  \lstinline{(p1,p2,p3,...)}-product of \lstinline{stve1},
+  \lstinline{stve2}, \lstinline{stve3}, ...
+\begin{lstlisting}
+tprod(stve1,p1,stve2,p2,stve3,p3,...)
+\end{lstlisting}
+
+\item[times] The following command returns the entry-wise
+  multiplication of \lstinline{stve1} and \lstinline{stve2}:
+\begin{lstlisting}
+stve1.*stve2
+times(stve1,stve2)
+\end{lstlisting}
+This operation is automatically converted to an equivalent \lstinline{tprod}.
+
+\item[mtimes] The following command returns the matrix/vector
+  multiplication of \lstinline{stve1} and \lstinline{stve2}:
+\begin{lstlisting}
+stve1*stve2
+mtimes(stve1,stve2)
+\end{lstlisting}
+The dimensions of \lstinline{stve1} and \lstinline{stve2} must be one of the following
+\begin{enumerate}
+\item both matrices (2-index tensors), returning the usual matrix product;
+\item \lstinline{stve1} a matrix (2-index tensor) and
+  \lstinline{stve2} a vector (1-index tensor), returning the usual
+  matrix by column-vector product;
+\item \lstinline{stve1} a vector (1-index tensor) and
+  \lstinline{stve2} a matrix (2-index tensor), returning the usual
+  row-vector by matrix product;
+\item both vectors (1-index tensors), returns the inner product of
+  the two vectors.
+\item any of them a scalar (0-index) and the other any tensor,
+  returning the usual scalar-by-matrix product.
+\end{enumerate}
+
+This operation is automatically converted to an equivalent \lstinline{tprod}.
+
+\item[rdivide] The following command returns the entry-wise
+  right division of \lstinline{stve1} and \lstinline{stve2}:
+\begin{lstlisting}
+stve1./stve2
+rdivide(stve1,stve2)
+\end{lstlisting}
+  \textbf{Attention!} Currently, \TC{} is unable to compute gradients
+  of expressions involving \lstinline{rdivide}.
+ 
+\item[mldivide] The following commands are inspired by \matlab's
+  \lstinline{mldivide} command and returns the left matrix division of
+  \lstinline{stve1} and \lstinline{stve2}:
+\begin{lstlisting}
+stve1\stve2
+mldivide(stve1,stve2)
+\end{lstlisting}
+  \textbf{Attention!} Currently, \TC{} is unable to compute gradients
+  of expressions involving \lstinline{mldivide}.
+\end{description}
+
+
+
+
+\noindent
+\textbf{Attention!}
+The following notable operators are currently not implemented
+\lstinline{rdivide}/\lstinline{./}, 
+\lstinline{ldivide}/\lstinline{.\}, 
+\lstinline{mrdivide}/\lstinline{/}, 
+\lstinline{mldivide}/\lstinline{\}, 
+\lstinline{power}/\lstinline{.^}.
+\lstinline{mpower}/\lstinline{^}.
+
+\subsection{STVE functions}
+
+The building blocks described above can be combined into complex
+mathematical expressions using the following functions:
+\begin{description}
+\item[reshape] The following commands are inspired by \matlab's
+  \lstinline{reshape} command:
+\begin{lstlisting}
+reshape(stve,[n1 n2 ... na])
+reshape(stve,n1,n2,...,na)
+\end{lstlisting}
+  These commands does not alter the entries of \lstinline{stve}, but
+  changes its dimension to \lstinline{[n1 n2 ... na]}. The total
+  number of entries of \lstinline{stve} cannot change.
+ 
+\item[repmat] The following command is inspired by \matlab's
+  \lstinline{repmat} command:
+\begin{lstlisting}
+repmat(stve,[m1 m2 ... ma])
+\end{lstlisting}
+  This command tiles \lstinline{stve} to produce a tensor formed by taking
+  multiple copies of \lstinline{stve}. When the dimension of
+  \lstinline{stve} is equal to \lstinline{[n1 n2 ... na]}, the size of
+  the tensor returned is equal to
+\begin{lstlisting}
+[n1*m1 n2*m2 ... na*ma]
+\end{lstlisting}
+
+  \textbf{Attention!} This command can be emulated through appropriate
+  tensor multiplications by tensors with ones. While this is
+  computationally more expensive, \TC's symbolic engine understands
+  the equivalence between these two approaches to tiling and actually
+  uses \lstinline{repmat} to replace some multiplications by tensors
+  with ones. Currently, \TC{} is unable to compute gradients of
+  expressions involving this command\draftnote{One could compute the
+    gradients precisely by converting \lstinline{repmat} to
+    \lstinline{tprod}}.
+  
+\item[cat] The following commands are inspired by \matlab's
+  \lstinline{cat} command.
+\begin{lstlisting}
+cat(dim,stve1,stve2,...,stven)
+\end{lstlisting}
+  This command concatenates multiple arrays along the dimension
+  \lstinline{dim}. All the arrays to be concatenated must have
+  matching sizes along all dimensions other than the one that along
+  which they are being concatenated.
+
+\item[vertcat] The following commands are inspired by \matlab's
+  \lstinline{vertcat} command.
+\begin{lstlisting}
+[stve1;stve2;...;stven]
+vertcat(stve1,stve2,...,stven)
+cat(1,stve1,stve2,...,stven)
+\end{lstlisting}
+  This command concatenates multiple arrays along the 1st
+  dimension. All the arrays to be concatenated must have matching
+  sizes along all dimensions other than the one that along which they
+  are being concatenated.
+
+\item[horzcat] The following commands are inspired by \matlab's
+  \lstinline{horzcat} command.
+\begin{lstlisting}
+[stve1,stve2,...,stven]
+horzcat(stve1,stve2,...,stven)
+cat(2,stve1,stve2,...,stven)
+\end{lstlisting}
+  This command concatenates multiple arrays along the 2nd
+  dimension. All the arrays to be concatenated must have matching
+  sizes along all dimensions other than the one that along which they
+  are being concatenated.
+
+\item[sum] The following command is inspired by \matlab's
+  \lstinline{sum} command:
+\begin{lstlisting}
+sum(stve,dim)
+\end{lstlisting}
+  This command produces a tensor with one index less than \lstinline{stve} by
+  adding the entries of the tensor along that index:
+  
+  \textbf{Note:} This command is emulated through an appropriate
+  tensor multiplication.
+ 
+
+\item[diag] The following command is inspired by \matlab's
+  \lstinline{diag} command:
+\begin{lstlisting}
+diag(stve)
+\end{lstlisting}
+  When \lstinline{stve} is a vector (1-index tensor), a square matrix
+  (2-index tensor) is returned with \lstinline{stve} in the main
+  diagonal. When \lstinline{stve} is a square matrix, a vector is
+  returned containing the main diagonal of \lstinline{stve}.
+
+  \textbf{Attention!} This command only makes sense for 1- and 2-index
+  tensors and the flexibility provided by the tensor product makes the
+  use of this command unnecessary so this \emph{function should not be
+    used}. In fact, \TC{} is unable to compute gradients of
+  expressions involving this command\draftnote{One could compute the
+    gradient precisely by converting \lstinline{diag} to \lstinline{tprod}}.
+
+\item[norm2] The following command computes the squared Frobenius norm
+  of a tensor (i.e., the sum of the squares of all its entries):
+\begin{lstlisting}
+norm2(stve)
+\end{lstlisting}
+
+\item[chol] The following command computes the lower-triangular
+  Cholesky factorization of a symmetric positive define matrix
+  (2-index tensor):
+\begin{lstlisting}
+chol(A)
+\end{lstlisting}
+  This command returns a lower-triangular matrix \lstinline{L} so that
+  \lstinline{A=L'*L}, much like \matlab's
+  \lstinline{chol(A,'lower')}.
+
+  In C-compiled code, the matrix first undergoes a row/column
+  permutation computed using \matlab{}'s command \lstinline{symamd} to
+  maximize the sparsity of the Cholesky factor. This permutation is
+  taken into account by any \lstinline{pptrs} function that uses a
+  matrix computed by \lstinline{chol}.
+
+  \textbf{Attention!} \TC{} is unable to compute gradients of
+  expressions involving this function.
+
+\item[pptrs] The following command computes solution to a
+  lower-triangular system of linear equations \lstinline{A x=b}:
+\begin{lstlisting}
+pptrs(L,b)
+\end{lstlisting}
+  where \lstinline{L} is the lower triangular Cholesky factor of
+  \lstinline{A}, as computed by \lstinline{chol(A)}, i.e.,
+  \lstinline{A=L'*L}.
+
+  In C-compile code, \lstinline{pptrs} is aware that
+  \lstinline{chol(A)} may permute rows/columns to maximize sparsity
+  and ``undoes'' the permutation to produce the solution to the
+  original system of equations
+
+  \textbf{Attention!} \TC{} is unable to compute gradients of
+  expressions involving this function.
+
+\item[splineDeriv/splineDDeriv] The following commands returns
+  estimates of the 1st and 2nd derivative of the time series
+  \lstinline{stve}, computed based on a 2nd order spline.
+\begin{lstlisting}
+dstve=splineDeriv(stve)
+ddstve=splineDDeriv(stve)
+\end{lstlisting}
+  The input \lstinline{stve} should be a vector (1-index tensor) with
+  dimension $n$, representing a time series at times $1$ through $n$,
+  and the output is a vector (1-index tensor) with dimension $n-2$,
+  representing a time series of 1st/2nd derivatives at times $2$
+  through $n-1$.
+  
+  \textbf{Note:} A 2nd order spline
+  \begin{align*}
+    x(t-k) = \frac{a}{2} (t-k)^2+ v (t-k) + x(k), \quad\forall t\ge 0
+  \end{align*}
+  passing through the three points $x(k-1),x(k),x(k+1)$, satisfies
+  \begin{align*}
+    \matt{\frac{1}{2} & -1\\\frac{1}{2}&+1}\matt{a\\v}=\matt{x(k-1)-x(k)\\x(k+1)-x(k)}
+    \eqv
+    \matt{a\\v}
+    %=\matt{1&1\\-\frac{1}{2}&\frac{1}{2}}\matt{x(k-1)-x(k)\\x(k+1)-x(k)}
+    =\matt{x(k-1)-2x(k)+x(k+1)\\\frac{x(k+1)-x(k-1)}{2}}
+  \end{align*}
+  Therefore
+\begin{lstlisting}
+splineDeriv(stve)=.5*(stve(3:end)-stve(1:end-2));
+splineDDeriv(stve)=stve(3:end)-2*stve(2:end-1)+stve(1:end-2);
+\end{lstlisting}
+
+\item[compose] The following command returns an STVE that results from
+  applying the scalar function \lstinline{f} to every entry of
+  \lstinline{stve}, returning an STVE of the same
+  size\footnote{\lstinline{compose} actually allows the function to be
+    tensor valued, in which case the dimensions of \lstinline{f} are
+    appended to the dimensions of \lstinline{stve}.}:
+\begin{lstlisting}
+compose(stve,f,df,ddf, ...)
+\end{lstlisting}
+  \lstinline{f} is a \matlab{} handle to a function that maps
+  scalars to scalars, \lstinline{df} a handle to its 1st derivative,
+  \lstinline{ddf} a handle its 2nd derivative, and so on. The handles
+  to the derivatives are optional, but are typically needed to compute
+  gradients and hessian matrices needed to perform optimizations.
+
+  All the functions referenced must be vectorizable, i.e., they must
+  be able to take tensors as inputs and return a tensor of the same
+  size by applying the function entry by entry.
+
+  The following matlab functions have been redefined to perform
+  composition in a transparent way: \lstinline{exp}, \lstinline{log},
+  \lstinline{square}, \lstinline{sqrt}, \lstinline{cos},
+  \lstinline{sin}, \lstinline{tan},
+  \lstinline{normpdf}\footnote{$\texttt{Tnormpdf}(x)\eqdef
+    \frac{e^{-x^2/2}}{\sqrt{2\pi}}$.}. For example
+  \lstinline{exp(stve)} has been redefined as
+  \lstinline{compose(stve,@(x)exp(x),@(x)exp(x),@(x)exp(x))}.
+  
+\item[gradient] The following command computes the gradient of
+  \lstinline{stve} with respect to the \TC{} variable \lstinline{var}:
+\begin{lstlisting}
+gradient(stve,var)
+\end{lstlisting}
+
+  \textbf{Attention!} \TC{} is not able to compute gradients of \TC{}
+  expression involving: \lstinline{ctranspose}, \lstinline{transpose},
+  \lstinline{rdivide}, \lstinline{mldivide}, \lstinline{repmat},
+  \lstinline{diag}, \lstinline{chol}, \lstinline{pptrs}, \lstinline{clp}.
+
+\item[hessian] The following command computes the hessian of
+  \lstinline{stve} with respect to the \TC{} variables \lstinline{var1,var2}:
+\begin{lstlisting}
+hessian(stve,var1,var2)
+\end{lstlisting}
+
+\item[substitute] The following command replaces the variable
+  \lstinline{var} by the expression \lstinline{stve2}, in the
+  expression \lstinline{stve1}:
+\begin{lstlisting}
+substitute(stve1,var,stve2)
+\end{lstlisting}
+
+
+\item[clp] The following command solves the following canonical linear
+  program $\max\{\alpha>0: \alpha \;\lstinline{stve1} + \lstinline{stve2} \ge 0\}$,
+  where \lstinline{stve1} and \lstinline{stve2} are 2 tensors with the
+  same dimension:
+\begin{lstlisting}
+clp(stve1,stve2)
+\end{lstlisting}
+  
+\item[interpolate] The following command returns the value of a
+  function defined through an interpolation table:
+\begin{lstlisting}
+interpolate(X,Xi,Yi,S,method)
+\end{lstlisting}
+  For a function $Y=F(X)$ that maps $\alpha$-tensors $X$ with dimension
+  $[n_1,n_2,\dots,n_\alpha]$ into $\beta$-tensors $Y$ with dimension
+  $[m_1,m_2,\dots,m_\beta]$, an interpolation table with $K$ entries is
+  represented by the
+  \begin{enumerate}
+  \item the $\alpha+1$-tensor with dimension $[n_1,n_2,\dots,n_\alpha,K]$, and 
+  \item the $\beta+1$-tensor with dimension $[m_1,m_2,\dots,m_\beta,K]$, 
+  \end{enumerate}
+  with the understanding that, for each $k\in\{1,2,\dots,K\}$,
+  \begin{lstlisting}
+    F( Xi(:,:,\dots,:,k) ) = Yi(:,:,\dots,:,k).
+  \end{lstlisting}
+  The interpolation method is specified by the string in the 5th
+  parameter and can take the following values:
+  \begin{enumerate}
+  \item When \lstinline{method='ugaussian'}, we have
+    \begin{align*}
+      F(X)=\sum_{k=1}^K Yi(:,\dots,:,k) e^{-\frac{1}{2S^2}\|Xi(:,\dots,:,k)-X\|^2}
+    \end{align*}
+  \item When \lstinline{method='ngaussian'}, we have
+    \begin{align*}
+      F(X)=\frac{\sum_{k=1}^K Yi(:,\dots,:,k) e^{-\frac{1}{2S^2}\|Xi(:,\dots,:,k)-X\|^2}}
+      {\sum_{k=1}^K e^{-\frac{1}{2S^2}\|Xi(:,\dots,:,k)-X\|^2}}
+    \end{align*}
+  \end{enumerate}
+
+\item[Ginterpolate] The following command returns the gradient of the
+  function \lstinline{interpolate(X,Xi,Yi,S,method)} with respect to \lstinline{X}:
+\begin{lstlisting}
+Ginterpolate(X,Xi,Yi,S,method)
+\end{lstlisting}
+
+\item[Ginterpolate] The following command returns the hessian of the
+  function \lstinline{interpolate(X,Xi,Yi,S,method)} with respect to
+  \lstinline{X}:
+\begin{lstlisting}
+Hinterpolate(X,Xi,Yi,S,method)
+\end{lstlisting}
+
+
+\end{description}
+
+\noindent
+\textbf{Attention!}
+The following notable functions are currently not implemented
+\lstinline{inv},
+\lstinline{pinv},
+\lstinline{det},
+\lstinline{expm},
+\lstinline{logm},
+\lstinline{sqrtm},
+\lstinline{logdet}.
+
+\subsection{Examples}
+
+\begin{example}
+  Suppose that we have defined 4 vectors $x,z\in\R^N$, $a,b\in\R^n$ and two
+  scalars functions $f,g:\R\to\R$ as STVE objects.
+  \begin{enumerate}
+  \item To compute $y\in\R^N$ defined by
+    \begin{align*}
+      y_k=\sum_{i=1}^n a_i f(b_i+x_k)
+    \end{align*}
+    one could use
+\begin{lstlisting}
+   Xx=tprod(x,1,Tones(n),2); % expands x into an N x n matrix
+   Xb=tprod(Tones(N),1,b,2); % expands b into an N x n matrix
+   fxb=compose(f,Xx+Xb);
+   y=tprod(fxb,[1,-1],a,-1);
+\end{lstlisting}
+  \item To compute $y\in\R^N$ defined by
+    \begin{align*}
+      y_k=\sum_{i=1}^n a_i f(b_i+c_i x_k)
+    \end{align*}
+    one could use
+\begin{lstlisting}
+   Xb=tprod(Tones(N),1,b,2); % expands b into an N x n matrix
+   Xcx=tprod(x,1,c,2);       % expands c*x into an N x n matrix
+   fbcx=compose(f,Xb+Xcx);
+   y=tprod(fbcx,[1,-1],a,-1);
+\end{lstlisting}
+  \item To compute $y\in\R^N$ defined by
+    \begin{align*}
+      y_k=\sum_{i=1}^n a_i f(b_i+x_k) g(c_i+z_k)
+    \end{align*}
+    one could use
+\begin{lstlisting}
+   Xx=tprod(x,1,Tones(n),2); % expands x into an N x n matrix
+   Xz=tprod(z,1,Tones(n),2); % expands z into an N x n matrix
+   Xb=tprod(Tones(N),1,b,2); % expands b into an N x n matrix
+   Xc=tprod(Tones(N),1,c,2); % expands c into an N x n matrix
+   fbx=compose(f,Xb+Xx);
+   gcz=compose(f,Xc+Xz);
+   y=tprod(fbx,[1,-1],gcz,[1,-1],a,-1);
+\end{lstlisting}
+    
+  \end{enumerate}
+  
+
+\end{example}
+
+\section{Constrained optimization of tensor-valued functions}
+\label{se:optimization}
+
+The functions \lstinline{class2optimize} and \lstinline{cmex2optimize}
+are both used to solve optimization problems of the form
+\begin{align}\label{eq:optimization}
+  J(x^*;p) = \quad &\text{minimum} \quad J(x;p)\\
+             &\text{subject to} \quad F(x;p)\ge 0, \; G(x;p)=0
+\end{align}
+where $J(\cdot)$ is a scalar-valued variable, $F(\cdot)$ and
+$G(\cdot)$ are tensor-valued variables, $x$ represents the variables to be
+optimized, $p$ denote fixed parameters, and $F(x;p)\ge 0$ should be
+understood as an constraint on every entry of $F(x;p)$. The two
+functions \lstinline{class2optimize} and \lstinline{cmex2optimize}
+have the same syntax, but differ in several key aspects:
+\begin{description}
+\item[solver speed] The solver produced by \lstinline{cmex2optimize}
+  is implemented in C and is typically much faster than the \matlab{}
+  solver produced by \lstinline{cmex2optimize}.
+
+\item[code size] The \matlab{} code produced by
+  \lstinline{class2optimize} is mostly independent of the size of the
+  problem, whereas the C code produced by \lstinline{cmex2optimize}
+  grows with the size of the problem (often linearly, but many times
+  worst than that).
+
+\item[compilation speed] The generation of \matlab{} code by
+  \lstinline{class2optimize} is typically fast, whereas
+  \lstinline{cmex2optimize} may take a while to generate code for
+  large problems. Note that \lstinline{cmex2optimize} not only
+  generates the optimization code, but also generate cmex wrappers and
+  compiles the whole thing using some form of compiler optimization
+  (typically \lstinline{-O1}). Often the slowest part is the cmex
+  compilation with optimization.
+\end{description}
+
+\subsection{Using a \matlab{} class}\label{se:optimization-matlab}
+
+
+The function \lstinline{class2optimizeCS} creates a \matlab class to
+solve optimizations of the form \eqref{eq:optimization}:
+
+\input{../lib/class2optimizeCS.tex}
+
+\subsection{Using C code}\label{se:optimization-C}
+
+The function \lstinline{cmex2optimizeCS} creates C code to solve
+optimizations of the form \eqref{eq:optimization}, using a syntax
+similar to \lstinline{class2optimizeCS}:
+
+\input{../lib/cmex2optimizeCS.tex}
+
+
+\section{Model Predictive Control}
+
+\TC{} provides a class to facilitate the simulation of MPC
+state-feedback controllers, MHE state estimators, and MPC-MHE
+output-feedback controllers.
+
+
+\subsection{MPC control}
+
+The following code shows an example of how to use the \lstinline{Tmpc}
+class to generate a solver for a state-feedback MPC controller and to
+simulate its operation in feedback.
+\begin{lstlisting}
+  % create symbolic optimization
+  Tvariable Ts [];
+  Tvariable x [nx,T];  % [x(t+Ts),...,x(t+T*Ts)]
+  Tvariable u [nu,T];  % [u(t),...,u(t+(T-1)*Ts)]
+  Tvariable A [nx,nx];
+  Tvariable B [nx,nu];
+  
+  dxFun=@(x,u,A,B,C,D)A*x+B*u;
+
+  J=norm2(x)+norm2(u);
+
+  % create mpc object
+  mpc=Tmpc('sampleTime',Ts,...
+           'inputVariable,u,...
+           'stateVariable,x,...
+           'stateDerivative',dx,...
+           'objective',J,...
+           'constraints',{u<=1, u>=-1},...
+           'outputExpressions',{J,x,u},
+           'parameters',{A,B},...
+           'classname','tmp1');
+
+  % set parameter values
+  setParameter(mpc,'A',A);
+  setParameter(mpc,'B',B);
+           
+  % set process initial condition
+  setInitialState(mpc,t0,x0);
+
+  u0=zeros(nu,T);               % cold start
+  for i=1:100
+      % move warm-start away from constraints
+      u0=min(u0,.95);
+      u0=max(u0,-.95);
+      setSolverWarmStart(mpc,u0);
+    
+      [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
+    
+      % apply 3 controls and get time and warm start for next iteration
+      ufinal=0;
+      [t,u0]=applyControls(mpc,solution,3,ufinal); 
+  end
+
+  history=getHistory(mpc);
+  plot(history.t,history.x,'.-',history.t,history.u,'.-');grid on;
+\end{lstlisting}
+
+\subsection{MPC-MHE control}
+
+The following code shows an example of how to use the \lstinline{Tmpc}
+class to generate a solver for an output-feedback MPC-MHE controller
+and to simulate its operation in feedback.
+\begin{lstlisting}
+  % create symbolic optimization
+  Tvariable Ts [];
+  Tvariable x      [nx,L+T+1];    % [x(t-L*Ts),...,x(t),...,x(t+T*Ts)]
+  Tvariable y_past [ny,L+1];      % [y(t-L*Ts),...,y(t)]
+  Tvariable u_past [nu,L+1+delay] % [u(t-L*Ts),...,u(t+(delay-1)*Ts)]
+  Tvariable u      [nu,T-delay];  % [u(t+delay*Ts), ...,u(t+(T-1)*Ts)]
+  Tvariable d      [nd,L+T];      % [d(t-(L-1)*Ts,...,x(t),...,x(t+(T-1)*Ts)]
+  Tvariable A [nx,nx];
+  Tvariable B [nx,nu];
+  Tvariable C [ny,nx];
+  Tvaribale D [ny,nu];
+  
+  dxFun=@(x,u,A,B,C,D)A*x+B*u;
+  yFun=@(x,u,A,B,C,D)C*x+D*u;
+  
+  J=norm2(x(:,L+1:end))+norm2(u)-norm2(d)-norm2(y_past-y(x(:,1:L+1),u_past(:,1:L+1)));
+
+  % create mpc-mhe object
+  mpcmhe=Tmpcmhe('sampleTime',Ts,...
+                 'stateVariable',x,...
+                 'pastInputVariable',u_past,...
+                 'pastOutputVariable',y_past,...
+                 'futureControlVariable',u,...
+                 'disturbanceVariable',d,...
+                 'stateDerivativeFunction',dxFun,...
+                 'outputFunction',yFun,...
+                 'objective',J,...
+                 'inputConstraints',{u<=1, u>=-1},...
+                 'disturbanceConstraints',{d<=1, d>=-1},...
+                 'outputExpressions',{J,x,u,d},
+                 'parameters',{A,B,C,D},...
+                 'classname','tmp1');
+
+  % set parameter values
+  setParameter(mpcmhe,'A',A);
+  setParameter(mpcmhe,'B',B);
+  setParameter(mpcmhe,'C',C);
+  setParameter(mpcmhe,'D',D);
+           
+  % set process initial condition, inputs, disturbances, and
+  % noise and get the corresponding measurements
+  [t,y_past,u_past]=setInitialState(mpcmhe,t0,x0,u0,d0,n0);
+  
+  % cold start
+  x_warm=zeros(nx,1);
+  u_warm=zeros(nu,T-delay);
+  d_warm=zeros(nd,L+T);
+
+  for i=1:100
+      % move warm-start away from constraints
+      u_warm=min(u_warm,.95);
+      u_warm=max(u_warm,-.95);
+      d_warm=min(d_warm,.95);
+      d_warm=max(d_warm,-.95);
+      setSolverWarmStart(mpcmhe,x_warm,u_warm,d_warm);
+
+      setSolverMeasurements(mpcmhe,y_past,u_past);
+      [solution,J,x,u,d]=solve(mpcmhe,mu0,maxIter,saveIter);
+    
+      % apply 3 optimal controls/disturbances and get time,
+      % (noiseless) measurements, and warm start for the next iteration
+      ufinal=zeros(nu,3);
+      dfinal=zeros(nd,3);
+      [t,y_past,u_past,x_warm,u_warm,d_warm]=updateWarmStart(mpcmhe,solution,3,ufinal,dfinal); 
+  end
+
+  history=getHistory(mpcmhe);
+  plot(history.t,history.x,'.-',history.t,history.u,'.-');grid on;
+
+\end{lstlisting}
+
+
+
+
+\newpage
+
+\appendix
+
+\section{Tensor calculus}
+\label{se:tensor-calculus}
+
+In \TC{}, an \emph{$\alpha$-index tensor} is an array in $\R^{n_1\times n_2\times\cdots\times
+  n_\alpha}$ where $\alpha$ is an integer in $\Z_{\ge 0}$. By convention, the case
+$\alpha=0$ corresponds to a \emph{scalar} in $\R$. We use the terminology
+\emph{vector} and \emph{matrix} for the cases $\alpha=1$ and $\alpha=2$,
+respectively. The integar $\alpha$ is called the \emph{index} of the tensor
+and the vector of integers $[n_1,n_2,\dots,n_\alpha]$ (possibly empty for
+$\alpha=0$) is called the \emph{dimension} of the tensor.
+
+
+\subsection{Tensor Addition}
+
+Tensors with the same dimension can be added/subtracted entry by
+entry. Specifically, given $A,B\in \R^{n_1\times n_2\times\cdots\times n_\alpha}$, we define
+\begin{align*}
+  (A\pm B)_{i_1,i_2,\cdots,i_\alpha}=A_{i_1,i_2,\cdots,i_\alpha}\pm B_{i_1,i_2,\cdots,i_\alpha}, \quad
+  \forall i_1\in\{1,\dots,n_1\},\;\dots,\;i_\alpha\in\{1,\dots,n_\alpha\}.
+\end{align*}
+
+\begin{technical}
+  Tensor addition has all the properties of an Abelian group
+  (commutative, associative, zero element, inverse element).  \TC{} is
+  aware of these properties and applies then extensively to carry out
+  symbolic simplifications, but this is transparent to the user.
+  \frqed
+\end{technical}
+
+\subsection{Tensor Multiplication}
+
+Given an $\alpha$-index array $A\in\R^{n_1\times n_2\times\cdots\times n_\alpha}$, a $\beta$-index array
+$B\in\R^{m_1\times m_2\times\cdots\times m_\beta}$, and a $\delta$-index array $D\in\R^{o_1\times o_2\times\cdots\times o_\delta}$, we
+say that the integer-valued vectors $p\in\Z^\alpha$, $q\in\Z^\beta$, $r\in\Z^\delta$ are
+\emph{product compatible for $\R^{n_1\times n_2\times\cdots\times n_\alpha}$, $\R^{m_1\times m_2\times\cdots\times m_\beta}$,
+  and $\R^{o_1\times o_2\times\cdots\times o_\delta}$} if the following conditions hold;
+\begin{enumerate}
+\item $p$, $q$, and $r$ dot not have repeated entries;
+\item the union of the positive entries of $p$, $q$, and $r$ form an
+  empty set or a set of the form $\{1,2,\dots,\gamma\}$;
+\item the set of negative entries of $p$, $q$, and $r$ form an empty
+  set or a set of the form $\{-1,-2,\dots,-\sigma\}$;
+\item if $p_i=q_j=r_l$, then $n_i=m_j=o_l$.
+\end{enumerate}
+For a product compatible pair, we define the \emph{$(p,q,r)$-product of
+  $A$, $B$, and $D$} to be a $\gamma$-index array defined by
+\begin{align}\label{eq:tprod}
+  (A^{(p)} * B^{(q)} * C^{(r)})_{k_1,\dots,k_\gamma}=\sum_{\ell_1,\dots,\ell_\sigma}
+  A_{i_1,\cdots,i_\alpha} B_{j_1,\dots,j_\beta} D_{l_1,\dots,l_\delta}
+\end{align}
+where
+\begin{enumerate}
+\item the summation indices $\ell_1,\dots\ell_\sigma$ are matched to the
+  $A$-indices $i_x$, the $B$-indices $j_y$, and the $D$-indices $l_z$
+  based on the negative entries of $p$, $q$, and $r$ as follows
+  \begin{align*}
+    p_x&=-w\;\Rightarrow\; \ell_w=i_x, &
+    q_y&=-w\;\Rightarrow\; \ell_w=j_y, &
+    r_z&=-w\;\Rightarrow\; \ell_w=l_z, &
+    \forall w\in\{1,\dots,\sigma\}.
+  \end{align*}
+\item the product indices $k_1,\dots,k_\gamma$ are matched to the
+  $A$-indices $i_x$, the $B$-indices $j_y$ , and the $D$-indices $l_z$
+  based on the positive entries of $p$, $q$, and $r$ as follows
+  \begin{align*}
+    p_x&=w\;\Rightarrow\; k_w=i_x, &
+    q_y&=w\;\Rightarrow\; k_w=j_y, &
+    r_z&=w\;\Rightarrow\; k_w=l_z, &
+    \forall w\in\{1,\dots,\gamma\}.
+  \end{align*}
+\end{enumerate}
+These rules also apply for $0$-index tensors (i.e., scalars), in which
+case the scalar always appear in the product inside the summation
+(without an index). \emph{The rules above generalize trivially to any
+  number of factors, including a single factor}, which would be of the form
+\begin{align*}
+  (A^{(p)} * )_{k_1,\dots,k_\gamma}=\sum_{\ell_1,\dots,\ell_\sigma} A_{i_1,\cdots,i_\alpha} 
+\end{align*}
+for indices selected using the rules above.
+
+\paragraph{Examples}
+
+Suppose that $a\in\R$ (scalar), $x\in\R^2$, $y\in\R^2$, $A\in\R^{3\times 2}$, $B\in\R^{2\times 2}$
+\begin{align*}
+  x^{(-1)} &= x_1+x_2\in\R && \text{(scalar)}\\
+  a^{()} * x^{(1)} &= x^{(1)} * a^{()} =(a x_1, a x_2) \in \R^2 && \text{(vector)}\\
+  a^{()} * x^{(-1)} &= x^{(-1)} * a^{()} = a (x_1+x_2) \in\R && \text{(scalar)}\\
+  x^{(1)} * y^{(-1)} &= y^{(-1)} * x^{(1)} =\big(x_1 (y_1+y_2), x_2 (y_1+y_2)\big) \in\R^2 && \text{(vector)}\\
+  x^{(1)} * y^{(1)} &= y^{(1)} * x^{(1)} =(x_1 y_1, x_2 y_2) \in\R^2 && \text{(vector)}\\
+  x^{(1)} * y^{(2)} &= y^{(2)} * x^{(1)}=\matt{x_1y_1&x_1y_2\\x_2y_1&x_2y_2} \in\R^2 && \text{(matrix)}\\
+  x^{(2)} * y^{(1)} &=  y^{(1)} * x^{(2)}=\matt{x_1y_1&x_2y_1\\x_1y_2&x_2y_2} \in\R^2 && \text{(matrix)}\\
+  A^{(1,-1)} * x^{(-1)} &= \matt{a_{11}x_1+a_{12}x_2\\a_{21}x_1+a_{22}x_2\\a_{31}x_1+a_{32}x_2}\in\R^2 &&\text{(vector)}\\
+  A^{(1,2)} * x^{(-1)} &= \matt{a_{11}(x_1+x_2)&a_{12}(x_1+x_2)\\a_{21}(x_1+x_2)&a_{22}(x_1+x_2) \\a_{31}(x_1+x_2)&a_{32}(x_1+x_2)}\in\R^2&& \text{(matrix)}\\
+  A^{(2,1)} * &= A'=\matt{a_{11}&a_{21}&a_{31}\\a_{12}&a_{22}&a_{23}}&& \text{(matrix)}\\
+  B^{(1,2)} * I_{2\times 2}^{(1,2)}&=\matt{b_{11}&0\\0&b_{22}}&& \text{(matrix)}\\
+  B^{(-1,-2)} * I_{2\times 2}^{(-1,-2)}&=b_{11}+b_{22}&& \text{(scalar)}\\
+  B^{(1,1)} * &= (b_{11},b_{22}) && \text{(vector)}\\
+  B^{(1,-1)} * I_{2\times 2}^{(1,-1)}&=(b_{11},b_{22}) && \text{(vector)}\\
+\end{align*}
+
+
+\begin{technical}
+  The tensor product enjoys a special form of \emph{commutative
+    property}, in the sense that
+  \begin{multline*}
+    A^{(p)} * B^{(q)} * C^{(r)}
+    = A^{(p)} * C^{(r)} * B^{(q)}
+    = B^{(q)} * A^{(p)} * C^{(r)}\\
+    = B^{(q)} * C^{(r)} * A^{(p)}
+    = C^{(r)} * A^{(p)} * B^{(q)}
+    = C^{(r)} * B^{(q)} * A^{(p)}.
+  \end{multline*}
+  An \emph{associative-like property} also holds but it is more
+  complicated, for example
+  \begin{align*}
+    (A^{(p)} *)^{(q)} * C^{(r)}= A^{(\bar p)} * C^{(r)}
+  \end{align*}
+  with 
+  \begin{align*}
+    p_x=w>0 &\imply \bar p_x=q_w, &
+    p_x=-w<0 &\imply \bar p_x=-w-\sigma_C,
+  \end{align*}
+  where $\sigma_C$ denotes the number of summations needed for the product
+  defined by $q$ and $r$. 
+
+  \medskip
+
+  The $2\alpha$-index \emph{identity matrix} $I$ is defined by
+  \begin{align*}
+    I_{i_1,\dots,i_\alpha,j_1,\dots,j_\alpha}=
+    \begin{cases}
+      1 & i_1=j_1,\dots,i_\alpha=j_\alpha\\
+      0 & \text{otherwise}.
+    \end{cases}
+  \end{align*}
+  For such matrices, we have that
+  \begin{align*}
+    A^{(p)} * I^{(q)} = I^{(q)} *  A^{(p)} =A
+  \end{align*}
+  when $q$ has as many positive as negative entries and if we obtain
+  the vector $(1,2,\dots,\alpha)$ when we replace each negative entry $p_x<0$
+  of $p$ by the entry of $q_y>0$ of $q$ such that $q_z=p_x$ with the
+  indices $z$ and $y$ such that $|y-z|=\alpha$. 
+
+  \medskip
+
+  \TC{} is aware of these rules and applies the extensively to carry
+  out symbolic simplifications, but this is transparent to the user.  \frqed
+\end{technical}
+
+\subsection{Vectorized Composition}
+
+Given two functions $f:\R\to\R$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times
+  m_\beta}$, the \emph{vectorized composition of $z=G(x)$ with
+  $f(z)$} is defined by
+\begin{align*}
+  f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta}\\
+  x&\mapsto(f\circ_z G)_{i_1,\dots,i_\beta}
+  \eqdef f\big(x,G_{i_1,\dots,i_\beta}(x)\big).
+\end{align*}
+
+\begin{technical}
+  More generally, given two functions $f:\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{\bar m_1\times\cdots\times
+    \bar m_{\bar \beta}}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times m_\beta}$, the
+  \emph{vectorized composition of $z=G(x)$ with $f(x,z)$} is defined
+  by
+\begin{align*}
+  f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta \times \bar m_1\times\cdots\times \bar m_{\bar \beta}}\\
+  x&\mapsto(f\circ_z G)_{i_1,\dots,i_\beta ,\bar i_1,\dots,\bar i_\beta}
+  \eqdef f_{\bar i_1,\dots,\bar i_\beta}\big(G_{i_1,\dots,i_\beta}(x)\big).
+\end{align*}
+
+\end{technical}
+
+\subsection{Tensor Gradient}
+
+Given a function $F:\R^{n_1\times \cdots\times n_\alpha}\to\R^{m_1\times \cdots\times m_\beta}$ that maps $\alpha$-index
+tensors to $\beta$-index tensors, the \emph{gradient of $x\mapsto F(x)$} is the
+function defined by
+\begin{align*}
+  \nabla_x F:\R^{n_1\times \cdots\times n_\alpha}&\to\R^{m_1\times \cdots\times m_\beta\times n_1\times \cdots\times n_\alpha}\\
+  x&\mapsto(\nabla_x F)_{i_1,\dots,i_\beta,j_1,\dots,j_\alpha}\eqdef\PDeriv{F_{i_1,\dots,i_\beta}}{x_{j_1,\dots,j_\alpha}}.
+\end{align*}
+The hessian matrix is then defined by
+\begin{align*}
+  H_{xx} F=\nabla_x (\nabla_x F).
+\end{align*}
+
+\begin{technical}
+  
+\textbf{Sum rule:} Given two functions
+$F,G:\R^{n_1,\dots,n_\alpha}\to\R^{m_1,\dots,m_\beta}$, the gradient of their sum is
+given by
+\begin{align*}
+  \nabla_x \big( F(x)+G(x) \big)
+  &=\nabla_x F(x)+ \nabla_xG(x).
+\end{align*}
+\textbf{Product rule:} Given two function
+$F:\R^{n_1,\dots,n_\alpha}\to\R^{m_1,\dots,m_\beta}$, $G:\R^{n_1,\dots,n_\alpha}\to\R^{\bar
+  m_1,\dots,\bar m_{\bar \beta}}$, $H:\R^{n_1,\dots,n_\alpha}\to\R^{\tilde
+  m_1,\dots,\tilde m_{\bar \beta}}$ and a triple $(p,q,r)$ that is product
+compatible for their co-domains, the gradient of their $(p,q,r)$-product
+is given by
+\begin{multline*}
+  \nabla_x \big( F(x)^{(p)} * G(x)^{(q)} * H(x)^{(r)} \big)
+  =\nabla_xF(x)^{(\bar p)} * G(x)^{(q)} * H(x)^{(r)}\\
+  + F(x)^{(p)} * \nabla_xG(x)^{(\bar q)} * H(x)^{(r)}
+  + F(x)^{(p)} *  G(x)^{(q)} * \nabla_x H(x)^{(\bar r)},
+\end{multline*}
+where 
+\begin{align*}
+  \bar p&\eqdef(p_1,\dots,p_\beta,\eta+1,\dots,\eta+\alpha), \\
+  \bar q&\eqdef(q_1,\dots,q_{\bar \beta},\eta+1,\dots,\eta+\alpha), \\
+  \bar r&\eqdef(r_1,\dots,r_{\tilde \beta},\eta+1,\dots,\eta+\alpha), \\
+  \eta&\eqdef\max\{0,p_1,\dots,p_\beta,q_1,\dots,q_{\bar\beta},r_1,\dots,r_{\bar\beta}\}.
+\end{align*}
+For the particular case of the Frobenius-norm squared of $F(x)$:
+\begin{align*}
+  \| F(x) \|_F^2\eqdef F(x)^{(-1,\dots,-\alpha)} * F(x)^{(-1,\dots,-\alpha)},
+\end{align*}
+we get
+\begin{align*}
+  \nabla_x \|F(x)\|_F^2 &=2 \nabla_xF(x)^{(-1,\dots,-\alpha,1,\dots,\alpha)} * F(x)^{(-1,\dots,-\alpha)}
+\end{align*}
+\textbf{Vectored Composition rule:} Given two functions $f:\R^{n_1\times\cdots\times
+  n_\alpha}\times\R\to\R^{m_1\times\cdots\times m_\beta}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{\bar m_1\times\cdots\times\bar
+  m_{\bar\beta}}$, the gradient of the vectorized composition is given by
+\begin{align*}
+  \big( \nabla_x(f\circ_z G) (x)\big)_{\bar i_1,\dots,\bar i_{\bar \beta},i_1,\dots,i_\beta,j_1,\dots,j_\alpha}
+  &=\PDeriv{ f_{i_1,\dots,i_\beta}\big(x,G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)\big)}{x_{j_1,\dots,j_\alpha}}\\
+  &=\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{x_{j_1,\dots,j_\alpha}}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}
+  +\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{z}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}\PDeriv{G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}{x_{j_1,\dots,j_\alpha}},
+\end{align*}
+Therefore,
+\begin{align*}
+  \nabla_x(f\circ_z G)(x)=(\nabla_x f(x,z))\circ_z G(x)+
+  \PDeriv{f(x,z)}{z}\circ_z G(x)\tprod{(1,\dots,\bar \beta+\beta)}{(1,\dots,\bar\beta,\bar\beta+\beta+1,\bar\beta+\beta+\alpha)} \nabla_x G(x),
+\end{align*}
+where $\PDeriv{f(x,z)}{z}$ denotes the (scalar) partial derivative of
+$f(x,z)$ with respect to $z$, viewed as an $\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{m_1\times\cdots\times
+  m_\beta}$ mapping.\frqed
+\end{technical}
+
+\subsection{Table interpolation}
+
+Given two sets of tensors $X_i\in\R^{n_1\times\cdots\times n_\alpha}$, $Y_i\in\R^{m_1\times\cdots\times m_\beta}$, $i\in\{1,2,\dots,K\}$ and a
+scalar $L\in\R$, consider the functions $F:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times m_\beta}$
+defined by
+\begin{align*}
+  F(x)&\eqdef \sum_{i=1}^K e^{-\frac{1}{2S^2}\|X_i-x\|_F^2} Y_i , &
+  \|X_i-X\|_F^2&\eqdef (X_i-X)^{(-1,-2,\dots,-\alpha)} * (X_i-X)^{(-1,-2,\dots,-\alpha)}\\
+  G(x)&\eqdef \frac{F(x)}{f(x)}, &
+  f(x)&\eqdef \sum_{i=1}^K e^{-\frac{1}{2S^2}\|X_i-x\|^2}, \\
+\end{align*}
+The gradients and hessian matrix of $F$ and $f$ can be computed using the previous
+formulas, leading to
+\begin{align*}
+  \nabla_x F(x)&\eqdef-\frac{1}{2S^2}\sum_{i=1}^K e^{-\frac{1}{2S^2}\|X_i-x\|_F^2}
+            Y_i^{(1,\dots,\beta)} * \nabla_x \big(  \|X_i-x\|_F^2 \big)^{(\beta+1,\dots,\beta+\alpha)}\\
+  \nabla_x f(x)&\eqdef-\frac{1}{2S^2}\sum_{i=1}^K e^{-\frac{1}{2S^2}\|X_i-x\|_F^2} \nabla_x
+            \|X_i-x\|_F^2,
+\end{align*}
+the gradient of $G$ is given by
+\begin{align*}
+  \nabla_x G(x)&=\frac{\nabla_x F(x)}{f(x)}-\frac{F(x)^{(1,\dots,\beta)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}}{f(x)^2}
+\end{align*}
+and its Hessian matrix is given by
+\begin{align*}
+  H_{xx}G(x)&=\nabla_x\Big(\frac{\nabla_x F(x)}{f(x)}
+              -\frac{F(x)^{(1,\dots,\beta)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}}{f(x)^2}\big)\\
+            &=\frac{H_{xx}F(x)}{f(x)}
+              -\frac{\nabla_xF(x)^{(1,\dots,\beta+\alpha)}*\nabla_x f(x)^{(\beta+\alpha+1,\dots,\beta+2\alpha)}}{f(x)^2}\\&\quad
+              -\frac{\nabla_x F(x)^{(1,\dots,\beta,\beta+\alpha+1,\dots,\beta+2\alpha)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}}{f(x)^2}\\&\quad
+              -\frac{F(x)^{(1,\dots,\beta)}*H_{xx} f(x)^{(\beta+1,\dots,\beta+\alpha,\beta+\alpha+1,\dots,\beta+2\alpha)}}{f(x)^2}\\&\quad
+              +\frac{\big(F(x)^{(1,\dots,\beta)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}\big)^{(1,\dots,\beta+\alpha)}*\nabla_x(f(x)^2)^{(\beta+\alpha+1,\dots,\beta+2\alpha)}}{f(x)^4}\\
+            &=\frac{H_{xx}F(x)}{f(x)}
+              -\frac{1}{f(x)^2}\bigg(\nabla_xF(x)^{(1,\dots,\beta+\alpha)}*\nabla_xf(x)^{(\beta+\alpha+1,\dots,\beta+2\alpha)}\\&\qquad
+              +\nabla_x F(x)^{(1,\dots,\beta,\beta+\alpha+1,\dots,\beta+2\alpha)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}
+              +F(x)^{(1,\dots,\beta)}*H_{xx} f(x)^{(\beta+1,\dots,\beta+\alpha,\beta+\alpha+1,\dots,\beta+2\alpha)}\bigg)\\&\quad
+              +\frac{2}{f(x)^3}F(x)^{(1,\dots,\beta)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}*\nabla_x f(x)^{(\beta+\alpha+1,\dots,\beta+2\alpha)}.
+\end{align*}
+These formulas could be obtained from the previous rules together with
+the division-by-scalar rule
+\begin{align*}
+  \nabla_x\Big(\frac{F(x)}{f(x)}\Big) 
+  =\frac{\nabla_x F(x)}{f(x)}-\frac{F(x)^{(1,\dots,\beta)}*\nabla_x f(x)^{(\beta+1,\dots,\beta+\alpha)}}{f(x)^2}.
+\end{align*}
+However, the above rules provide a small simplification in canceling a
+few $f(x)$ terms in numerator and denominator.
+
+
+\newpage
+
+\drafttext{
+
+\section{Examples to discuss...}
+
+\subsection{RSS}
+
+Suppose that we want to minimize the criteria
+\begin{align*}
+  J(\alpha,\Theta,R)\eqdef\frac{1}{2}\|B(\Theta,\psi)\alpha+R-Y\|^2,
+\end{align*}
+with respect to the antena parameters $\alpha$ and the source location
+parameters $\Theta$, $R$, where
+\begin{align*}
+  Y_{T\times1}&=\matt{\log y(1)\\\log y(2)\\\vdots\\\log y(T)}, \quad
+  R_{T\times1}=\matt{-d\log r(1)\\-d\log r(2)\\\vdots\\-d\log r(T)}, \quad
+  \theta_{T\times1}=\matt{\theta(1)\\\theta(2)\\\vdots\\\theta(T)}, \quad
+  \psi_{T\times1}=\matt{\psi(1)\\\psi(2)\\\vdots\\\psi(T)},   \\
+  B(\Theta,\psi)_{T\times N}&=\matt{b(\theta(1)-\psi(1)-\beta_1)&b(\theta(1)-\psi(1)-\beta_2)&\cdots&b(\theta(1)-\psi(1)-\beta_N)\\
+    b(\theta(2)-\psi(2)-\beta_1)&b(\theta(2)-\psi(2)-\beta_2)&\cdots&b(\theta(2)-\psi(2)-\beta_N)\\
+    \vdots&\vdots&\ddots&\vdots\\
+    b(\theta(T)-\psi(T)-\beta_1)&b(\theta(T)-\psi(T)-\beta_2)&\cdots&b(\theta(T)-\psi(T)-\beta_N)}, &
+\end{align*}
+where $b:\R\to\R$ corresponds to some given basis function.
+
+\subsection{SOM}
+
+Given integers $D\ll K,M\ll N$ and vectors $x_1,\dots,x_N\in\R^K$, suppose we want
+to minimize the criteria
+\begin{align}\label{eq:optimal-y-v}
+  J(v_1,\dots,v_M\in\R^K; y_1,\dots,y_N\in\R^D)
+  &\eqdef\sum_{n=1}^N \Big\| \hat x_n-x_n \Big\|^2
+\end{align}
+where
+\begin{align*}
+  \hat x_n&\eqdef  \sum_{m=1}^M v_m b_m(y_n)\in\R^M,&
+  b_m(y)& \eqdef b\big(\|y-c_m\|^2\big)\in\R, \qquad m\in\{1,2,\dots,M\},
+\end{align*}
+for a given ``shape'' function $b:[0,\infty)\to[0,1]$ (e.g.,
+$b(s)=e^{-\lambda s}$) and fixed vectors $c_1,\dots,c_M\in\R^D$. We can
+re-write \eqref{eq:optimal-y-v} as 
+\begin{multline}\label{eq:optimal-y-v}
+  J(v_1,\dots,v_M\in\R^K; y_1,\dots,y_N\in\R^D)
+  =\big\|\matt{\hat x_1-x_1&\cdots&\hat x_N-x_N}\big\|_F^2\\
+  =\left\|  \matt{\displaystyle \sum_{m=1}^M v_m b(\|y_1-c_m\|^2)&\cdots& \displaystyle \sum_{m=1}^M v_m b(\|y_n-c_m\|^2)}-X\right\|_F^2
+  =\left\| V B(Y,C)-X\right\|_F^2\\
+\end{multline}
+where
+\begin{align*}
+  &V=\matt{v_1&\cdots&v_M}_{K\times M}, \quad
+  C=\matt{c_1&\cdots&c_M}_{D\times M}, \\
+  &X\eqdef\matt{x_1&\cdots&x_N}_{K\times N}, \quad
+  Y=\matt{y_1&\cdots&y_N}_{D\times N}, \\
+  &B(Y,C)\eqdef\matt{b(\|y_1-c_1\|^2)&\cdots&b(\|y_N-c_1\|^2)\\
+    \vdots&\ddots&\vdots\\
+    b(\|y_1-c_M\|^2)&\cdots&b(\|y_N-c_M\|^2)}_{M\times N}.
+\end{align*}
+Moreover, $B(Y,C)$ is obtained by applying the scalar function $b$ to
+every entry of the matrix
+\begin{align*}
+  N_{M\times N}&\eqdef \matt{\|y_1-c_1\|^2&\cdots&\|y_N-c_1\|^2\\
+    \vdots&\ddots&\vdots\\
+    \|y_1-c_M\|^2&\cdots&\|y_N-c_M\|^2}\\
+  &=\matt{(y_1-c_1)'(y_1-c_1)&\cdots&(y_N-c_1)'(y_N-c_1)\\
+    \vdots&\ddots&\vdots\\
+    (y_1-c_M)'(y_1-c_M)&\cdots&(y_N-c_M)'(y_N-c_M)}\\
+  &=\matt{y_1'y_1&\cdots&y_N'y_N\\
+    \vdots&\ddots&\vdots\\
+    y_1'y_1&\cdots&y_N'y_N}
+  +\matt{c_1'c_1&\cdots&c_1'c_1\\
+    \vdots&\ddots&\vdots\\
+    c_M'c_M&\cdots&c_M'c_M}
+  -\matt{y_1'c_1&\cdots&y_N'c_1\\
+    \vdots&\ddots&\vdots\\
+    y_1'c_M&\cdots&y_N'c_M}
+  -\matt{c_1'y_1&\cdots&c_1'y_N\\
+    \vdots&\ddots&\vdots\\
+    c_M'y_1&\cdots&c_M'y_N}\\
+  &=Y^{(-1,2)} * Y^{(-1,2)} * 1_{M}^{(1)}+C^{(-1,1)}*C^{(-1,1)}*1_N^{(2)}\\&\qquad
+  -Y^{(-1,2)} * C^{(-1,1)}-C^{(-1,1)}*Y^{(-1,2)}.
+\end{align*}
+}
+
+%\bibliographystyle{ieeetr}
+%\bibliographystyle{abbrvnat}
+%\bibliography{strings,jph,crossrefs}
+
+%\printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% eval: (tex-pdf-mode)  ; only for pdflatex
+%%% TeX-master: t
+%%% End: 

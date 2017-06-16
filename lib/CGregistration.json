@@ -1,0 +1,407 @@
+{
+	"magic": [
+		[
+			{
+				"type": 16,
+				"name": "int16l",
+				"description": "indices stored as 16bit integers with the least significant byte first (little-endian byte ordering)"
+			},
+			{
+				"type": 32,
+				"name": "int32l",
+				"description": "indices stored as 32bit integers with the least significant byte first (little-endian byte ordering)"
+			},
+			{
+				"type": 64,
+				"name": "int64l",
+				"description": "indices stored as 64bit integers with the least significant byte first (little-endian byte ordering)"
+			}
+		]
+	],
+	"constant": [
+		[
+			{
+				"type": 10001,
+				"name": "double_full_tensor",
+				"description": "tensor with double-values entries [# dimension,size vector,double values]"
+			},
+			{
+				"type": 10002,
+				"name": "double_sparse_tensor",
+				"description": "tensor with double-values entries [# dimension,size vector,nonzero subscripts,double values]"
+			},
+			{
+				"type": 10003,
+				"name": "int64l_full_vector",
+				"description": "vector with int64l-values entries [int64l values]"
+			},
+			{
+				"type": 10003,
+				"name": "string",
+				"description": "array of chars [char values]"
+			}
+		]
+	],
+	"function": [
+		[
+			{
+				"type": 0,
+				"name": "constant",
+				"description": "constant function"
+			},
+			{
+				"type": 10001,
+				"name": "Vzeros",
+				"description": "Tzeros(size)"
+			},
+			{
+				"type": 10002,
+				"name": "Vones",
+				"description": "Tones(size)"
+			},
+			{
+				"type": 10003,
+				"name": "Veye",
+				"description": "Teye(size)"
+			},
+			{
+				"type": 10005,
+				"name": "Vrepmat",
+				"description": "repmat(size,a)"
+			},
+			{
+				"type": 10006,
+				"name": "Vcat",
+				"description": "cat(dim,a,b,...)"
+			},
+			{
+				"type": 10007,
+				"name": "Vreshape",
+				"description": "reshape(size,a)"
+			},
+			{
+				"type": 10029,
+				"name": "Vsum",
+				"description": "sum(dim,a,b,...)"
+			},
+			{
+				"type": 10004,
+				"name": "Vsubsref",
+				"description": "subsref(i1,i2,...,a)"
+			},
+			{
+				"type": 10014,
+				"name": "Vmin",
+				"description": "min(dim,a,b,...)"
+			},
+			{
+				"type": 10015,
+				"name": "Vmax",
+				"description": "max(dim,a,b,...)"
+			},
+			{
+				"type": 10016,
+				"name": "Vall",
+				"description": "all(dim,a,b,...)"
+			},
+			{
+				"type": 10017,
+				"name": "Vany",
+				"description": "any(dim,a,b,...)"
+			},
+			{
+				"type": 10008,
+				"name": "Vfull",
+				"description": "full(a)"
+			},
+			{
+				"type": 10012,
+				"name": "Vnorm2",
+				"description": "norm2(a)"
+			},
+			{
+				"type": 10013,
+				"name": "Vnorminf",
+				"description": "norminf(a)"
+			},
+			{
+				"type": 10026,
+				"name": "Vctranspose",
+				"description": "ctranspose(a)"
+			},
+			{
+				"type": 10027,
+				"name": "Vtranspose",
+				"description": "transpose(a)"
+			},
+			{
+				"type": 10018,
+				"name": "Vabs",
+				"description": "abs(a)"
+			},
+			{
+				"type": 10021,
+				"name": "Vlu",
+				"description": "lu(a)"
+			},
+			{
+				"type": 10022,
+				"name": "Vchol",
+				"description": "chol(a)"
+			},
+			{
+				"type": 10030,
+				"name": "Vdiag",
+				"description": "diag(a)"
+			},
+			{
+				"type": 10023,
+				"name": "Vmldivide_l1",
+				"description": "mldivide_l1(a,b)"
+			},
+			{
+				"type": 10024,
+				"name": "Vmldivide_u",
+				"description": "mldivide_u(a,b)"
+			},
+			{
+				"type": 10019,
+				"name": "Vclp",
+				"description": "clp(a,b)"
+			},
+			{
+				"type": 10028,
+				"name": "Vrdivide",
+				"description": "rdivide(a,b)"
+			},
+			{
+				"type": 10009,
+				"name": "Vplus",
+				"description": "plus(signs,a,b,...)"
+			},
+			{
+				"type": 10010,
+				"name": "Vtprod",
+				"description": "tprod(size,sumsize,a,ia,b,ib,...)"
+			},
+			{
+				"type": 10020,
+				"name": "Vcompose",
+				"description": "compose(fun,a)"
+			},
+			{
+				"type": 10011,
+				"name": "Vtprod_matlab",
+				"description": "tprod_matlab(...)"
+			},
+			{
+				"type": 10025,
+				"name": "Vmtimes",
+				"description": "mtimes(...)"
+			},
+			{
+				"type": 20002,
+				"name": "Ssum",
+				"description": "sum(parameters.*operands), parameters = array with +1\/-1 specifying addition\/subtraction for each element of vector"
+			},
+			{
+				"type": 20002,
+				"name": "Ssumprod",
+				"description": "sum(prod(operands,1))=a1*a2*...*am+b1*b2*...*bm+..., operands = a1,a2,...,am,b1,b2,...,bm,c1,... In case operands are one long vector: parameters = [m, # sums]"
+			},
+			{
+				"type": 20002,
+				"name": "Sinv",
+				"description": "inverse: 1\/denominator, operands = denominator"
+			},
+			{
+				"type": 20002,
+				"name": "Sminus_inv_sqr",
+				"description": "inverse: -1\/denominator^2, operands = denominator"
+			},
+			{
+				"type": 20002,
+				"name": "Sdiv",
+				"description": "division: numerator\/denominator, operands = numerator, denominator"
+			},
+			{
+				"type": 20002,
+				"name": "Sminus_dot",
+				"description": "symmetric of dot-product: -a1*b1-a2*b2-..., operands = a1,b1,a2,b2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Sminus_dot_div",
+				"description": "symmetric of dot-product & divide: (-a1*b1-a2*b2-...)\/a0, operands = a0,a1,b1,a2,b2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Splus_minus_dot",
+				"description": "subtract dot-product: a0-a1*b1-a2*b2-..., operands = a0,a1,b1,a2,b2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Splus_sqr",
+				"description": "norm-2 square: a1^2+a2^2+..., operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Splus_minus_dot_div",
+				"description": "subtract dot-product & divide: (a0-a1*b1-a2*b2-...)\/b0, operands = a0,b0,a1,b1,a2,b2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Smin",
+				"description": "computes the min: min(a1,a2,...);, operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Smin0",
+				"description": "computes the min: min(0,a1,a2,...);, operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Smax",
+				"description": "computes the max: max(a1,a2,...);, operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Smax0",
+				"description": "computes the max: max(0,a1,a2,...);, operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Smax_abs",
+				"description": "infinity norm: max{ |a1|,|a2|,... }, operands = a1,a2,...."
+			},
+			{
+				"type": 20002,
+				"name": "Sclp",
+				"description": "computes the largest c>=0 such that: ai + c bi >=0, operands = a1,b1,a2,b2,....an,bn"
+			},
+			{
+				"type": 20002,
+				"name": "Sexp",
+				"description": "computes exp(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Slog",
+				"description": "computes log(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Scos",
+				"description": "computes cos(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Sminus_cos",
+				"description": "computes -cos(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Ssin",
+				"description": "computes sin(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Sminus_sin",
+				"description": "computes -sin(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Sabs",
+				"description": "computes abs(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Ssqrt",
+				"description": "computes sqrt(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "SDsqrt",
+				"description": "computes .5\/sqrt(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "SDDsqrt",
+				"description": "computes -.25\/sqrt(a1)^3, operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "Ssqr",
+				"description": "computes a1^2, operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "S2times",
+				"description": "computes 2*a1, operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "S2",
+				"description": "computes 2, operand = a1 (ignored)"
+			},
+			{
+				"type": 20002,
+				"name": "Satan",
+				"description": "computes atan(a1), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "SDatan",
+				"description": "computes 1\/(1+a1^2), operand = a1"
+			},
+			{
+				"type": 20002,
+				"name": "SDDatan",
+				"description": "computes -2*a1\/(1+a1^2)^2, operand = a1"
+			}
+		]
+	],
+	"io": [
+		[
+			{
+				"type": 1,
+				"name": "set",
+				"description": "set"
+			},
+			{
+				"type": 2,
+				"name": "get",
+				"description": "get"
+			},
+			{
+				"type": 3,
+				"name": "copy",
+				"description": "copy"
+			}
+		]
+	],
+	"symbol": [
+		[
+			{
+				"type": 1,
+				"name": "constant",
+				"description": "constant symbol"
+			},
+			{
+				"type": 2,
+				"name": "function",
+				"description": "function-node symbol"
+			},
+			{
+				"type": 3,
+				"name": "variable",
+				"description": "variable-node symbol"
+			},
+			{
+				"type": 4,
+				"name": "io",
+				"description": "io-function symbol"
+			}
+		]
+	]
+}

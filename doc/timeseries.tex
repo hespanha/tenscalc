@@ -1,0 +1,294 @@
+\documentclass[11pt]{article}
+
+% \usepackage{amsmath,amssymb,mathtools,amsfonts}
+\usepackage{url} 
+\usepackage{fullpage}
+% \usepackage{setspace}      % \singlespace, \doublespace \onehalfspacing
+% \usepackage{ifthen}      % \ifthenelse,\boolean,\newboolean,\setboolean
+% \usepackage{mathptmx} % slightly more compressed font. 
+\usepackage[T1]{fontenc}\usepackage[condensed,math]{kurier} % fancy font
+% \usepackage{makeidx}  % to make a keyword index: \index{}
+% \usepackage{showidx}  % prints index entries in the left margin (debug)
+% \usepackage{needspace}     % \needspace{5\baselineskip} no page breaks for 5 lines
+% \usepackage{mparhack} % correct Latex bug in \marginpar
+% \usepackage{chemarr}  % arrows 4 chem: \xrightleftharpoons[]{} \xrightarrow{}
+% \usepackage{listings} % source code printer for latex
+% \lstset{language=Matlab}
+% \lstset{basicstyle=\small,morekeywords={cvx_begin,cvx_end,variables,maximize,minimize,subject,to,linprog,quadprog,ones,optimset}}
+
+%%%% Figure packages
+% \usepackage{graphicx,psfrag}
+% \usepackage{pstool}           % \psfrag for pdflatex -- preferable(?), not transparent 
+% \usepackage{auto-pst-pdf}      % \psfrag & PStricks for pdflatex -- transparent!!!
+% \usepackage[pdftex]{graphics}
+% \usepackage{subfigure}         % \subfigure[a]{\includegraphics\ldots\label{fi:\ldots}}
+% \usepackage{sidecaption}       % \sidecaption (to be placed inside figure env.
+% \graphicspath{{./figuresdir1/}{./figuresdir2/}{./figuresdir3/}}
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%% Bibliography packages (order is important)
+% \usepackage{bibentry}% \nobibliography* \ldots  \bibentry{..} inserts a bib entry
+% apparently incompatible with hyperef
+% \makeatletter\let\NAT@parse\undefined\makeatother % enbl natbib with IEEE cls 
+\usepackage[numbers,sort&compress,sectionbib]{natbib} % \cite,\citet,\citep,\ldots
+\usepackage[colorlinks=true,linkcolor=blue,backref=page]{hyperref}
+\renewcommand*{\backref}[1]{\small (cited in p.~#1)}
+\usepackage[norefs,nocites]{refcheck} % options:norefs,nocites,msgs,chkunlbld
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%%%%%%%%%%%% source code formatting for latex %%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+%%%% Matlab language
+\lstset{
+  basicstyle={\footnotesize\tt},
+  keywordstyle={\footnotesize\tt\color{blue}},
+  commentstyle={\footnotesize\sl},
+  frame=shadowbox,
+  columns={[l]fixed},  % character alignment
+  %columns={[l]fullflexible},
+  basewidth={.5em,.4em}, 
+  xleftmargin=3em, xrightmargin=3em,
+  numbers=left, numberstyle=\tiny, numbersep=5pt,
+  escapeinside={(*}{*)},
+  numberblanklines=false,
+  firstnumber=last,
+}
+
+\lstdefinelanguage[extended]{Matlab}[]{Matlab}{
+  morekeywords={linprog,quadprog,ones,optimset,ode23s,expand},
+  deletekeywords={hess}
+}
+%%%% my dialect of Matlab, based on Matlab without dialect
+\lstdefinelanguage[TC]{Matlab}[extended]{Matlab}{
+  morekeywords={Tvariable,parameter,Teye,Tones,Tzeros,Tconstant,gradient,norm2},
+  morekeywords={csparse,declareSet,declareGet,declareCopy,declareComputation,compile2matlab,compile2C,
+    begin_csparse,end_csparse,getFunction,setFunction,copyFunction}
+}
+
+%%%% set default language
+\lstset{language=[TC]Matlab}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+
+%% Macros & options for this Document
+
+\allowdisplaybreaks
+
+\newcommand{\tprod}[2]{\,\,^{#1}\!\!*^{#2}}
+\newcommand{\TC}{\texttt{TensCalcTools}}
+\newcommand{\TTS}{\texttt{TTSTools}}
+\newcommand{\CS}{\texttt{CSparse}}
+\newcommand{\CMEX}{\texttt{cmexTools}}
+
+\newcommand{\codesize}{\footnotesize}
+
+\newcommand{\toidx}[1]{\index{\lstinline{#1}}}%\addcontentsline{toc}{subsubsection}{\lstinline{#1}}}
+
+\newenvironment{command}[1]{\toidx{#1}\addcontentsline{toc}{subsection}{\lstinline{#1}}\paragraph*{\lstinline[basicstyle=\large,columns={[l]flexible}]{#1}}~\\\noindent\rule{\textwidth}{2pt}\\\vspace{-3ex}\codesize}{\vspace{-3ex}\rule{\textwidth}{1pt}\medskip\noindent}
+
+% \makeindex
+
+%% Start of Document
+
+\title{\sc \TTS \\[1em]\Large \matlab{} Functions for Tensor-Valued Time-Series Processing}
+\author{\jph}
+\date{November 11, 2014}
+
+\begin{document}                        \maketitle
+
+\begin{abstract}
+  This toolbox provides functions to process tensor-valued time
+  series, including differentiations, integration, resampling,
+  etc. These functions can be applied to numerical values or to \TC{}
+  Symbolic Tensor-Valued Expressions (STVEs).
+\end{abstract}
+
+\tableofcontents
+
+%\newpage
+
+\section{Tensor-Valued Time Series}
+
+\emph{Tensors} are essentially multi-dimensional arrays. Specifically,
+an \emph{$\alpha$-index tensor} is an array in $\R^{n_1\times n_2\times\cdots\times n_\alpha}$ where
+$\alpha$ is an integer in $\Z_{\ge 0}$. By convention, the case $\alpha=0$
+corresponds to a \emph{scalar} in $\R$. We use the terminology
+\emph{vector} and \emph{matrix} for the cases $\alpha=1$ and $\alpha=2$,
+respectively. The integar $\alpha$ is called the \emph{index} of the tensor
+and the vector of integers $[n_1,n_2,\dots,n_\alpha]$ (possibly empty for
+$\alpha=0$) is called the \emph{dimension} of the tensor.
+
+\medskip
+
+A \emph{tensor-valued time series} (TTTS) is a sampled-based
+representation of a time-varying tensor, i.e., a function $F:\R\to \R^{n_1\times
+  n_2\times\cdots\times n_\alpha}$. A TTTS represents $F$ through a pair $(X,T)$ where
+$T\in\R^{n_t}$ is a vector of sample times
+and $X\in\R^{n_1\times n_2\times\cdots\times
+  n_\alpha\times n_t}$ is an \emph{$\alpha+1$-index tensor} with the understanding that
+$i\in\{1,2,\dots,n_t\}$,
+\begin{align*}
+  F(T_i)=\big[ X_{i_1,i_2,\dots,i_\alpha,i}\big]_{i_1=1,i_2=1,\dots,i_\alpha=1}^{i_1=n_1,i_2=n_2,\dots,i_\alpha=n_\alpha},
+  \quad\forall i\in\{1,2,\dots,n_t\},
+\end{align*}
+i.e., the first $\alpha$ indices of $X$ represent the value of $F$ and the
+last index represents time.
+
+\newpage
+
+\section{Functions provided by \TTS}
+
+\begin{command}{tsDerivative}
+\begin{lstlisting}
+[dx,ts]=tsDerivative(x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a TTTS \lstinline{(dx,ts)} that represents the
+time derivative of the input TTTS \lstinline{(x,ts)}. The output
+sampling times \lstinline{ts} are equal to the input sampling times
+\lstinline{ts} and therefore the size of derivatine \lstinline{dx} is
+equal to the size of the input \lstinline{x}. The time derivative is
+computed assuming that the input time-series is piecewise quadratic.
+
+\begin{command}{tsDerivative2}
+\begin{lstlisting}
+[ddx,ts]=tsDerivative2(x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a TTTS \lstinline{(ddx,ts)} that represents the
+second time derivative of the input TTTS \lstinline{(x,ts)}. The
+output sampling times \lstinline{ts} are equal to the input sampling
+times \lstinline{ts} and therefore the size of derivatine
+\lstinline{dx} is equal to the size of the input \lstinline{x}. The
+time derivatives are computed assuming that the input time-series is
+piecewise quadratic.
+
+\begin{command}{tsIntegral}
+\begin{lstlisting}
+y=tsIntegral(x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a tensor \lstinline{y} that represents the time
+integral of the input TTTS \lstinline{(x,ts)}. The size of the
+integral \lstinline{y} is equal to the size of the input \lstinline{x}
+with the last (time) dimension removed. The integral is computed
+assuming that the input time-series is piecewise quadratic.
+
+\begin{command}{tsDot}
+\begin{lstlisting}
+[y,ts]=tsDot(x1,x2,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a scalar-valued time-series \lstinline{(y,ts)} that
+represents the dot product of two n-vector time-series
+\lstinline{(x1,ts)} and \lstinline{(x2,ts)}:
+\begin{align*}
+  y=x1'.*x2
+\end{align*}
+The size of the output \lstinline{y} is equal to the size of
+\lstinline{ts}.
+
+
+\begin{command}{tsCross}
+\begin{lstlisting}
+[y,ts]=tsCross(x1,x2,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a 3-vector time-series \lstinline{(y,ts)} that
+represents the cross product of two 3-vector time-series
+\lstinline{(x1,ts)} and \lstinline{(x2,ts)}:
+\begin{align*}
+  y=cross(x1,x2)
+\end{align*}
+The size of the output \lstinline{y} is equal to the size of the
+inputs \lstinline{x1} and \lstinline{x2}.
+
+
+\begin{command}{tsQdot}
+\begin{lstlisting}
+[y,ts]=tsQdot(q1,q2,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a 4-vector time-series \lstinline{(y,ts)} that
+represents the product of two quaternions \lstinline{(q1,ts)},
+\lstinline{(q2,ts)}:
+\begin{align*}
+  y=q1\cdot q2
+\end{align*}
+The size of the output \lstinline{y} is equal to the size of the
+inputs \lstinline{x1} and \lstinline{x2}. However, if either
+\lstinline{(q1,ts)} or \lstinline{(q2,ts)} is a 3-vector time series,
+then the corresponding input quaternion is assumed pure, but the output
+quaternion is always a 4-vector time series.
+
+\begin{command}{tsQdotStar}
+\begin{lstlisting}
+[y,ts]=tsQdotStar(q1,q2,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a 4-vector time-series \lstinline{(y,ts)} that
+represents the product of two quaternions \lstinline{(q1,ts)*},
+\lstinline{(q2,ts)}:
+\begin{align*}
+  y=q1^*\cdot q2
+\end{align*}
+The size of the output \lstinline{y} is equal to the size of the
+inputs \lstinline{x1} and \lstinline{x2}. However, if either
+\lstinline{(q1,ts)} or \lstinline{(q2,ts)} is a 3-vector time series,
+then the corresponding input quaternion is assumed pure, but the output
+quaternion is always a 4-vector time series.
+
+\begin{command}{tsRotation}
+\begin{lstlisting}
+[y,ts]=tsRotation(q,x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a 3-vector time-series \lstinline{(y,ts)} that
+represents the rotation of a 3-vector time-series \lstinline{(x,ts)}
+by a 4-vector time-series \lstinline{(q,ts)} representing a
+quaternion:
+\begin{align*}
+  y=q\cdot x\cdot q^*
+\end{align*}
+The size of the output \lstinline{y} is equal to the
+size of the input \lstinline{x}.
+
+\begin{command}{tsRotationT}
+\begin{lstlisting}
+[y,ts]=tsRotationT(q,x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a 3-vector time-series \lstinline{(y,ts)} that
+represents the rotation of a 3-vector time-series \lstinline{(x,ts)}
+by a 4-vector time-series \lstinline{(q,ts)*} representing a
+quaternion:
+\begin{align*}
+  y=q^* \cdot x\cdot q
+\end{align*}
+The size of the output \lstinline{y} is equal to the
+size of the input \lstinline{x}.
+
+
+% \bibliographystyle{ieeetr}
+% \bibliographystyle{abbrvnat}
+% \bibliography{strings,jph,crossrefs}
+
+% \printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% eval: (tex-pdf-mode)  ; only for pdflatex
+%%% TeX-master: t
+%%% End: 

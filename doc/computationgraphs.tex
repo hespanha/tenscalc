@@ -1,0 +1,225 @@
+\documentclass[11pt]{article}
+
+\usepackage{etex} % extended latex (including increased number of registers needed by many packages)
+% \usepackage{amsmath,amssymb,mathtools,amsfonts}
+\usepackage{url} 
+\usepackage{fullpage}
+% \usepackage{setspace}      % \singlespace, \doublespace \onehalfspacing
+% \usepackage{ifthen}      % \ifthenelse,\boolean,\newboolean,\setboolean
+% \usepackage{mathptmx} % slightly more compressed font. 
+\usepackage[T1]{fontenc}\usepackage[condensed,math]{kurier} % fancy font
+% \usepackage{needspace}     % \needspace{5\baselineskip} or \Needspace{5\baselineskip} 
+% \usepackage{mparhack} % correct Latex bug in \marginpar
+% \usepackage{chemarr}  % arrows 4 chem: \xrightleftharpoons[]{} \xrightarrow{}
+% \usepackage{listings} % source code printer for latex
+% \lstset{language=Matlab}
+% \lstset{basicstyle=\small,morekeywords={cvx_begin,cvx_end,variables,maximize,minimize,subject,to,linprog,quadprog,ones,optimset}}
+
+%%%% Figure packages
+% \usepackage{graphicx,psfrag}
+% \usepackage{auto-pst-pdf}   % \psfrag & PStricks for pdflatex -- transparent buggy
+% \usepackage[pdf]{pstricks}  % \psfrag for pdflatex (include of .eps sometimes leads to trouble) -- transparent!!!
+% \usepackage{subfigure}      % \subfigure[a]{\includegraphics\ldots\label{fi:\ldots}}
+% \usepackage{sidecaption}    % \sidecaption (to be placed inside figure env.
+% \graphicspath{{./figuresdir1/}{./figuresdir2/}{./figuresdir3/}}
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+%%%% Bibliography packages (order is important)
+% \usepackage{bibentry}% \nobibliography* \ldots  \bibentry{..} inserts a bib entry
+% apparently incompatible with hyperef
+% \makeatletter\let\NAT@parse\undefined\makeatother % enbl natbib with IEEE cls 
+\usepackage[numbers,sort&compress,sectionbib]{natbib} % \cite,\citet,\citep,\ldots
+\usepackage[colorlinks=true,linkcolor=blue,backref=page]{hyperref}
+\renewcommand*{\backref}[1]{\small (cited in p.~#1)}
+\usepackage[norefs,nocites]{refcheck} % options:norefs,nocites,msgs,chkunlbld
+% \usepackage{makeidx} % to make a keyword index
+% \usepackage{showidx} % prints index entries in the margin (debug) - NOT COMPATIBLE WITH hyperref
+%%%%%%%%%%%%%%%%%%%%%%%%%% 
+
+\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
+%\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+
+%% Macros & options for this Document
+
+\allowdisplaybreaks
+
+% \makeindex
+
+%% Start of Document
+
+\title{Computation graphs}
+\author{\jph}
+\date{June 13, 2016}
+
+\begin{document}                        \maketitle
+
+
+\section{Computation graph}
+
+We are interested in describing a complex computation through a
+dependency directed bipartite graph. One type of nodes corresponds to
+multiple-input/multiple-output functions of the form
+\begin{align}\label{eq:function}
+  (y_1,y_2,\dots,y_m)=f(x_1,x_2,\dots,x_n)
+\end{align}
+and the other type of nodes correspond to variables that are either
+inputs of outputs to the functions. The node corresponding to the
+function \eqref{eq:function} has input edges from the variables
+$x_1,x_2,\dots,x_n$ to $f$ and output edges from $f$ to the variables
+$y_1,y_2,\dots,y_m$. 
+
+\medskip
+
+Function nodes without input edges are used to represent constant
+variables. Variable nodes without input edges correspond to variables
+that must be computed externally.
+
+\medskip
+
+The order of the inputs and outputs to the function
+\eqref{eq:function} matters, so the digraphs must have ``ordered
+edges.'' The variable nodes may have different types, which are
+defined implicitly by the function they are connected to.
+
+\section{File format}
+
+The file representation of computational graphs needs to support very
+large computations, which dictates the need for very efficient and
+economical representations. Four files are used to represented the
+computational graphs:
+\begin{itemize}
+\item \texttt{filename.cgc} describes the constant variables,
+\item \texttt{filename.cgio} describes the functions used to interact
+  with the computational graph,
+\item \texttt{filename.cg} describes the graph structure,
+\item \texttt{filename.cgs} describes symbolic names for the
+  constants, variables, and functions.
+\end{itemize}
+All 4 files files start with a 16-bit ``magic'' integer that specifies
+the format in which integers are stored in the file, followed by a
+sequence of variable-length records. The 8-bit magic number can be
+one of the following value:
+\begin{itemize}
+\item \texttt{16} - indices are stored as 16bit integers with the least
+  significant byte first (little-endian byte ordering)
+\item \texttt{32} - indices are 32bit integers  with the least
+  significant byte first (little-endian byte ordering)
+\item \texttt{64} - indices are 64bit integers with the least
+  significant byte first (little-endian byte ordering)
+\end{itemize}
+
+\subsection{\texttt{.cgc} constants file}
+
+Following the ``magic'' integer, this file consists of a sequence of
+records, each corresponding to a constant that appears in the
+computation graph. Each record is of the form:
+\begin{enumerate}
+\item 1 integer specifying the \emph{type} of the constant. All valid types of function should be registered.
+
+\item 1 integer specifying the \emph{length} of the data stored in 8bit bytes.
+\item Variable-length list of bytes with the \emph{data} representing
+  the constant (in a format specific to the data type).
+\end{enumerate}
+
+
+\subsection{\texttt{.cg} graph file}
+
+Following the ``magic'' integer, this file consists of a sequence of
+records, each corresponding to a function node in the computation
+graph. Each record is of the following form:
+\begin{enumerate}
+\item 1 integer specifying the \emph{type} of the function. All valid
+  types of function should be registered.
+
+  The special type \texttt{0} (zero) is used to denote a constant
+  function that returns a single output equal to one of the functions
+  in the \texttt{.cgc} constants file. In this case, the type integer
+  is followed by
+  \begin{enumerate}
+  \item 0-based number of the record where the constant appears in the
+    \texttt{.cgc} constants file
+  \item 0-based integer specifying the output variable to the
+    function.
+  \end{enumerate}
+  For this type of function node, the items below do not apply.
+
+\item 1 integer specifying the number of input variables to the
+  function. 
+
+\item 1 integer specifying the number of output variables to the
+  function.
+
+\item Variable-length list of 0-based integers specifying the (appropriately
+  ordered) input variables to the function. 
+
+\item Variable-length list of 0-based integers specifying the
+  (appropriately ordered) output variables to the function.
+\end{enumerate}
+
+
+
+\subsection{\texttt{.cgio} I/O file}
+
+Following the ``magic'' integer, this file consists of a sequence of
+records, each corresponding to one gateway function used to interact
+with the computational graph. Each record is of the following form:
+\begin{enumerate}
+\item 1 integer specifying the \emph{type} of the function:
+  \begin{itemize}
+  \item \texttt{1} - gateway ``set'' function used set the value of
+    variable nodes.
+  \item \texttt{2} - gateway ``get'' function used to get the value of
+    variable nodes.
+  \item \texttt{3} - gateway ``copy'' function used to copy the values
+    of variable nodes to other variable nodes.
+  \end{itemize}
+  
+\item 1 integer specifying the number of variables to set/get/copy
+
+\item Variable-length list of 0-based integers specifying the
+  (appropriately ordered) variables to set, get, or copy-from (source)
+
+\item Variable-length list of 0-based integers specifying the
+  (appropriately ordered) variables to copy-to (destimation). Only for
+  gateway ``copy'' functions.
+\end{enumerate}
+
+\subsection{\texttt{.cgs} symbolic name file}
+
+Following the ``magic'' integer, this file consists of a sequence of
+records, each corresponding to a symbolic name for a constant,
+variable, or function. Each record is of the following form:
+\begin{enumerate}
+\item 1 integer specifying the type of the record:
+  \begin{itemize}
+  \item \texttt{1} - constant
+  \item \texttt{2} - function node
+  \item \texttt{3} - variable node
+  \item \texttt{4} - io function
+  \end{itemize}
+
+\item 1 integer with the 0-based index of the
+  constant/function/variable
+\item 1 integer with number of characters in the symbolic name
+\item 1 integer with number of characters in the
+  constant/function/variable description
+\item Variable-length string with the symbolic name
+\item Variable-length string with the constant/function/variable
+  description
+\end{enumerate}
+This file is mostly used for debug.
+
+% \bibliographystyle{ieeetr}
+% \bibliographystyle{abbrvnat}
+% \bibliography{strings,jph,crossrefs}
+
+% \printindex
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% eval: (tex-pdf-mode)  ; only for pdflatex
+%%% TeX-master: t
+%%% End: 
+
