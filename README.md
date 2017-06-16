@@ -56,8 +56,8 @@ To install
 	  
 	3. checking out this repository with svn, e.g., using the shell command
 	   ```sh
-       git clone https://github.ucsb.edu/hespanha/tenscalc.git
-       ```
+	   git clone https://github.ucsb.edu/hespanha/tenscalc.git
+	   ```
 
 	The latter two options are recommended because you can
     subsequently use `svn update` or `git pull` to upgrade *TensCalc*
