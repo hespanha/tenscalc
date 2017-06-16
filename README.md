@@ -39,24 +39,24 @@ The *TensCalc* toolbox supports *Matlab* running under:
 
 To install
 
-1. Install the [FunParTools](https://github.ucsb.edu/hespanha/funpartools) toolbox.
+1. Install the [FunParTools](../../../funpartools) toolbox.
 
-2. Install the [CmexTools](https://github.ucsb.edu/hespanha/cmextools) toolbox.
+2. Install the [CmexTools](../../../cmextools) toolbox.
 
 3. Download *TensCalc* using one of the following options:
 
 	1. downloading it as a zip file from
-		https://github.ucsb.edu/hespanha/tenscalc/archive/master.zip
+		https://github.com/hespanha/tenscalc/archive/master.zip
 	   and unziping to an appropriate location
 
 	2. cloning this repository with Git, e.g., using the shell command
 	   ```sh
-	   svn checkout https://github.ucsb.edu/hespanha/tenscalc.git
+	   svn checkout https://github.com/hespanha/tenscalc.git
 	   ```
 	  
 	3. checking out this repository with svn, e.g., using the shell command
 	   ```sh
-	   git clone https://github.ucsb.edu/hespanha/tenscalc.git
+	   git clone https://github.com/hespanha/tenscalc.git
 	   ```
 
 	The latter two options are recommended because you can
@@ -242,7 +242,7 @@ additiona tecnhnical information can be found at
 
 ## Contact Information
 
-Joao Hespanha (hespanha@ucsb.edu)
+Joao Hespanha (hespanha@ece.ucsb.edu)
 
 http://www.ece.ucsb.edu/~hespanha
 
