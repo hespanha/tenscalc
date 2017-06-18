@@ -55,11 +55,27 @@ function varargout=class2optimizeCS(varargin)
             '   * |saveIter| - Parameter not used (included for compatibility'
             '                  with |cmex2optimizeCS|).'
             '   * |status|   - solver exist status';
-            '                 *  0 = success'
-            '                 * -1 = maximum # of iterations reached';
-            '                 * -2 = failed to invert hessian';
-            '                 * -3 = (primal) variables violate constraints';
-            '                 * -4 = negative value for dual variables';
+            '                 *  0  = success';
+            '                 *  >0 = solver terminated unexpectedly';
+            '                 a nonzero status indicates the reason for termination';
+            '                 in a binary format:'
+            '                   bit  0 = 1 - (primal) variables violate constraints'
+            '                   bit  1 = 1 - dual variables are negative'
+            '                   bit  2 = 1 - failed to invert hessian'
+            '                   bit  3 = 1 - maximum # of iterations reached';
+            '                 when the solver exists because the maximum # of iterations'
+            '                 was reached (bit 3 = 1), the remaining bits provide'
+            '                 information about the solution returned';
+            '                   bit  4 = 1 - gradient larger then |gradTolerance|'
+            '                   bit  5 = 1 - equality constraints violate |equalTolerance|';
+            '                   bit  6 = 1 - duality gap larger than |desiredDualityGap|';
+            '                   bit  7 = 1 - barrier variable larger than minimum value';
+            '                   bit  8 = 1 - scalar gain |alpha| in Newton direction';
+            '                                smaller than alphaMin'
+            '                   bit  9 = 1 - scalar gain |alpha| in Newton direction';
+            '                                smaller than .1'
+            '                   bit 10 = 1 - scalar gain |alpha| in Newton direction';
+            '                                smaller than .5'
             '   * |iter|    - number of iterations'
             '   * |time|    - solver''s compute time (in secs).'
             ' '
