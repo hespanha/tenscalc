@@ -17,8 +17,8 @@
 
 % Many ways to skin a cat...
 %
-% This example is about find the vector x that minimizes
-%       J(x)=\|Ax-b\|^2
+% This example is about finding the matrix X that minimizes
+%       J(x)=\|A X-B\|^2
 %
 
 !rm -rf tmp* @tmp*

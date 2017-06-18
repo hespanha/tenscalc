@@ -17,7 +17,7 @@
 
 % Many ways to skin a cat...
 %
-% This example is about find the vector x that minimizes
+% This example is about finding the vector x that minimizes
 %       J(x)=\|Ax-b\|^2
 %
 
@@ -81,7 +81,7 @@ setP_b(obj,thisb);
 setV_x(obj,x0);
 % Solve optimization
 mu0=1;
-maxIter=100;
+maxIter=30;
 saveIter=-1;
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
@@ -114,7 +114,7 @@ setV_x(obj,x0);
 setV_v(obj,v0);
 % Solve optimization
 mu0=1;
-maxIter=100;
+maxIter=30;
 saveIter=-1;
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
@@ -145,7 +145,7 @@ setP_b(obj,thisb);
 setV_x(obj,x0);
 % Solve optimization
 mu0=1;
-maxIter=100;
+maxIter=30;
 saveIter=-1;
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
 [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
