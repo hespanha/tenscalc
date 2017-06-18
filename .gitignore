@@ -18,22 +18,23 @@
 ## old files
 old/
 
-## files still to be fixed up
+## examples to be fixed
 /examples/*RSS*
 /examples/*rss*
 /examples/sphereSample.m
-/examples/dist2convex.m
 /examples/estimation.m
 /examples/estimates.eps
 /examples/*gps*.m
 /examples/*imu*.m
-/examples/minmax.m
 /examples/csparse/
 /examples/mpcmhe/mpcmhe_2integratorLatCS2.m
 /examples/mpcmhe/mpcmhe_transfer_function_known_zero.m
 /examples/mpcmhe/mpcmhe_unicycleLatCS.m
 /examples/regression*
 /examples/Regression*
+
+
+## other files to be fixed
 /test-asm/
 /test/
 /lib/tools/
