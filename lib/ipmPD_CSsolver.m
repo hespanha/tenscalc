@@ -32,16 +32,22 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
     
     iter=0;
     
-    printf1('%s.m (skipAffine=%d,delta=%g): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.skipAffine,obj.delta,obj.nU,obj.nG,obj.nF);
-    printf2('Iter   cost      |grad|     |eq|     inequal     dual      gap       mu      alphaA    sigma     alphaS   time [ms]\n');
-    printf2('%3d:<-mx tol-> %10.2e%10.2e                    %10.2e\n',maxIter,obj.gradTolerance,obj.equalTolerance,obj.desiredDualityGap);
-    
-    dt0=clock();
-    
     if obj.nF>0
         mu=mu0;
         alpha=0;
+        muMin=obj.desiredDualityGap/obj.nF/2;
     end 
+    
+    printf1('%s.m (skipAffine=%d,delta=%g): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.skipAffine,obj.delta,obj.nU,obj.nG,obj.nF);
+    printf2('Iter   cost      |grad|     |eq|     inequal     dual      gap       mu      alphaA    sigma     alphaS   time [ms]\n');
+    if obj.nF>0
+        printf2('%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n',...
+                maxIter,obj.gradTolerance,obj.equalTolerance,obj.desiredDualityGap,muMin);
+    else
+        printf2('%3d:<-mx tol-> %10.2e%10.2e\n',maxIter,obj.gradTolerance,obj.equalTolerance);
+    end
+    
+    dt0=clock();
     
     %initPrimalDual__(obj);
     initPrimal__(obj);
@@ -83,7 +89,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         
         if iter > maxIter 
             printf2('maximum # iterations (%d) reached.\n',maxIter);
-            status = -1;
+            status = 8;
             break; 
         end
 
@@ -138,7 +144,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         
         if isnan(norminf_grad) 
             printf2('  -> failed to invert hessian\n');
-            status = -2;
+            status = 4;
             break;
         end
         
@@ -156,21 +162,21 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             printf2('%10.2e%10.2e%10.2e',ineq,dual,gap);
             if (ineq<=0) 
                 printf2('  -> (primal) variables violate constraints\n');
-                status = -3;
+                status = 1;
                 break;
             end
             if (dual<=0) 
                 printf2('  -> negative value for dual variables\n');
-                    status = -4;
+                    status = 2;
                     break;
             end
         else
             printf2('   -ineq-    -dual-    -gap-  ');
         end
         
-        if norminf_grad<obj.gradTolerance && ...
-                (obj.nF==0 || gap<obj.desiredDualityGap) && ...
-                (obj.nG==0 || norminf_eq<obj.equalTolerance)
+        if norminf_grad<=obj.gradTolerance && ...
+                (obj.nF==0 || gap<=obj.desiredDualityGap) && ...
+                (obj.nG==0 || norminf_eq<=obj.equalTolerance)
             printf2('  -> clean exit\n');
             status = 0;
             break;
@@ -255,11 +261,10 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 
                 % update mu based on sigma, but this only seems to be safe for:
                 % 1) 'long' newton steps in the affine direction
-                % 2) equality constraints fairly well satisfied
-                % (perhaps not very important)
+                % 2) equality constraints fairly well satisfied (perhaps not very important)
                 % 3) small gradient
-                %th_grad=norminf_grad<max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<max(1e-3,1e2*obj.equalTolerance));
+                %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
                 if alpha>obj.alphaMax/2 && th_eq %&& th_grad 
                     sigma=getRho__(obj);
                     if (sigma>1) sigma=1; end
@@ -270,7 +275,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                         sigma=sigma*sigma*sigma;
                     end
                     printf2('%10.2e',sigma);
-                    mu=max(sigma*gap/obj.nF,obj.desiredDualityGap/obj.nF/2);
+                    mu=max(sigma*gap/obj.nF,muMin);
                     setMu__(obj,mu); 
                 else 
                     printf2('  -sigma- ');
@@ -300,7 +305,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 %printf(' minF(maxAlpha)=%10.3e ',ineq);
                 if isnan(ineq) 
                     printf2('  -> failed to invert hessian\n');
-                    status = -2;
+                    status = 4;
                     break;
                 end
                 if (ineq>0) 
@@ -355,20 +360,20 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 % 2) small gradient
                 % 3) equality constraints fairly well satisfied
                 % (2+3 mean close to the central path)
-                th_grad=norminf_grad<max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<max(1e-3,1e2*obj.equalTolerance));
+                th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
                 if alpha>obj.alphaMax/2 && th_grad && th_eq
-                    mu = max(mu*obj.muFactorAggressive,obj.desiredDualityGap/obj.nF/2);
+                    mu = max(mu*obj.muFactorAggressive,muMin);
                     setMu__(obj,mu); 
                     printf2(' * ');
                 else 
                     if alpha<.1
-                        mu=min(1e3,1.25*mu);
+                        mu=min(1e2,1.25*mu);
                         setMu__(obj,mu); 
                         initDualIneq__(obj);
                         printf2('^');
                     else
-                        mu=max(mu*obj.muFactorConservative,obj.desiredDualityGap/obj.nF/2);
+                        mu=max(mu*obj.muFactorConservative,muMin);
                         setMu__(obj,mu); 
                         printf2('v');
                     end
@@ -387,7 +392,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             
             % if no motion, slowly increase mu
             if (alpha<obj.alphaMin) 
-                mu=max(mu/sqrt(obj.muFactorConservative),obj.desiredDualityGap/obj.nF/2);
+                mu=max(mu/obj.muFactorConservative,muMin);
                 setMu__(obj,mu); 
             end
             
@@ -487,17 +492,46 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
 
     end % while(1)
     
+    if status == 8
+        norminf_grad=getNorminf_Grad__(obj);
+        if (norminf_grad>obj.gradTolerance) 
+            status=bitor(status,16);
+        end
+        if (obj.nG>0) 
+            norminf_eq=getNorminf_G__(obj);
+            if (norminf_eq>obj.equalTolerance)
+                status=bitor(status,32);
+            end
+        end
+        if (obj.nF>0)
+            [gap,ineq,dual]=getGapMinFMinLambda__(obj);
+            if (gap>obj.desiredDualityGap)
+                status=bitor(status,64);
+            end
+            if (mu>muMin)
+                status=bitor(status,128);
+            end
+            if (alpha<=obj.alphaMin)
+                status=bitor(status,1792); % (256|512|1024);
+            elseif (alpha<=.1)
+                status=bitor(status,1536); % (512|1024);
+            elseif (alpha<=.5)
+                status=bitor(status,1024);
+            end
+        end
+    end
+    
     time=etime(clock(),dt0);
     if obj.verboseLevel>=2
         J=getJ__(obj);
-        if obj.nG>0
+        if obj.nG>0 && status<8 % when status>=8 this has been already been computed
             norminf_eq=getNorminf_G__(obj);
         end
-        if obj.nF>0
+        if obj.nF>0 && status<8 % when status>=8 this has been already been computed
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
         end
         
-        printf1('%3d:status=%d, ',iter,status);
+        printf1('%3d:status=0x%s, ',iter,dec2hex(status));
         printf1('cost=%13.5e, ',full(J));
         norminf_grad=getNorminf_Grad__(obj);
         printf1('|grad|=%10.2e',norminf_grad);
@@ -505,7 +539,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             printf1(', |eq|=%10.2e',norminf_eq);
         end
         if obj.nF>0
-            printf1(', ineq=%10.2e, dual=%10.2e, gap=%10.2e, last alpha=%10.2e',ineq,dual,gap,alpha);
+            printf1(', ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e',ineq,dual,gap,alpha);
         end
         printf1(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end
