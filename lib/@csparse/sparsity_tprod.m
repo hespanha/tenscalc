@@ -24,9 +24,10 @@ function [subsY,instrY]=sparsity_tprod(obj,thisExp)
 verboseLevel=0;
 
 if verboseLevel>1
-    fprintf('Computing instructions for tprod... ');
-    t0=clock;
+    fprintf('Computing instructions for tprod...\n');
 end
+
+t0=clock;
 
 operands=getOne(obj.vectorizedOperations,'operands',thisExp);
 parameters=getOne(obj.vectorizedOperations,'parameters',thisExp);
@@ -40,10 +41,14 @@ for i=1:length(operands)
     subsX{i}=getOne(obj.vectorizedOperations,'subscripts',operands(i));
     instrX{i}=getOne(obj.vectorizedOperations,'instructions',operands(i));
     nnzX{i}=length(instrX{i});
+
+    if verboseLevel>1
+        fprintf('  Operand %d: size=[%s], nnz=%d, indices=[%s]\n',...
+                i,index2str(osizeX{i}),length(instrX{i}),index2str(parameters{i}));
+    end
     
     if verboseLevel>2
-        fprintf('Operand %d\n',i);
-        fprintf('  Subscripts (pre)\n');
+        fprintf('    Subscripts (pre)\n');
         disp(subsX{i})
     end
     % get subs in the right order for CStprodindices_raw
@@ -117,17 +122,29 @@ for i=operandOrder(2:end)
     end
 end
 
+% YS = matrix with the "expanded" product of all the factors
+%      columns: 1:nSums     -- columns corresponding to indices to be summed
+%               nSums+1:end -- columns corresponding to the result of tprod
+
 %subsYS
 %subsYS(nSums+1:end,:)
+
+% find nonzero entries of tprod
 [subsY,ia,ic]=unique(subsYS(nSums+1:end,:)','rows');
 subsY=subsY';
 
+if verboseLevel<=1 && length(ia)>10000
+    verboseLevel=2;
+    fprintf('Computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
+end
 
 %% Compute instructions
-
 instrY=nan(size(subsY,2),1);
 % ATTENTION: very slow, needs to be sped up
 for i=1:length(ia)
+    if verboseLevel>1 && mod(i,2000)==0
+        fprintf('%d ',i);
+    end
     k=find(ic==i);
     if size(instrYS,1)==1 && length(k)==1
         % no need to any sum_prod
@@ -149,7 +166,7 @@ if verboseLevel>1
 end
 
 if verboseLevel>0
-    fprintf('  sparsify_tprod(%d): size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
+    fprintf('  sparsify_tprod(%3d): size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
             thisExp,['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
     for i=1:length(operands)
         fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osizeX{i}),']'],nnzX{i});

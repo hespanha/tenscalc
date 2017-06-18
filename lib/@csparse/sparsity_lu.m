@@ -149,7 +149,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
                    double(instrX),n,n);
     instrLU=instrLU(p,q);
     Atyp=A(p,q);
-    save 'Atyp.mat' A p q Atyp
+    %save 'Atyp.mat' A p q Atyp
     
     rows2process=1:n;
     pp=nan(1,length(p));
