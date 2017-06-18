@@ -117,7 +117,9 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
             dst{end+1}=P2xnu;
             src{end+1}=Tones(nH);
         end
-        declareCopy(code,dst,src,'initDualEq__');
+        if ~isempty(dst)
+            declareCopy(code,dst,src,'initDualEq__');
+        end
         if nF>0
             dst={};
             src={};
@@ -170,6 +172,8 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
         %                       gradient(g+P2nu*Gd+P2xnu*H,d);
         %                       gradient(g+P2nu*Gd+P2xnu*H,x);]),'getNorminf_Grad__'); 
     else
+        Lf_x=Tzeros(0);
+        Lg_x=Tzeros(0);
         % for exit condition
         declareGet(code,norminf(Lf_u)+norminf(Lg_d),'getNorminf_Grad__'); 
     end
@@ -500,7 +504,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                 WW=[Lf_uz,Lf_un,Lf_ul;
                     Lg_dz,Lg_dn,Lg_dl;
                     G_z,Tzeros([nG,nG+nH+nF]);
-                    F_z,Tzeros([nG,nG+nH]),diag(F./lambda)];
+                    F_z,Tzeros([nF,nG+nH]),diag(F./lambda)];
             else
                 WW=[Lf_uz,Lf_un;
                     Lg_dz,Lg_dn;
