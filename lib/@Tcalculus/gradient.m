@@ -21,7 +21,9 @@ function grad=gradient(obj,var)
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
     
-    tprod_associate=true;
+    tprod_associate=false; % associativity often leads to tprods
+                           % that have many arguments and need to
+                           % be very much expanded
     
     if ~isequal(type(var),'variable')
         var
@@ -56,7 +58,7 @@ function grad=gradient(obj,var)
         objs{i}=Tcalculus(ops(i));
         grads{i}=gradient(objs{i},var);
     end
-    
+
     switch obj_type
       
       case {'zeros','ones','eye','constant'}
@@ -91,42 +93,50 @@ function grad=gradient(obj,var)
         grad=full(grads{1});
         
       case 'plus'
-        for i=1:length(objs)
-            if i==1
-                if inds{i}>0
-                    grad=grads{i};
+        if isempty(objs)
+            error('taking gradient of plus() with no arguments\n');
+        else
+            for i=1:length(objs)
+                if i==1
+                    if inds{i}>0
+                        grad=grads{i};
+                    else
+                        grad=-grads{i};
+                    end
                 else
-                    grad=-grads{i};
-                end
-            else
-                if inds{i}>0
-                    grad=grad+grads{i};
-                else
-                    grad=grad-grads{i};
+                    if inds{i}>0
+                        grad=grad+grads{i};
+                    else
+                        grad=grad-grads{i};
+                    end
                 end
             end
         end
-      
+        
       case 'tprod'
-        for i=1:length(objs)
-            ind1=[inds{i},(1:length(var_size))+length(obj_size)];
-            x='tprod(grads{i},ind1';
-            for j=1:length(objs)
-                if j~=i
-                    x=sprintf('%s,objs{%d},inds{%d}',x,j,j);
+        if isempty(objs)
+            error('taking gradient of prod() with no arguments\n');
+        else
+            for i=1:length(objs)
+                ind1=[inds{i},(1:length(var_size))+length(obj_size)];
+                x='tprod(grads{i},ind1';
+                for j=1:length(objs)
+                    if j~=i
+                        x=sprintf('%s,objs{%d},inds{%d}',x,j,j);
+                    end
                 end
-            end
-            if tprod_associate
-                if i==1
-                    grad=eval([x,',''associate'')']);
+                if tprod_associate
+                    if i==1
+                        grad=eval([x,',''associate'')']);
+                    else
+                        grad=grad+eval([x,',''associate'')']);
+                    end
                 else
-                    grad=grad+eval([x,',''associate'')']);
-                end
-            else
-                if i==1
-                    grad=eval([x,')']);
-                else
-                    grad=grad+eval([x,')']);
+                    if i==1
+                        grad=eval([x,')']);
+                    else
+                        grad=grad+eval([x,')']);
+                    end
                 end
             end
         end

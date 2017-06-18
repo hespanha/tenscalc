@@ -16,6 +16,10 @@ function obj=tprod(varargin)
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
     
+    if length(varargin)<2
+        error('tprod: t least 2 input arguments needed (%d found)\n',length(varargin));
+    end
+    
     if isequal(varargin{end},'associate')
         associate=1;
         varargin(end)=[];
@@ -23,14 +27,15 @@ function obj=tprod(varargin)
         associate=0;
         varargin(end)=[];
     else
-        associate=0;  % often faster
-        
         associate=1;  % often helps Hessian being symmetric, leading
                       % to smaller code/scratchbook, but is still
                       % slower;
                       % UPDATE: for sparsity_full seems to lead to
                       % same size & faster in latest version with
                       % unflating of tprod
+
+        associate=0;  % often faster because it avoids very time
+                      % consuming tprod
     end
     
     if isequal(varargin{end},'distribute')
@@ -51,6 +56,11 @@ function obj=tprod(varargin)
         return
     end
     
+    if isempty(objs)
+        varargin{:}
+        error('trying to create tprod() with no arguments\n');
+    end
+    
     %% Apply associative rule for tprod(tprod)
     if associate
         % flatten nested tprod's 
@@ -64,6 +74,10 @@ function obj=tprod(varargin)
                     break;
                 end
             end
+        end
+        if isempty(objs)
+            varargin{:}
+            error('associative rule resulted in tprod() with no arguments\n');
         end
     end
     
@@ -81,6 +95,10 @@ function obj=tprod(varargin)
                     end
                 end
             end
+        end
+        if isempty(objs)
+            varargin{:}
+            error('distributive rule resulted in tprod() with no arguments\n');
         end
     end
     

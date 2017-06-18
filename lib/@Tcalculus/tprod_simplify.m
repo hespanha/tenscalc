@@ -38,6 +38,12 @@ function obj=tprod_simplify(obj)
     objs=cell(length(ops),1);
     tprod_size=size(obj);
     sums_size=parameters(obj);
+
+    if isempty(ops)
+        obj
+        error('trying to simplify tprod with empty arguments\n');
+    end
+            
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
     end
@@ -51,7 +57,7 @@ function obj=tprod_simplify(obj)
             inds{i}=inds{i}(end:-1:1);
         end
     end
-    
+
     %% Process zeros(): -> zeros()
     %          eye():   -> remove summations/indices
     i=1;
@@ -119,7 +125,7 @@ function obj=tprod_simplify(obj)
     end
 
     %% Process ones() - remove multiplications by ones
-    c=1;                               % may need to multiply by this constant
+    c=1;                              % may need to multiply by this constant
     repma=nan(1,length(tprod_size));  % may need repmat
     toremove=[];
     for i=length(objs):-1:1
@@ -152,6 +158,7 @@ function obj=tprod_simplify(obj)
     % remove ones
     objs(toremove)=[];
     inds(toremove)=[];
+
     % process multiplication by scalar
     if c~=1
         % add multiplication by constant
@@ -173,10 +180,14 @@ function obj=tprod_simplify(obj)
             % remember for reshape;
             reshap(ks(k))=1;
         end
-        [ops,inds]=Tcalculus.tprod_sort_operands(objs,inds);
-        obj=Tcalculus('tprod',tprod_size,sums_size,ops,inds,1);
-        % simplify what is left
-        obj=tprod_simplify(obj);
+        if isempty(objs)
+            obj=Tones(tprod_size);
+        else
+            [ops,inds]=Tcalculus.tprod_sort_operands(objs,inds);
+            obj=Tcalculus('tprod',tprod_size,sums_size,ops,inds,1);
+            % simplify what is left
+            obj=tprod_simplify(obj);
+        end
         % add singleton dimensions to permit repmat
         obj=reshape(obj,reshap);
         % do repmat
@@ -254,6 +265,11 @@ function obj=tprod_simplify(obj)
     %     disp(obj,1,1)
     % end
 
+    if isempty(ops)
+        obj
+        error('tprod simplification result in tprod with empty arguments\n');
+    end
+    
     if ~isempty(msg)
         fprintf(msg)
         disp(obj)
