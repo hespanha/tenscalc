@@ -56,7 +56,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 
         s = RandStream('mt19937ar','Seed',0);
         % create random values preserving structural symmetries
-        values=1+.5*rand(length(uniqueInstrX),1);
+        values=1+.5*rand(s,length(uniqueInstrX),1);
         values=values(kuniqueInstrX);
         
         A=sparse(double(subsX(1,:)),double(subsX(2,:)),values,n,n);

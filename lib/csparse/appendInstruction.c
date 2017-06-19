@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 15-Jun-2017 16:58:28 */
+/* Created by script createGateway.m on 19-Jun-2017 10:17:19 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,7 +23,7 @@
     
     
 /* END OF #included "GPL.c" */
-/* mex -largeArrayDims COPTIMFLAGS="-Ofast -msse -msse2 -msse3 -msse4 -msse4.1 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" appendInstruction.c -outdir  */
+/* mex -largeArrayDims -I/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include -L/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib COPTIMFLAGS="-Ofast -msse -msse2 -msse3 -msse4 -msse4.1 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" appendInstruction.c -lumfpack -outdir  */
 
 #ifdef __linux__
 #include <dlfcn.h>

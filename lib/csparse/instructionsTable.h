@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 15-Jun-2017 16:58:31 */
+/* Created by script createGateway.m on 19-Jun-2017 10:17:24 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,7 +23,7 @@
     
     
 /* END OF #included "GPL.c" */
-/* gcc -I/Applications/MATLAB_R2016b.app/include -I/Applications/MATLAB_R2016b.app/extern/include -L/Applications/MATLAB_R2016b.app/bin/maci64 -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99  -DDYNAMIC_LIBRARY -DNDEBUG -dynamiclib -fvisibility=hidden -current_version 1.0 -compatibility_version 1.0 -Ofast -msse -msse2 -msse3 -msse4 -msse4.1 instructionsTable.c -lmx -lmex -lmat -lstdc++ -o ./instructionsTable.dylib */
+/* gcc -I/Applications/MATLAB_R2016b.app/include -I/Applications/MATLAB_R2016b.app/extern/include -I/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include -L/Applications/MATLAB_R2016b.app/bin/maci64 -L/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99  -DDYNAMIC_LIBRARY -DNDEBUG -dynamiclib -fvisibility=hidden -current_version 1.0 -compatibility_version 1.0 -Ofast -msse -msse2 -msse3 -msse4 -msse4.1 instructionsTable.c -lmx -lmex -lmat -lstdc++ -lumfpack -o ./instructionsTable.dylib */
 
 #include "mex.h"
 #include <stdint.h>

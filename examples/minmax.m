@@ -19,7 +19,8 @@
 %
 % This example solve several 2-player games.
 
-!rm -fr tmp* @tmp*
+!rm -rf toremove.m tmp* @tmp*
+clean all
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% Matrix-game Saddle-point

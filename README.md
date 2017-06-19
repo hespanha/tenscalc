@@ -65,9 +65,16 @@ To install
 
 	After this, you should have at least the following folders:
 
+	* `tenscalc`
 	* `tenscalc/lib`
 	* `tenscalc/examples`
 	* `tenscalc/doc`
+
+4. Enter `tenscalc` and execute the following command at the *Matlab* prompt:
+
+	```matlab
+	install_tenscalc
+	```
 
 4. Add `tenscalc/lib` and `tenscalc/lib/csparse` to your matlab path. 
    From inside the folder `tenscalc/lib`, this can be done with
@@ -78,16 +85,7 @@ To install
 	savepath
 	```
 
-5. Compile a set of `cmex` files needed by *TensCals* using the
-   *Matlab*, from inside the folder `tenscalc/lib`:
-
-	```matlab
-	compileInstructionsTable
-	```
-	
-	This requires the *CmexTools* toolbox.
-	
-6. To test if all is well, go to `tenscalc/examples` and try a few example, such as
+5. To test if all is well, go to `tenscalc/examples` and try a few example, such as
 
 	```matlab
 	mls

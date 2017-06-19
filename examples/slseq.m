@@ -21,8 +21,9 @@
 %       J(x)=\|Ax-b\|^2
 %
 
-!rm -rf tmp* @tmp*
 clear all
+!rm -rf toremove.m tmp* @tmp*
+
 s = RandStream('mt19937ar','Seed',0);
 RandStream.setGlobalStream(s);
 

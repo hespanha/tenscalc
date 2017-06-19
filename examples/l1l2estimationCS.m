@@ -16,7 +16,7 @@
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
 clear all
-!rm -f *toremove* tmpC*.c tmpC*.mex* tmpC*.h @tmp*/*.? @tmp*/*.log
+!rm -rf toremove.m tmp* @tmp*
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

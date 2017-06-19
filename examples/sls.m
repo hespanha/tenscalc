@@ -21,8 +21,8 @@
 %       J(x)=\|Ax-b\|^2
 %
 
-!rm -rf tmp* @tmp*
 clear all
+!rm -rf toremove.m tmp* @tmp*
 
 %generateSolver=@class2optimizeCS;
 generateSolver=@cmex2optimizeCS;
