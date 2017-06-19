@@ -76,15 +76,6 @@ To install
 	install_tenscalc
 	```
 
-4. Add `tenscalc/lib` and `tenscalc/lib/csparse` to your matlab path. 
-   From inside the folder `tenscalc/lib`, this can be done with
-
-	```matlab
-	addpath(fileparts(which(`class2optimizeCS`)));
-	addpath([fileparts(which(`class2optimizeCS`)),'/csparse']);
-	savepath
-	```
-
 5. To test if all is well, go to `tenscalc/examples` and try a few example, such as
 
 	```matlab
