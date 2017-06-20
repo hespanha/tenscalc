@@ -76,6 +76,9 @@ To install
 	install_tenscalc
 	```
 
+	Under *linux* you will be asked to add a line to your
+    *.bashcr* or *.cshrc* file. Do not forget to do so.
+
 5. To test if all is well, go to `tenscalc/examples` and try a few example, such as
 
 	```matlab
