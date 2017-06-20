@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 19-Jun-2017 21:21:55 */
+/* Created by script createGateway.m on 20-Jun-2017 14:44:14 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -108,7 +108,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
    /* Call function */
    if (!PgetInstruction4MEX) {
 #ifdef __linux__
-     libHandle = dlopen("./instructionsTable.so", RTLD_NOW);
+     libHandle = dlopen("instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PgetInstruction4MEX = dlsym(libHandle, "getInstruction4MEX");
      if (!PgetInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
