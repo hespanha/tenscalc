@@ -1,6 +1,10 @@
 ## Apple stuff
 .DS_Store
 
+## emacs backups
+auto/
+*~
+
 ## related packages
 /TimDavis/
 /dag_trans_red/
