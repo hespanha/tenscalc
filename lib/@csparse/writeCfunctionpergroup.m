@@ -306,7 +306,7 @@ for i=1:length(obj.atomicVariables)
     % fprintf(fid,'  if (Numeric[%d]) umfpack_di_free_numeric(&Numeric[%d]);\n',i-1,i-1);
 end
 if profiling
-    fprintf(fid,'  profilingView();\n');
+    fprintf(fid,'  profilingView("%s.profile");\n',fullfile(folder,Cfunction));
 end
 fprintf(fid,'  free(scratchbook);\n');
 fprintf(fid,'  printf("%%s: freed scrapbook, unloading dynamic library\\n", __FILE__);\n');
@@ -326,7 +326,7 @@ for i=1:length(obj.atomicVariables)
     % fprintf(fid,'  if (Numeric[%d]) umfpack_di_free_numeric(&Numeric[%d]);\n',i-1,i-1);
 end
 if profiling
-    fprintf(fid,'  profilingView();\n');
+    fprintf(fid,'  profilingView("%s.profile");\n',fullfile(folder,Cfunction));
 end
 fprintf(fid,'  free(scratchbook);\n');
 fprintf(fid,'  printf("%%s: freed scrapbook, unloading dynamic library\\n", __FILE__);\n');
@@ -345,7 +345,7 @@ for i=1:length(obj.atomicVariables)
     % fprintf(fid,'       if (Numeric[%d]) umfpack_di_free_numeric(&Numeric[%d]);\n',i-1,i-1);
 end
 if profiling
-    fprintf(fid,'       profilingView();\n');
+    fprintf(fid,'  profilingView("%s.profile");\n',fullfile(folder,Cfunction));
 end
 fprintf(fid,'       free(scratchbook);\n');
 fprintf(fid,'       printf("%%s: freed scrapbook, unloading dynamic library\\n", __FILE__);\n');
