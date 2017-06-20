@@ -1,4 +1,4 @@
-function types=instructionTypes()
+function [iTypes,pTypes]=instructionTypes()
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -17,7 +17,7 @@ function types=instructionTypes()
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
     
-types={
+instructionTypes={
     'I_set'                % no operation needed (value determined by set)
                            %   no parameters
     'I_load'               % load memory location with constant value
@@ -157,5 +157,26 @@ types={
     'I_Mcompose'
 };
 
-m=mat2cell(int32(1:length(types)),1,ones(1,length(types)));
-types=cell2struct(m,types,2);
+% 1-based values
+m=mat2cell(int32(1:length(instructionTypes)),1,ones(1,length(instructionTypes)));
+iTypes=cell2struct(m,instructionTypes,2);
+
+profileTypes={
+    'P_nsum'
+    'P_nprod'
+    'P_ndiv'
+    'P_nif'
+    'P_nclp'
+    'P_nabs'
+    'P_nsqrt'
+    'P_npow'
+    'P_ntrig'
+    'P_nlog'
+    'P_nexp'
+    'P_numfpack';
+    };
+
+% 1-based values
+m=mat2cell(int32(1:length(profileTypes)),1,ones(1,length(profileTypes)));
+pTypes=cell2struct(m,profileTypes,2);
+

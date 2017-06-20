@@ -92,6 +92,9 @@ EXPORT int writeCinstructionsC(/* inputs */
 			       int64_t *indices,          // indices of instructions to write
 			       int64_t *memoryLocations,  // memory locations for
 			                                  // all instructions
+                               /* outputs */
+                               int64_t *profile,          // array with instruction counts
+
 			       /* sizes */
 			       mwSize nInstructions,     // # of instructions to write
 			       mwSize NInstructions);    // total # of instructions

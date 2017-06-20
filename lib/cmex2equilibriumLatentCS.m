@@ -524,6 +524,9 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         'AdmissibleValues',{true,false},...
         'Description',{
             'When nonzero, adds profiling to the C code.'
+            ' '
+            'Accumulated profiling information is diplayed on the screen when the'
+            'dynamic library is unloaded.'
                       });
     
     %% Output parameters

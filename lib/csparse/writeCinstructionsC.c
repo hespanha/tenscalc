@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 19-Jun-2017 10:17:19 */
+/* Created by script createGateway.m on 19-Jun-2017 21:21:55 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -53,6 +53,8 @@ void (*PwriteCinstructionsC)(
    /* inputs */
    int64_t *indices,
    int64_t *memoryLocations,
+   /* outputs */
+   int64_t *countFlops,
    /* sizes */
    mwSize nInstructions,
    mwSize NInstructions)=NULL;
@@ -65,6 +67,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    /* inputs */
    int64_t *indices;
    int64_t *memoryLocations;
+   /* outputs */
+   int64_t *countFlops;
    /* sizes */
    mwSize nInstructions;
    mwSize NInstructions;
@@ -102,10 +106,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
    /* Process outputs */
 
    /* Check # outputs */
-   if(nlhs!=0) {
-      mexErrMsgIdAndTxt("writeCinstructionsC:nrhs", "0 outputs required, %d found.",nlhs);
+   if(nlhs!=1) {
+      mexErrMsgIdAndTxt("writeCinstructionsC:nrhs", "1 outputs required, %d found.",nlhs);
       return; }
 
+   /* output countFlops */
+   { mwSize dims[]={12,1};
+     plhs[0] = mxCreateNumericArray(2,dims,mxINT64_CLASS,mxREAL);
+     countFlops=mxGetData(plhs[0]); }
 
    /* Call function */
    if (!PwriteCinstructionsC) {
@@ -126,5 +134,5 @@ void mexFunction( int nlhs, mxArray *plhs[],
      if (!PwriteCinstructionsC) { printf("[%s] Unable to get symbol\n",__FILE__);return; }
 #endif // _WIN32
    }
-   PwriteCinstructionsC(indices,memoryLocations,nInstructions,NInstructions);
+   PwriteCinstructionsC(indices,memoryLocations,countFlops,nInstructions,NInstructions);
 }

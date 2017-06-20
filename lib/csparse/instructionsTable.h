@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 19-Jun-2017 10:17:24 */
+/* Created by script createGateway.m on 19-Jun-2017 21:22:00 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -79,6 +79,8 @@ EXPORT void getDependencies4MEX(   /* outputs */
 EXPORT void writeCinstructionsC(   /* inputs */
    int64_t *indices,
    int64_t *memoryLocations,
+   /* outputs */
+   int64_t *countFlops,
    /* sizes */
    mwSize nInstructions,
    mwSize NInstructions);

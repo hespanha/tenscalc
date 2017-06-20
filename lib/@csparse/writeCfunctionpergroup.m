@@ -73,7 +73,6 @@ m_storageclass='register'; % 'register' does not seem to have any
                            % effect on -O0 or -O1 for the apple
                            % compiler, but may help for other compilers
 
-
 if verboseLevel>0
     fprintf('  writeCfunctionpergroup ');
     t0=clock;
@@ -87,6 +86,7 @@ NcallComputeFunctions=3;
 if profiling
     callComputeFunctions=[callComputeFunctions,'  countCallGroup[%d]++;\n'];
     NcallComputeFunctions=NcallComputeFunctions+1;
+    [iTypes,pTypes]=instructionTypes();
 end
 if obj.debug>0
     callComputeFunctions=[callComputeFunctions,'  else { fprintf(stderr,"(skipping group %d)\\n"); }\n'];
@@ -189,6 +189,10 @@ if profiling
     fprintf(fid,'char    *copyNames[]={%s};\n',names(1:end-1));
     fprintf(fid,'long    countCallCopy[]={%s};\n',index2str(zeros(1,length(obj.copies))));
     fprintf(fid,'clock_t timeExecuteCopy[]={%s};\n',index2str(zeros(1,length(obj.copies))));
+    fprintf(fid,'uint64_t countFlops[]={%s};\n',index2str(zeros(1,length(fields(pTypes)))));
+    names=fields(pTypes);
+    names=sprintf('"%s",',names{:});
+    fprintf(fid,'char    *flopsNames[]={%s};\n',names(1:end-1));
     fprintf(fid,'/* Copied from writeCprofiling.c */\n');
     wh=which('csparse');
     f=fopen(fullfile(fileparts(wh),'writeCprofiling.c'),'r');
@@ -448,12 +452,22 @@ for i=1:nGroups
             writeCinstructions(obj,fig,k);    
         else
             % not pretty, but apparently C cannot use matlab's fig
-            writeCinstructionsC(int64(k),int64(obj.memoryLocations'));  
+            countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'));
             f=fopen('tmp_toremove.c','r');
             str=fread(f,inf);
             fclose(f);
             delete('tmp_toremove.c');
             fwrite(fig,str);
+
+            for q=1:length(countFlops)
+                if countFlops(q)>0
+                    if profiling
+                        fprintf(fig,'   countFlops[%d] += %d;\n',q-1,countFlops(q));
+                    else
+                        fprintf(fig,'   // countFlops[%d] += %d;\n',q-1,countFlops(q));
+                    end
+                end
+            end
         end
       case 'C+asmSB',
         if ~strcmp(obj.scratchbookType,'double')

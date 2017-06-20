@@ -23,7 +23,16 @@ void profilingView()
   int nGets  =sizeof(getNames)/sizeof(getNames[0]);
   int nSets  =sizeof(setNames)/sizeof(setNames[0]);
   int nCopies=sizeof(copyNames)/sizeof(copyNames[0]);
+  int nFlops =sizeof(flopsNames)/sizeof(flopsNames[0]);
 
+  printf("Operation    Count\n");
+  int64_t c=0;
+  for (int i=0;i<nFlops;i++) {
+    printf("%-10s%9"PRId64"\n",flopsNames[i],countFlops[i]);
+    c+=countFlops[i];
+  }
+  printf("  Total   %9"PRId64"\n",c);
+  
   long calls=0,execs=0, time=0;
   printf("Group   calls    execs   time [us]\n");
   //      <234> <2345678><2345678><23456789>
