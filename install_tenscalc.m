@@ -14,6 +14,9 @@ fprintf('adding to path:\n');
 addpath(folders{:});
 disp(folders)
 
+fprintf('Compiling...\n');
+compileInstructionsTable;
+
 fprintf('saving path...');
 try
     savepath;
