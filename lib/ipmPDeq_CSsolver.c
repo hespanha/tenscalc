@@ -81,7 +81,7 @@ extern void getGap__(double *gap);
 
 #if verboseLevel>=3
 #include "mex.h"
-#define printf mexPrintf
+#define printf(...) mexPrintf(__VA_ARGS__)
 #endif
 
 /*****************/
