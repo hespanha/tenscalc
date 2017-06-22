@@ -1,23 +1,23 @@
-fprintf('Seeting up path...');
+fprintf('Seeting up path...\n');
 home=[fileparts(which('install_tenscalc')),'/lib'];
 folders={home;[home,'/csparse']};
 
 s=path;
 old=regexp(s,'[^:]*tenscalc[^:]*','match');
 if ~isempty(old)
-    fprintf('removing from path:\n');
+    fprintf('  removing from path:\n');
     disp(old')
     rmpath(old{:})
 end
 
-fprintf('adding to path:\n');
+fprintf('  adding to path:\n');
 addpath(folders{:});
 disp(folders)
 
 fprintf('Compiling...\n');
 compileInstructionsTable;
 
-if true %strcmp(lower(computer(,'glnxa64')))
+if strcmp(lower(computer),'glnxa64')
     fprintf('ATTENTION:\n');
     fprintf('If using the bash shell, add the following line to your .bashrc file:\n');
     fprintf('  export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH\n',fileparts(which('instructionsTable_load')));
@@ -26,7 +26,7 @@ if true %strcmp(lower(computer(,'glnxa64')))
 end
 
 
-fprintf('saving path...');
+fprintf('Saving path...');
 try
     savepath;
 catch me
