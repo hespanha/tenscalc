@@ -31,17 +31,8 @@ clear all
 solverGeneration=@cmex2optimizeCS;
 solverVerboseLevel=1;
 
-N=400;
+N=60;
 
-
-% -O1
-compilerOptimization='-O1';
-stats=[% N,        flops,  time [s], dylib [b], data [dbls]
-        30, 1.962100e+04, 1.189e-05,    199032,      2138,2.000e-05; % solverVerboseLevel=1
-        60, 1.139460e+05, 6.395e-05,   1096056,      7868,8.400e-05; % solverVerboseLevel=1      
-       100, 4.492460e+05, 2.811e-04,   4331912,     21108,1.350e-04; % solverVerboseLevel=1
-       150, 1.385121e+06, 1.382e-03,  13461896,     46658,5.840e-04; % solverVerboseLevel=1
-      ];
 
 % -O0
 compilerOptimization='-O0';
@@ -51,6 +42,15 @@ stats=[% N,        flops,  time [s], dylib [b], data [dbls]
        100, 4.492460e+05, 5.053e-04,   6109448,     21108,1.360e-04; % solverVerboseLevel=1
        200, 3.128496e+06, 4.625e-03,  42973448,     82208,7.230e-04; % solverVerboseLevel=1
        300, 1.003775e+07, 2.359e-02, 138610952,    183308,1.984e-03; % solverVerboseLevel=1
+      ];
+
+% -O1
+compilerOptimization='-O1';
+stats=[% N,        flops,  time [s], dylib [b], data [dbls]
+        30, 1.962100e+04, 1.189e-05,    199032,      2138,2.000e-05; % solverVerboseLevel=1
+        60, 1.139460e+05, 6.395e-05,   1096056,      7868,8.400e-05; % solverVerboseLevel=1      
+       100, 4.492460e+05, 2.811e-04,   4331912,     21108,1.350e-04; % solverVerboseLevel=1
+       150, 1.385121e+06, 1.382e-03,  13461896,     46658,5.840e-04; % solverVerboseLevel=1
       ];
 
 
