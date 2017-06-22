@@ -66,23 +66,19 @@ extern void saveWW__(char *filename);
 
 //#define DEBUG
 
-#if verboseLevel>=3
-#include "mex.h"
-#define printf(...) mexPrintf(__VA_ARGS__)
-#endif
-
 /*****************/
 /* Main function */
 /*****************/
 
 #if verboseLevel>=2
-#define printf2(...) printf(__VA_ARGS__)
+#define printf2(...) mexPrintf(__VA_ARGS__)
 #else
 #define printf2(...) 
 #endif
 
 #if verboseLevel>=3
-#define printf3(...) printf(__VA_ARGS__)
+#include "mex.h"
+#define printf3(...) mexPrintf(__VA_ARGS__)
 #else
 #define printf3(...) 
 #endif
@@ -206,7 +202,7 @@ EXPORT void ipmPD_CSsolver(
 	printf3("  -> failed to invert hessian\n");
 	(*status) = 4;
 #if allowSave==1
-	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	saveWW__(saveNamePrefix "_WW.values");
 #endif
 	break;
@@ -266,7 +262,7 @@ EXPORT void ipmPD_CSsolver(
 
 #if allowSave==1
     if ((*iter)==(*saveIter)) {
-      printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
+      mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
@@ -289,7 +285,7 @@ EXPORT void ipmPD_CSsolver(
 
     alpha = MIN(primalAlpha,dualAlpha);
     alphaMax_ = (alpha<alphaMax)?alpha:alphaMax;
-    //printf("\nAlphaPrimal_a = %10.3e, AlphaDual_a = %10.3e\n",primalAlpha,dualAlpha);
+    //mexPrintf("\nAlphaPrimal_a = %10.3e, AlphaDual_a = %10.3e\n",primalAlpha,dualAlpha);
 
     if (alphaMax_ >= alphaMin) {
       // try max
@@ -370,7 +366,7 @@ EXPORT void ipmPD_CSsolver(
 
 #if allowSave==1
     if ((*iter)==(*saveIter)) {
-      printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
+      mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
@@ -379,18 +375,18 @@ EXPORT void ipmPD_CSsolver(
     
     alpha = STEPBACK*MIN(primalAlpha,dualAlpha);
     alphaMax_ = (alpha<alphaMax)?alpha:alphaMax;
-    //printf("\n\tAlphaPrimal_s=%10.3e, AlphaDual_s=%10.3e, alpha=%10.3e ",primalAlpha,dualAlpha,alphaMax_);
+    //mexPrintf("\n\tAlphaPrimal_s=%10.3e, AlphaDual_s=%10.3e, alpha=%10.3e ",primalAlpha,dualAlpha,alphaMax_);
 
     if (alphaMax_ >= alphaMin) {
       // try max
       alpha=alphaMax_/STEPBACK;
       setAlpha__(&alpha);getMinF_s__(&ineq);
-      //printf(" minF(maxAlpha=%10.3e)=%10.3e ",alpha,ineq);
+      //mexPrintf(" minF(maxAlpha=%10.3e)=%10.3e ",alpha,ineq);
       if (isnan(ineq)) {
 	  printf3("  -> failed to invert hessian\n");
 	  (*status) = 4;
 #if allowSave==1
-	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	  mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	  saveWW__(saveNamePrefix "_WW.values");
 #endif
 	  break;
@@ -399,7 +395,7 @@ EXPORT void ipmPD_CSsolver(
         alpha *= STEPBACK;
 	// recheck just to be safe in case not convex
 	setAlpha__(&alpha);getMinF_s__(&ineq1);
-	//printf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
+	//mexPrintf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
 	if (ineq1>ineq/10)
 	  updatePrimalDual__();
       }
@@ -407,18 +403,18 @@ EXPORT void ipmPD_CSsolver(
         // try min
 	alpha=alphaMin/STEPBACK;
 	setAlpha__(&alpha);getMinF_s__(&ineq);
-	//printf(" minF(minAlpha=%10.3e)=%10.3e ",alpha,ineq);
+	//mexPrintf(" minF(minAlpha=%10.3e)=%10.3e ",alpha,ineq);
 	if (ineq>0) {
           // try between min and max
 	  for (alpha = alphaMax_*.95;alpha >= alphaMin;alpha /= 2) {
             setAlpha__(&alpha);getMinF_s__(&ineq);
-	    //printf(" minF(%g)=%10.3e ",alpha,ineq);
+	    //mexPrintf(" minF(%g)=%10.3e ",alpha,ineq);
 	    if (ineq>0) {
 	      // backtrace just a little
               alpha *= STEPBACK;
 	      // recheck just to be safe in case not convex
 	      setAlpha__(&alpha);getMinF_s__(&ineq1);
-	      //printf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
+	      //mexPrintf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
 	      if (ineq1>ineq/10) {
 		updatePrimalDual__();
 		break; }
@@ -470,15 +466,15 @@ EXPORT void ipmPD_CSsolver(
       }
 #if verboseLevel>=3
       if (th_grad)
-	printf("g");
+	printf3("g");
       else
-	printf(" ");
+	printf3(" ");
 #if nG>0
       if (th_eq)
-	printf("e");
+	printf3("e");
       else
 #endif
-	printf(" ");
+	printf3(" ");
 #endif
     }
 #endif
@@ -499,7 +495,7 @@ EXPORT void ipmPD_CSsolver(
 
 #if allowSave==1
   if ((*saveIter)==0 && (*status)==0) {
-      printf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
+      mexPrintf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
