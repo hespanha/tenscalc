@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include <time.h>
-#include "math.h"
+#include <math.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -84,6 +84,7 @@ extern void getGap__(double *gap);
 /*****************/
 
 #if verboseLevel>=2
+#include <mex.h>
 #define printf2(...) mexPrintf(__VA_ARGS__)
 #else
 #define printf2(...) 

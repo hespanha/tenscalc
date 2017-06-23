@@ -17,15 +17,6 @@ disp(folders)
 fprintf('Compiling...\n');
 compileInstructionsTable;
 
-if strcmp(lower(computer),'glnxa64')
-    fprintf('ATTENTION:\n');
-    fprintf('If using the bash shell, add the following line to your .bashrc file:\n');
-    fprintf('  export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH\n',fileparts(which('instructionsTable_load')));
-    fprintf('If using the csh/tcsh shell, add the following line to your .cshrc file:\n');
-    fprintf('  setenv LD_LIBRARY_PATH %s:$LD_LIBRARY_PATH\n',fileparts(which('instructionsTable_load')));
-end
-
-
 fprintf('Saving path...');
 try
     savepath;

@@ -104,7 +104,7 @@ if ~isempty(Hfunction)
     end
     includeFile(fih,'GPL.c');
     fprintf(fih,'#include <stdint.h> /* needed by uint64_t */\n');
-    fprintf(fih,'#include "matrix.h" /* needed by IPM solvers */\n');
+    fprintf(fih,'#include <matrix.h> /* needed by IPM solvers */\n');
 end
 
 if ~isempty(logFile)
@@ -207,7 +207,7 @@ fprintf(fid,'#define SCRATCHBOOK_TYPE %s\n',obj.scratchbookType);
 fprintf(fid,'SCRATCHBOOK_TYPE dbl_max=DBL_MAX;\n');
 %% Write declarations for atomic variables
 if length(obj.atomicVariables)>0
-    fprintf(fid,'#include "umfpack.h"\n');
+    fprintf(fid,'#include <umfpack.h>\n');
     fprintf(fid,'double *null = (double *) NULL ;\n');
     % Symbolic & numeric
     fprintf(fid,'void *Symbolic[%d]={NULL',length(obj.atomicVariables));

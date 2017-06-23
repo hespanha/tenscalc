@@ -19,7 +19,7 @@
 
 #include <string.h>
 #include <time.h>
-#include "math.h"
+#include <math.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -71,13 +71,13 @@ extern void saveWW__(char *filename);
 /*****************/
 
 #if verboseLevel>=2
+#include <mex.h>
 #define printf2(...) mexPrintf(__VA_ARGS__)
 #else
 #define printf2(...) 
 #endif
 
 #if verboseLevel>=3
-#include "mex.h"
 #define printf3(...) mexPrintf(__VA_ARGS__)
 #else
 #define printf3(...) 

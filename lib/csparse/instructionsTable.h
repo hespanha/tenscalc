@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 21-Jun-2017 23:54:13 */
+/* Created by script createGateway.m on 22-Jun-2017 21:15:54 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,9 +23,9 @@
     
     
 /* END OF #included "GPL.c" */
-/* gcc -I/Applications/MATLAB_R2016b.app/include -I/Applications/MATLAB_R2016b.app/extern/include -I/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include -L/Applications/MATLAB_R2016b.app/bin/maci64 -L/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99  -DDYNAMIC_LIBRARY -DNDEBUG -dynamiclib -fvisibility=hidden -current_version 1.0 -compatibility_version 1.0 -Ofast -msse -msse2 -msse3 -msse4 -msse4.1 instructionsTable.c -lmx -lmex -lmat -lstdc++ -lumfpack -o ./instructionsTable.dylib */
+/* gcc -I/Applications/MATLAB_R2016b.app/include -I/Applications/MATLAB_R2016b.app/extern/include -I/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include -L/Applications/MATLAB_R2016b.app/bin/maci64 -L/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99  -DDYNAMIC_LIBRARY -DNDEBUG -dynamiclib -fvisibility=hidden -current_version 1.0 -compatibility_version 1.0 -Ofast -msse -msse2 -msse3 -msse4 -msse4.1 instructionsTable.c -lmx -lmex -lmat -lstdc++ -lumfpack -o /Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib */
 
-#include "mex.h"
+#include <mex.h>
 #include <stdint.h>
 #ifdef DYNAMIC_LIBRARY
 #ifdef __APPLE__

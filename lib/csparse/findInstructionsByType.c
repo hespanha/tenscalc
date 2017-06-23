@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 21-Jun-2017 23:54:06 */
+/* Created by script createGateway.m on 22-Jun-2017 21:15:49 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -38,7 +38,7 @@
 #include <stdint.h>
 #endif
 #include <fcntl.h>
-#include "mex.h"
+#include <mex.h>
 
 #ifdef __linux__
 void *libHandle=NULL;
@@ -98,17 +98,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
    /* Call function */
    if (!PfindInstructionsByType4MEX) {
 #ifdef __linux__
-     libHandle = dlopen("instructionsTable.so", RTLD_NOW);
+     libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PfindInstructionsByType4MEX = dlsym(libHandle, "findInstructionsByType4MEX");
      if (!PfindInstructionsByType4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
 #elif __APPLE__
-     libHandle = dlopen("./instructionsTable.dylib", RTLD_NOW);
+     libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PfindInstructionsByType4MEX = dlsym(libHandle, "findInstructionsByType4MEX");
      if (!PfindInstructionsByType4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
 #elif _WIN32
-     libHandle = LoadLibrary("./instructionsTable.dll");
+     libHandle = LoadLibrary("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dll");
      if (!libHandle) { printf("[%s] Unable to open library\n",__FILE__);return; }
      PfindInstructionsByType4MEX = GetProcAddress(libHandle, "findInstructionsByType4MEX");
      if (!PfindInstructionsByType4MEX) { printf("[%s] Unable to get symbol\n",__FILE__);return; }
