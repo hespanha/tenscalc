@@ -50,6 +50,8 @@ instructionTypes={
                            %   operands = a0,a1,b1,a2,b2,....
     'I_plus_sqr'           % norm-2 square: a1^2+a2^2+...
                            %   operands = a1,a2,....
+    'I_plus_abs'           % norm-1 square: |a1|+|a2|+...
+                           %   operands = a1,a2,....
     'I_plus_minus_dot_div' % subtract dot-product & divide: (a0-a1*b1-a2*b2-...)/b0
                            %   operands = a0,b0,a1,b1,a2,b2,....
     'I_min'                % computes the min: min(a1,a2,...);
@@ -77,6 +79,8 @@ instructionTypes={
     'I_minus_sin'          % computes -sin(a1)
                            %   operand = a1
     'I_abs'                % computes abs(a1)
+                           %   operand = a1
+    'I_sign'               % computes sign(a1)
                            %   operand = a1
     'I_sqrt'               % computes sqrt(a1)
                            %   operand = a1
@@ -127,6 +131,7 @@ instructionTypes={
     
 %% Matlab instructions
     'I_Mnorm2'
+    'I_Mnorm1'
     'I_Mnorminf'
     'I_Mplus'
     'I_Mmtimes'
@@ -168,6 +173,7 @@ profileTypes={
     'P_nif'
     'P_nclp'
     'P_nabs'
+    'P_nsign'
     'P_nsqrt'
     'P_npow'
     'P_ntrig'

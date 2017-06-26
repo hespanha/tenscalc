@@ -266,6 +266,9 @@ for jj=1:length(ks)
               case 'norm2'
                 [subscripts,instructions]=sparsity_norm2(obj,thisExp);
             
+              case 'norm1'
+                [subscripts,instructions]=sparsity_norm1(obj,thisExp);
+            
               case 'norminf'
                 [subscripts,instructions]=sparsity_norminf(obj,thisExp);
             
@@ -323,6 +326,7 @@ for jj=1:length(ks)
                            '@(x__)exp(x__)';
                            '@(x__)sin(x__)';'@(x__)-sin(x__)';
                            '@(x__)cos(x__)';'@(x__)-cos(x__)';
+                           '@(x__)abs(x__)';'@(x__)sign(x__)';
                            '@(x__)sqrt(x__)';'@(x__).5./sqrt(x__)';'@(x__)-.25./x__.^1.5';
                            '@(x__)x__.^2';'@(x__)2*x__';'@(x__)2*ones(size(x__))';
                            '@(x__)x__.^3';'@(x__)3*x__.^2';'@(x__)6*x__';
@@ -332,6 +336,7 @@ for jj=1:length(ks)
                              obj.Itypes.I_exp;
                              obj.Itypes.I_sin;obj.Itypes.I_minus_sin;
                              obj.Itypes.I_cos;obj.Itypes.I_minus_cos;
+                             obj.Itypes.I_abs;obj.Itypes.I_sign;
                              obj.Itypes.I_sqrt;obj.Itypes.I_Dsqrt;obj.Itypes.I_DDsqrt;
                              obj.Itypes.I_sqr;obj.Itypes.I_2times;obj.Itypes.I_2;
                              obj.Itypes.I_cube;obj.Itypes.I_3sqr;obj.Itypes.I_6times;
@@ -341,6 +346,7 @@ for jj=1:length(ks)
                               @sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;
                               @sparsity_compose_full;@sparsity_compose_full;
+                              @sparsity_compose;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose_full;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose;

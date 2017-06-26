@@ -639,6 +639,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 #define countFlops_nif      countFlops[P_nif-1]
 #define countFlops_nclp     countFlops[P_nclp-1]
 #define countFlops_nabs     countFlops[P_nabs-1]
+#define countFlops_nsign    countFlops[P_nsign-1]
 #define countFlops_nsqrt    countFlops[P_nsqrt-1]
 #define countFlops_npow     countFlops[P_npow-1]
 #define countFlops_ntrig    countFlops[P_ntrig-1]
@@ -646,7 +647,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 #define countFlops_nexp     countFlops[P_nexp-1]
 #define countFlops_numfpack countFlops[P_numfpack-1]
 
-#if P_nCountFlops != 12
+#if P_nCountFlops != 13
 #error "update outputs field of writeCinstructionsC()"
 #endif
  
@@ -836,6 +837,21 @@ EXPORT int writeCinstructionsC(/* inputs */
       fprintf(fid,";//plus-sqr(%"PRId64")\n",indices[0]);
       break;
       
+    case I_plus_abs:
+      countFlops_nsum  += (nOperands-1);
+      countFlops_nabs  += nOperands;
+
+      fprintf(fid,"\tm[%"PRId64"]=",memoryLocations[indices[0]-1]-1);
+      do {
+	fprintf(fid,"fabs(m[%"PRId64"])",memoryLocations[(*(operands++))-1]-1);
+	nOperands--;
+	if (nOperands>0) {
+	  fprintf(fid,"+");
+	} else break;
+      } while (1);
+      fprintf(fid,";//plus-abs(%"PRId64")\n",indices[0]);
+      break;
+      
     case I_min:
       countFlops_nsum += (nOperands-1);
       countFlops_nif  += (nOperands-1);
@@ -940,11 +956,16 @@ EXPORT int writeCinstructionsC(/* inputs */
 	nOperands-=2;
       }
       break;
-      
     case I_abs:
       countFlops_nabs  += nOperands;
       
       fprintf(fid,"\tm[%"PRId64"]=fabs(m[%"PRId64"]);//abs(%"PRId64")\n",
+	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
+    case I_sign:
+      countFlops_nsign  += nOperands;
+      
+      fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>=0)?1:-1;//sign(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_2:

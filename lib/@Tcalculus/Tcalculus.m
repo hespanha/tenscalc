@@ -443,6 +443,15 @@ classdef Tcalculus
             updateFile2table(obj,1);
         end
         
+        function obj=norm1(obj1)
+            if strcmp(type(obj1),'zeros')
+                obj=Tzeros([]);
+                updateFile2table(obj,1);
+            else
+                obj=Tcalculus('norm1',[],[],obj1.TCindex,{},1);
+            end
+        end
+        
         function obj=norm2(obj1)
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
@@ -740,9 +749,9 @@ classdef Tcalculus
             end
         end
             
-        function obj=abs(obj1)
-            obj=Tcalculus('abs',size(obj1),[],obj1.TCindex,{},1);
-        end
+        %function obj=abs(obj1)
+        %    obj=Tcalculus('abs',size(obj1),[],obj1.TCindex,{},1);
+        %end
 
         function obj=compose(obj1,varargin)
 
@@ -760,6 +769,11 @@ classdef Tcalculus
             obj=Tcalculus('compose',[size(obj1),fsize],varargin,obj1.TCindex,{},1);
         end
         
+        function obj=abs(obj1)
+            obj=compose(obj1,@(x__)abs(x__),@(x__)sign(x__),@(x__)zeros(size(x__)));
+            updateFile2table(obj,1);
+        end
+
         function obj=exp(obj1)
             obj=compose(obj1,@(x__)exp(x__),@(x__)exp(x__),@(x__)exp(x__));
             updateFile2table(obj,1);
