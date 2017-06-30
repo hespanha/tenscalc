@@ -824,7 +824,8 @@ for i=1:length(obj.saves)
     else
         fprintf(fid,'  %s SCRATCHBOOK_TYPE *m=scratchbook;\n',m_storageclass);
     end
-    fprintf(fid,'  int fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR);\n');
+    %fprintf(fid,'  int fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR);\n');
+    fprintf(fid,'  int fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC,0);\n');
     fprintf(fid,'  int64_t magic=%d;\n',obj.saves(i).magic);
     fprintf(fid,'  printf("Saving \\"%%s\\" (fd=%%d,magic=%%"PRId64")\\n",filename,fd,magic);\n');
     fprintf(fid,'  write(fd,&magic,sizeof(int64_t));\n');

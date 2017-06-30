@@ -273,7 +273,11 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
 
         %fprintf('\nq=%s;\n',mat2str(q));
         %fprintf('\np=%s;\n',mat2str(p));
-        figure(fig)
+        try
+            figure(fig);
+        catch me
+            fprintf('Unable to go back to current figure (did you close the window?)\n');
+        end
     end
     
     % profile off
