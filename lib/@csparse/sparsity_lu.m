@@ -283,7 +283,11 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 
         %fprintf('\nq=%s;\n',mat2str(q));
         %fprintf('\np=%s;\n',mat2str(p));
-        figure(fig)
+        try
+            figure(fig);
+        catch me
+            fprintf('Unable to go back to current figure (did you close the window?)\n');
+        end
     end
     
     % profile off
