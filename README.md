@@ -41,7 +41,7 @@ To install
 
 1. Install the [FunParTools](../../../funpartools) toolbox.
 
-2. Install the [CmexTools](../../../cmextools) toolbox.
+2. Install the [CmexTools](../../../cmextools) toolbox. This will only succeed after installing [FunParTools](../../../funpartools).
 
 3. Download *TensCalc* using one of the following options:
 
@@ -76,8 +76,8 @@ To install
 	install_tenscalc
 	```
 
-	Under *linux* you will be asked to add a line to your
-    *.bashcr* or *.cshrc* file. Do not forget to do so.
+	This will only succeed after if you have already installed [FunParTools](../../../funpartools)
+    and [CmexTools](../../../cmextools) (steps 1 and 2 above).
 
 5. To test if all is well, go to `tenscalc/examples` and try a few example, such as
 
