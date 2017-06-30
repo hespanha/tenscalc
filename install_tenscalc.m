@@ -23,7 +23,7 @@ try
 catch me
     fprintf('ATTENTION: unable to save path, add following strings to the matlab path:');
     disp(folders)
-    rethrow
+    rethrow(me)
 end
 
 fprintf('done!\n');
