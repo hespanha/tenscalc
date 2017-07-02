@@ -22,7 +22,8 @@
 % where sum(x)=1, x>=0
 
 clear all
-!rm -rf toremove.m tmp* @tmp*;
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 solverGeneration=@cmex2optimizeCS;
 

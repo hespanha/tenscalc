@@ -19,8 +19,9 @@
 %
 % This example solve several 2-player games.
 
-!rm -rf toremove.m tmp* @tmp*
-clean all
+clear all;
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%% Matrix-game Saddle-point

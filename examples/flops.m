@@ -26,7 +26,8 @@
 % a full matrix
 
 clear all
-!rm -rf toremove.m tmp* @tmp*;
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 solverGeneration=@cmex2optimizeCS;
 solverVerboseLevel=1;

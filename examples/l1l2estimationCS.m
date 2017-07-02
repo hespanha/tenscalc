@@ -16,8 +16,8 @@
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
 clear all
-!rm -rf toremove.m tmp* @tmp*
-
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Generate data

@@ -21,8 +21,9 @@
 %       J(x)=\|A X-B\|^2
 %
 
-clear all
-!rm -rf toremove.m tmp* @tmp*
+clear all;
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 s = RandStream('mt19937ar','Seed',0);
 RandStream.setGlobalStream(s);

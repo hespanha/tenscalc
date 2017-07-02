@@ -15,8 +15,9 @@
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-clear all
-%!rm -rf toremove.m tmp* @tmp*
+clear all;
+% remove previous solvers
+%delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %% LASSO-like regression -- uses TClasso tool to generate the optimization.
 %
