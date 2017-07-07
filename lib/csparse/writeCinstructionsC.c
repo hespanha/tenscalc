@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 30-Jun-2017 14:38:21 */
+/* Created by script createGateway.m on 07-Jul-2017 00:45:11 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -111,7 +111,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
       return; }
 
    /* output countFlops */
-   { mwSize dims[]={12,1};
+   { mwSize dims[]={16,1};
      plhs[0] = mxCreateNumericArray(2,dims,mxINT64_CLASS,mxREAL);
      countFlops=mxGetData(plhs[0]); }
 

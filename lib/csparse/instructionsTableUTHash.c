@@ -1,5 +1,3 @@
-// ATTENTION: This file was superseeded by instructionsTableUTHash.c
-
 /*
   Copyright 2012-2017 Joao Hespanha
 
@@ -122,6 +120,9 @@ inputs
 #include <time.h>
 #include <math.h>
 
+//  generate a fair miss rate may benefit from the built-in Bloom filter support 
+#define HASH_BLOOM 28
+  
 #ifdef __linux__
 #include <unistd.h>
 #elif __APPLE__
@@ -131,6 +132,44 @@ inputs
 #include <windows.h>
 #endif
         
+// Using UTHash
+
+/* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
+#define HASH_BER0(key,keylen,hashv)                                              \
+do {                                                                             \
+  unsigned _hb_keylen = (unsigned)keylen;                                        \
+  const unsigned char *_hb_key = (const unsigned char*)(key);                    \
+  (hashv) = 0;                                                                   \
+  while (_hb_keylen-- != 0U) {                                                   \
+    (hashv) = (((hashv) << 5) + (hashv)) + *_hb_key++;                           \
+  }                                                                              \
+} while (0)
+#define HASH_BER1(key,keylen,hashv)                                              \
+do {                                                                             \
+  unsigned _hb_keylen = (unsigned)keylen;                                        \
+  const unsigned char *_hb_key = (const unsigned char*)(key);                    \
+  while (_hb_keylen-- != 0U) {                                                   \
+    (hashv) = (((hashv) << 5) + (hashv)) + *_hb_key++;                           \
+  }                                                                              \
+} while (0)
+
+/* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
+#define HASH_TENSCALC(key,keylen,hashv)                                          \
+do {                                                                             \
+  instruction_t *ptrI=(instruction_t*)key;                                       \
+  int64_t  *_keyop=instructionsTable.operandsBuffer+ptrI->operands;              \
+  unsigned _keylenop=sizeof(int64_t)*(ptrI->nOperands);                          \
+  double   *_keypar=instructionsTable.parametersBuffer+ptrI->parameters;         \
+  unsigned _keylenpar=sizeof(double)*(ptrI->nParameters);                        \
+  HASH_BER0(key,keylen,hashv);						         \
+  HASH_BER1(_keyop,_keylenop,hashv);                                             \
+  HASH_BER1(_keypar,_keylenpar,hashv);                                           \
+ } while (0)
+
+#define HASH_FUNCTION HASH_TENSCALC
+#include "uthash.h"
+
+
 
 #include "instructionsTableFunctions.h"
 
@@ -141,12 +180,15 @@ inputs
 #define MAX_OPERANDS_PER_TABLE     100000000LL
 
 typedef struct instruction_s {
+  // KEY STARTS HERE
   instructionType_t type;           // type of instruction
   int64_t nOperands;                // # of operands
   int64_t nParameters;              // # of parameters
+  // KEY ENDS HERE
   int64_t operands;                 // position of operands in buffer
   int64_t parameters;               // position of parameters in buffer
-  int64_t hashValue;                 // hash value to speed up comparisons
+  UT_hash_handle hh;                // makes this structure hashable
+  int64_t index;
 } instruction_t;
 
 typedef struct instructionsTable_s {
@@ -168,7 +210,7 @@ typedef struct instructionsTable_s {
 
 } instructionsTable_t;
 
-#define verboseLevel 1
+#define verboseLevel 0
 
 #ifdef IGNORE_MEX
 #undef printf
@@ -200,23 +242,23 @@ typedef struct instructionsTable_s {
 /* Initializer */
 __attribute__((constructor))
 static void initializer(void) {
-  printf0("%s: loading dynamic library\n", __FILE__);
+  printf0("%s: loading dynamic library (UTHash)\n", __FILE__);
 }
 /* Finalizer */
 __attribute__((destructor))
 static void finalizer(void) {
-  printf0("%s: unloading dynamic library\n", __FILE__);
+  printf0("%s: unloading dynamic library (UTHash)\n", __FILE__);
 }
 #elif __APPLE__
 /* Initializer */
 __attribute__((constructor))
 static void initializer(void) {
-  printf0("%s: loading dynamic library\n", __FILE__);
+  printf0("%s: loading dynamic library (UTHash)\n", __FILE__);
 }
 /* Finalizer */
 __attribute__((destructor))
 static void finalizer(void) {
-  printf0("%s: unloading dynamic library\n", __FILE__);
+  printf0("%s: unloading dynamic library (UTHash)\n", __FILE__);
 }
 #endif
 #endif
@@ -226,16 +268,19 @@ static void finalizer(void) {
 * Initializes the instructions table.
 *******************************************************************************/
 EXPORT instructionsTable_t instructionsTable;
+EXPORT instruction_t *instructionsTable_hash=NULL; // initialize hash table
 
 EXPORT void initInstructionsTable()
 {
   // Currently the instruction table is a global variable, 
   // but it could be dynamically allocated using malloc.
-  if (0) {
+
+  if (instructionsTable_hash==NULL) {
     printf0("initInstructionsTable: Initializing table\n");
   } else {
     printf0("initInstructionsTable: Initializing table (removing %"PRId64" instructions, %"PRId64" parameters, %"PRId64" operands)\n",
 	    instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
+    HASH_CLEAR(hh,instructionsTable_hash);
   }
   instructionsTable.nInstructions=0;
   instructionsTable.nParameters=0;
@@ -272,6 +317,80 @@ EXPORT void instructionsTableHeight4MEX(/* outputs */
 *
 * Returns -1 if any of buffers is full. 
 *******************************************************************************/
+#if verboseLevel<3
+inline
+#endif
+void instruction2buffer(instruction_t *ptr,
+			int64_t index,
+			instructionType_t type,
+			int64_t nParameters,
+			double *parameters,
+			int64_t nOperands,
+			int64_t *operands)
+{
+  int64_t j;
+
+  // clear structure
+  memset(ptr, 0, sizeof(instruction_t));
+  
+  // copy instruction index
+  ptr->index=index;
+  
+  // copy instruction type table
+  ptr->type=type;
+  
+  // Save parameters to parametersBuffer
+  if (nParameters>0){
+    double *destination=instructionsTable.parametersBuffer+instructionsTable.nParameters,
+      *source=parameters;
+    for (j=nParameters-1;j>=0;j--) {
+      *(destination++)=*(source++); }; 
+    // save parameters, nParameters
+    ptr->parameters=instructionsTable.nParameters;
+    ptr->nParameters=nParameters;
+    instructionsTable.nParameters += nParameters;
+  } else {
+    ptr->parameters=0;
+    ptr->nParameters=0;
+  }
+  
+  // Save operands to operandsBuffer
+  if (nOperands>0) {
+    int64_t *destination=instructionsTable.operandsBuffer+instructionsTable.nOperands,
+      *source=operands;
+    for (j=nOperands-1;j>=0;j--) {
+      *(destination++)=*(source++); }; 
+    // save operands, nOperands
+    ptr->operands=instructionsTable.nOperands;
+    ptr->nOperands=nOperands;
+    instructionsTable.nOperands += nOperands; 
+  } else {
+    ptr->operands=0;
+    ptr->nOperands=0;
+  }
+
+#if verboseLevel>=3
+  printf3("  instruction index=%"PRId64": type=%d, nParameters=%"PRId64", nOperands=%"PRId64"",
+	  ptr->index,ptr->type,ptr->nParameters,ptr->nOperands);
+  if (ptr->nParameters>0) {
+    int l;
+    printf3(", parameters = [");
+    for (l=0;l<ptr->nParameters;l++) {
+      printf3("%g,",instructionsTable.parametersBuffer[ptr->parameters+l]); }
+    printf3("]");
+  }
+  if (ptr->nOperands>0) {
+    int l;
+    printf3(", operands = [");
+    for (l=0;l<ptr->nOperands;l++) {
+      printf3("%"PRId64",",instructionsTable.operandsBuffer[ptr->operands+l]); }
+    printf3("]");
+  }
+  printf3(": ");
+#endif
+}
+
+
 EXPORT int64_t appendInstruction(instructionType_t type,
 				 int64_t nParameters,
 				 double *parameters,
@@ -288,53 +407,19 @@ EXPORT int64_t appendInstruction(instructionType_t type,
     return -1;
   }
   
-  int64_t j;
   int64_t index=instructionsTable.nInstructions++;
   instruction_t *ptr=instructionsTable.instructionsBuffer+index;
-  int64_t hashValue=type;
 
-  // copy instruction type table
-  ptr->type=type;
-
-  // Save parameters to parametersBuffer & updates hash
-  if (nParameters>0){
-    double *destination=instructionsTable.parametersBuffer+instructionsTable.nParameters,
-      *source=parameters;
-    for (j=nParameters-1;j>=0;j--) {
-      hashValue+=*(source);
-      *(destination++)=*(source++); }; 
-    // save parameters, nParameters
-    ptr->parameters=instructionsTable.nParameters;
-    ptr->nParameters=nParameters;
-    instructionsTable.nParameters += nParameters;
-    hashValue+=nParameters;
-  } else {
-    ptr->parameters=0;
-    ptr->nParameters=0;
-  }
+  instruction2buffer(ptr,index,type,nParameters,parameters,nOperands,operands);
   
-  // Save operands to operandsBuffer & updates hash
-  if (nOperands>0) {
-    int64_t *destination=instructionsTable.operandsBuffer+instructionsTable.nOperands,
-      *source=operands;
-    for (j=nOperands-1;j>=0;j--) {
-      hashValue+=*(source);
-      *(destination++)=*(source++); }; 
-    // save operands, nOperands
-    ptr->operands=instructionsTable.nOperands;
-    ptr->nOperands=nOperands;
-    instructionsTable.nOperands += nOperands; 
-    hashValue+=nOperands;
-  } else {
-    ptr->operands=0;
-    ptr->nOperands=0;
-  }
-
-  // Save hashValue
-  ptr->hashValue=hashValue;
-
-  printf3("appendInstruction: appended instruction %"PRId64", hashValue %"PRId64", nParameters %"PRId64", nOperands %"PRId64" (nInstructions=%"PRId64",nParameters=%"PRId64",nOperands=%"PRId64")\n",
-	  index,hashValue,
+  HASH_ADD(hh,instructionsTable_hash,type,
+	   offsetof(instruction_t, nParameters)  // offset of last key field
+	   + sizeof(int64_t)                    // size of last key field
+	   - offsetof(instruction_t, type),     // offset of first key field
+	   ptr);
+  
+  printf3("appendInstruction: appended instruction %"PRId64", type %d, nParameters %"PRId64", nOperands %"PRId64" (nInstructions=%"PRId64",nParameters=%"PRId64",nOperands=%"PRId64")\n",
+	  index,type,
 	  nParameters,
 	  nOperands,
 	  instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
@@ -378,12 +463,6 @@ EXPORT int compareInstructions(int64_t *index1,
   int64_t j;
 
   //printf3("Comparing instructions %"PRId64" with %"PRId64" ",*index1,*index2);
-  
-  if (ptr1->hashValue<ptr2->hashValue)
-    return -1;
-  else if (ptr1->hashValue>ptr2->hashValue)
-    return 1;
-  
   if (ptr1->type<ptr2->type)
     return -1;
   else if (ptr1->type>ptr2->type)
@@ -399,7 +478,7 @@ EXPORT int compareInstructions(int64_t *index1,
   else if (ptr1->nParameters>ptr2->nParameters)
     return 1;
   
-  //printf3("same header... ");
+  // printf3("same header... ");
 
   { double
       *pt1=instructionsTable.parametersBuffer+ptr1->parameters,
@@ -429,7 +508,7 @@ EXPORT int compareInstructions(int64_t *index1,
     }
   }
   
-  //printf3("equal... ");
+  printf3("equal... ");
 
   return 0;
 }
@@ -447,52 +526,84 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
 				       int64_t *operands)
 {
   // save values, prior ro adding instruction
-  int64_t j,
+  int64_t 
     oldP=instructionsTable.nParameters,
     oldO=instructionsTable.nOperands;
 
-  int64_t index=appendInstruction(type,nParameters,parameters,nOperands,operands)-1; // back to 0-based indexing
-
-#if verboseLevel>=3
-  {
-    instruction_t *ptr=instructionsTable.instructionsBuffer+index;
-    printf3("  instruction index=%"PRId64": type=%d, nParameters=%"PRId64", nOperands=%"PRId64"",
-	    index,ptr->type,ptr->nParameters,ptr->nOperands);
-    if (ptr->nParameters>0) {
-      int l;
-      printf3(", parameters = [");
-      for (l=0;l<ptr->nParameters;l++) {
-	printf3("%g,",instructionsTable.parametersBuffer[ptr->parameters+l]); }
-      printf3("]");
-    }
-    if (ptr->nOperands>0) {
-      int l;
-      printf3(", operands = [");
-            for (l=0;l<ptr->nOperands;l++) {
-      	printf3("%"PRId64",",instructionsTable.operandsBuffer[ptr->operands+l]); }
-	    printf3("]");
-    }
-    printf3(": ");
-  }
-#endif
- 
-  // Search over instructions for match
-  if (index>0) {
-    int64_t i;
-    for (i=index-1;i>=0;i--)
-      if (compareInstructions(&i,&index)==0) {
-	printf2("FOUND %"PRId64" %"PRId64"\n",i,index);
-	// instruction exists, remove the just added instruction, return index
-	instructionsTable.nInstructions--;
-	instructionsTable.nParameters=oldP;
-	instructionsTable.nOperands=oldO;
-	return i+1; // 1-based indexing
-      }
+  if (instructionsTable.nInstructions+1     > MAX_INSTRUCTIONS_PER_TABLE ||
+      instructionsTable.nParameters+nParameters > MAX_PARAMETERS_PER_TABLE ||
+      instructionsTable.nOperands+nOperands > MAX_OPERANDS_PER_TABLE) {
+    printf0("appendInstruction: table is full (I:%"PRId64">%"PRId64" | P:%"PRId64">%"PRId64" | O:%"PRId64">%"PRId64")\n",
+	    instructionsTable.nInstructions+1,MAX_INSTRUCTIONS_PER_TABLE,
+	    instructionsTable.nParameters+1,MAX_PARAMETERS_PER_TABLE,
+	    instructionsTable.nOperands+nOperands,MAX_OPERANDS_PER_TABLE);
+    return -1;
   }
   
-  printf3("appendUniqueInstruction: new (%"PRId64")\n",index);
-  // no match, return index
-  return index+1; // back to 1-based indexing
+  int64_t index=instructionsTable.nInstructions++;
+  instruction_t
+    *ptrNew=instructionsTable.instructionsBuffer+index,
+    *ptrSearch;
+
+  printf3("appendUniqueInstruction: appending instruction type %d, nParameters %"PRId64", nOperands %"PRId64" (nInstructions=%"PRId64",nParameters=%"PRId64",nOperands=%"PRId64")\n",
+	  type,
+	  nParameters,
+	  nOperands,
+	  instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
+  
+  instruction2buffer(ptrNew,index,type,nParameters,parameters,nOperands,operands);
+  
+  HASH_FIND(hh,instructionsTable_hash,
+	    &ptrNew->type,
+	    offsetof(instruction_t, nParameters)  // offset of last key field
+	    + sizeof(int64_t)                    // size of last key field
+	    - offsetof(instruction_t, type),     // offset of first key field
+	    ptrSearch);
+  
+  // Check if HASH_FIND was fooled by same key, but not same parameters/operators
+  if (ptrSearch) {
+    if (compareInstructions(&index,&ptrSearch->index)!=0) {
+      printf3("****Should make sure HASH_FIND looks into parameter & operator values\n");
+      ptrSearch=NULL;
+    }
+  }
+
+  /*
+  // DEBUG: override HASH_FIND and search over instructions for match
+  if (index>0) {
+    int64_t i;
+    ptrSearch=NULL;
+    for (i=index-1;i>=0;i--)
+      if (compareInstructions(&i,&index)==0) {
+	// instruction exists, remove the just added instruction, return index
+	printf2("FOUND %"PRId64" %"PRId64"\n",i,index);
+	ptrSearch=instructionsTable.instructionsBuffer+i;
+	break;
+    }
+    printf("%"PRId64" ",(int64_t)ptrSearch);
+  }
+  */
+
+  if (ptrSearch) {
+    // instruction exists, remove the just added instruction, return index
+    instructionsTable.nInstructions--;
+    instructionsTable.nParameters=oldP;
+    instructionsTable.nOperands=oldO;
+    index=ptrSearch->index;
+    printf3("reusing (%"PRId64")\n",index);
+  } else {
+    ptrNew=instructionsTable.instructionsBuffer+index;
+    HASH_ADD(hh,instructionsTable_hash,
+	     type,
+	     offsetof(instruction_t, nParameters)  // offset of last key field
+	     + sizeof(int64_t)                    // size of last key field
+	     - offsetof(instruction_t, type),     // offset of first key field
+	     ptrNew);
+    instructionsTable.sortedIndices[index]=index;
+    instructionsTable.isSorted=false;
+    printf3("new (%"PRId64")\n",index);
+  }
+  return index+1;  // 1-based indexing  
 }
 
 #ifndef IGNORE_MEX
@@ -1601,7 +1712,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
  * Main for testing
  *******************************************************************************/
 
-// ! gcc -I/Applications/MATLAB_R2016b.app/extern/include -Ofast -DIGNORE_MEX instructionsTable.c
+// ! gcc -I/Applications/MATLAB_R2016b.app/extern/include -Ofast -DIGNORE_MEX instructionsTableUTHash.c
 	       
 int main()
 {
@@ -1613,12 +1724,13 @@ int main()
 #define maxOperands 1
 #define type (instructionType_t)23
   */
-#define Ncalls 100000LL
+#define Ncalls 1000000LL
 #define maxNparameters 10
 #define maxParameters 1
 #define maxNoperands 30
 #define maxOperands 1
 #define type (instructionType_t)23
+
 
 
   double parameters[maxNparameters];
@@ -1659,9 +1771,9 @@ int main()
 	parameters[j]=floor((double)(maxParameters+1)*((double)rand()/RAND_MAX));
       // generate operands
       nOperands=floor((double)(maxNoperands+1)*((double)rand()/RAND_MAX));
-      for (j=0;j<nOperands;j++) {
+      for (j=0;j<nOperands;j++)
 	operands[j]=floor((double)(maxOperands+1)*((double)rand()/RAND_MAX));
-      }
+      // 
       j=appendUniqueInstruction(type,nParameters,parameters,nOperands,operands);
     }
     printf0("Called appendUniqueInstruction %12"PRId64" times: table size =%12"PRId64", %.3f ms, %.3f us/call\n",

@@ -26,54 +26,57 @@ typedef enum instructionType_e {
     I_minus_cos=24,
     I_sin=25,
     I_minus_sin=26,
-    I_abs=27,
-    I_sign=28,
-    I_sqrt=29,
-    I_Dsqrt=30,
-    I_DDsqrt=31,
-    I_sqr=32,
-    I_2times=33,
-    I_2=34,
-    I_cube=35,
-    I_3sqr=36,
-    I_6times=37,
-    I_atan=38,
-    I_Datan=39,
-    I_DDatan=40,
-    I_luS2A=41,
-    I_luS2Asym=42,
-    I_mldivideA2F1=43,
-    I_mldivideA2Fn=44,
-    I_Mnorm2=45,
-    I_Mnorm1=46,
-    I_Mnorminf=47,
-    I_Mplus=48,
-    I_Mmtimes=49,
-    I_Mtimes=50,
-    I_Msum=51,
-    I_Mmin=52,
-    I_Mones=53,
-    I_Mzeros=54,
-    I_Meye=55,
-    I_Mdiag=56,
-    I_Mclp=57,
-    I_Mctranspose=58,
-    I_Msubsref=59,
-    I_Mtprod=60,
-    I_Mtprod_matlab=61,
-    I_Mfull=62,
-    I_Mreshape=63,
-    I_Mrepmat=64,
-    I_Mcat=65,
-    I_Mlu=66,
-    I_Mldl=67,
-    I_Mchol=68,
-    I_Mmldivide_l1=69,
-    I_Mmldivide_u=70,
-    I_Mmldivide_u1=71,
-    I_Mmldivide_d=72,
-    I_Mrdivide=73,
-    I_Mcompose=74,
+    I_round=27,
+    I_ceil=28,
+    I_floor=29,
+    I_abs=30,
+    I_sign=31,
+    I_sqrt=32,
+    I_Dsqrt=33,
+    I_DDsqrt=34,
+    I_sqr=35,
+    I_2times=36,
+    I_2=37,
+    I_cube=38,
+    I_3sqr=39,
+    I_6times=40,
+    I_atan=41,
+    I_Datan=42,
+    I_DDatan=43,
+    I_luS2A=44,
+    I_luS2Asym=45,
+    I_mldivideA2F1=46,
+    I_mldivideA2Fn=47,
+    I_Mnorm2=48,
+    I_Mnorm1=49,
+    I_Mnorminf=50,
+    I_Mplus=51,
+    I_Mmtimes=52,
+    I_Mtimes=53,
+    I_Msum=54,
+    I_Mmin=55,
+    I_Mones=56,
+    I_Mzeros=57,
+    I_Meye=58,
+    I_Mdiag=59,
+    I_Mclp=60,
+    I_Mctranspose=61,
+    I_Msubsref=62,
+    I_Mtprod=63,
+    I_Mtprod_matlab=64,
+    I_Mfull=65,
+    I_Mreshape=66,
+    I_Mrepmat=67,
+    I_Mcat=68,
+    I_Mlu=69,
+    I_Mldl=70,
+    I_Mchol=71,
+    I_Mmldivide_l1=72,
+    I_Mmldivide_u=73,
+    I_Mmldivide_u1=74,
+    I_Mmldivide_d=75,
+    I_Mrdivide=76,
+    I_Mcompose=77,
 } instructionType_t;
 // profile defines
 #define P_nsum 1
@@ -82,11 +85,14 @@ typedef enum instructionType_e {
 #define P_nif 4
 #define P_nclp 5
 #define P_nabs 6
-#define P_nsign 7
-#define P_nsqrt 8
-#define P_npow 9
-#define P_ntrig 10
-#define P_nlog 11
-#define P_nexp 12
-#define P_numfpack 13
-#define P_nCountFlops 13
+#define P_nround 7
+#define P_nceil 8
+#define P_nfloor 9
+#define P_nsign 10
+#define P_nsqrt 11
+#define P_npow 12
+#define P_ntrig 13
+#define P_nlog 14
+#define P_nexp 15
+#define P_numfpack 16
+#define P_nCountFlops 16
