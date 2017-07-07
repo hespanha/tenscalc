@@ -1076,7 +1076,7 @@ classdef csparse < handle
             fprintf('    done (%.3f sec)\n',etime(clock(),t0));
             fprintf('  dependencyGroups... ');t0=clock;
             dependencyGroups(obj);
-            fprintf('done (%.3f sec)\n',etime(clock(),t0));
+            fprintf('done computeScalarInstructions (%.3f sec)\n',etime(clock(),t0));
 
             fprintf('  compile2C: %d added vectorized Operations, %d unique vectorized Operations\n',...
                     obj.nAddedVectorizedOperations,height(obj.vectorizedOperations));
