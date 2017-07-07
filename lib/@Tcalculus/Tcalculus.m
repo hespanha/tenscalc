@@ -769,6 +769,21 @@ classdef Tcalculus
             obj=Tcalculus('compose',[size(obj1),fsize],varargin,obj1.TCindex,{},1);
         end
         
+        function obj=round(obj1)
+            obj=compose(obj1,@(x__)round(x__));
+            updateFile2table(obj,1);
+        end
+
+        function obj=ceil(obj1)
+            obj=compose(obj1,@(x__)ceil(x__));
+            updateFile2table(obj,1);
+        end
+
+        function obj=floor(obj1)
+            obj=compose(obj1,@(x__)floor(x__));
+            updateFile2table(obj,1);
+        end
+
         function obj=abs(obj1)
             obj=compose(obj1,@(x__)abs(x__),@(x__)sign(x__),@(x__)zeros(size(x__)));
             updateFile2table(obj,1);

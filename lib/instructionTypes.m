@@ -78,6 +78,12 @@ instructionTypes={
                            %   operand = a1
     'I_minus_sin'          % computes -sin(a1)
                            %   operand = a1
+    'I_round'              % computes round(a1)
+                           %   operand = a1
+    'I_ceil'               % computes ceil(a1)
+                           %   operand = a1
+    'I_floor'              % computes floor(a1)
+                           %   operand = a1
     'I_abs'                % computes abs(a1)
                            %   operand = a1
     'I_sign'               % computes sign(a1)
@@ -173,6 +179,9 @@ profileTypes={
     'P_nif'
     'P_nclp'
     'P_nabs'
+    'P_nround'
+    'P_nceil'
+    'P_nfloor'
     'P_nsign'
     'P_nsqrt'
     'P_npow'

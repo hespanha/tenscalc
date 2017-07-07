@@ -317,15 +317,13 @@ for jj=1:length(ks)
               case 'mldivide_d'
                 [subscripts,instructions]=sparsity_mldivide_d(obj,thisExp);
                 
-              case 'abs'
-                [subscripts,instructions]=sparsity_compose(obj,thisExp,'abs');
-                
               case 'compose'
                 functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                            '@(x__)2./x__.^3';
                            '@(x__)exp(x__)';
                            '@(x__)sin(x__)';'@(x__)-sin(x__)';
                            '@(x__)cos(x__)';'@(x__)-cos(x__)';
+                           '@(x__)round(x__)';'@(x__)ceil(x__)';'@(x__)floor(x__)';
                            '@(x__)abs(x__)';'@(x__)sign(x__)';
                            '@(x__)sqrt(x__)';'@(x__).5./sqrt(x__)';'@(x__)-.25./x__.^1.5';
                            '@(x__)x__.^2';'@(x__)2*x__';'@(x__)2*ones(size(x__))';
@@ -336,6 +334,7 @@ for jj=1:length(ks)
                              obj.Itypes.I_exp;
                              obj.Itypes.I_sin;obj.Itypes.I_minus_sin;
                              obj.Itypes.I_cos;obj.Itypes.I_minus_cos;
+                             obj.Itypes.I_round;obj.Itypes.I_ceil;obj.Itypes.I_floor;
                              obj.Itypes.I_abs;obj.Itypes.I_sign;
                              obj.Itypes.I_sqrt;obj.Itypes.I_Dsqrt;obj.Itypes.I_DDsqrt;
                              obj.Itypes.I_sqr;obj.Itypes.I_2times;obj.Itypes.I_2;
@@ -346,6 +345,7 @@ for jj=1:length(ks)
                               @sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;
                               @sparsity_compose_full;@sparsity_compose_full;
+                              @sparsity_compose;@sparsity_compose;@sparsity_compose;
                               @sparsity_compose;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose_full;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose_full;

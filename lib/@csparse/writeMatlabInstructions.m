@@ -140,6 +140,7 @@ function writeMatlabInstructions(obj,fid,ks)
                        '@(x__)exp(x__)';
                        '@(x__)sin(x__)';'@(x__)-sin(x__)';
                        '@(x__)cos(x__)';'@(x__)-cos(x__)';
+                       '@(x__)round(x__)';'@(x__)ceil(x__)';'@(x__)floor(x__)';
                        '@(x__)abs(x__)';'@(x__)sign(x__)';
                        '@(x__)atan(x__)';'@(x__)1./(1+x__.^2)';'@(x__)-2*x__./(1+x__.^2).^2';
                        '@(x__)sqrt(x__)';'@(x__).5./sqrt(x__)';'@(x__)-.25./x__.^1.5';
