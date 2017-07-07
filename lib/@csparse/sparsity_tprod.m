@@ -162,7 +162,7 @@ subsY=subsY';
 instrY=instrY(k);
 
 if verboseLevel>1
-    fprintf('done %d nnzYS, %d nnzY (%.2f ms)\n',size(subsYS,2),size(subsY,2),etime(clock,t0));
+    fprintf('done %d nnzYS, %d nnzY (%.2f sec)\n',size(subsYS,2),size(subsY,2),etime(clock,t0));
 end
 
 if verboseLevel>0
