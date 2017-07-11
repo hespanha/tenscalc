@@ -218,6 +218,17 @@ __attribute__((destructor))
 static void finalizer(void) {
   printf0("%s: unloading dynamic library\n", __FILE__);
 }
+#elif _WIN32
+#include <windows.h>
+BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
+{
+    if (fdwReason == DLL_PROCESS_ATTACH) {
+      printf0("%s: loading dynamic library\n", __FILE__);
+      return TRUE; }
+    else if (fdwReason == DLL_PROCESS_DETACH) {
+      printf0("%s: unloading dynamic library\n", __FILE__);
+      return TRUE; }
+}
 #endif
 #endif
 
@@ -232,15 +243,16 @@ EXPORT void initInstructionsTable()
   // Currently the instruction table is a global variable, 
   // but it could be dynamically allocated using malloc.
   if (0) {
-    printf0("initInstructionsTable: Initializing table\n");
+    printf0("initInstructionsTable: Initializing table... ");
   } else {
-    printf0("initInstructionsTable: Initializing table (removing %"PRId64" instructions, %"PRId64" parameters, %"PRId64" operands)\n",
+    printf0("initInstructionsTable: Initializing table (removing %"PRId64" instructions, %"PRId64" parameters, %"PRId64" operands)... ",
 	    instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
   }
   instructionsTable.nInstructions=0;
   instructionsTable.nParameters=0;
   instructionsTable.nOperands=0;
   instructionsTable.isSorted=false;
+  printf0("done\n");
 }
 
 /*******************************************************************************
