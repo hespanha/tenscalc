@@ -692,8 +692,14 @@ for i=1:length(obj.gets)
         else
             % for # dimensions other than 2, must be full
             if size(subscripts,2)~=prod(osize)
-                subscripts,size(subscripts,2),osize
-                error('getting non-full variable %s(%d)\n',obj.gets(i).functionName,j);
+                fprintf('\nNonzero entries %d/%d:',size(subscripts,2),prod(osize));
+                disp(subscripts);
+                if strcmp(obj.gets(i).functionName,'getGrad__')
+                    % error specific to optimization
+                    error('some optimization variables do not affect the criteria nor the constraints (look for zeros in gradient) ');
+                else
+                    error('getting non-full variable %s(%d)\n',obj.gets(i).functionName,j);
+                end
             end
 
             if ~isempty(instructions)
