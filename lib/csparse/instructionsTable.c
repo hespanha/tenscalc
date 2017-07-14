@@ -136,9 +136,9 @@ inputs
 
 // Structure used to store instructions
 
-#define MAX_INSTRUCTIONS_PER_TABLE  10000000LL
-#define MAX_PARAMETERS_PER_TABLE    30000000LL
-#define MAX_OPERANDS_PER_TABLE     100000000LL
+#define MAX_INSTRUCTIONS_PER_TABLE   5000000LL
+#define MAX_PARAMETERS_PER_TABLE    10000000LL
+#define MAX_OPERANDS_PER_TABLE      10000000LL
 
 typedef struct instruction_s {
   instructionType_t type;           // type of instruction
@@ -146,7 +146,7 @@ typedef struct instruction_s {
   int64_t nParameters;              // # of parameters
   int64_t operands;                 // position of operands in buffer
   int64_t parameters;               // position of parameters in buffer
-  int64_t hashValue;                 // hash value to speed up comparisons
+  int64_t hashValue;                // hash value to speed up comparisons
 } instruction_t;
 
 typedef struct instructionsTable_s {
