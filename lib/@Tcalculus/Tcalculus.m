@@ -480,6 +480,10 @@ classdef Tcalculus
         end
         
         function obj=sum(obj1,ind1,sum2tprod)
+        % y=sum(x,dim)
+        % 
+        % sum a tensor x along dimension dim, resulting is a tensor
+        % with the size of x, but with dimension dim, removed.
             if nargin<3
                 sum2tprod=true;
             end
@@ -487,7 +491,7 @@ classdef Tcalculus
                 error('Tcalculus.sum: must include dimension to sum');
             end
             if sum2tprod
-                ind=zeros(1:length(size(obj1)));
+                ind=zeros(1,length(size(obj1)));
                 ind(ind1)=-1:-1:-length(ind1);
                 ind(ind==0)=1:length(size(obj1))-length(ind1);
                 obj=tprod(obj1,ind);
