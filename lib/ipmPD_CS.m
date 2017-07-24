@@ -214,7 +214,7 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         WW=[Lf_uu+tprod(addEye2Hessian,[],Teye(size(Lf_uu)),[1,2]),G_u',-F_u';
             G_u,-tprod(addEye2Hessian,[],Teye([nG,nG]),[1,2]),Tzeros([nG,nF]);
             -F_u,Tzeros([nF,nG]),-diag(F./lambda)-tprod(addEye2Hessian,[],Teye([nF,nF]),[1,2])];
-        
+
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
