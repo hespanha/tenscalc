@@ -30,18 +30,16 @@ function obj=Teye(varargin)
     else
         osize=[varargin{:}];
     end
-        
+    if mod(length(osize),2)~=0
+        osize
+        error('eye matrix must have an even number of indices');
+    end        
     if ~isempty(osize)
         ind1=1:length(osize)/2;
         ind2=ind1(end)+1:length(osize);
     else
         ind1=[];
         ind2=[];
-    end
-    if length(ind1)~=length(ind2)
-        osize
-        ind1,ind2
-        error('eye matrix must have an even number of indices');
     end
     if ~myisequal(osize(ind1),osize(ind2))
         osize,ind1,ind2
