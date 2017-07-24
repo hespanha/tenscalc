@@ -64,17 +64,17 @@ function [ddx,ts]=tsDerivative2(x,ts,invDts,invD2ts)
     
     if length(ts)>1
         if nargin<4
-            t1=[2/(ts(1)-ts(2))./(ts(1)-ts(3));
-                2./(ts(1:end-2)-ts(2:end-1))./(ts(1:end-2)-ts(3:end));
-                2/(ts(end-2)-ts(end-1))./(ts(end-2)-ts(end))];
+            t1=[Tconstant(2,1)./(ts(1)-ts(2))./(ts(1)-ts(3));
+                2*Tones(length(ts)-2)./(ts(1:end-2)-ts(2:end-1))./(ts(1:end-2)-ts(3:end));
+                Tconstant(2,1)./(ts(end-2)-ts(end-1))./(ts(end-2)-ts(end))];
             
-            t2=[2/(ts(2)-ts(1))./(ts(2)-ts(3));
-                2./(ts(2:end-1)-ts(1:end-2))./(ts(2:end-1)-ts(3:end));
-                2/(ts(end-1)-ts(end-2))./(ts(end-1)-ts(end))];
+            t2=[Tconstant(2,1)./(ts(2)-ts(1))./(ts(2)-ts(3));
+                2*Tones(length(ts)-2)./(ts(2:end-1)-ts(1:end-2))./(ts(2:end-1)-ts(3:end));
+                Tconstant(2,1)./(ts(end-1)-ts(end-2))./(ts(end-1)-ts(end))];
             
-            t3=[2/(ts(1)-ts(3))./(ts(2)-ts(3));
-                2./(ts(1:end-2)-ts(3:end))./(ts(2:end-1)-ts(3:end));
-                2/(ts(end-2)-ts(end))./(ts(end-1)-ts(end))];
+            t3=[Tconstant(2,1)./(ts(1)-ts(3))./(ts(2)-ts(3));
+                2*Tones(length(ts)-2)./(ts(1:end-2)-ts(3:end))./(ts(2:end-1)-ts(3:end));
+                Tconstant(2,1)./(ts(end-2)-ts(end))./(ts(end-1)-ts(end))];
         else
             t1=[2*invDts(1).*invD2ts(1);
                 2*invDts(1:end-1).*invD2ts;
