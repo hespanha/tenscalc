@@ -79,7 +79,7 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
         end
     end
 
-    if any(isnan(tprod_size)) || any(isnan(sums_size==0)) 
+    if any(isnan(tprod_size)) || any(isnan(sums_size)) 
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
