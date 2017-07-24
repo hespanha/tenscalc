@@ -134,6 +134,10 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
 
         for j=1:length(ind)
             if ind(j)>0
+                if length(tprod_size)<ind(j)
+                    % pad with nan
+                    tprod_size(end+1:ind(j))=nan;
+                end
                 if length(tprod_size)>=ind(j) && tprod_size(ind(j))>0 ...
                         && tprod_size(ind(j))~=size(obj,j)
                     obj,tprod_size
@@ -143,6 +147,10 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
                 end
                 tprod_size(ind(j))=size(obj,j);
             else
+                if length(sums_size)<-ind(j)
+                    % pad with nan
+                    sums_size(end+1:-ind(j))=nan;
+                end
                 if length(sums_size)>=-ind(j) && sums_size(-ind(j))>0 ...
                         && sums_size(-ind(j))~=size(obj,j)
                     obj,sums_size
@@ -155,7 +163,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
         end
     end
     
-    if any(tprod_size==0) || any(sums_size==0) 
+    if any(isnan(tprod_size)) || any(isnan(sums_size)) 
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
