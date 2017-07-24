@@ -234,7 +234,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     end
     if verboseLevel>1
         if isequal(pp,1:length(pp))
-            fprintf('pivoting from lu, \n');
+            fprintf('no changes in pivoting from matlab''s lu, \n');
         else
             fprintf('changing %d pivots, \n',sum(pp~=1:length(pp)));
         end
