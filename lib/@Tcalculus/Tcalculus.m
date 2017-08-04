@@ -144,7 +144,8 @@ classdef Tcalculus
                     types={TCsymbolicExpressions(:).type};
                     for i=find(strcmp(types,'variable'))
                         if myisequal(TCsymbolicExpressions(i).parameters,parameters)
-                            warning('variable ''%s'' [%s] already exists\n',parameters,index2str(TCsymbolicExpressions(i).osize));
+                            warning('variable ''%s'' [%s] already exists, new variables ''%s'' [%s] will be created\n',...
+                                    parameters,index2str(TCsymbolicExpressions(i).osize),parameters,index2str(osize));
                         end
                     end
                 end

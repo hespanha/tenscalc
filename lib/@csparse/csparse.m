@@ -772,7 +772,7 @@ classdef csparse < handle
                     %                   ops,true,pars,false,NaN,false,atomic,true);
                     % obj.nAddedVectorizedOperations=obj.nAddedVectorizedOperations+1;
                 otherwise;
-                    error('unexpected operand for mldivide ''%s''\n',optype);
+                    error('unexpected operand for mldivide ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl'', ''lu'', or ''lu_sym''\n',optype);
                 end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;

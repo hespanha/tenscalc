@@ -73,6 +73,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     if nNonSymA==0
         fprintf('structurally SYMMETRIC matrix, ');
         if ~isequal(A,A')
+            norm(full(A-A'))
             error('Unexpected non symmetric matrix');
         end
     else
@@ -250,7 +251,6 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     subsLU=subsLU';
     instrLU=instrLU(k);
 
-    
     if verboseLevel>1
         LU=sparse(double(subsLU(1,:)),...
                   double(subsLU(2,:)),...
@@ -314,10 +314,13 @@ end
 
 function nNonSym=symmetric(obj,subsX,instrX)
     
+    subsXt=subsX([2,1],:);
     [~,k1]=sortrows(subsX');
-    [~,k2]=sortrows(subsX',[2,1]);
-    
-    k=find(instrX(k1)~=instrX(k2));
+    [~,k2]=sortrows(subsXt');
+
+    %[subsX(:,k1)',subsXt(:,k2)']
+    %[instrX(k1),instrX(k2)]
+    k=find(any(subsX(:,k1)~=subsXt(:,k2),1)' | instrX(k1)~=instrX(k2));
      
     if false %~isempty(k)
         [subsX(:,k1(k))',instrX(k1(k)),subsX(:,k2(k))',instrX(k2(k)),k]
