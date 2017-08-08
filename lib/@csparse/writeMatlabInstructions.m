@@ -146,6 +146,7 @@ function writeMatlabInstructions(obj,fid,ks)
                        '@(x__)sqrt(x__)';'@(x__).5./sqrt(x__)';'@(x__)-.25./x__.^1.5';
                        '@(x__)x__.^2';'@(x__)2*x__';'@(x__)2*ones(size(x__))';
                        '@(x__)x__.^3';'@(x__)3*x__.^2';'@(x__)6*x__';
+                       '@(x__)log(1+x__)/log(2)';'@(x__)1./(1+x__)/log(2)';'@(x__)-1./(1+x__).^2';
                        };
             q=find(strcmp(parameters,functions));
             if isempty(q)
