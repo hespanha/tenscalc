@@ -97,6 +97,11 @@ classdef Tcalculus
         %                  called  addTC2table
         %             etc
         % hash - for faster search
+            if nargin==0
+                error('Tcalculus cannot be created without arguments (nargin=%d, nargout=%d)',...
+                      nargin,nargout);
+            end
+            
             if nargin==1
                 % create object for entry already in TCsymbolicExpressions
                 global TCsymbolicExpressions
@@ -121,7 +126,7 @@ classdef Tcalculus
             % add new entry to TCsymbolicExpressions
 
             global TCsymbolicExpressions TCsymbolicExpressionsHash
-            
+
             if isempty(osize) 
                 % make size uniform to make sure isequal works when
                 % comparing size (technically not needed since we
@@ -219,7 +224,7 @@ classdef Tcalculus
         %%%%                       Get properties                     %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        function osize=size(obj,dim)
+        function varargout=size(obj,dim)
             if 0
                 global TCsymbolicExpressions
                 osize=TCsymbolicExpressions(obj.TCindex).osize;
@@ -228,6 +233,15 @@ classdef Tcalculus
             end
             if nargin>1
                 osize=osize(dim);
+            end
+            if nargout>1
+                if nargout>length(osize)
+                    error('too many output arguments for size = [%s]',index2str(osize));
+                else
+                    varargout=num2cell(osize);
+                end
+            else
+                varargout{1}=osize;
             end
         end
         
@@ -585,7 +599,7 @@ classdef Tcalculus
                     warning('diag2prod(matrix->vector) not tested');
                 else
                     obj1
-                    error('ambigous diag()');
+                    error('ambigous Tcalculus/diag()');
                 end
             else
                 if length(osize1)==1
@@ -596,7 +610,7 @@ classdef Tcalculus
                     obj=Tcalculus('diag',osize1(1),[],obj1.TCindex,{},1);
                 else
                     obj1
-                    error('ambigous diag()');
+                    error('ambigous Tcalculus/diag()');
                 end
             end
         end
@@ -859,6 +873,14 @@ classdef Tcalculus
                 osize1=size(obj1);
                 osize2=size(obj2);
 
+                % add singletons?
+                if prod(osize1)==1 && prod(osize2)==1
+                    obj1=reshape(obj1,[]);
+                    osize1=[];
+                    obj2=reshape(obj2,[]);
+                    osize2=[];
+                end
+                
                 % add scalar? multiply by ones of appropriate size
                 if isempty(osize1) && ~isempty(osize2)
                     obj1=growScalar(obj1,osize2);
@@ -989,6 +1011,14 @@ classdef Tcalculus
             osize1=size(obj1);
             osize2=size(obj2);
 
+            if prod(osize1)==1 && prod(osize2)==1
+                % singleton * singleton
+                obj1=reshape(obj1,[]);
+                osize1=[];
+                obj2=reshape(obj2,[]);
+                osize2=[];
+            end
+
             if  ~myisequal(osize1,osize2) && ~isempty(osize2)
                 obj1,obj2
                 error('can only element-wise divide objects of the same size (or divide by scalar): [%s] ~= [%s]\n',...
@@ -1039,8 +1069,11 @@ classdef Tcalculus
                 elseif isempty(osize2)  
                     % A * scalar
                     obj=tprod(obj2,[],obj1,1:length(osize1));
+                elseif prod(osize1)==1 && prod(osize2)==1
+                    % singleton * singleton
+                    obj=reshape(obj1,[])*reshape(obj2,[]);
                 else
-                    obj1,obj2,error('mtimes ambigous')
+                    obj1,obj2,error('Tcalculus/mtimes ambigous')
                 end
             else
                 if length(osize1)==2 && length(osize2)==2
@@ -1082,7 +1115,7 @@ classdef Tcalculus
                     % A * scalar
                     osize=osize1;
                 else
-                    obj1,obj2,error('mtimes ambigous')
+                    obj1,obj2,error('Tcalculus/mtimes ambigous')
                 end
 
                 if strcmp(type(obj1),'zeros') || strcmp(type(obj2),'zeros')
