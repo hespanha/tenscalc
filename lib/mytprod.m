@@ -63,23 +63,72 @@ function M=mytprod(varargin)
         end
         fprintf('\n');
     end
+    
     for i=1:2:nargin
         if 0%issparse(varargin{i})
             fprintf('ATTENTION: tprod unsparsifying [%s] matrix with %d non-zero elements (%.3f%% fillin)\n',index2str(size(varargin{i})),nnz(varargin{i}),100*nnz(varargin{i})/numel(varargin{i}));
         end
-        indi=varargin{i+1};
+        
+        indi=varargin{i+1};   % indices
+        Mi=full(varargin{i}); % matrix;
+        
+        % handle repeated indices -- replace Mi by diagonal & erase repeated from indi
+        uindi=unique(indi);
+        if length(uindi)~=length(indi)
+            k=1;
+            kk=max(find(indi(k)==indi));
+            while kk>k
+                % k & kk are equal
+                %indi,k,kk
+                
+                subs=cell(length(size(Mi)),1);
+                [subs{:}]=ind2sub(size(Mi),1:prod(size(Mi)));
+                subs=cat(1,subs{:});
+                %subs(k,:),
+                % find entries with matching indices
+                keq=find(subs(k,:)==subs(kk,:));
+                %subs(:,keq)
+                
+                % order entries (by subscript without the one to be removed)
+                [~,kx]=sortrows(subs([end:-1:kk+1,kk-1:-1:1],keq)');
+                keq=keq(kx);
+                %subs(:,keq)
+                
+                szMi=size(Mi);
+                szMi(kk)=[];
+                while length(szMi)<2
+                    szMi(end+1)=1;
+                end
+                %
+                Mi=reshape(Mi(keq),szMi);
+                indi(kk)=[];
+                % prepare for next one
+                k=k+1;
+                if k<length(indi)
+                    kk=max(find(indi(k)==indi));
+                else
+                    kk=-inf;
+                end
+            end % while
+        end
+       
+        % 1st existing indices, then missing ones (for repmat to work)
         missing=setdiff(ind,indi);
-        order=[indi,missing];
+        order=[indi,missing];   
+        % sums get highest (positive indices)
         order(order<0)=length(tprod_size)-order(order<0);
         indi(indi<0)=length(tprod_size)-indi(indi<0);
+        % expand matrix over missing indices
         reps=msizes;
         reps(indi)=1;
-        Mi=full(varargin{i});
+        % "transpose" to get desired order of output
         if length(order)>=2
             Mi=ipermute(Mi,order);
         end
+        % multiply expanded matrix
         M=M.*repmat(Mi,reps);
     end
+    % perform summations
     for i=length(tprod_size)+1:length(ind)
         M=sum(M,i);
     end
@@ -116,6 +165,14 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
         obj=varargin{i};
         ind=varargin{i+1};
         osize=size(obj);
+
+        if false && any(diff(sort(ind))==0)
+             ind
+             warning('currently tprod does not support repeated indices: ind(%d)=[%s]\n',...
+                     (i+1)/2,index2str(ind));
+        end
+        
+
         % remove singleton dimension at the end of column vectors
         if osize(2)==1 && length(ind)==1
             osize=osize(1);
@@ -169,3 +226,39 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
     end
 end
 
+function test_tprod()
+    
+    a=rand(3,4);
+    b=rand(4,5);
+
+    ab=mytprod(a,[1,-1],b,[-1,2]);
+    if norm(a*b-ab)>1e2*eps
+        error('matrix prod');
+    end
+    
+    aT=mytprod(a,[2,1]);
+    if norm(a'-aT)>1e2*eps
+        error('transpose');
+    end
+    
+    ab=mytprod(a,[2,1],b,[1,3]);
+    if norm(repmat(a',1,1,5).*permute(repmat(b',1,1,3),[2,3,1])-ab)>1e2*eps
+        error('external prod');
+    end
+    
+    c=rand(4,4);
+    dc=mytprod(c,[1,1]);
+    if norm(dc-diag(c))>1e2*eps
+        error('diag');
+    end
+
+    c=rand(2,3,2);
+    dc=mytprod(c,[1,2,1]);
+    if norm(dc-[c(1,1,1),c(1,2,1),c(1,3,1);
+                c(2,1,2),c(2,2,2),c(2,3,2)])>1e2*eps
+        error('diag');
+    end
+    if norm(dc-reshape(c(sub2ind(size(c),[1,2,1,2,1,2],[1,1,2,2,3,3],[1,2,1,2,1,2])),[2,3]))>1e2*eps
+        error('diag');
+    end
+end
