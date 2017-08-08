@@ -28,6 +28,13 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
     for i=1:2:nargin
         objs{(i-1)/2+1}=toCalculus(varargin{i});
         ind=varargin{i+1};
+        
+        % if any(diff(sort(ind))==0)
+        %     ind
+        %     warning('currently tprod does not support repeated indices: ind(%d)=[%s]\n',...
+        %             (i+1)/2,index2str(ind));
+        % end
+        
         if ~isnumeric(ind)
             ind
             error('tprod: argument %d must be numeric\n',i+1);
