@@ -6,4 +6,8 @@ function br=bitrate(snr)
 % the given signal-to-noise ration: 
 %     br=log2(1+snr)
 
-br=compose(snr,@(x__)log(1+x__)/log(2),@(x__)1./(1+x__)/log(2),@(x__)-1./(1+x__).^2);
+if isequal(class(snr),'Tcalculus')
+    br=compose(snr,@(x__)log(1+x__)/log(2),@(x__)1./(1+x__)/log(2),@(x__)-1./(1+x__).^2);
+else
+    br=log(1+snr)/log(2);
+end

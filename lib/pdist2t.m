@@ -31,8 +31,12 @@ end
 
 switch method
   case 'squaredeuclidean'
-    relPos=repmat(reshape(X,[N,Nx,1]),[1,1,Ny])-repmat(reshape(Y,[N,1,Ny]),[1,Nx,1]);
-    dist2=sum(sqr(relPos),1);
+    if isequal(class(X),'Tcalculus') || isequal(class(Y),'Tcalculus')
+        relPos=repmat(reshape(X,[N,Nx,1]),[1,1,Ny])-repmat(reshape(Y,[N,1,Ny]),[1,Nx,1]);
+        dist2=sum(sqr(relPos),1);
+    else
+        dist2=pdist2(X',Y',method);
+    end
   otherwise
     fprintf('method ''%s'' not implemented for Tcalculus/pdist2t (use ''squaredeuclidean'')\n',...
             method);
