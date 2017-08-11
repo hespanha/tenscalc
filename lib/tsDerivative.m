@@ -64,29 +64,29 @@ function [dx,ts]=tsDerivative(x,ts,invDts,invD2ts);
 
     if length(ts)>1
         if nargin<4
-            t1=[(2*ts(1)-ts(2)-ts(3))./(ts(1)-ts(3))./(ts(1)-ts(2)); 
+            t1=[(2*ts(1)-ts(2)-ts(3))/(ts(1)-ts(3))/(ts(1)-ts(2)); 
                 (ts(2:end-1)-ts(3:end))./(ts(1:end-2)-ts(3:end))./(ts(1:end-2)-ts(2:end-1));
-                (ts(end)-ts(end-1))./(ts(end-2)-ts(end-1))./(ts(end-2)-ts(end))];
+                (ts(end)-ts(end-1))/(ts(end-2)-ts(end-1))./(ts(end-2)-ts(end))];
             
-            t2=[(ts(3)-ts(1))./(ts(2)-ts(3))./(ts(1)-ts(2));
+            t2=[(ts(3)-ts(1))/(ts(2)-ts(3))/(ts(1)-ts(2));
                 (ts(1:end-2)+ts(3:end)-2*ts(2:end-1))./(ts(2:end-1)-ts(3:end))./(ts(1:end-2)-ts(2:end-1));
                 (ts(end-2)-ts(end))./(ts(end-2)-ts(end-1))./(ts(end-1)-ts(end))];
             
-            t3=[(ts(1)-ts(2))./(ts(1)-ts(3))./(ts(2)-ts(3));
+            t3=[(ts(1)-ts(2))/(ts(1)-ts(3))/(ts(2)-ts(3));
                 (ts(1:end-2)-ts(2:end-1))./(ts(1:end-2)-ts(3:end))./(ts(3:end)-ts(2:end-1));
                 (ts(end-2)+ts(end-1)-2*ts(end))./(ts(end-2)-ts(end))./(ts(end)-ts(end-1))];
         else
-            t1=[(2*ts(1)-ts(2)-ts(3)).*invD2ts(1).*invDts(1); 
+            t1=[(2*ts(1)-ts(2)-ts(3))*invD2ts(1)*invDts(1); 
                 (ts(2:end-1)-ts(3:end)).*invD2ts.*invDts(1:end-1);
-                (ts(end)-ts(end-1)).*invD2ts(end).*invDts(end-1)];
+                (ts(end)-ts(end-1))*invD2ts(end).*invDts(end-1)];
             
-            t2=[(ts(3)-ts(1)).*invDts(2).*invDts(1);
+            t2=[(ts(3)-ts(1))*invDts(2)*invDts(1);
                 (ts(1:end-2)+ts(3:end)-2*ts(2:end-1)).*invDts(2:end).*invDts(1:end-1);
-                (ts(end-2)-ts(end)).*invDts(end-1).*invDts(end)];
+                (ts(end-2)-ts(end))*invDts(end-1)*invDts(end)];
             
-            t3=[(ts(1)-ts(2)).*invD2ts(1).*invDts(2);
+            t3=[(ts(1)-ts(2))*invD2ts(1)*invDts(2);
                 (ts(2:end-1)-ts(1:end-2)).*invD2ts.*invDts(2:end);
-                (2*ts(end)-ts(end-2)-ts(end-1)).*invD2ts(end).*invDts(end)];  
+                (2*ts(end)-ts(end-2)-ts(end-1))*invD2ts(end)*invDts(end)];  
         end
         
         if ~isequal(class(x),'Tcalculus') 
