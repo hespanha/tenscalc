@@ -7,6 +7,7 @@
 * [Usage](#usage)
 * [Issues](#issues)
 * [Contact Information](#contact-information)
+* [Acknowledgments](#acknowledgements)
 * [License Information](#license-information)
 
 ## Description
@@ -231,6 +232,12 @@ additiona tecnhnical information can be found at
 * The next biggest issue is the use of fairly obscure error messages
   when things go wrong.
   
+
+## Acknowledgements
+
+The following people greatly helped in testing and improving this
+toolbox: David Copp, Sharad Shankar, Calvin Wang, Ricard Scott Erwing,
+Justin Pearson.
 
 ## Contact Information
 
