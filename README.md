@@ -228,28 +228,20 @@ Additional technical information can be found at
 
 * Getting the solver to converge can be difficult for problems that
   are numerically ill conditioned, especially with the C code that
-<<<<<<< HEAD
   does not do any numerical conditioning to find the Newton direction.
-=======
-  does not do any numerical conditioning to find the Newton directiob.
->>>>>>> 14deabd512cf122469a7012db067cc608d271ff3
 
 * *TensCalc* gives very obscure error messages that make it pretty
   hard to for users to figure out what is wrong with their
   optimizations. 
   
   E.g., if the cost function does not depend on one of the
-  optimization variables, the error message complains that 
-	  "sparse gradients are not supported"
-  Why? because if the cost function does not depend on one of the
-  variables, then the gradient of the cost function is indeed a vector
-  with some entries that are always zero. In general, *TensCalc* loves
-<<<<<<< HEAD
-  sparse matrices/vectors to make fast computations, but it is not
-=======
-  sparse matrices/vectors to make fast compuations, but it is not
->>>>>>> 14deabd512cf122469a7012db067cc608d271ff3
-  prepared to handle sparse gradients since this should never happen. 
+  optimization variables, the error message complains that "sparse
+  gradients are not supported" Why? because if the cost function does
+  not depend on one of the variables, then the gradient of the cost
+  function is indeed a vector with some entries that are always
+  zero. In general, *TensCalc* loves sparse matrices/vectors to make
+  fast computations, but it is not prepared to handle sparse gradients
+  since this should never happen.
 
 ## Acknowledgements
 
