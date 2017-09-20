@@ -234,7 +234,7 @@ additiona tecnhnical information can be found at
   optimizations. 
   
   E.g., if the cost function does not depend on one of the
-  optimization variables, the error message complains that the 
+  optimization variables, the error message complains that 
 	  "sparse gradients are not supported"
   Why? because if the cost function does not depend on one of the
   variables, then the gradient of the cost function is indeed a vector
