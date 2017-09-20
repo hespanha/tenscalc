@@ -25,7 +25,7 @@ computed symbolically in an automated fashion.
 
 The package can either produce optimized *Matlab* code or C code. The
 former is preferable for very large problems, whereas the latter for
-small to mid- size problems that need to be solved in just a few
+small to mid-size problems that need to be solved in just a few
 milliseconds. The C code can be used from inside *Matlab* using an
 (automatically generated) cmex interface or in standalone
 applications. No libraries are required for the standalone code.
@@ -93,18 +93,17 @@ To install
 ### What are tensors?
 
 Tensors are essentially multi-dimensional arrays, but one needs to
-keep in mind that in *Matlab* every variable is an array of dimension 2
-or larger. Unfortunately, this is not suitable for *TensCalc*, which
-also needs arrays of dimension 0 (i.e., scalars) and 1 (i.e.,
-vectors). This can create con- fusion because *Matlab* automatically
+keep in mind that in *Matlab* every variable is an array of dimension
+2 or larger. However, this is not always suitable for *TensCalc*,
+which also needs arrays of dimension 0 (i.e., scalars) and 1 (i.e.,
+vectors). This can create confusion because *Matlab* automatically
 “upgrades” scalars and vectors to matrices (by adding singleton
-dimensions), but this is not done for *TensCalc* expressions. More on
-this later, but for now let us keep going with the quick start.
+dimensions), but this is not done for *TensCalc* expressions.
 
 ### STVEs?
 
 The basic objects in *TensCalc* are symbolic tensor-valued expressions
-(STVEs). These ex- pressions typically involve symbolic variables that
+(STVEs). These expressions typically involve symbolic variables that
 can be manipulated symbolically, evaluated for specific values of its
 variables, and optimized.
 
@@ -227,11 +226,21 @@ additiona tecnhnical information can be found at
   other OSs. Sorry about that.
 
 * Getting the solver to converge can be difficult for problems that
-  are numerically ill conditioned.
+  are numerically ill conditioned, especially with the C code that
+  does not do any numerical conditioning to find the Newton directiob.
 
-* The next biggest issue is the use of fairly obscure error messages
-  when things go wrong.
+* *TensCalc* gives very obscure error messages that make it pretty
+  hard to for users to figure out what is wrong with their
+  optimizations. 
   
+  E.g., if the cost function does not depend on one of the
+  optimization variables, the error message complains that the 
+	  "sparse gradients are not supported"
+  Why? because if the cost function does not depend on one of the
+  variables, then the gradient of the cost function is indeed a vector
+  with some entries that are always zero. In general, *TensCalc* loves
+  sparse matrices/vectors to make fast compuations, but it is not
+  prepared to handle sparse gradients since this should never happen. 
 
 ## Acknowledgements
 
