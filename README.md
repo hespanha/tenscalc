@@ -25,7 +25,7 @@ computed symbolically in an automated fashion.
 
 The package can either produce optimized *Matlab* code or C code. The
 former is preferable for very large problems, whereas the latter for
-small to mid- size problems that need to be solved in just a few
+small to mid-size problems that need to be solved in just a few
 milliseconds. The C code can be used from inside *Matlab* using an
 (automatically generated) cmex interface or in standalone
 applications. No libraries are required for the standalone code.
@@ -34,7 +34,7 @@ applications. No libraries are required for the standalone code.
 
 The *TensCalc* toolbox supports *Matlab* running under:
 
-- OSX (tested extensivly)
+- OSX (tested extensively)
 - linux (tested lightly)
 - Microsoft Windows (very little testing)
 
@@ -48,7 +48,7 @@ To install
 
 	1. downloading it as a zip file from
 		https://github.com/hespanha/tenscalc/archive/master.zip
-	   and unziping to an appropriate location
+	   and unzipping to an appropriate location
 
 	2. cloning this repository with Git, e.g., using the shell command
 	   ```sh
@@ -93,18 +93,17 @@ To install
 ### What are tensors?
 
 Tensors are essentially multi-dimensional arrays, but one needs to
-keep in mind that in *Matlab* every variable is an array of dimension 2
-or larger. Unfortunately, this is not suitable for *TensCalc*, which
-also needs arrays of dimension 0 (i.e., scalars) and 1 (i.e.,
-vectors). This can create con- fusion because *Matlab* automatically
+keep in mind that in *Matlab* every variable is an array of dimension
+2 or larger. However, this is not always suitable for *TensCalc*,
+which also needs arrays of dimension 0 (i.e., scalars) and 1 (i.e.,
+vectors). This can create confusion because *Matlab* automatically
 “upgrades” scalars and vectors to matrices (by adding singleton
-dimensions), but this is not done for *TensCalc* expressions. More on
-this later, but for now let us keep going with the quick start.
+dimensions), but this is not done for *TensCalc* expressions.
 
 ### STVEs?
 
 The basic objects in *TensCalc* are symbolic tensor-valued expressions
-(STVEs). These ex- pressions typically involve symbolic variables that
+(STVEs). These expressions typically involve symbolic variables that
 can be manipulated symbolically, evaluated for specific values of its
 variables, and optimized.
 
@@ -112,17 +111,17 @@ variables, and optimized.
 
 Prior to numerical optimization, STVEs must be “compiled” for
 efficient computation. This compilation can take a few seconds or even
-minutes but results in highly efficient *Matlab* or C code. Big payoffs
-arise when you need to evaluate or optimize an expression multiple
-time, for different values of input variables. *TensCalc*’s compilation
-functions thus always ask you to specify input parameters. Much more
-on *TensCalc*’s compilations tools can be found in CSparse’s
-documentation.
+minutes but results in highly efficient *Matlab* or C code. Big
+payoffs arise when you need to evaluate or optimize an expression
+multiple time, for different values of input variables. *TensCalc*’s
+compilation functions thus always ask you to specify input
+parameters. Much more on *TensCalc*’s compilations tools can be found
+in CSparse’s documentation.
 
 ### Creating STVEs. 
 
 The following sequence of *TensCalc* command can be used to declare an STVE to be
-used in a simple least-squares optimization problem
+used in a simple least-squares optimization problem.
 
 ``` matlab
 N=100; n=8;
@@ -135,11 +134,12 @@ J=norm2(y)
 
 ### Optimizing STVEs
 
-To perform an optimization also need to create an appropriate
-specialized *Matlab* class, say called minslsu, using the following
+To perform an optimization we need to create an appropriate
+specialized *Matlab* class (say called "minslsu"), using the following
 command:
+
 ```matlab
-cmex2optimizeCS('classname','Cminslsc',...
+cmex2optimizeCS('classname','minslsc',...
                 'objective',J,...
                 'optimizationVariables',{x},...
                 'constraints',{x>=0,x<=.05},...
@@ -201,13 +201,13 @@ iterations, respectively.
 
 The example above and many others can be found in `tenscalc\examples`.
 
-### Full documentaion
+### Full documentation
 
 Full documentation for this toolbox can be found in
 
 * `doc/tenscalc.pdf`
 
-additiona tecnhnical information can be found at
+Additional technical information can be found at
 
 * `doc/ipm.pdf`
 * `doc/csparse.pdf`
@@ -222,16 +222,26 @@ additiona tecnhnical information can be found at
   operating systems.
 
   Our goal is to build a toolbox that works across multiple OSs; at
-  least under OSX, linux, and Microsft Windows. However, most of our
+  least under OSX, linux, and Microsoft Windows. However, most of our
   testing was done under OSX so one should expect some bugs under the
   other OSs. Sorry about that.
 
 * Getting the solver to converge can be difficult for problems that
-  are numerically ill conditioned.
+  are numerically ill conditioned, especially with the C code that
+  does not do any numerical conditioning to find the Newton direction.
 
-* The next biggest issue is the use of fairly obscure error messages
-  when things go wrong.
+* *TensCalc* gives very obscure error messages that make it pretty
+  hard to for users to figure out what is wrong with their
+  optimizations. 
   
+  E.g., if the cost function does not depend on one of the
+  optimization variables, the error message complains that 
+	  "sparse gradients are not supported"
+  Why? because if the cost function does not depend on one of the
+  variables, then the gradient of the cost function is indeed a vector
+  with some entries that are always zero. In general, *TensCalc* loves
+  sparse matrices/vectors to make fast computations, but it is not
+  prepared to handle sparse gradients since this should never happen. 
 
 ## Acknowledgements
 
@@ -251,7 +261,7 @@ University of California, Santa Barbara
 
 Copyright 2010-2017 Joao Hespanha
 
-This file is part of Tencalc.
+This file is part of Tenscalc.
 
 TensCalc is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -265,3 +275,18 @@ General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+
+<!--  LocalWords:  TensCalc cmex linux svn tenscalc mls sls STVEs OSs
+ -->
+<!--  LocalWords:  estimationCS CSparse STVE Tvariable minslsu setP
+ -->
+<!--  LocalWords:  optimizeCS classname Cminslsc minslsc setV iter
+ -->
+<!--  LocalWords:  optimizationVariables outputExpressions maxIter
+ -->
+<!--  LocalWords:  solverVerboseLevel saveIter getOutputs thisA thisb
+ -->
+<!--  LocalWords:  Jcstar xcstar mex Copp Sharad Ricard Erwing Joao
+ -->
+<!--  LocalWords:  MERCHANTABILITY
+ -->
