@@ -1,3 +1,6 @@
+# assume case sensitive, which is acheived with
+# git config core.ignorecase false
+
 ## Apple stuff
 .DS_Store
 
