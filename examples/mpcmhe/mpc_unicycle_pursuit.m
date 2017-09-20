@@ -1,5 +1,4 @@
 clear all;
-clear global;
 %!rm -rf toremove.m tmp* @tmp*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -21,9 +20,10 @@ clear global;
 
 % Create symbolic optimization
 
-nx=5;  % state size;
-nu=1;  % control size
-T=300;  % forward horizon
+nx=5;             % state size;
+nu=1;             % control size
+T=200;            % forward horizon;
+controlDelay=0;   % delay in applying control, after state measurement
 
 % create symbolic optimization
 Tvariable Ts [];
@@ -47,6 +47,7 @@ mpc=Tmpc('reuseSolver',true,...
          'solverClassname','tmp2',...
          'sampleTime',Ts,...
          'controlVariable',u,...
+         'controlDelay',controlDelay,...
          'stateVariable',x,...
          'stateDerivativeFunction',dxFun,....
          'objective',J,...
@@ -60,8 +61,8 @@ mpc=Tmpc('reuseSolver',true,...
 
 % set parameter values
 setParameter(mpc,'d',[1;0]);
-setParameter(mpc,'v',1.5);
-uMax=1;
+setParameter(mpc,'v',2);
+uMax=2;
 setParameter(mpc,'uMax',uMax);
 Ts=.01;
 setParameter(mpc,'Ts',Ts);
@@ -82,7 +83,7 @@ t=t0;
 figure(fig);clf;
 
 % cold start
-u_warm=.1*randn(nu,T);               
+u_warm=.1*randn(nu,T-controlDelay);               
 
 for i=1:400
     % move warm start away from constraints
@@ -106,7 +107,7 @@ for i=1:400
         %pause
     end
     
-    % apply 5 controls and get time and warm start for next iteration
+    % apply 5 controls and get time, warm start for next iteration
     ufinal=zeros(nu,1);
     [t,u_warm]=applyControls(mpc,solution,5,ufinal); 
 end
@@ -125,6 +126,7 @@ fig=fig+1;figure(fig);clf;
 plot(history.t,history.iter,'.-',history.t(2:end),1000*history.stime(2:end),'.-');grid on;
 legend('# iterations','solver time [ms]');
 xlabel('t');
+title('solver performance');
 
 
 
