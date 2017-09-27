@@ -1063,7 +1063,7 @@ classdef Tcalculus
                     % x * A 
                     obj=tprod(reshape(obj1,[osize1,1]),[1,-1],obj2,[-1,2]);
                 elseif length(osize1)==1 && length(osize2)==1
-                    % x .* y
+                    % x .* y (inner product)
                     obj=tprod(obj1,[-1],obj2,[-1]);
                 elseif isempty(osize1)  
                     % scalar * A
