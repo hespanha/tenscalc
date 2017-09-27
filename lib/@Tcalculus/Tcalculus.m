@@ -873,13 +873,14 @@ classdef Tcalculus
                 osize1=size(obj1);
                 osize2=size(obj2);
 
-                % add singletons?
-                if prod(osize1)==1 && prod(osize2)==1
-                    obj1=reshape(obj1,[]);
-                    osize1=[];
-                    obj2=reshape(obj2,[]);
-                    osize2=[];
-                end
+                % following not okay because it changes the size of the result
+                % if prod(osize1)==1 && prod(osize2)==1
+                %     % singleton + singleton
+                %     obj1=reshape(obj1,[]);
+                %     osize1=[];
+                %     obj2=reshape(obj2,[]);
+                %     osize2=[];
+                % end
                 
                 % add scalar? multiply by ones of appropriate size
                 if isempty(osize1) && ~isempty(osize2)
@@ -1011,13 +1012,14 @@ classdef Tcalculus
             osize1=size(obj1);
             osize2=size(obj2);
 
-            if prod(osize1)==1 && prod(osize2)==1
-                % singleton * singleton
-                obj1=reshape(obj1,[]);
-                osize1=[];
-                obj2=reshape(obj2,[]);
-                osize2=[];
-            end
+            % following not okay because it changes the size of the result
+            % if prod(osize1)==1 && prod(osize2)==1
+            %     % singleton / singleton
+            %     obj1=reshape(obj1,[]);
+            %     osize1=[];
+            %     obj2=reshape(obj2,[]);
+            %     osize2=[];
+            % end
 
             if  ~myisequal(osize1,osize2) && ~isempty(osize2)
                 obj1,obj2
@@ -1069,9 +1071,10 @@ classdef Tcalculus
                 elseif isempty(osize2)  
                     % A * scalar
                     obj=tprod(obj2,[],obj1,1:length(osize1));
-                elseif prod(osize1)==1 && prod(osize2)==1
-                    % singleton * singleton
-                    obj=reshape(obj1,[])*reshape(obj2,[]);
+                % following not okay because it changes the size of the result
+                % elseif prod(osize1)==1 && prod(osize2)==1
+                %     % singleton * singleton
+                %     obj=reshape(obj1,[])*reshape(obj2,[]);
                 else
                     obj1,obj2,error('Tcalculus/mtimes ambigous')
                 end

@@ -1,11 +1,25 @@
-clear all;
-clear global;
-!rm -rf toremove.m tmp* @tmp*
+% Copyright 2012-2017 Joao Hespanha
 
-% Create dc-motor-like transfer function
-% [dot x1]=[0  1][x1]+[0]u
-% [dot x2] [0  p][x2] [k]
-%        y=x1     
+% This file is part of Tencalc.
+%
+% TensCalc is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version.
+%
+% TensCalc is distributed in the hope that it will be useful, but
+% WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+
+clear all
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
+
+%% Generate solver
 
 % Create symbolic optimization
 
@@ -20,6 +34,11 @@ Tvariable u [nu,T];  % [u(t), u(t+Ts), ..., u(t+(T-1)*Ts) ]
 Tvariable p [1,1];
 Tvariable k [1,1];
 Tvariable r [1,T];
+
+% DC-motor-like transfer function
+% [dot x1]=[0  1][x1]+[0]u
+% [dot x2] [0  p][x2] [k]
+%        y=x1     
 
 dxFun=@(x,u,p,k,Ts,r)[0,1;0,p]*x+[0;k]*u;
 
@@ -41,6 +60,8 @@ mpc=Tmpc('reuseSolver',true,...
                     'compilerOptimization','-O0',...
                     'solverVerboseLevel',3 ...
                    });
+
+%% Simulate system
 
 % set parameter values
 setParameter(mpc,'p',2);
@@ -69,14 +90,14 @@ figure(fig);clf;
 u_warm=.1*randn(nu,T);               
 
 for i=1:40
+    % set reference signal
+    r=ref(t+(0:T-1)*Ts);
+    setParameter(mpc,'r',r);
+    
     % move warm start away from constraints
     u_warm=min(u_warm,.95);
     u_warm=max(u_warm,-.95);
     setSolverWarmStart(mpc,u_warm);
-    
-    % set reference signal
-    r=ref(t+(0:T-1)*Ts);
-    setParameter(mpc,'r',r);
     
     [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
     

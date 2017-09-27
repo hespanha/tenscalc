@@ -88,6 +88,16 @@ To install
 	l1l2estimationCS
 	```
 	
+	A few Model Predictive Control (MPC) examples can be found on
+    `tenscalc/examples/mpcmhe`, such as
+
+	```matlab
+	mpc_dcmotor
+	mpcmhe_dcmotor
+	mpc_unicycle_pursuit
+	```
+
+	
 ## Usage
 
 ### What are tensors?

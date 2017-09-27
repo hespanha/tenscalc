@@ -23,58 +23,6 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 %% Generate data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%   sparsifyLU(89): size=[996,996]  values from "tmpC_minl1l2_WW.values", pivoting from lu, nnz=4174 (  0.42%) <- LU   (size=[996,996] , nnz=4174) (2.46 sec)
-%   done ipmPD_CS symbolic computations (13.318 sec)
-%   computeScalarInstructions... done (5.531 sec)
-%   dependencyGroups... done (0.442 sec)
-%   compile2C: 1499 added vectorized Operations, 141 unique vectorized Operations
-%   compile2C: 45988 added instructions, 41810 unique instructions
-%   compile2C: sizeScratchbook=41810 double, nGroups=1255, nSets=16, nGets=9, nCopies=3
-
-%%  write codeType=C+asmLB... done (1.157 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.50 sec)
-%%  Compiling library...  optimization = -O1 tmpC_minl1l2.c = 6692.808kB, tmpC_minl1l2.dylib = 1820.230kB  (3.462 sec)
-% done cmex2optimizeCS (34.785 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  14:status=0, cost=  5.84853e+01, |grad|=  4.99e-10, ineq=  6.61e-09, dual=  3.83e-11, gap=  8.02e-07, last alpha=  9.90e-01 (1931.1us,137.94us/iter)
-
-%%  write codeType=C+asmLB... done (1.176 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.40 sec)
-%%  Compiling library...  optimization = -O0 tmpC_minl1l2.c = 6692.808kB, tmpC_minl1l2.dylib = 1992.191kB  (1.342 sec)
-% done cmex2optimizeCS (32.310 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  14:status=0, cost=  5.84853e+01, |grad|=  4.99e-10, ineq=  6.61e-09, dual=  3.83e-11, gap=  8.02e-07, last alpha=  9.90e-01 (2014.7us,143.91us/iter)
-
-%%  write codeType=C+asmLB... done (1.162 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.44 sec)
-%%  Compiling library...  optimization = -Ofast tmpC_minl1l2.c = 6692.808kB, tmpC_minl1l2.dylib = 7532.285kB  (15.057 sec)
-% done cmex2optimizeCS (46.098 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  15:status=0, cost=  5.84853e+01, |grad|=  1.71e-10, ineq=  2.04e-09, dual=  1.14e-11, gap=  2.21e-07, last alpha=  9.90e-01 (2340.5us,156.04us/iter)
-
-%%  write codeType=C... done (1.061 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.40 sec)
-%%  Compiling library...  optimization = -Ofast tmpC_minl1l2.c = 2963.523kB, tmpC_minl1l2.dylib = 1852.141kB  (54.696 sec)
-% done cmex2optimizeCS (85.566 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  14:status=0, cost=  5.84853e+01, |grad|=  1.77e-10, ineq=  1.92e-09, dual=  1.19e-11, gap=  2.76e-07, last alpha=  9.90e-01 (1868.7us,133.48us/iter)
-
-%%  write codeType=C... done (1.107 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.42 sec)
-%%  Compiling library...  optimization = -O1 tmpC_minl1l2.c = 2963.523kB, tmpC_minl1l2.dylib = 1576.094kB  (22.734 sec)
-% done cmex2optimizeCS (53.687 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  15:status=0, cost=  5.84853e+01, |grad|=  1.17e-09, ineq=  1.39e-08, dual=  7.80e-11, gap=  1.50e-06, last alpha=  9.31e-01 (2178.0us,145.20us/iter)
-
-%%  write codeType=C... done (1.062 sec)
-%   Compiling 16 gateways... done compiling 16 gateways (10.37 sec)
-%%  Compiling library...  optimization = -O0 tmpC_minl1l2.c = 2963.523kB, tmpC_minl1l2.dylib = 3172.312kB  (1.986 sec)
-% done cmex2optimizeCS (32.838 sec)
-% ipmPD_CS (skipAffine=0,delta=3,allowSave=0): 996 primal variable, 0 equality constraints, 796 inequality constraints
-%  15:status=0, cost=  5.84853e+01, |grad|=  1.17e-09, ineq=  1.39e-08, dual=  7.80e-11, gap=  1.50e-06, last alpha=  9.31e-01 (3649.3us,243.29us/iter)
-
-
-%% https://llvm.org/bugs/show_bug.cgi?id=23366
 %optimizeCS=@class2optimizeCS; % matlab
 optimizeCS=@cmex2optimizeCS;  % c
 N=200

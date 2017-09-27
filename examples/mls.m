@@ -29,7 +29,7 @@ s = RandStream('mt19937ar','Seed',0);
 RandStream.setGlobalStream(s);
 
 generateSolver=@class2optimizeCS;
-%generateSolver=@cmex2optimizeCS;  % only for small problems (/5)
+%generateSolver=@cmex2optimizeCS;  % only for small problems (size/5)
 compilerOptimization='-O0';
 
 N=100;

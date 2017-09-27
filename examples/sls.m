@@ -168,7 +168,8 @@ t0=clock;
 fprintf('Elapsed time = %5.2fms (flag=%d, f-val =%.6f)\n',1000*etime(clock,t0),flag,norm(thisA*xqpstar-thisb,2)^2/N);
 
 %% Constrained optimization using CVX
-if 1
+if false
+    fprintf('Trying CVX\n');
     clear x
     cvx_begin
        variables x(n);

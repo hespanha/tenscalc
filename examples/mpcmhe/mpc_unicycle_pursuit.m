@@ -1,22 +1,25 @@
-clear all;
-%!rm -rf toremove.m tmp* @tmp*
+% Copyright 2012-2017 Joao Hespanha
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% System
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% pursuer
-% dot x1 = v cos x3
-% dot x2 = v sin x3
-% dot x3 = u            u in [-uMax,uMax]
+% This file is part of Tencalc.
+%
+% TensCalc is free software: you can redistribute it and/or modify it
+% under the terms of the GNU General Public License as published by the
+% Free Software Foundation, either version 3 of the License, or (at your
+% option) any later version.
+%
+% TensCalc is distributed in the hope that it will be useful, but
+% WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+% General Public License for more details.
+%
+% You should have received a copy of the GNU General Public License
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-% evader
-% dot x4    = d1
-% dot x5    = d2
+clear all
+% remove previous solvers
+delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
-% controlled output
-% z1 = x1 - x4
-% z2 = x2 - x5
-
+%% Generate solver
 
 % Create symbolic optimization
 
@@ -33,6 +36,19 @@ Tvariable u [nu,T];  % [u(t), u(t+Ts), ..., u(t+(T-1)*Ts) ]
 Tvariable v [];      % pursuer's velocity
 Tvariable d [2,1];   % evader's velocity
 Tvariable uMax [];   % max turning rate
+
+% pursuer
+% dot x1 = v cos x3
+% dot x2 = v sin x3
+% dot x3 = u            u in [-uMax,uMax]
+
+% evader
+% dot x4    = d1
+% dot x5    = d2
+
+% controlled output
+% z1 = x1 - x4
+% z2 = x2 - x5
 
 dxFun=@(x,u,v,d,Ts,uMax)[v*cos(x(3,:));
                     v*sin(x(3,:));
