@@ -170,7 +170,7 @@ function varargout=cmex2optimizeCS(varargin)
         'VariableName','alphaMin',...
         'DefaultValue',1e-7,...
         'Description',{
-            'Minimum value for the scalar gain in the line search'
+            'Minimum value for the scalar gain in Newton''s method line search,'
             'below which a search direction is declared to have failed.'
                       });
 
@@ -178,8 +178,17 @@ function varargout=cmex2optimizeCS(varargin)
         'VariableName','alphaMax',...
         'DefaultValue',1,...
         'Description',{
-            'Maximum value for the scalar gain in the line search.'
+            'Maximum value for the scalar gain in Newton''s method line search.'
             'Should only be set lower to 1 for very poorly scaled problems.'
+                      });
+
+    declareParameter(...
+        'VariableName','coupledAlphas',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the same scalar gain is used for the primal and dual variables'
+            'in Newton''s method line search.'
                       });
 
     declareParameter(...
@@ -760,6 +769,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.desiredDualityGap=sprintf('%e',desiredDualityGap); % to make double
     defines.alphaMin=sprintf('%e',alphaMin); % to make double
     defines.alphaMax=sprintf('%e',alphaMax); % to make double
+    defines.coupledAlphas=double(coupledAlphas);
     defines.muFactorAggressive=sprintf('%e',muFactorAggressive); % to make double
     defines.muFactorConservative=sprintf('%e',muFactorConservative); % to make double
     defines.delta=delta;

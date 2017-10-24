@@ -102,8 +102,13 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
 
     Lf_uu=gradient(Lf_u,u);
     
-    alpha=Tvariable('alpha__',[]);
-    declareSet(code,alpha,'setAlpha__');
+    
+    alphaPrimal=Tvariable('alphaPrimal__',[]);
+    declareSet(code,alphaPrimal,'setAlphaPrimal__');
+    alphaDualEq=Tvariable('alphaDualEq__',[]);
+    declareSet(code,alphaDualEq,'setAlphaDualEq__');
+    alphaDualIneq=Tvariable('alphaDualIneq__',[]);
+    declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
     if useLDL
         if atomicFactorization
@@ -146,20 +151,20 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
             dx_a=declareAlias(code,dx_a,'dUNu_a__');
             
             dU_a=dx_a(1:nU);
-            newU_a=u+alpha*dU_a;
+            newU_a=u+alphaPrimal*dU_a;
             
             if nF>0
                 dLambda_a=-LPG*dU_a-lambda;
-                newLambda_a=lambda+alpha*dLambda_a;
+                newLambda_a=lambda+alphaDualIneq*dLambda_a;
                 
                 newF_a=substitute(F,u,newU_a);
                 
-                alphaPrimal_a=clp(F,F_u*dU_a);
-                alphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaPrimal_a=clp(F,F_u*dU_a);
+                maxAlphaDualIneq_a=clp(lambda,dLambda_a);
                 
                 rho=tprod(newF_a,[-1],newLambda_a,[-1])./gap; % rho=(newF_a*newLambda_a)./gap;
                 
-                declareGet(code,{alphaPrimal_a,alphaDual_a},'getAlphas_a__');
+                declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             else
@@ -178,20 +183,20 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         dx_s=declareAlias(code,dx_s,'dx_s__');
         
         dU_s=dx_s(1:nU);
-        newU_s=u+alpha*dU_s;
+        newU_s=u+alphaPrimal*dU_s;
         dNu_s=dx_s(nU+1:end);
-        newNu_s=nu+alpha*dNu_s;
+        newNu_s=nu+alphaDualEq*dNu_s;
         if nF>0
             if skipAffine
                 dLambda_s=muF-LPG*dU_s-lambda;
             else
                 dLambda_s=muF-LPG*dU_s-lambda-Mehrotra;
             end                
-            newLambda_s=lambda+alpha*dLambda_s;
+            newLambda_s=lambda+alphaDualIneq*dLambda_s;
             
-            alphaPrimal_s=clp(F,F_u*dU_s);
-            alphaDual_s=clp(lambda,dLambda_s);
-            declareGet(code,{alphaPrimal_s,alphaDual_s},'getAlphas_s__');
+            maxAlphaPrimal_s=clp(F,F_u*dU_s);
+            maxAlphaDualIneq_s=clp(lambda,dLambda_s);
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDualIneq_s},'getMaxAlphas_s__');
             
             newF_s=substitute(F,u,newU_s);
             declareGet(code,min(newF_s,1),'getMinF_s__');
@@ -234,19 +239,19 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
             dx_a=declareAlias(code,dx_a,'dUNu_a__');
             
             dU_a=dx_a(1:nU);
-            newU_a=u+alpha*dU_a;
+            newU_a=u+alphaPrimal*dU_a;
             
             if nF>0
                 dLambda_a=dx_a(nU+nG+1:nU+nG+nF);
-                newLambda_a=lambda+alpha*dLambda_a;
+                newLambda_a=lambda+alphaDualIneq*dLambda_a;
                 
                 newF_a=substitute(F,u,newU_a);                
-                alphaPrimal_a=clp(F,F_u*dU_a);
-                alphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaPrimal_a=clp(F,F_u*dU_a);
+                maxAlphaDualIneq_a=clp(lambda,dLambda_a);
                 
                 rho=tprod(newF_a,[-1],newLambda_a,[-1])./gap; % rho=(newF_a*newLambda_a)./gap;
                 
-                declareGet(code,{alphaPrimal_a,alphaDual_a},'getAlphas_a__');
+                declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 
                 declareGet(code,min(newF_a,1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
@@ -265,17 +270,17 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         dx_s=declareAlias(code,dx_s,'dx_s__');
         
         dU_s=dx_s(1:nU);
-        newU_s=u+alpha*dU_s;
+        newU_s=u+alphaPrimal*dU_s;
         dNu_s=dx_s(nU+1:nU+nG);
-        newNu_s=nu+alpha*dNu_s;
+        newNu_s=nu+alphaDualEq*dNu_s;
 
         if nF>0
             dLambda_s=dx_s(nU+nG+1:nU+nG+nF);
-            newLambda_s=lambda+alpha*dLambda_s;
+            newLambda_s=lambda+alphaDualIneq*dLambda_s;
         
-            alphaPrimal_s=clp(F,F_u*dU_s);
-            alphaDual_s=clp(lambda,dLambda_s);
-            declareGet(code,{alphaPrimal_s,alphaDual_s},'getAlphas_s__');
+            maxAlphaPrimal_s=clp(F,F_u*dU_s);
+            maxAlphaDualIneq_s=clp(lambda,dLambda_s);
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDualIneq_s},'getMaxAlphas_s__');
             newF_s=substitute(F,u,newU_s);
             declareGet(code,min(newF_s,1),'getMinF_s__');
             if debugConvergence

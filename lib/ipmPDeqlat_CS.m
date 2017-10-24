@@ -155,9 +155,13 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
         Lg=Lg+P2xnu*H;
     end
     
-    alpha=Tvariable('alpha__',[]);
-    declareSet(code,alpha,'setAlpha__');
-    
+    alphaPrimal=Tvariable('alphaPrimal__',[]);
+    declareSet(code,alphaPrimal,'setAlphaPrimal__');
+    alphaDualEq=Tvariable('alphaDualEq__',[]);
+    declareSet(code,alphaDualEq,'setAlphaDualEq__');
+    alphaDualIneq=Tvariable('alphaDualIneq__',[]);
+    declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
+
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
     t2=clock();
     Lf_u=gradient(Lf,u);
@@ -345,16 +349,16 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
             dU_a=dZNu_a(1:nU);
             dD_a=dZNu_a(nU+1:nU+nD);
             dZ_a=dZNu_a(1:nZ);
-            newU_a=u+alpha*dU_a;
-            newD_a=d+alpha*dD_a;
+            newU_a=u+alphaPrimal*dU_a;
+            newD_a=d+alphaPrimal*dD_a;
             if nX>0
                 dX_a=dZNu_a(nU+nD+1:nZ);
-                newX_a=x+alpha*dX_a;
+                newX_a=x+alphaPrimal*dX_a;
             end
             
             if nF>0
                 dLambda_a=-lambda-LFF*dZ_a;
-                newLambda_a=lambda+alpha*dLambda_a;
+                newLambda_a=lambda+alphaDualIneq*dLambda_a;
                 
                 newF_a=substitute(F,u,newU_a);
                 newF_a=substitute(newF_a,d,newD_a);
@@ -362,8 +366,8 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                     newF_a=substitute(newF_a,x,newX_a);
                 end
                 
-                alphaPrimal_a=clp(F,F_z*dZ_a);
-                alphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaPrimal_a=clp(F,F_z*dZ_a);
+                maxAlphaDual_a=clp(lambda,dLambda_a);
                 
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./F;
@@ -381,7 +385,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                 
                 rho=(newF_a*newLambda_a)./gap;
                 
-                declareGet(code,{alphaPrimal_a,alphaDual_a},'getAlphas_a__');
+                declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
@@ -435,22 +439,22 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
         fprintf('(%.2f sec)\n    new vectores...',etime(clock(),t2));
         t2=clock();
         
-        newU_s=u+alpha*dU_s;
-        newD_s=d+alpha*dD_s;
+        newU_s=u+alphaPrimal*dU_s;
+        newD_s=d+alphaPrimal*dD_s;
         if nX>0
-            newX_s=x+alpha*dX_s;
+            newX_s=x+alphaPrimal*dX_s;
         end
         
         if nF>0
-            alphaPrimal_s=clp(F,F_z*dZ_s);
-            alphaDual_s=clp(lambda,dLambda_s);
-            newLambda_s=lambda+alpha*dLambda_s;
+            maxAlphaPrimal_s=clp(F,F_z*dZ_s);
+            maxAlphaDual_s=clp(lambda,dLambda_s);
+            newLambda_s=lambda+alphaDualIneq*dLambda_s;
             newF_s=substitute(F,u,newU_s);
             newF_s=substitute(newF_s,d,newD_s);
             if nX>0
                 newF_s=substitute(newF_s,x,newX_s);
             end
-            declareGet(code,{alphaPrimal_s,alphaDual_s},'getAlphas_s__');
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
             declareGet(code,min(newF_s,1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
@@ -565,15 +569,15 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                 dLambda_a=Tzeros(nF);
             end
             
-            newU_a=u+alpha*dU_a;
-            newD_a=d+alpha*dD_a;
+            newU_a=u+alphaPrimal*dU_a;
+            newD_a=d+alphaPrimal*dD_a;
             if nX>0
                 dX_a=dx_a(nU+nD+1:nZ);
-                newX_a=x+alpha*dX_a;
+                newX_a=x+alphaPrimal*dX_a;
             end
             
             if nF>0
-                newLambda_a=lambda+alpha*dLambda_a;
+                newLambda_a=lambda+alphaDualIneq*dLambda_a;
                 
                 newF_a=substitute(F,u,newU_a);
                 newF_a=substitute(newF_a,d,newD_a);
@@ -581,8 +585,8 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                     newF_a=substitute(newF_a,x,newX_a);
                 end
                 
-                alphaPrimal_a=clp(F,F_z*dZ_a);
-                alphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaPrimal_a=clp(F,F_z*dZ_a);
+                maxAlphaDual_a=clp(lambda,dLambda_a);
                 
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./lambda;
@@ -595,7 +599,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                 
                 rho=(newF_a*newLambda_a)./gap;
                 
-                declareGet(code,{alphaPrimal_a,alphaDual_a},'getAlphas_a__');
+                declareGet(code,{maxAlphaPrimal_a,maxAlphaDual_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
@@ -631,22 +635,22 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
         fprintf('(%.2f sec)\n    new vectores...',etime(clock(),t2));
         t2=clock();
         
-        newU_s=u+alpha*dU_s;
-        newD_s=d+alpha*dD_s;
+        newU_s=u+alphaPrimal*dU_s;
+        newD_s=d+alphaPrimal*dD_s;
         if nX>0
-            newX_s=x+alpha*dX_s;
+            newX_s=x+alphaPrimal*dX_s;
         end
         
         if nF>0
-            alphaPrimal_s=clp(F,F_z*dZ_s);
-            alphaDual_s=clp(lambda,dLambda_s);
-            newLambda_s=lambda+alpha*dLambda_s;
+            maxAlphaPrimal_s=clp(F,F_z*dZ_s);
+            maxAlphaDual_s=clp(lambda,dLambda_s);
+            newLambda_s=lambda+alphaDualIneq*dLambda_s;
             newF_s=substitute(F,u,newU_s);
             newF_s=substitute(newF_s,d,newD_s);
             if nX>0
                 newF_s=substitute(newF_s,x,newX_s);
             end
-            declareGet(code,{alphaPrimal_s,alphaDual_s},'getAlphas_s__');
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
             declareGet(code,min(newF_s,1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
@@ -690,17 +694,17 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
     end
     if nGu>0
         dst{end+1}=P1nu;
-        src{end+1}=P1nu+alpha*dNuU_s;
+        src{end+1}=P1nu+alphaDualEq*dNuU_s;
     end
     if nGd>0
         dst{end+1}=P2nu;
-        src{end+1}=P2nu+alpha*dNuD_s;
+        src{end+1}=P2nu+alphaDualEq*dNuD_s;
     end
     if nH>0
         dst{end+1}=P1xnu;
-        src{end+1}=P1xnu+alpha*dNuUx_s;
+        src{end+1}=P1xnu+alphaDualEq*dNuUx_s;
         dst{end+1}=P2xnu;
-        src{end+1}=P2xnu+alpha*dNuDx_s;
+        src{end+1}=P2xnu+alphaDualEq*dNuDx_s;
     end
     if nFu>0
         dst{end+1}=P1lambda;

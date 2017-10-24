@@ -183,9 +183,9 @@ function varargout=class2equilibriumLatentCS(varargin)
 
     declareParameter(...
         'VariableName','alphaMin',...
-        'DefaultValue',1e-5,...
+        'DefaultValue',1e-7,...
         'Description',{
-            'Minimum value for the scalar gain in the line search'
+            'Minimum value for the scalar gain in Newton''s method line search,'
             'below which a search direction is declared to have failed.'
                       });
 
@@ -193,8 +193,17 @@ function varargout=class2equilibriumLatentCS(varargin)
         'VariableName','alphaMax',...
         'DefaultValue',1,...
         'Description',{
-            'Maximum value for the scalar gain in the line search.'
+            'Maximum value for the scalar gain in Newton''s method line search.'
             'Should only be set lower to 1 for very poorly scaled problems.'
+                      });
+
+    declareParameter(...
+        'VariableName','coupledAlphas',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the same scalar gain is used for the primal and dual variables'
+            'in Newton''s method line search.'
                       });
 
     declareParameter(...
@@ -772,6 +781,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     defines.desiredDualityGap=desiredDualityGap;
     defines.alphaMin=alphaMin;
     defines.alphaMax=alphaMax;
+    defines.coupledAlphas=double(coupledAlphas);
     defines.muFactorAggressive=muFactorAggressive;
     defines.muFactorConservative=muFactorConservative;
     defines.delta=delta;

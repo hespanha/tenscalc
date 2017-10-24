@@ -41,14 +41,16 @@ extern void initPrimalDual__();
 extern void initDualEq__();
 extern void initDualIneq__();
 extern void updatePrimalDual__();
-extern void setAlpha__(double *alpha);
+extern void setAlphaPrimal__(double *alpha);
+extern void setAlphaDualEq__(double *alpha);
+extern void setAlphaDualIneq__(double *alpha);
 extern void setMu__(double *mu);
 extern void getJ__(double *J);
 extern void getNorminf_G__(double *norminf_eq);
 extern void getNorminf_Grad__(double *norminf_grad);
 extern void getGapMinFMinLambda__(double *gap,double *ineq,double *dual);
-extern void getAlphas_a__(double *primalAlpha,double *dualAlpha);
-extern void getAlphas_s__(double *primalAlpha,double *dualAlpha);
+extern void getMaxAlphas_a__(double *alphaPrimal,double *alphaDual);
+extern void getMaxAlphas_s__(double *alphaPrimal,double *alphaDual);
 extern void getMinF_a__(double *ineq);
 extern void getMinF_s__(double *ineq);
 extern void getRho__(double *sigma);
@@ -86,6 +88,7 @@ extern void saveWW__(char *filename);
 #define MIN(A,B) (((A)<(B))?(A):(B))
 #define MAX(A,B) (((A)>(B))?(A):(B))
 
+#ifdef DEBUG
 void printMatrix(const char *name,double *mat,int m, int n)
 {
   int i,j,nnz=0;
@@ -109,6 +112,7 @@ void printMatrix(const char *name,double *mat,int m, int n)
     printf("]; %% (nnz=%d)\n",nnz);
   }
 }
+#endif
 
 EXPORT void ipmPD_CSsolver(
 	       /* inputs */
@@ -130,7 +134,8 @@ EXPORT void ipmPD_CSsolver(
   double norminf_grad,alphaMax_=alphaMax;
 
 #if nF>0
-  double mu=*mu0,muMin=desiredDualityGap/nF/2,alpha=0,gap,ineq,ineq1,dual,primalAlpha,dualAlpha;
+  double mu=*mu0,muMin=desiredDualityGap/nF/2,gap,ineq,ineq1,dual,
+    alphaPrimal=0,alphaDualEq=0,alphaDualIneq=0;
 #if skipAffine != 1
   double sigma;
 #endif
@@ -145,7 +150,7 @@ EXPORT void ipmPD_CSsolver(
 #endif
 
   printf2("%s.c (skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,skipAffine,(double)delta,allowSave,nU,nG,nF);
-  printf3("Iter   cost      |grad|      |eq|    inequal     dual      gap       mu      alphaA    sigma     alphaS   time [us]\n");
+  printf3("Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma     alphaP     alphaI     alphaE   time[us]\n");
 #if nF>0
   printf3("%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n",*maxIter,gradTolerance,equalTolerance,desiredDualityGap,muMin);
 #else
@@ -202,7 +207,7 @@ EXPORT void ipmPD_CSsolver(
 	printf3("  -> failed to invert hessian\n");
 	(*status) = 4;
 #if allowSave==1
-	mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	saveWW__(saveNamePrefix "_WW.values");
 #endif
 	break;
@@ -256,13 +261,13 @@ EXPORT void ipmPD_CSsolver(
     /****************************************/
     /******  NO INEQUALITY CONSTRAINTS ******/
     /****************************************/
-    setAlpha__(&alphaMax_);
-    printf3("  -alphaA-  -sigma- ");
-    printf3("%10.2e",alphaMax_);
+    setAlphaPrimal__(&alphaMax_);
+    printf3(" -alphaA-  -sigma- ");
+    printf3("%10.2e                   ",alphaMax_);
 
 #if allowSave==1
     if ((*iter)==(*saveIter)) {
-      mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
+      printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
@@ -281,46 +286,47 @@ EXPORT void ipmPD_CSsolver(
     /** Affine search direction                                       **/
     /*******************************************************************/
 
-    getAlphas_a__(&primalAlpha,&dualAlpha);
+    getMaxAlphas_a__(&alphaPrimal,&alphaDualIneq);
 
-    alpha = MIN(primalAlpha,dualAlpha);
-    alphaMax_ = (alpha<alphaMax)?alpha:alphaMax;
-    //mexPrintf("\nAlphaPrimal_a = %10.3e, AlphaDual_a = %10.3e\n",primalAlpha,dualAlpha);
+    alphaMax_ = (alphaPrimal<alphaMax)?alphaPrimal:alphaMax;
+    if (alphaDualIneq<alphaMax_)
+      alphaMax_=alphaDualIneq;
 
     if (alphaMax_ >= alphaMin) {
       // try max
-      alpha=alphaMax_;
-      setAlpha__(&alpha);getMinF_a__(&ineq);
+      alphaPrimal=alphaMax_;
+      setAlphaPrimal__(&alphaPrimal);getMinF_a__(&ineq);
       if (ineq<0) {
 	// try min
-        alpha=alphaMin;
-	setAlpha__(&alpha);getMinF_a__(&ineq);
+        alphaPrimal=alphaMin;
+	setAlphaPrimal__(&alphaPrimal);getMinF_a__(&ineq);
 	if (ineq>0) {
 	  // try between min and max
-	  for (alpha = alphaMax_*.95 ; alpha >= alphaMin ; alpha /= 2) {
-	    setAlpha__(&alpha);getMinF_a__(&ineq);
+	  for (alphaPrimal = alphaMax_*.95 ; alphaPrimal >= alphaMin ; alphaPrimal /= 2) {
+	    setAlphaPrimal__(&alphaPrimal);getMinF_a__(&ineq);
 	    if (ineq>=0) {
 	      break; }
 	  }
-	  if (alpha < alphaMin) {
-	    alpha = 0;
-	    setAlpha__(&alpha);
+	  if (alphaPrimal < alphaMin) {
+	    alphaPrimal = 0;
+	    setAlphaPrimal__(&alphaPrimal);
 	  }
 	} else {
-	  alpha = 0;
-	  setAlpha__(&alpha);
+	  alphaPrimal = 0;
+	  setAlphaPrimal__(&alphaPrimal);
 	}
       }
     } else {
-      alpha = 0;
-      setAlpha__(&alpha);
+      alphaPrimal = 0;
+      setAlphaPrimal__(&alphaPrimal);
     }
-    printf3("%10.2e",alpha);
+    setAlphaDualIneq__(&alphaPrimal);
+    printf3("%10.2e",alphaPrimal);
 
     // update mu based on sigma, but this only seems to be safe for:
     // 1) "long" newton steps in the affine direction
     // 2) equality constraints fairly well satisfied (perhaps not very important)
-    if (alpha> alphaMax/2
+    if (alphaPrimal> alphaMax/2
 #if nG>0
 	&& norminf_eq<100*equalTolerance
 #endif
@@ -362,79 +368,93 @@ EXPORT void ipmPD_CSsolver(
     printMatrix("dx",buffer,nU+nG+nF,1);
 #endif
     
-    getAlphas_s__(&primalAlpha,&dualAlpha);
-
 #if allowSave==1
     if ((*iter)==(*saveIter)) {
-      mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
+      printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
 
+    getMaxAlphas_s__(&alphaPrimal,&alphaDualIneq);
+
+#if coupledAlphas==1
+    if (alphaDualIneq<alphaPrimal)
+      alphaPrimal=alphaDualIneq;
+#endif
+
 #define STEPBACK .99
-    
-    alpha = STEPBACK*MIN(primalAlpha,dualAlpha);
-    alphaMax_ = (alpha<alphaMax)?alpha:alphaMax;
-    //mexPrintf("\n\tAlphaPrimal_s=%10.3e, AlphaDual_s=%10.3e, alpha=%10.3e ",primalAlpha,dualAlpha,alphaMax_);
+
+    alphaPrimal *= STEPBACK;
+
+    alphaMax_ = (alphaPrimal<alphaMax)?alphaPrimal:alphaMax;
 
     if (alphaMax_ >= alphaMin) {
       // try max
-      alpha=alphaMax_/STEPBACK;
-      setAlpha__(&alpha);getMinF_s__(&ineq);
-      //mexPrintf(" minF(maxAlpha=%10.3e)=%10.3e ",alpha,ineq);
+      alphaPrimal=alphaMax_/STEPBACK;
+      setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
       if (isnan(ineq)) {
 	  printf3("  -> failed to invert hessian\n");
 	  (*status) = 4;
 #if allowSave==1
-	  mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	  saveWW__(saveNamePrefix "_WW.values");
 #endif
 	  break;
 	}
       if (ineq>0) {
-        alpha *= STEPBACK;
 	// recheck just to be safe in case not convex
-	setAlpha__(&alpha);getMinF_s__(&ineq1);
-	//mexPrintf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
-	if (ineq1>ineq/10)
-	  updatePrimalDual__();
+        alphaPrimal *= STEPBACK;
+	setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq1);
       }
       if (ineq<=0 || ineq1<=ineq/10) {
         // try min
-	alpha=alphaMin/STEPBACK;
-	setAlpha__(&alpha);getMinF_s__(&ineq);
-	//mexPrintf(" minF(minAlpha=%10.3e)=%10.3e ",alpha,ineq);
+	alphaPrimal=alphaMin/STEPBACK;
+	setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
 	if (ineq>0) {
           // try between min and max
-	  for (alpha = alphaMax_*.95;alpha >= alphaMin;alpha /= 2) {
-            setAlpha__(&alpha);getMinF_s__(&ineq);
-	    //mexPrintf(" minF(%g)=%10.3e ",alpha,ineq);
+	  for (alphaPrimal = alphaMax_*.95;alphaPrimal >= alphaMin;alphaPrimal /= 2) {
+            setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
 	    if (ineq>0) {
 	      // backtrace just a little
-              alpha *= STEPBACK;
+              alphaPrimal *= STEPBACK;
 	      // recheck just to be safe in case not convex
-	      setAlpha__(&alpha);getMinF_s__(&ineq1);
-	      //mexPrintf(" minF(final? alpha=%g)=%10.3e ",alpha,ineq1);
+	      setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq1);
 	      if (ineq1>ineq/10) {
-		updatePrimalDual__();
 		break; }
 	    }
 	  } 
-	  if (alpha < alphaMin) {
-	    alpha = 0;
-	    setAlpha__(&alpha);
+	  if (alphaPrimal < alphaMin) {
+	    alphaPrimal = 0;
+	    setAlphaPrimal__(&alphaPrimal);
 	  }
 	} else {
-	  alpha = 0;
-	  setAlpha__(&alpha);
+	  alphaPrimal = 0;
+	  setAlphaPrimal__(&alphaPrimal);
 	}
       }
     } else {
-      alpha = 0;
-      setAlpha__(&alpha);
+      alphaPrimal = 0;
+      setAlphaPrimal__(&alphaPrimal);
     }
 
-    printf3("%10.2e",alpha);
+#if coupledAlphas==1
+    alphaDualEq=alphaPrimal;
+    alphaDualIneq=alphaPrimal;
+#else
+    alphaDualIneq *= STEPBACK;
+    if (alphaDualIneq>alphaMax_)
+      alphaDualIneq=alphaMax_;
+    alphaDualEq = alphaMax;
+#endif
+    setAlphaDualEq__(&alphaDualEq);
+    setAlphaDualIneq__(&alphaDualIneq);
+    updatePrimalDual__();
+    
+#if nG>0
+    printf3("%10.2e %10.2e %10.2e",alphaPrimal,alphaDualIneq,alphaDualEq);
+#else
+    printf3("%10.2e %10.2e   -eq-    ",alphaPrimal,alphaDualIneq);
+#endif
 
 #if skipAffine==1
     // More aggressive if
@@ -446,7 +466,7 @@ EXPORT void ipmPD_CSsolver(
 #if nG>0
     int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
 #endif
-    if (alpha>.5 && th_grad
+    if (alphaPrimal>.5 && th_grad
 #if nG>0
 	&& th_eq
 #endif
@@ -459,7 +479,7 @@ EXPORT void ipmPD_CSsolver(
       mu *= muFactorConservative;
       if (mu < muMin) mu = muMin;
       setMu__(&mu);
-      if (alpha<.1) {
+      if (alphaPrimal<.1) {
 	mu = MIN(1e2,1.25*mu);
 	setMu__(&mu);
 	initDualIneq__();
@@ -480,7 +500,7 @@ EXPORT void ipmPD_CSsolver(
 #endif
     
     // if no motion, slowly increase mu
-    if (alpha<alphaMin) {
+    if (alphaPrimal<alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) {
       mu /= (muFactorConservative*muFactorConservative); // square to compensate for previous decrease
       if (mu < muMin) mu = muMin;
       setMu__(&mu); }
@@ -495,7 +515,7 @@ EXPORT void ipmPD_CSsolver(
 
 #if allowSave==1
   if ((*saveIter)==0 && (*status)==0) {
-      mexPrintf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
+      printf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
       saveWW__(saveNamePrefix "_WW.values");
     }
 #endif
@@ -519,11 +539,11 @@ EXPORT void ipmPD_CSsolver(
     if (mu>muMin) {
       (*status) |= 128;
     }
-    if (alpha<=alphaMin) 
+    if (alphaPrimal<=alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) 
       (*status) |= 1792; // (256|512|1024);
-    else if (alpha<=.1)
+    else if (alphaPrimal<=.1 && alphaDualIneq<.1 && alphaDualEq<.1)
       (*status) |= 1536; // (512|1024);
-    else if (alpha<=.5)
+    else if (alphaPrimal<=.5 && alphaDualIneq<.5 && alphaDualEq<.5)
       (*status) |= 1024;
 #endif
   }
@@ -550,7 +570,7 @@ EXPORT void ipmPD_CSsolver(
   printf2(", |eq|=%10.2e",norminf_eq);
 #endif
 #if nF>0
-  printf2(", ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alpha);
+  printf2(", ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alphaPrimal);
 #endif
   printf2(", |grad|=%10.2e",norminf_grad);
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
