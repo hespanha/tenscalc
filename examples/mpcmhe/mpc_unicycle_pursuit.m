@@ -75,6 +75,8 @@ mpc=Tmpc('reuseSolver',true,...
                     'solverVerboseLevel',3 ...
                    });
 
+%% Simulate system
+
 % set parameter values
 setParameter(mpc,'d',[1;0]);
 setParameter(mpc,'v',2);
@@ -139,10 +141,13 @@ legend('pursuer','evader','location','best');
 title('full trajectory');
 
 fig=fig+1;figure(fig);clf;
-plot(history.t,history.iter,'.-',history.t(2:end),1000*history.stime(2:end),'.-');grid on;
-legend('# iterations','solver time [ms]');
+yyaxis left
+plot(history.t,history.iter,'.-');grid on;
+ylabel('# iterations');
+yyaxis right
+plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
+ylabel('solver time [ms]');
 xlabel('t');
-title('solver performance');
 
 
 

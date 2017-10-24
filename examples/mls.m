@@ -25,9 +25,6 @@ clear all;
 % remove previous solvers
 delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
-s = RandStream('mt19937ar','Seed',0);
-RandStream.setGlobalStream(s);
-
 generateSolver=@class2optimizeCS;
 %generateSolver=@cmex2optimizeCS;  % only for small problems (size/5)
 compilerOptimization='-O0';
@@ -56,6 +53,10 @@ J=norm2(Y)/N;
 %J=tprod(Y,[-1,-2],Y,[-1,-2]);
 %J=sum((A*X-B).*(A*X-B),[1,2]);
 %J=sum((A*X).*(A*X)+B.*B-2*(A*X).*B,[1,2]);
+
+% initialize seed for repeatability
+s = RandStream('mt19937ar','Seed',0);
+RandStream.setGlobalStream(s);
 
 thisA=rand(N,n);
 thisB=rand(N,k);

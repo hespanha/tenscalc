@@ -239,12 +239,12 @@ legend('x1','x2','u','d','r','y');
 xlabel('t');
 
 fig=fig+1;figure(fig);clf;
-yyaxis right
-plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
-ylabel('solver time [ms]');
 yyaxis left
 plot(history.t,history.iter,'.-');grid on;
 ylabel('# iterations');
+yyaxis right
+plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
+ylabel('solver time [ms]');
 xlabel('t');
 
 

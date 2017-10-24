@@ -44,6 +44,10 @@ y=A*x-b;
 
 J=norm2(y)/N;
 
+% initialize seed for repeatability
+s = RandStream('mt19937ar','Seed',0);
+RandStream.setGlobalStream(s);
+
 thisA=rand(N,n);
 thisb=rand(N,1);
 x0=.02*rand(n,1);

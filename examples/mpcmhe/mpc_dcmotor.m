@@ -101,7 +101,7 @@ for i=1:40
     
     [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
     
-    fprintf('J=%g computed in %g iterations & %g secs\n',J,solution.iter,solution.time);
+    fprintf('t=%g, J=%g computed in %g iterations & %g secs\n',t,J,solution.iter,solution.time);
     
     if true %mod(t/Ts,5)==0
         if 0
@@ -120,14 +120,20 @@ for i=1:40
 end
 
 history=getHistory(mpc);
-figure(fig);clf;fig=fig+1;
-plot(history.t,history.x,'.-',history.t,history.u,'.-',history.t,ref(history.t),'.-');grid on;
+
+fig=fig+1;figure(fig);clf;
+plot(history.t,history.x,'.-',...
+     history.t,history.u,'.-',history.t,ref(history.t),'.-');grid on;
 legend('x1','x2','u','r');
 xlabel('t');
 
-figure(fig);clf;fig=fig+1;
-plot(history.t,history.iter,'.-',history.t(2:end),1000*history.stime(2:end),'.-');grid on;
-legend('# iterations','solver time [ms]');
+fig=fig+1;figure(fig);clf;
+yyaxis left
+plot(history.t,history.iter,'.-');grid on;
+ylabel('# iterations');
+yyaxis right
+plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
+ylabel('solver time [ms]');
 xlabel('t');
 
 

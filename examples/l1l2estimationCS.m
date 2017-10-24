@@ -26,14 +26,12 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 %optimizeCS=@class2optimizeCS; % matlab
 optimizeCS=@cmex2optimizeCS;  % c
 N=200
-%codeType='C+asmLB';
-%compilerOptimization='-O1';
 
 codeType='C';
 compilerOptimization='-O0';
+%compilerOptimization='-O1';
 
 allowSave=true;
-saveIter=1;
 
 s = RandStream('mt19937ar','Seed',1);
 RandStream.setGlobalStream(s);
@@ -88,7 +86,7 @@ if 1
         ...%'callType','client-server','serverComputer','glnxa64','compileStandalones',false,'serverProgramName','tmpC_minl2_server','serverAddress','tamina.ece.ucsb.edu','port',1968,...
         'allowSave',allowSave,...
         'profiling',false,...
-        'verboseLevel',1);
+        'solverVerboseLevel',2);
 
     obj=feval(classname);
 
@@ -118,9 +116,11 @@ if 1
     % call solver
     mu=10*N;
     maxIter=50;
+    saveIter=1;
     for i=1:4
         [status,iter,time]=solve(obj,mu,int32(maxIter),int32(saveIter));
         [J_star,position_l2_star]=getOutputs(obj);
+        saveIter=-1;
     end
     clear obj;
 
@@ -183,7 +183,7 @@ J=norm2(noise2) ...
 ...%'callType','client-server','serverProgramName','tmpC_minl1l2_server','serverAddress','localhost','port',1968,...
 ...%'callType','client-server','serverComputer','glnxa64','compileStandalones',false,'serverProgramName','tmpC_minl1l2_server','serverAddress','tamina.ece.ucsb.edu','port',1968,...
     'allowSave',allowSave,...
-    'verboseLevel',1);
+    'solverVerboseLevel',2);
 %profile viewer
 
 obj=feval(classname);
@@ -228,6 +228,7 @@ setV_acceleration1abs(obj,acceleration1abs_0);
 % call solver
 mu=10*N;
 maxIter=50;
+saveIter=1;
 for i=1:4
     [status,iter,time]=solve(obj,mu,int32(maxIter),int32(saveIter));
     [J_star,position_l1l2_star,noise1_star,acceleration1_star,noise1abs_star,acceleration1abs_star]=...
