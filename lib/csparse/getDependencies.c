@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 09-Jul-2017 16:49:58 */
+/* Created by script createGateway.m on 24-Oct-2017 15:54:49 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,7 +23,7 @@
     
     
 /* END OF #included "GPL.c" */
-/* mex -largeArrayDims -I/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include -L/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib COPTIMFLAGS="-Ofast -msse -msse2 -msse3 -msse4 -msse4.1 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" getDependencies.c -lumfpack -outdir  */
+/* mex -largeArrayDims -I"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include" -L"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib" COPTIMFLAGS="-Ofast -msse -msse2 -msse3 -msse4 -msse4.1 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" "getDependencies.c" -l"umfpack" -outdir  */
 
 #ifdef __linux__
 #include <dlfcn.h>

@@ -236,7 +236,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                             % try between min and max
                             alphaPrimal = alphaMax*.95;
                             while alphaPrimal >= obj.alphaMin
-                                setAlphaPrimal__(obj,alpha);ineq=getMinF_a__(obj);
+                                setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
                                 if (ineq>=0) 
                                     break; 
                                 end
