@@ -262,6 +262,9 @@ EXPORT void ipmPD_CSsolver(
     /******  NO INEQUALITY CONSTRAINTS ******/
     /****************************************/
     setAlphaPrimal__(&alphaMax_);
+#if nG>0
+    setAlphaDualEq__(&alphaMax_);
+#endif
     printf3(" -alphaA-  -sigma- ");
     printf3("%10.2e                   ",alphaMax_);
 
@@ -446,7 +449,9 @@ EXPORT void ipmPD_CSsolver(
       alphaDualIneq=alphaMax_;
     alphaDualEq = alphaMax;
 #endif
+#if nG>0
     setAlphaDualEq__(&alphaDualEq);
+#endif
     setAlphaDualIneq__(&alphaDualIneq);
     updatePrimalDual__();
     

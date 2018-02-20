@@ -200,6 +200,9 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
             setAlphaPrimal__(obj,obj.alphaMax);
+            if obj.nG>0
+                setAlphaDualEq__(obj,obj.alphaMax);
+            end
             printf3('  -alphaA-  -sigma- ');
             printf3('%10.2e                   ',obj.alphaMax);
             
@@ -356,11 +359,13 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 alphaDualIneq = .99 * alphaDualIneq;
                 if alphaDualIneq>obj.alphaMax
                     alphaDualIneq = obj.alphaMax;
-                    alphaDualEq = obj.alphaMax;
                 end
+                alphaDualEq = obj.alphaMax;
             end
             
-            setAlphaDualEq__(obj,alphaDualEq);
+            if obj.nG>0
+                setAlphaDualEq__(obj,alphaDualEq);
+            end
             setAlphaDualIneq__(obj,alphaDualIneq);
             updatePrimalDual__(obj);
             
