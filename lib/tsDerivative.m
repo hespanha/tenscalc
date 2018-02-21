@@ -62,10 +62,6 @@ function [dx,ts]=tsDerivative(x,ts,invDts,invD2ts);
               length(ts),index2str(size(x)));
     end
 
-    if isequal(class(ts),'Tcalculus') & nargin<4
-        warning('tsDerivative: when sample time is of type Tcalculus, 4 parameters should be provided');
-    end
-    
     if length(ts)>1
         if nargin<4
             t1=[(2*ts(1)-ts(2)-ts(3))./(ts(1)-ts(3))./(ts(1)-ts(2)); 
