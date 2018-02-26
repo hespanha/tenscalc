@@ -1,5 +1,5 @@
 function [intX,ts]=tsIntegrate(x,x0,ts,method);
-% [intX,ts]=tsIntegrate(x,ts);
+% [intX,ts]=tsIntegrate(x,x0,ts,method);
 %
 % Integrates a vector-valued time series (x,ts). The time
 % derivative is computed assuming that the input time-series is
@@ -64,12 +64,17 @@ function [intX,ts]=tsIntegrate(x,x0,ts,method);
     end
     
     if length(ts)>1
-        error('not implemented');        
+        switch (method)
+          case 'euler'
+            intX=[x0,x0+cumsum(repmat(diff(ts'),size(x,1),1).*x(:,1:end-1),2)];
+          otherwise
+            error('not implemented');        
+        end
     else % if length(ts)>1
         switch (method)
           case 'euler'
             % causal but not quite symmetric
-            intX=[x0,x0+(ts/2)*cumsum(x(:,1:end-1),2)]; 
+            intX=[x0,x0+ts'*cumsum(x(:,1:end-1),2)]; 
           case 'trapesoidal'
             % not quite causal, but more accurate
             intX=[x0,x0+(ts/2)*cumsum(x(:,1:end-1)+x(:,2:end),2)];
@@ -94,14 +99,14 @@ function test
     % Numeric 
     ts=pi/2:pi/10:4*pi+pi/2;
     x=[sin(ts);cos(ts)];
-    intX1=tsIntegrate(x,ts');
-    intX2=tsIntegrate(x,ts(2)-ts(1));
+    intX1=tsIntegrate(x,[0;0],ts');
+    intX2=tsIntegrate(x,[0;0],ts(2)-ts(1));
     
     plot(ts,x','-x',ts,intX1','-+',ts,intX2','-x');
     legend('sin','cos','d sin','d cos','d sin','d cos')
     
     % Symbolic
     Tvariable x [2,length(ts)]
-    intX=tsIntegrate(x,ts)
+    intX=tsIntegrate(x,[0;0],ts)
 
 end
