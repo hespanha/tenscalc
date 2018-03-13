@@ -777,7 +777,7 @@ classdef Tcalculus
             for i=1:length(varargin)
                 if ~strcmp(class(varargin{i}),'function_handle')
                     varargin{i}
-                    error('compose must take a list of function handles as 2nd argument\n');
+                    error('compose must take a function handles as the %-th argument\n',i);
                 end
             end
             fsize=size(varargin{1}(0));
