@@ -82,7 +82,7 @@ function writeMatlabInstructions(obj,fid,ks)
             while length(parameters)<2
                 parameters(end+1)=1;
             end
-            if length(parameters~=2)
+            if false %length(parameters~=2)
                 fprintf(fid,'\t\tobj.m%d=reshape(full(obj.m%d),[%s]); %% [%s]\n',...
                         obj.memoryLocations(k),operands,index2str(parameters),index2str(osize));
             else

@@ -53,13 +53,13 @@ function obj=Tconstant(value,osize)
         error('Tconstant: size [msize=%s, osize=%s] incompatible with value [%s]\n',index2str(msize),index2str(osize),index2str(size(value)));
     end
     
-    if isequal(value,zeros(msize))
+    if nnz(value)==0
         obj=Tzeros(osize);
         updateFile2table(obj,1);
-    elseif isequal(value,ones(msize))
+    elseif nnz(value)==prod(msize) && isequal(value,ones(msize))
         obj=Tones(osize);
         updateFile2table(obj,1);
-    elseif length(osize)==2 && osize(1)==osize(2) && isequal(value,eye(osize))
+    elseif length(osize)==2 && osize(1)==osize(2) && isequal(value,speye(osize))
         obj=Teye(osize);
         updateFile2table(obj,1);
     else

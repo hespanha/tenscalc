@@ -46,7 +46,13 @@ function s=str(obj,tprod2mat,maxDepth)
               case 'char'
                 s=horzcat(s,'''',parameters,''',');
               case 'double'
-                s=horzcat(s,'[',index2str(parameters),'],');
+                if issparse(parameters)
+                    [ii,jj,vv]=find(parameters);
+                    s=horzcat(s,'sparse([',index2str(ii),...
+                              '],[',index2str(jj),'],[',index2str(vv),'])');
+                else
+                    s=horzcat(s,'[',index2str(parameters),'],');
+                end
               case 'struct'
                 if isfield(parameters,'subs')
                     osize1=TCsymbolicExpressions(operands).osize;
