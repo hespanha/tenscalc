@@ -54,7 +54,7 @@ function M=mytprod(varargin)
         msizes=[msizes,1];
     end
     M=ones(msizes);
-    big=numel(M)>5e6 && numel(M)>prod(tprod_size);
+    big=numel(M)>5e6 && numel(M)>prod(tprod_size) && numel(M)>10*prod(tprod_size);
     if big
         fprintf('ATTENTION: tprod creates array with %5.1f million elements [size=%s]\n           eventually collapsed to  %5.1f million elements [size=%s] because of:\n           ', ...
                 numel(M)/1e6,index2str(sizes),prod(tprod_size)/1e6,index2str(tprod_size));

@@ -290,6 +290,12 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             
             if obj.debugConvergence
                 setAlphaPrimal__(obj,1);
+                if obj.nG>0
+                    setAlphaDualEq__(obj,1);
+                end
+                if obj.nF>0
+                    setAlphaDualIneq__(obj,1);
+                end
                 [newF_s,newLambda_s]=getFLambda_s__(obj);
                 newmu=mu;
             end
