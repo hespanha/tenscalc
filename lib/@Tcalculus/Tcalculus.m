@@ -675,14 +675,31 @@ classdef Tcalculus
             obj=factor(obj1,'chol',varargin{:});
         end
         function obj=ldl(obj1,varargin)
+        % LDL=ldl(A) - returns the LDL factorization of a symmetric matrix
             obj=factor(obj1,'ldl',varargin{:});
+        end
+        function obj=ldl_l(obj1)
+        % L=ldl_l(LDL(A)) - returns the L matrix of the LDL factorization of a symmetric matrix
+            if ~strcmp(type(obj1),'ldl')
+                error('%d can only be called for ldl factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1);
+            obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
+        end
+        function obj=ldl_d(obj1)
+        % L=ldl_d(ldl(A)) - returns the D matrix of the LDL factorization of a symmetric matrix
+            if ~strcmp(type(obj1),'ldl')
+                error('%d can only be called for ldl factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1,1);
+            obj=Tcalculus('ldl_d',osize1,[],obj1.TCindex,{},1);
         end
         function obj=lu(obj1,varargin)
         % LU=lu(A) - returns the LU factorization of a general matrix
             obj=factor(obj1,'lu',varargin{:});
         end
         function obj=lu_sym(obj1,varargin)
-        % LU=lu(A) - returns the LU factorization of a symmetric matrix
+        % LU=lu_sym(A) - returns the LU factorization of a symmetric matrix
             obj=factor(obj1,'lu_sym',varargin{:});
         end
         

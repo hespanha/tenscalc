@@ -146,7 +146,10 @@ function varargout=cmex2optimizeCS(varargin)
             '                         (in the order that they appear and with';
             '                          the same size as the corresponding constraints)';
             '* |Hess_| - Hessian matrix used by the (last) newton step to update';
-            '        the primal variables (not including |addEye2Hessian|).'
+            '            the primal variables (not including |addEye2Hessian|).'
+            '* |dHess_| - D factor in the LDL factorization of the Hessian matrix'
+            '             used by the (last) newton step to update the primal variables'
+            '             (including |addEye2Hessian|, unlike Hess_).'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
             '           they will have to be created outside this function'
@@ -732,13 +735,15 @@ function varargout=cmex2optimizeCS(varargin)
 
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    Hess__=ipmPD_CS(code,objective,u,lambda,nu,F,G,...
-                    smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                    useLDL,umfpack,...
-                    classname,allowSave,debugConvergence);
+    [Hess__,dHess__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,...
+                              smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                              useLDL,umfpack,...
+                              classname,allowSave,debugConvergence);
+    code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('Hess_',size(Hess__)),Hess__);
-    code.statistics.time.ipmPD=etime(clock,t_ipmPD);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('dHess_',size(dHess__)),dHess__);
     
     %% Declare ipm solver 
     classhelp{end+1}='% Solve optimization';

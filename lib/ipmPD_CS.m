@@ -1,7 +1,7 @@
-function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
-                        smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                        useLDL,atomicFactorization,...
-                        cmexfunction,allowSave,debugConvergence)
+function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
+                                 smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                                 useLDL,atomicFactorization,...
+                                 cmexfunction,allowSave,debugConvergence)
 % See ../doc/ipm.tex for an explanation of the formulas used here
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -135,6 +135,11 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
         
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        if isequal(factor,@ldl)
+            dHess_=ldl_d(factor_ww);
+        else
+            dHess_=zeros(size(factor_ww,1));
+        end
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
         end
@@ -221,6 +226,11 @@ function Hess_=ipmPD_CS(code,f,u,lambda,nu,F,G,...
             -F_u,Tzeros([nF,nG]),-diag(F./lambda)-tprod(addEye2Hessian,[],Teye([nF,nF]),[1,2])];
 
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        if isequal(factor,@ldl)
+            dHess_=ldl_d(factor_ww);
+        else
+            dHess_=zeros(size(factor_ww,1));
+        end
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
         end

@@ -264,6 +264,16 @@ function writeMatlabInstructions(obj,fid,ks)
             fprintf(fid,'\t\tobj.m%d=obj.m%d.D\\(obj.m%d); %% [%s]\n',...
                     obj.memoryLocations(k),operands(1),operands(2),index2str(osize));
                   
+            %% LDL factorization
+            % A(p,p) = L*D*L'
+          case obj.Itypes.I_Mldl_d
+            fprintf(fid,'\t\tobj.m%d=obj.m%d.D; %% [%s]\n',...
+                    obj.memoryLocations(k),operands(1),index2str(osize));
+            
+          case obj.Itypes.I_Mldl_l
+            fprintf(fid,'\t\tobj.m%d=obj.m%d.L; %% [%s]\n',...
+                    obj.memoryLocations(k),operands(1),index2str(osize));
+            
       otherwise
         instructionTypes
         error('writeMatlabInstructions: instruction %d not implemented (see instructionTypes)\n',type);

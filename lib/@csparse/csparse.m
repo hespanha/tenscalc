@@ -217,7 +217,7 @@ classdef csparse < handle
                     'subsref','cat','reshape','repmat','full',...
                     'plus','tprod','norm2','norm1','norminf','min','max','all','any',...
                     'abs','clp','compose',...
-                    'lu','lu_sym','ldl','chol',...
+                    'lu','lu_sym','ldl','ldl_l','ldl_d','chol',...
                     'mldivide','mldivide_l1','mldivide_u','mldivide_u1','mldivide_d',...
                     'rdivide','mtimes','ctranspose','times','sum','diag','tprod_matlab'...
                        },...
@@ -797,6 +797,28 @@ classdef csparse < handle
                 parametersMatch=false; % since matrix may already have p defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
+                  
+              case 'ldl_d'
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                if ~strcmp(optype,'ldl')
+                    error('unexpected operand for ldl_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
+                end                    
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false;
+                pars=parameters(TCobj);
+                pars=[];
+                  
+              case 'ldl_l'
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                if ~strcmp(optype,'ldl')
+                    error('unexpected operand for ldl_l ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
+                end                    
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false;
+                pars=parameters(TCobj);
+                pars=[];
                   
               case 'chol'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);

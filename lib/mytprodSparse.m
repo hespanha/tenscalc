@@ -143,6 +143,10 @@ if verboseLevel>3
     subsYS(nSums+1:end,:)
 end
 
+while length(tprod_size)<2
+    tprod_size(end+1)=1;
+end
+M=zeros(tprod_size);
 
 if isempty(subsYS)
     %fprintf('EMPTY subsYS\n');
@@ -157,11 +161,6 @@ instrY=full(sparse(ic,ones(size(ic)),instrYS))';
 ndx=[1,cumprod(tprod_size)];
 ndx(end)=[];
 ndx=ndx*(subsY-1)+1;
-
-while length(tprod_size)<2
-    tprod_size(end+1)=1;
-end
-M=zeros(tprod_size);
 
 M(ndx)=instrY;
 

@@ -317,6 +317,9 @@ for jj=1:length(ks)
               case 'mldivide_d'
                 [subscripts,instructions]=sparsity_mldivide_d(obj,thisExp);
                 
+              case 'ldl_d'
+                [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
+                
               case 'compose'
                 functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                            '@(x__)2./x__.^3';

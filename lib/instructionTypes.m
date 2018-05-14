@@ -159,6 +159,8 @@ instructionTypes={
     'I_Mcat'         
     'I_Mlu'
     'I_Mldl'
+    'I_Mldl_d'
+    'I_Mldl_l'
     'I_Mchol'
     'I_Mmldivide_l1'
     'I_Mmldivide_u'
