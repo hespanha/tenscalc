@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 17-Feb-2018 21:50:12 */
+/* Created by script createGateway.m on 14-May-2018 09:12:22 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -38,6 +38,7 @@
 #include <stdint.h>
 #endif
 #include <fcntl.h>
+#include <inttypes.h>
 #include <mex.h>
 
 #ifdef __linux__
@@ -81,6 +82,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    if (dims[1]!=1)
        mexErrMsgIdAndTxt("instructionsTable_load:prhs","input 1 (load) should have %d (=1) in dimension 2, %d found.",1,dims[1]);
    }
+   if (mxIsSparse(prhs[0]))
+       mexErrMsgIdAndTxt("instructionsTable_load:prhs","input 1 (load) cannot be sparse (use full())");
    if (!mxIsDouble(prhs[0]))
        mexErrMsgIdAndTxt("instructionsTable_load:prhs","input 1 (load) should have type double");
    load=mxGetData(prhs[0]);

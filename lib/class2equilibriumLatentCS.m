@@ -514,9 +514,14 @@ function varargout=class2equilibriumLatentCS(varargin)
     end
 
     for i=1:length(parameters)
+        if ~isequal(class(parameters{i}),'Tcalculus')
+            parameters{i}
+            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
+                  i,class(parameters{i}));
+        end
         if ~isequal(type(parameters{i}),'variable')
             parameters{i}
-            error('%dth parameter must be of the type ''variable'' (not [%s])\n',...
+            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(parameters{i}));
         end
     end
@@ -527,9 +532,14 @@ function varargout=class2equilibriumLatentCS(varargin)
     end
 
     for i=1:length(P1optimizationVariables)
+        if ~isequal(class(P1optimizationVariables{i}),'Tcalculus')
+            P1optimizationVariables{i}
+            error('all P1optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
+                  i,class(P1optimizationVariables{i}));
+        end
         if ~isequal(type(P1optimizationVariables{i}),'variable')
             P1optimizationVariables{i}
-            error('%dth P1optimizationVariables must be of the type ''variable'' (not [%s])\n',...
+            error('all P1optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(P1optimizationVariables{i}));
         end
     end
@@ -540,9 +550,14 @@ function varargout=class2equilibriumLatentCS(varargin)
     end
 
     for i=1:length(P2optimizationVariables)
+        if ~isequal(class(P2optimizationVariables{i}),'Tcalculus')
+            P1optimizationVariables{i}
+            error('all P1optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
+                  i,class(P2optimizationVariables{i}));
+        end
         if ~isequal(type(P2optimizationVariables{i}),'variable')
             P2optimizationVariables{i}
-            error('%dth P2optimizationVariables must be of the type ''variable'' (not [%s])\n',...
+            error('all P2optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(P2optimizationVariables{i}));
         end
     end

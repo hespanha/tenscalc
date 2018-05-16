@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 17-Feb-2018 21:50:12 */
+/* Created by script createGateway.m on 14-May-2018 09:12:22 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -38,6 +38,7 @@
 #include <stdint.h>
 #endif
 #include <fcntl.h>
+#include <inttypes.h>
 #include <mex.h>
 
 #ifdef __linux__
@@ -84,6 +85,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    if (dims[1]!=1)
        mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 1 (indices) should have %d (=1) in dimension 2, %d found.",1,dims[1]);
    }
+   if (mxIsSparse(prhs[0]))
+       mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 1 (indices) cannot be sparse (use full())");
    if (!mxIsInt64(prhs[0]))
        mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 1 (indices) should have type int64");
    indices=mxGetData(prhs[0]);
@@ -95,6 +98,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    if (dims[1]!=1)
        mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 2 (memoryLocations) should have %d (=1) in dimension 2, %d found.",1,dims[1]);
    }
+   if (mxIsSparse(prhs[1]))
+       mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 2 (memoryLocations) cannot be sparse (use full())");
    if (!mxIsInt64(prhs[1]))
        mexErrMsgIdAndTxt("writeAsmInstructionsC:prhs","input 2 (memoryLocations) should have type int64");
    memoryLocations=mxGetData(prhs[1]);
@@ -113,12 +118,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PwriteAsmInstructionsC = dlsym(libHandle, "writeAsmInstructionsC");
-     if (!PwriteAsmInstructionsC) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PwriteAsmInstructionsC) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: writeAsmInstructionsC = 0x%" PRIXPTR"\n",__FILE__, PwriteAsmInstructionsC);}
 #elif __APPLE__
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PwriteAsmInstructionsC = dlsym(libHandle, "writeAsmInstructionsC");
-     if (!PwriteAsmInstructionsC) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PwriteAsmInstructionsC) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: writeAsmInstructionsC = 0x%" PRIXPTR"\n",__FILE__, PwriteAsmInstructionsC);}
 #elif _WIN32
      libHandle = LoadLibrary("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dll");
      if (!libHandle) { printf("[%s] Unable to open library\n",__FILE__);return; }

@@ -500,12 +500,12 @@ function varargout=class2optimizeCS(varargin)
     for i=1:length(parameters)
         if ~isequal(class(parameters{i}),'Tcalculus')
             parameters{i}
-            error('%dth parameter must be of class ''Tcalculus'' (not [%s])\n',...
+            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,class(parameters{i}));
         end
         if ~isequal(type(parameters{i}),'variable')
             parameters{i}
-            error('%dth parameter must be of the type ''variable'' (not [%s])\n',...
+            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(parameters{i}));
         end
     end
@@ -516,11 +516,20 @@ function varargout=class2optimizeCS(varargin)
     end
 
     for i=1:length(optimizationVariables)
+        if ~isequal(class(optimizationVariables{i}),'Tcalculus')
+            optimizationVariables{i}
+            error('all optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
+                  i,class(optimizationVariables{i}));
+        end
         if ~isequal(type(optimizationVariables{i}),'variable')
             optimizationVariables{i}
-            error('%dth optimizationVariables must be of the type ''variable'' (not [%s])\n',...
+            error('all optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(optimizationVariables{i}));
         end
+    end
+
+    if ~isempty(size(objective))
+        error('Minimization criterion must be scalar (not [%s])',index2str(size(objective)));
     end
 
     if ~isempty(size(objective))

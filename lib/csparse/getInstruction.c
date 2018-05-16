@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 17-Feb-2018 21:50:12 */
+/* Created by script createGateway.m on 14-May-2018 09:12:22 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -38,6 +38,7 @@
 #include <stdint.h>
 #endif
 #include <fcntl.h>
+#include <inttypes.h>
 #include <mex.h>
 
 #ifdef __linux__
@@ -85,6 +86,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    if (dims[1]!=1)
        mexErrMsgIdAndTxt("getInstruction:prhs","input 1 (index) should have %d (=1) in dimension 2, %d found.",1,dims[1]);
    }
+   if (mxIsSparse(prhs[0]))
+       mexErrMsgIdAndTxt("getInstruction:prhs","input 1 (index) cannot be sparse (use full())");
    if (!mxIsInt64(prhs[0]))
        mexErrMsgIdAndTxt("getInstruction:prhs","input 1 (index) should have type int64");
    index=mxGetData(prhs[0]);
@@ -111,12 +114,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PgetInstruction4MEX = dlsym(libHandle, "getInstruction4MEX");
-     if (!PgetInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PgetInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: getInstruction4MEX = 0x%" PRIXPTR"\n",__FILE__, PgetInstruction4MEX);}
 #elif __APPLE__
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PgetInstruction4MEX = dlsym(libHandle, "getInstruction4MEX");
-     if (!PgetInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PgetInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: getInstruction4MEX = 0x%" PRIXPTR"\n",__FILE__, PgetInstruction4MEX);}
 #elif _WIN32
      libHandle = LoadLibrary("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dll");
      if (!libHandle) { printf("[%s] Unable to open library\n",__FILE__);return; }

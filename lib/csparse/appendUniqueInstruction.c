@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 17-Feb-2018 21:50:12 */
+/* Created by script createGateway.m on 14-May-2018 09:12:21 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -38,6 +38,7 @@
 #include <stdint.h>
 #endif
 #include <fcntl.h>
+#include <inttypes.h>
 #include <mex.h>
 
 #ifdef __linux__
@@ -95,6 +96,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    if (dims[1]!=1)
        mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 1 (type) should have %d (=1) in dimension 2, %d found.",1,dims[1]);
    }
+   if (mxIsSparse(prhs[0]))
+       mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 1 (type) cannot be sparse (use full())");
    if (!mxIsInt32(prhs[0]))
        mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 1 (type) should have type int32");
    type=mxGetData(prhs[0]);
@@ -105,6 +108,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    mp=dims[0];
    np=dims[1];
    }
+   if (mxIsSparse(prhs[1]))
+       mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 2 (parameters) cannot be sparse (use full())");
    if (!mxIsDouble(prhs[1]))
        mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 2 (parameters) should have type double");
    parameters=mxGetData(prhs[1]);
@@ -115,6 +120,8 @@ void mexFunction( int nlhs, mxArray *plhs[],
    mo=dims[0];
    no=dims[1];
    }
+   if (mxIsSparse(prhs[2]))
+       mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 3 (operands) cannot be sparse (use full())");
    if (!mxIsInt64(prhs[2]))
        mexErrMsgIdAndTxt("appendUniqueInstruction:prhs","input 3 (operands) should have type int64");
    operands=mxGetData(prhs[2]);
@@ -137,12 +144,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PappendUniqueInstruction4MEX = dlsym(libHandle, "appendUniqueInstruction4MEX");
-     if (!PappendUniqueInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PappendUniqueInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: appendUniqueInstruction4MEX = 0x%" PRIXPTR"\n",__FILE__, PappendUniqueInstruction4MEX);}
 #elif __APPLE__
      libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PappendUniqueInstruction4MEX = dlsym(libHandle, "appendUniqueInstruction4MEX");
-     if (!PappendUniqueInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }
+     if (!PappendUniqueInstruction4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: appendUniqueInstruction4MEX = 0x%" PRIXPTR"\n",__FILE__, PappendUniqueInstruction4MEX);}
 #elif _WIN32
      libHandle = LoadLibrary("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dll");
      if (!libHandle) { printf("[%s] Unable to open library\n",__FILE__);return; }
