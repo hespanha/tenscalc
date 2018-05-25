@@ -3,7 +3,11 @@ home=[fileparts(which('install_tenscalc')),'/lib'];
 folders={home;[home,'/csparse']};
 
 s=path;
-old=regexp(s,'[^:]*(tenscalc.lib.csparse|tenscalc.lib)[^/:]*','match');
+if ispc
+    old=regexp(s,'[^;]*(tenscalc.lib.csparse|tenscalc.lib)[^/;]*','match');
+else
+    old=regexp(s,'[^:]*(tenscalc.lib.csparse|tenscalc.lib)[^/:]*','match');
+end
 if ~isempty(old)
     fprintf('  removing from path:\n');
     disp(old')
