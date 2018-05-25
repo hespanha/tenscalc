@@ -140,7 +140,7 @@ inputs
 #define MAX_PARAMETERS_PER_TABLE    10000000LL
 #define MAX_OPERANDS_PER_TABLE      10000000LL
 
-#define MAX_TERMS_PERLINE 50
+#define MAX_TERMS_PERLINE 10
 
 typedef struct instruction_s {
   instructionType_t type;           // type of instruction

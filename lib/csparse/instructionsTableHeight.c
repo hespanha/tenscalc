@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 25-May-2018 01:24:00 */
+/* Created by script createGateway.m on 25-May-2018 11:01:10 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,7 +23,7 @@
     
     
 /* END OF #included "GPL.c" */
-/* mex -largeArrayDims -I"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include" -L"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib" COPTIMFLAGS="-Ofast -msse -msse2 -msse3 -msse4 -msse4.1 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" "instructionsTableHeight.c" -l"umfpack" -outdir  */
+/* mex -largeArrayDims COPTIMFLAGS="-Ofast /arch:AVX2 -DNDEBUG" CFLAGS="\$CFLAGS -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99" "instructionsTableHeight.c" -outdir  */
 
 #ifdef __linux__
 #include <dlfcn.h>
@@ -85,17 +85,17 @@ void mexFunction( int nlhs, mxArray *plhs[],
    /* Call function */
    if (!PinstructionsTableHeight4MEX) {
 #ifdef __linux__
-     libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
+     libHandle = dlopen("C:/Users/hespanha/Documents/MATLAB/tenscalc/lib/csparse/instructionsTable.so", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PinstructionsTableHeight4MEX = dlsym(libHandle, "instructionsTableHeight4MEX");
      if (!PinstructionsTableHeight4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: instructionsTableHeight4MEX = 0x%" PRIXPTR"\n",__FILE__, PinstructionsTableHeight4MEX);}
 #elif __APPLE__
-     libHandle = dlopen("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
+     libHandle = dlopen("C:/Users/hespanha/Documents/MATLAB/tenscalc/lib/csparse/instructionsTable.dylib", RTLD_NOW);
      if (!libHandle) { printf("[%s] Unable to open library: %s\n",__FILE__, dlerror());return; }
      PinstructionsTableHeight4MEX = dlsym(libHandle, "instructionsTableHeight4MEX");
      if (!PinstructionsTableHeight4MEX) { printf("[%s] Unable to get symbol: %s\n",__FILE__, dlerror());return; }// else { printf("[%s] Got symbol: instructionsTableHeight4MEX = 0x%" PRIXPTR"\n",__FILE__, PinstructionsTableHeight4MEX);}
 #elif _WIN32
-     libHandle = LoadLibrary("/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dll");
+     libHandle = LoadLibrary("C:/Users/hespanha/Documents/MATLAB/tenscalc/lib/csparse/instructionsTable.dll");
      if (!libHandle) { printf("[%s] Unable to open library\n",__FILE__);return; }
      PinstructionsTableHeight4MEX = GetProcAddress(libHandle, "instructionsTableHeight4MEX");
      if (!PinstructionsTableHeight4MEX) { printf("[%s] Unable to get symbol\n",__FILE__);return; }

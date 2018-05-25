@@ -1,4 +1,4 @@
-/* Created by script createGateway.m on 25-May-2018 01:24:05 */
+/* Created by script createGateway.m on 25-May-2018 11:01:21 */
 
 /* START OF #included "GPL.c" */
 /*
@@ -23,7 +23,7 @@
     
     
 /* END OF #included "GPL.c" */
-/* gcc -I"/Applications/MATLAB_R2017a.app/include" -I"/Applications/MATLAB_R2017a.app/extern/include" -I"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/include" -L"/Applications/MATLAB_R2017a.app/bin/maci64" -L"/Users/hespanha/matlab_projects/tenscalc/TimDavis/SuiteSparse/lib" -Wall -Werror -Wno-unused-variable -Wno-unused-result -std=gnu99  -DDYNAMIC_LIBRARY -DNDEBUG -dynamiclib -fvisibility=hidden -current_version 1.0 -compatibility_version 1.0 -Ofast -msse -msse2 -msse3 -msse4 -msse4.1 "instructionsTableUTHash.c" -l"mx" -l"mex" -l"mat" -l"stdc++" -l"umfpack" -o "/Users/hespanha/GitHub/tenscalc/lib/csparse/instructionsTable.dylib" */
+/* cl.exe /D_USRDLL /D_WINDLL -I"C:/Program Files/MATLAB/R2018a/include" -I"C:/Program Files/MATLAB/R2018a/extern/include" -DDYNAMIC_LIBRARY -DNDEBUG /Ot /arch:AVX2 "instructionsTableUTHash.c" /link /LTCG:OFF /LIBPATH:"C:/Program Files/MATLAB/R2018a/bin/pcwin64" /LIBPATH:"C:/Program Files/MATLAB/R2018a/bin/win64" /LIBPATH:"C:/Program Files/MATLAB/R2018a/extern/lib/win64/microsoft" libmx.lib libmex.lib libmat.lib /DLL /OUT:"C:/Users/hespanha/Documents/MATLAB/tenscalc/lib/csparse/instructionsTable.dll" */
 
 #include <mex.h>
 #include <stdint.h>
