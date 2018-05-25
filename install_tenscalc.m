@@ -1,4 +1,4 @@
-fprintf('Seeting up path...\n');
+fprintf('Seeting up path:\n');
 home=[fileparts(which('install_tenscalc')),'/lib'];
 folders={home;[home,'/csparse']};
 
@@ -18,10 +18,7 @@ fprintf('  adding to path:\n');
 addpath(folders{:});
 disp(folders)
 
-fprintf('Compiling...\n');
-compileInstructionsTable;
-
-fprintf('Saving path...');
+fprintf('  saving path...');
 try
     savepath;
 catch me
@@ -29,5 +26,10 @@ catch me
     disp(folders)
     rethrow(me)
 end
+fprintf('done with path!\n');
 
+
+fprintf('Compiling...\n');
+compileInstructionsTable;
 fprintf('done!\n');
+
