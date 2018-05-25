@@ -170,7 +170,7 @@ typedef struct instructionsTable_s {
 
 } instructionsTable_t;
 
-#define verboseLevel 1
+#define verboseLevel 0
 
 #ifdef IGNORE_MEX
 #undef printf
@@ -413,7 +413,7 @@ EXPORT int compareInstructions(int64_t *index1,
   else if (ptr1->nParameters>ptr2->nParameters)
     return 1;
   
-  //printf3("same header... ");
+  // printf3("same header... ");
 
   { double
       *pt1=instructionsTable.parametersBuffer+ptr1->parameters,

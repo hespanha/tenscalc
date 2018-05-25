@@ -179,6 +179,8 @@ do {                                                                            
 #define MAX_PARAMETERS_PER_TABLE    30000000LL
 #define MAX_OPERANDS_PER_TABLE      50000000LL
 
+#define MAX_TERMS_PERLINE 50
+
 typedef struct instruction_s {
   // KEY STARTS HERE
   instructionType_t type;           // type of instruction
@@ -887,7 +889,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	} while (1);
 	if (--s>0) {
 	    // one large line breaks compiler, so break line every few +'s
-	  if ((nSums+=parameters[0])<100) 
+	  if ((nSums+=parameters[0])<MAX_TERMS_PERLINE) 
 	    fprintf(fid,"+");
 	  else {
 	    nSums=0;
@@ -1745,7 +1747,6 @@ int main()
 #define maxNoperands 30
 #define maxOperands 1
 #define type (instructionType_t)23
-
 
 
   double parameters[maxNparameters];

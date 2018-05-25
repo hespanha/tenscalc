@@ -1,7 +1,9 @@
 
 %% Unload previous library
 if libisloaded('instructionsTable')
-    unloadlibrary('instructionsTable')
+    unloadlibrary('instructionsTable');
+elseif exist('instructionsTable_load','file')
+    instructionsTable_load(0);    
 end
 
 %% Go to csparse folder
