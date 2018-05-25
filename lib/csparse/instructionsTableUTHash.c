@@ -179,7 +179,7 @@ do {                                                                            
 #define MAX_PARAMETERS_PER_TABLE    30000000LL
 #define MAX_OPERANDS_PER_TABLE      50000000LL
 
-#define MAX_TERMS_PERLINE 10
+#define MAX_TERMS_PERLINE 50
 
 typedef struct instruction_s {
   // KEY STARTS HERE
