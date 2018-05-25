@@ -161,18 +161,20 @@ clf
 plot([xustar,xcstar],'.')
 legend('unconstrained','constrained')
 
-%% Constrained optimization using quadprog
-fprintf('\nConstrained minimization using quadprog\n');
-options=optimset('algorithm','interior-point-convex');
-t0=clock;
-[xqpstar,fval,flag]=quadprog(thisA'*thisA/N,-thisA'*thisb/N,[],[],[],[],zeros(n,1),.05*ones(n,1),[],options);
-fprintf('Elapsed time = %5.2fms (flag=%d, f-val =%.6f)\n',1000*etime(clock,t0),flag,norm(thisA*xqpstar-thisb,2)^2/N);
-t0=clock;
-[xqpstar,fval,flag]=quadprog(thisA'*thisA/N,-thisA'*thisb/N,[],[],[],[],zeros(n,1),.05*ones(n,1),[],options);
-fprintf('Elapsed time = %5.2fms (flag=%d, f-val =%.6f)\n',1000*etime(clock,t0),flag,norm(thisA*xqpstar-thisb,2)^2/N);
+if exist('quadprog','builtin')
+    %% Constrained optimization using quadprog
+    fprintf('\nConstrained minimization using quadprog\n');
+    options=optimset('algorithm','interior-point-convex');
+    t0=clock;
+    [xqpstar,fval,flag]=quadprog(thisA'*thisA/N,-thisA'*thisb/N,[],[],[],[],zeros(n,1),.05*ones(n,1),[],options);
+    fprintf('Elapsed time = %5.2fms (flag=%d, f-val =%.6f)\n',1000*etime(clock,t0),flag,norm(thisA*xqpstar-thisb,2)^2/N);
+    t0=clock;
+    [xqpstar,fval,flag]=quadprog(thisA'*thisA/N,-thisA'*thisb/N,[],[],[],[],zeros(n,1),.05*ones(n,1),[],options);
+    fprintf('Elapsed time = %5.2fms (flag=%d, f-val =%.6f)\n',1000*etime(clock,t0),flag,norm(thisA*xqpstar-thisb,2)^2/N);
+end
 
 %% Constrained optimization using CVX
-if false
+if exist('cvx_begin','file')
     fprintf('Trying CVX\n');
     clear x
     cvx_begin
