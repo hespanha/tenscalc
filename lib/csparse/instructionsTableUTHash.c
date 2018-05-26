@@ -175,9 +175,9 @@ do {                                                                            
 
 // Structure used to store instructions
 
-#define MAX_INSTRUCTIONS_PER_TABLE  2000000LL
-#define MAX_PARAMETERS_PER_TABLE    5000000LL
-#define MAX_OPERANDS_PER_TABLE     10000000LL
+#define MAX_INSTRUCTIONS_PER_TABLE  5000000LL
+#define MAX_PARAMETERS_PER_TABLE   20000000LL // lasso2 example needs very large
+#define MAX_OPERANDS_PER_TABLE     10000000LL 
 
 #define MAX_TERMS_PERLINE 100
 
@@ -419,7 +419,7 @@ EXPORT int64_t appendInstruction(instructionType_t type,
       instructionsTable.nOperands+nOperands > MAX_OPERANDS_PER_TABLE) {
     printf0("appendInstruction: table is full (I:%"PRId64">%"PRId64" | P:%"PRId64">%"PRId64" | O:%"PRId64">%"PRId64")\n",
 	    instructionsTable.nInstructions+1,MAX_INSTRUCTIONS_PER_TABLE,
-	    instructionsTable.nParameters+1,MAX_PARAMETERS_PER_TABLE,
+	    instructionsTable.nParameters+nParameters,MAX_PARAMETERS_PER_TABLE,
 	    instructionsTable.nOperands+nOperands,MAX_OPERANDS_PER_TABLE);
     return -1;
   }
@@ -552,7 +552,7 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
       instructionsTable.nOperands+nOperands > MAX_OPERANDS_PER_TABLE) {
     printf0("appendInstruction: table is full (I:%"PRId64">%"PRId64" | P:%"PRId64">%"PRId64" | O:%"PRId64">%"PRId64")\n",
 	    instructionsTable.nInstructions+1,MAX_INSTRUCTIONS_PER_TABLE,
-	    instructionsTable.nParameters+1,MAX_PARAMETERS_PER_TABLE,
+	    instructionsTable.nParameters+nParameters,MAX_PARAMETERS_PER_TABLE,
 	    instructionsTable.nOperands+nOperands,MAX_OPERANDS_PER_TABLE);
     return -1;
   }
