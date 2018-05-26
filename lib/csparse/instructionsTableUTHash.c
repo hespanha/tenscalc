@@ -175,9 +175,9 @@ do {                                                                            
 
 // Structure used to store instructions
 
-#define MAX_INSTRUCTIONS_PER_TABLE  10000000LL
-#define MAX_PARAMETERS_PER_TABLE    30000000LL
-#define MAX_OPERANDS_PER_TABLE      50000000LL
+#define MAX_INSTRUCTIONS_PER_TABLE  2000000LL
+#define MAX_PARAMETERS_PER_TABLE   10000000LL
+#define MAX_OPERANDS_PER_TABLE     10000000LL
 
 #define MAX_TERMS_PERLINE 100
 
