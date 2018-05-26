@@ -184,24 +184,30 @@ for jj=1:length(ks)
                     instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));
                 end
               case 'constant'
-                subscripts=memory2subscript(osize,1:prod(osize));
-                value=full(getOne(obj.vectorizedOperations,'parameters',thisExp));
-                value=value(:);   % flatten to 1st dimension
-                k=find(value==0); % remove zeros
-                if ~isempty(k)
-                    subscripts(:,k)=[];
-                    value(k)=[];
-                end
-                    if ~isempty(value)
-                        instructions=newInstructions(obj,obj.Itypes.I_load,...
-                                                     num2cell(value),{[]},...
-                                                     thisExp,obj.fastRedundancyCheck);
-                    else
-                        instructions=[];
-                        disp(obj.vectorizedOperations,thisExp)
-                        fprintf('\n WARNING: computeScalarInstructions for empty constant (expression %d)\n',thisExp);
+                value=getOne(obj.vectorizedOperations,'parameters',thisExp);
+                if length(osize)==2
+                    % more efficient for 2 dimensions (especially if sparse)
+                    [i,j,value]=find(value);
+                    subscripts=[i,j]';
+                else
+                    value=value(:);   % flatten to 1st dimension
+                    subscripts=memory2subscript(osize,1:prod(osize));
+                    k=find(value==0); % remove zeros
+                    if ~isempty(k)
+                        subscripts(:,k)=[];
+                        value(k)=[];
                     end
-                        
+                end
+                if ~isempty(value)
+                    instructions=newInstructions(obj,obj.Itypes.I_load,...
+                                                 num2cell(value),{[]},...
+                                                 thisExp,obj.fastRedundancyCheck);
+                else
+                    instructions=[];
+                    disp(obj.vectorizedOperations,thisExp)
+                    fprintf('\n WARNING: computeScalarInstructions for empty constant (expression %d)\n',thisExp);
+                end
+                
               case 'full'
                 subs1=getOne(obj.vectorizedOperations,'subscripts',operands(1));
                 inst1=getOne(obj.vectorizedOperations,'instructions',operands(1));
