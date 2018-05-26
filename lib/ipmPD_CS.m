@@ -138,7 +138,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         if isequal(factor,@ldl)
             dHess_=ldl_d(factor_ww);
         else
-            dHess_=zeros(size(factor_ww,1));
+            dHess_=Tzeros(size(factor_ww,1));
         end
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
