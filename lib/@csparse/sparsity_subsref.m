@@ -25,6 +25,7 @@ verboseLevel=0;
 operands=getOne(obj.vectorizedOperations,'operands',thisExp);
 S=getOne(obj.vectorizedOperations,'parameters',thisExp);
 
+oosize=getOne(obj.vectorizedOperations,'osize',operands(1));
 subsX=getOne(obj.vectorizedOperations,'subscripts',operands(1));
 instrX=getOne(obj.vectorizedOperations,'instructions',operands(1));
 
@@ -42,60 +43,37 @@ switch S.type
                'indexing length (%d)'],size(subsX,1),length(S.subs));
     end
     %S.subs{:}
-    ind=(1:length(S.subs{1}))';
-    ind1=S.subs{1}(:);
+    ind_y=(1:length(S.subs{1}))';
+    ind_subsref=S.subs{1}(:);
     for i=2:length(S.subs)
-        ind =[kron(ones(length(S.subs{i}),1),ind),...
-              kron((1:length(S.subs{i}))',ones(size(ind,1),1))];
-        ind1=[kron(ones(length(S.subs{i}),1),ind1),...
-              kron(S.subs{i}(:),ones(size(ind1,1),1))];
-    
-        if i<length(S.subs)
-            % prune uninteresting rows in ind for next expansion
-            k1=ismember(ind1,subsX(1:i,:)','rows');
-            ind1=ind1(k1,:);
-            ind=ind(k1,:);
-        end
+        % prune uninteresting rows in ind_y for next expansion
+        k1=ismember(ind_subsref,subsX(1:i-1,:)','rows');
+        ind_subsref=ind_subsref(k1,:);
+        ind_y=ind_y(k1,:);
+
+        % expand next dimension
+        ind_subsref=[kron(ones(length(S.subs{i}),1),ind_subsref),...
+                     kron(S.subs{i}(:),ones(size(ind_subsref,1),1))];
+        ind_y   =[kron(ones(length(S.subs{i}),1),ind_y),...
+                     kron((1:length(S.subs{i}))',ones(size(ind_y,1),1))];
     end
-    % ind1(1:min(20,end),:)
-    % size(ind1)
-    % ind(1:min(20,end),:)
-    % size(ind)
+    % ind_subsref(1:min(20,end),:)
+    % size(ind_subsref)
+    % ind_y(1:min(20,end),:)
+    % size(ind_y)
     % size(subsX)
     
-    if 0
-        %% problems when ind1 has repeated subscripts
-        %tic
-        [~,k1,k2]=intersect(ind1,subsX','rows');  % ind1(k1,:)=subsX'(k2,:)
-        %toc
-        % if any(any(ind1(k1,:)'~=subsX(:,k2)))
-        %     error('intersect mismatch');
-        % end
-    elseif 0
-        %% problems when ind1 has repeated subscripts
-        % just slightly faster
-        %tic
-        [lia,k1]=ismember(subsX',ind1,'rows');
-        k2=(1:size(subsX,2))';
-        k2=k2(lia);
-        k1=k1(lia);
-        %toc;
-        %if any(any(ind1(k1,:)'~=subsX(:,k2)))
-        %    error('ismember mismatch');
-        %end
-    else
-        %tic
-        [lia,k2]=ismember(ind1,subsX','rows');
-        k1=(1:size(ind1,1))';
-        k1=k1(lia);
-        k2=k2(lia);
-        % toc;
-        % if any(any(ind1(k1,:)'~=subsX(:,k2)))
-        %     error('ismember mismatch');
-        % end
-    end
+    %tic
+    [lia,k2]=ismember(ind_subsref,subsX','rows');
+    k1=(1:size(ind_subsref,1))';
+    k1=k1(lia);
+    k2=k2(lia);
+    % toc;
+    % if any(any(ind_subsref(k1,:)'~=subsX(:,k2)))
+    %     error('ismember mismatch');
+    % end
 
-    subsY=ind(k1,:)';
+    subsY=ind_y(k1,:)';
     instrY=instrX(k2);
     
   otherwise,
