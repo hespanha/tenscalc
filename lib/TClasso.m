@@ -46,11 +46,12 @@ declareParameter(...
             '   * |obj=classname()| - creates class and loads the dynamic library';
             '                         containing the C code';
             '   * |delete(obj)|     - deletes the class and unload the dynamic library';
-            '   * |setP_{parameter}(obj,value)|'
-            '                   - sets the value of one of the parameters'
-            '   * |setV_{variable}(obj,value)|'
-            '                   - sets the value of one of the optimization variables'
-            '   * |[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter))|'
+            '   * |setP_y(obj,value)| - sets the value of y'
+            '   * |setP_l1weight(obj,value)| - sets the value of l1weight'
+            '   * |setV_c(obj,value)| - sets the value of c (optional)'
+            '   * |setV_W(obj,value)| - sets the value of W'
+            '   * |setV_absW(obj,value)| - sets upper values for |W|'
+            '   * |[W,c,J]=solve(obj,mu0,int32(maxIter),int32(saveIter))|'
             'where'
             '   * |mu0|      - initial value for the barrier variable'
             '   * |maxIter|  - maximum number of Newton iterations'
@@ -94,14 +95,24 @@ declareParameter(...
 
 declareParameter(...
     'VariableName','dimension',...
+    'DefaultValue',[],...
     'Description', {
         'Dimension of feature vectors'
                    });
     
 declareParameter(...
     'VariableName','nTrainingPoints',...
+    'DefaultValue',[],...
     'Description', {
-        'Number of points used for training.'
+        'Number of points used for training. Needed when ''x'' is an optimization parameter.'
+                   });
+    
+declareParameter(...
+    'VariableName','x',...
+    'DefaultValue',[],...
+    'Description', {
+        'Vector ''x'' for the optimization.'
+        ' When empty, the vector ''x'' is passed as an optimization parameter.'
                    });
     
 declareParameter(...
@@ -122,10 +133,11 @@ declareParameter(...
     'Description', {;
         'When false, the inputs to the solver are'
         '  y (nTrainingPoints column vector) with dependent variables (one entry per sample)'
-        '  X (nTrainingPoints x dimensions matrix) with indepdent variables (one row per sample)'
+        '  X (nTrainingPoints x dimension matrix) with indepdent variables (one row per sample)'
         'When true, the inputs to the solver are the matrix'
-        '   X  = X''*X  (dimensions x dimensions matrix)'
-        '   yX = 2*X''*y (dimensions vector)'
+        '   X  = X''*X  (dimension x dimension matrix)'
+        '   yX = 2*X''*y (dimension vector)';
+        'Can only be true when the vector ''x'' is passed as an optimization parameter.'
                    });
         
 declareParameter(...
@@ -156,15 +168,45 @@ declareParameter(...
     
 declareParameter(...
     'VariableName','solverType',...
-    'AdmissibleValues',{'matlab','C','Cfast'},...
+    'AdmissibleValues',{'matlab','C','Copt'},...
     'DefaultValue','C',...
     'Description', {
         'Type of engine generated';
         '* ''matlab'' - Matlab class';
         '* ''C''      - C code (not optimized)'
-        '* ''Cfast''  - optimized C code'
+        '* ''Copt''   - optimized C code'
                    });
     
+declareParameter(...
+    'VariableName','useLDL',...
+    'DefaultValue',true,...
+    'AdmissibleValues',{false,true},...
+    'Description',{
+        'When |true| the search directions are computed using an'
+        'LDL instead of an LU factorization.'
+                  });
+
+declareParameter(...
+    'VariableName','smallerNewtonMatrix',...
+    'DefaultValue',false,...
+    'AdmissibleValues',{false,true},...
+    'Description',{
+        'When |true| the matrix that needs to be inverted to compute a Newton step'
+        'is reduced by first eliminating the dual variables associated with inequality'
+        'constrainst.'
+        'However, often the smaller matrix is not as sparse so the computation'
+        'may actually increase.'
+                  });
+
+declareParameter(...
+    'VariableName','coupledAlphas',...
+    'DefaultValue',false,...
+    'AdmissibleValues',{false,true},...
+    'Description',{
+        'When |true| the same scalar gain is used for the primal and dual variables'
+        'in Newton''s method line search.'
+                  });
+
 declareParameter(...
     'VariableName','solverVerboseLevel',...
     'DefaultValue',1,...
@@ -223,6 +265,16 @@ end
 fprintf('TClasso: starting...');
 t0=clock;
 
+if ~isempty(x)
+    if ~isempty(nTrainingPoints) && nTrainingPoints~=size(x,1)
+        error('TClasso: ''nTrainingPoints'' does not match 1st dimension of x [%dx%d]\n',size(x));
+    end
+    if ~isempty(dimension) && dimension~=size(x,1)
+        error('TClasso: ''dimension'' does not match 1st dimension of x [%dx%d]\n',size(x));
+    end
+    [nTrainingPoints,dimension]=size(x);
+end
+
 %% Setup optimization
 
 % L1-weight
@@ -254,10 +306,16 @@ if preMultiplied
         e2=e2-2*sumY*c+2*c*sumX*W+nTrainingPoints*norm2(c);
     end
 else
-    Tvariable y [nTrainingPoints];
-    Tvariable X [nTrainingPoints,dimension];
+    if isempty(x)
+        Tvariable y [nTrainingPoints];
+        Tvariable X [nTrainingPoints,dimension];
+        parameters={y,X,l1weight};
+    else
+        Tvariable y [nTrainingPoints];
+        X=x;
+        parameters={y,l1weight};
+    end
 
-    parameters={y,X,l1weight};
     e=X*W-y;
     if addConstant
         Tvariable c [];
@@ -319,7 +377,7 @@ switch solverType
     optimizeCS=@cmex2optimizeCS;
     classname='tmpC';  % c
     compilerOptimization='-O0';
-    allowSave=true;
+    allowSave=false;
     debugConvergence=false;
   case 'Cfast'
     optimizeCS=@cmex2optimizeCS;
@@ -329,7 +387,7 @@ switch solverType
   otherwise
     error('Unkown ''solverType'' = ''%s''\n',solverType);
 end
-classname=sprintf('%s_%d_%d',classname,nTrainingPoints,dimension);
+%classname=sprintf('%s_%x_%x',classname,nTrainingPoints,dimension); %toolong
 
 [classname,code]=optimizeCS(...
     'pedigreeClass',classname,...
@@ -346,6 +404,9 @@ classname=sprintf('%s_%d_%d',classname,nTrainingPoints,dimension);
     'equalTolerance',equalTolerance,...
     'desiredDualityGap',desiredDualityGap,...
     'skipAffine',skipAffine,...
+    'useLDL',useLDL,...
+    'smallerNewtonMatrix',smallerNewtonMatrix,...
+    'coupledAlphas',coupledAlphas,...
     'debugConvergence',debugConvergence,...
     'debugConvergenceThreshold',1e4,...
     'profiling',false,...
