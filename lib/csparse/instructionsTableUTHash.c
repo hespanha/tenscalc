@@ -19,12 +19,12 @@
 
 #ifdef createGateway
 
-MEXfunction  initInstructionsTable
+MEXfunction initInstructionsTable
 
 Cfunction initInstructionsTable
 include instructionsTableFunctions.h
 
-MEXfunction  instructionsTableHeight
+MEXfunction instructionsTableHeight
 
 Cfunction instructionsTableHeight4MEX
 include instructionsTableFunctions.h
@@ -90,7 +90,7 @@ outputs
       int64 children [~]
       int64 parents [~]
 
-MEXfunction  writeCinstructionsC
+MEXfunction writeCinstructionsC
 Cfunction writeCinstructionsC
 include instructionsTableFunctions.h
 
@@ -101,7 +101,7 @@ inputs
 outputs
       int64 countFlops[16]
 
-MEXfunction  writeAsmInstructionsC
+MEXfunction writeAsmInstructionsC
 Cfunction writeAsmInstructionsC
 include instructionsTableFunctions.h
 

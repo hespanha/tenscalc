@@ -67,4 +67,16 @@ tmp*
 @tmp*
 /lib/*.tex
 
+initInstructionsTable.*
+instructionsTableHeight.*
+appendInstruction.*
+appendUniqueInstruction.*
+getInstruction.*
+findInstructionsByType.*
+getDependencies.*
+writeCinstructionsC.*
+writeAsmInstructionsC.*
+instructionsTable_load.*
+instructionsTable.*
+
 
