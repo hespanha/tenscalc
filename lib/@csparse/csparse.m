@@ -1032,7 +1032,7 @@ classdef csparse < handle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Compile code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        function compile2C(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
+        function compile2C(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling)
         % compile2C(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
         %
         % Compiles code to C and appends it to a given file.
@@ -1073,6 +1073,8 @@ classdef csparse < handle
         %                        . fastest compile optimization times'
         %                        . slowest run times'
         %                        . largest optimized code sizes (due to inlining large blocks)'
+        % minInstructions4loop - minimum number of similar instructions to
+        %                        be implmented as a for loop (rather than inlined) 
         % Cfunction - file where the C code should be written
         % Hfunction - file where the C function headers should be written (optional)
         % logFile   - file where statistics information should be written (optional)
@@ -1111,7 +1113,7 @@ classdef csparse < handle
 
             fprintf('  write codeType=%s... ',codeType);t0=clock;
             %writeCswitchpergroup(obj,codeType,Cfunction,Hfunction,logFile,profiling);
-            writeCfunctionpergroup(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling);
+            writeCfunctionpergroup(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling);
             fprintf('done (%.3f sec)\n',etime(clock(),t0));
         end
     

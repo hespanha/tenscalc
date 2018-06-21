@@ -97,6 +97,7 @@ include instructionsTableFunctions.h
 inputs 
       int64 indices [nInstructions]
       int64 memoryLocations [NInstructions]
+      int64 minInstructions4Loop [1]
 
 outputs
       int64 countFlops[16]
@@ -786,14 +787,18 @@ EXPORT void getDependencies4MEX(/* outputs */
 }
 #endif
 
+#define MAX_DELTA_OPERANDS 10
+
 /*******************************************************************************
  * Write C code corresponding to an array of instructions
  * Returns -1 if any index is not valid, otherwise returns 0
  *******************************************************************************/
 EXPORT int writeCinstructionsC(/* inputs */
-			       int64_t *indices,          // indices of instructions to write
-			       int64_t *memoryLocations,  // memory locations for
-			                                  // all instructions
+			       int64_t *indices,              // indices of instructions to write
+			       int64_t *memoryLocations,      // memory locations for
+			                                      // all instructions
+			       int64_t *minInstructions4Loop, // minimum number of instructions implemented as a loop
+			       
                                /* outputs */
                                int64_t *countFlops,          // array with instruction counts
 
@@ -801,11 +806,12 @@ EXPORT int writeCinstructionsC(/* inputs */
 			       mwSize nInstructions,     // # of instructions to write
 			       mwSize NInstructions)     // total # of instructions
 {
-  instructionType_t type;
-  int64_t nParameters; 
-  double  *parameters;
-  int64_t nOperands;   
-  int64_t *operands;
+  instructionType_t type,nextType;
+  int64_t nParameters,nextNparameters; 
+  double  *parameters,*nextParameters;
+  int64_t nOperands,nextNoperands;   
+  int64_t *operands,*nextOperands,*lastOperands,deltaOperands[MAX_DELTA_OPERANDS];
+  int64_t nextI,*nextIndices,deltaIndices;
   int64_t odiv;
   int nSums;
 
@@ -844,6 +850,76 @@ EXPORT int writeCinstructionsC(/* inputs */
     //printf2("   getInstruction(%d)=%d\n",indices[0],rc);
     if (rc<0) {
       return rc; }
+
+    // Check repeated instructions
+    nextI=i+1;
+    nextIndices=indices+1;    
+    if (nextI<nInstructions) {
+      int rc=getInstruction(nextIndices[0],&nextType,&nextNparameters,&nextParameters,&nextNoperands,&nextOperands);
+      if (rc<0) return rc;
+      // check if type and # or parameters/operands match
+      int match=(nextType==type && nParameters==nextNparameters && nOperands==nextNoperands && nOperands<=MAX_DELTA_OPERANDS);
+      if (match) {
+	int64_t j;
+	// check if parameters match
+	for (j=0;j<nParameters;j++) {
+	  if (parameters[j]!=nextParameters[j]) {
+	    match=false;
+	    break; }
+	}
+	if (match) {
+	  // compute deltas based on operands of 1st matched instructions
+	  deltaIndices=memoryLocations[nextIndices[0]-1]-memoryLocations[indices[0]-1];
+	  for (j=0;j<nOperands;j++) {
+	    deltaOperands[j]=memoryLocations[nextOperands[j]-1]-memoryLocations[operands[j]-1];
+	  }
+	  // check for additional instructions with same deltas
+	  for (nextI++,nextIndices++;nextI<nInstructions;nextI++,nextIndices++){
+	    //if (type==I_div) printf0("[%lld]: %lld<%lld: type =%d\n",memoryLocations[nextIndices[0]-1]-1,nextI,nInstructions,type);
+	    // check indices delta
+	    if (memoryLocations[nextIndices[0]-1]-memoryLocations[nextIndices[-1]-1] != deltaIndices) {
+	      //printf0("type %d: stopped at %d because delta Indices\n",type,memoryLocations[nextIndices[0]-1]-1);
+	      break;
+	    }
+	    lastOperands=nextOperands;
+	    int rc=getInstruction(nextIndices[0],&nextType,&nextNparameters,&nextParameters,&nextNoperands,&nextOperands);
+	    if (rc<0) return rc;
+	    // check if type and # or parameters/operands match
+	    if (nextType!=type || nParameters!=nextNparameters || nOperands!=nextNoperands) {
+	      //printf0("type %d: stopped at %d because type=%d, nextType=%d\n",type,memoryLocations[nextIndices[0]-1]-1,type,nextType);
+	      break;
+	    }
+	    // check if parameters match
+	    for (j=0;j<nParameters;j++) {
+	      if (parameters[j]!=nextParameters[j]) {
+		match=false;
+		break; }
+	    }
+	    if (!match) {
+	      //printf0("type %d: stopped at %d because of %d parameter mismatch\n",type,memoryLocations[nextIndices[0]-1]-1,j);
+	      break;
+	    }
+	    // check if operands match with same deltas
+	    for (j=0;j<nOperands;j++) {
+	      //if (type==I_div) printf0("  %d: %lld, %lld\n",j,memoryLocations[lastOperands[j]-1]-1,memoryLocations[nextOperands[j]-1]-1);
+	      if (memoryLocations[nextOperands[j]-1]-memoryLocations[lastOperands[j]-1]!=deltaOperands[j]) {
+		match=false;
+		break; }
+	    }
+	    if (!match) {
+	      //printf0("type %d: stopped at %d because of %d operand mismatch\n",type,memoryLocations[nextIndices[0]-1]-1,j);
+	      break;
+	    }
+	  } // for (nextI++...)
+	  //printf0("%lld>=%lld: type =%d\n",nextI,nInstructions,type);
+	}
+      }
+    }
+
+    if (nextI-i>=500) {
+      printf2("writeCinstructions: %d-%d (%d) of type %d, n pars=%d, n ops=%d\n",i,nextI-1,nextI-i,type,nParameters,nOperands);
+    }
+    
     switch (type) {
 
     case I_set:
@@ -860,7 +936,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       while (nOperands-->0)
 	fprintf(fid,(*parameters++>0)?"+m[%"PRId64"]":"-m[%"PRId64"]",
 		memoryLocations[(*(operands++))-1]-1);
-      fprintf(fid,";//sum(%"PRId64")\n",indices[0]);
+      fprintf(fid,";//sum(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
       break;
 
     case I_sumprod:
@@ -898,7 +974,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	}
 	else break;
       } while (1);
-      fprintf(fid,";//sumprod(%"PRId64")\n",indices[0]);
+      fprintf(fid,";//sumprod(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
       break;
 
     case I_plus_minus_dot_div:
@@ -969,7 +1045,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	  fprintf(fid,"+");
 	} else break;
       } while (1);
-      fprintf(fid,");//plus-dot(%"PRId64")\n",indices[0]);
+      fprintf(fid,");//plus-dot(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
       break;
 
     case I_minus_dot:
@@ -993,11 +1069,23 @@ EXPORT int writeCinstructionsC(/* inputs */
       break;
 
     case I_div:
-      countFlops_ndiv  ++;
-
-      fprintf(fid,"\tm[%"PRId64"]=m[%"PRId64"]/m[%"PRId64"];//div\n",
-	      memoryLocations[indices[0]-1]-1,
-	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[1]-1]-1);
+      if (nextI-i < *minInstructions4Loop) {
+	countFlops_ndiv  ++;
+	fprintf(fid,"\tm[%"PRId64"]=m[%"PRId64"]/m[%"PRId64"];//div x %"PRId64"\n",
+		memoryLocations[indices[0]-1]-1,
+		memoryLocations[operands[0]-1]-1,memoryLocations[operands[1]-1]-1,nextI-i);
+      } else {
+	countFlops_ndiv  +=(nextI-i);
+	fprintf(fid,"\tfor(int64_t c=%"PRId64",i=%"PRId64",op1=%"PRId64",op2=%"PRId64";c>0;c--,i+=(%"PRId64"),op1+=(%"PRId64"),op2+=(%"PRId64")) {\n",
+		nextI-i,
+		memoryLocations[indices[0]-1]-1,
+		memoryLocations[operands[0]-1]-1,memoryLocations[operands[1]-1]-1,
+		deltaIndices,deltaOperands[0],deltaOperands[1]);
+	//fprintf(fid,"\t  printf(\"m[%%lld]=m[%%lld]/m[%%lld]\\n\",i,op1,op2);\n");
+	fprintf(fid,"\t  m[i]=m[op1]/m[op2];}//div(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
+	i=nextI-1;
+	indices=nextIndices-1;
+      }
       break;
 
     case I_plus_sqr:
@@ -1043,9 +1131,9 @@ EXPORT int writeCinstructionsC(/* inputs */
 	break;
       }
       while (nOperands-->0) {
-	fprintf(fid,"\tif (m[%"PRId64"]>m[%"PRId64"]) m[%"PRId64"]=m[%"PRId64"];//min(%"PRId64")\n",
+	fprintf(fid,"\tif (m[%"PRId64"]>m[%"PRId64"]) m[%"PRId64"]=m[%"PRId64"];//min(%"PRId64") x %"PRId64"\n",
 		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,
-		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0],nextI-i);
 	operands++; }
       break;
 
@@ -1223,9 +1311,9 @@ EXPORT int writeCinstructionsC(/* inputs */
     case I_minus_inv_sqr:
       countFlops_ndiv ++;
       countFlops_nprod++;      
-      fprintf(fid,"\tm[%"PRId64"]=-1/(m[%"PRId64"]*m[%"PRId64"]);//-inv sqr(%"PRId64")\n",
+      fprintf(fid,"\tm[%"PRId64"]=-1/(m[%"PRId64"]*m[%"PRId64"]);//-inv sqr(%"PRId64") x %"PRId64"\n",
 	      memoryLocations[indices[0]-1]-1,
-	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0],nextI-i);
     break;
     case I_2_inv_cube:
       countFlops_ndiv++;

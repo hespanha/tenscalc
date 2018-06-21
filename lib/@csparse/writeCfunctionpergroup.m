@@ -1,4 +1,4 @@
-function writeCfunctionpergroup(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
+function writeCfunctionpergroup(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling)
 % writeCfunctionpergroup(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
 %    Write C code to implements all the gets, sets, and copies in
 %    a csparse object.
@@ -38,7 +38,10 @@ function writeCfunctionpergroup(obj,codeType,Cfunction,Hfunction,logFile,folder,
 %                        and/or inlining the large blocks of asm code'
 %                        . fastest compile optimization times'
 %                        . slowest run times'
-%                        . largest optimized code sizes (due to inlining large blocks)'
+%                        . largest optimized code sizes (due to
+%                        inlining large blocks)'
+% minInstructions4loop - minimum number of similar instructions to
+%                        be implmented as a for loop (rather than inlined) 
 % Cfunction - file where the C code should be written
 % Hfunction - file where the C function headers should be written
 % logFile   - file where statistics information should be written
@@ -452,7 +455,7 @@ for i=1:nGroups
             writeCinstructions(obj,fig,k);    
         else
             % not pretty, but apparently C cannot use matlab's fig
-            countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'));
+            countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
             f=fopen('tmp_toremove.c','r');
             str=fread(f,inf);
             fclose(f);

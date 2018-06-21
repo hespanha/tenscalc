@@ -89,15 +89,17 @@ EXPORT void findInstructionsByType(instructionType_t type, // return type by ref
  * Returns -1 if any index is not valid
  *******************************************************************************/
 EXPORT int writeCinstructionsC(/* inputs */
-			       int64_t *indices,          // indices of instructions to write
-			       int64_t *memoryLocations,  // memory locations for
-			                                  // all instructions
+			       int64_t *indices,              // indices of instructions to write
+			       int64_t *memoryLocations,      // memory locations for
+			                                      // all instructions
+			       int64_t *minInstructions4Loop, // minimum number of instructions implemented as a loop
+
                                /* outputs */
-                               int64_t *profile,          // array with instruction counts
+                               int64_t *profile,              // array with instruction counts
 
 			       /* sizes */
-			       mwSize nInstructions,     // # of instructions to write
-			       mwSize NInstructions);    // total # of instructions
+			       mwSize nInstructions,          // # of instructions to write
+			       mwSize NInstructions);         // total # of instructions
 
 /*******************************************************************************
  * Write ASM code corresponding to an array of instructions
