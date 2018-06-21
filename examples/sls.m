@@ -174,7 +174,7 @@ if exist('quadprog','builtin')
 end
 
 %% Constrained optimization using CVX
-if exist('cvx_begin','file')
+if exist('cvx_begin','file') && version('-release')<="2016"
     fprintf('Trying CVX\n');
     clear x
     cvx_begin
