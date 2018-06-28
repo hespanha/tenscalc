@@ -29,10 +29,10 @@ minInstructions4loop=100;
 N=200
 
 codeType='C';
-compilerOptimization='-O0';
-%compilerOptimization='-O1';
+%compilerOptimization='-O0';
+compilerOptimization='-O1';
 
-allowSave=true;
+allowSave=false;
 
 s = RandStream('mt19937ar','Seed',1);
 RandStream.setGlobalStream(s);
