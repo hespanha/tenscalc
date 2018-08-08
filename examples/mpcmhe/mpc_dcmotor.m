@@ -27,7 +27,6 @@ nx=2;  % state size;
 nu=1;  % control size
 T=30;  % forward horizon
 
-% create symbolic optimization
 Tvariable Ts [];
 Tvariable x [nx,T];  % [x(t+Ts), x(t+2*Ts), ..., x(t+T*Ts)]
 Tvariable u [nu,T];  % [u(t), u(t+Ts), ..., u(t+(T-1)*Ts) ]

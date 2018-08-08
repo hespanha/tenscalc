@@ -858,7 +858,6 @@ EXPORT int writeCinstructionsC(/* inputs */
       
 #define NEXT_RESULT     if (deltaIndices==1)     fprintf(fid,",r++");      else if (deltaIndices==-1)     fprintf(fid,",r--");      else if (deltaIndices!=0)     fprintf(fid,",r+=(%"PRId64")",deltaIndices);
 #define NEXT_OPERAND(i) if (deltaOperands[i]==1) fprintf(fid,",op%d++",i); else if (deltaOperands[i]==-1) fprintf(fid,",op%d--",i); else if (deltaOperands[i]!=0) fprintf(fid,",op%d+=(%"PRId64")",i,deltaOperands[i])
-#define INCR_OPERAND(i) fprintf(fid,",op%d++",i)
 
 #if P_nCountFlops != 16
 #error "update outputs field of writeCinstructionsC() (line 102)"
@@ -1237,28 +1236,11 @@ EXPORT int writeCinstructionsC(/* inputs */
 	printf0("\nERROR: I_min with <=1 value\n");
 	break;
       }
-      if (nOperands < *minInstructions4Loop) {
-	while (nOperands-->0) {
-	  fprintf(fid,"\tif (m[%"PRId64"]>m[%"PRId64"]) m[%"PRId64"]=m[%"PRId64"];//min(%"PRId64") x %"PRId64"\n",
-		  memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,
-		  memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0],nextI-i);
-	  operands++; }
-      } else {
-	fprintf(fid,"\t{");
-	INIT_RESULT;
-	INIT_OPERAND(0);
-	fprintf(fid,"for(int64_t c=%"PRId64";c>0;c--",nOperands);
-	INCR_OPERAND(0);	
-	fprintf(fid,") {\n\t  if (");
-	PRINT_RESULT;
-	fprintf(fid,">");
-	PRINT_OPERAND(0);
-	fprintf(fid,") ");
-	PRINT_RESULT;
-	fprintf(fid,"=");
-	PRINT_OPERAND(0);
-	fprintf(fid,"; } } //min(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
-      }
+      while (nOperands-->0) {
+	fprintf(fid,"\tif (m[%"PRId64"]>m[%"PRId64"]) m[%"PRId64"]=m[%"PRId64"];//min(%"PRId64") x %"PRId64"\n",
+		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,
+		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0],nextI-i);
+	operands++; }
       break;
 
     case I_min0:
@@ -1323,28 +1305,11 @@ EXPORT int writeCinstructionsC(/* inputs */
 	printf0("\nERROR: I_max_abs with 1 value\n");
 	break;
       }
-      if (nOperands < *minInstructions4Loop) {
-	while (nOperands-->0) {
-	  fprintf(fid,"\tif (m[%"PRId64"]<fabs(m[%"PRId64"])) m[%"PRId64"]=fabs(m[%"PRId64"]);//max_abs(%"PRId64")\n",
-		  memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,
-		  memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
-	  operands++; }
-      } else {
-	fprintf(fid,"\t{");
-	INIT_RESULT;
-	INIT_OPERAND(0);
-	fprintf(fid,"for(int64_t c=%"PRId64";c>0;c--",nOperands);
-	INCR_OPERAND(0);	
-	fprintf(fid,") {\n\t  if (");
-	PRINT_RESULT;
-	fprintf(fid,"<fabs(");
-	PRINT_OPERAND(0);
-	fprintf(fid,")) ");
-	PRINT_RESULT;
-	fprintf(fid,"=fabs(");
-	PRINT_OPERAND(0);
-	fprintf(fid,"); } } //max_abs(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
-      }
+      while (nOperands-->0) {
+	fprintf(fid,"\tif (m[%"PRId64"]<fabs(m[%"PRId64"])) m[%"PRId64"]=fabs(m[%"PRId64"]);//max_abs(%"PRId64")\n",
+		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,
+		memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+	operands++; }
       break;
 
     case I_clp:

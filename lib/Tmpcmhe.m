@@ -235,7 +235,7 @@ classdef Tmpcmhe < handle
                     '        [ u(t), u(t+Ts),  ... , u(t+(N-1) * Ts)] ';
                     '  . the disturbance,'
                     '        [ d(t), d(t+Ts),  ... , d(t+(N-1) * Ts)] ';
-                    '  . any parameters definied in ''parameters''';
+                    '  . any parameters defined in ''parameters''';
                     'and returns the corresponding state derivatives';
                     '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
                     'that is used through forward Euler integration to obtain';
@@ -255,7 +255,7 @@ classdef Tmpcmhe < handle
                     '        [ x(t), x(t+Ts),  ... , x(t+(N-1) * Ts)] ';
                     '  . the control,'
                     '        [ u(t), u(t+Ts),  ... , u(t+(N-1) * Ts)] ';
-                    '  . any parameters definied in ''parameters''';
+                    '  . any parameters defined in ''parameters''';
                     'and returns the corresponding output';
                     '        [ y(t), y(t+Ts),  ... , y(t+(N-1) * Ts)] ';
                     'The function must accept all inputs to be either'

@@ -26,7 +26,8 @@ classdef Tmpc < handle
         sampleTimeName=''  % When sampleTime is a symbolic
                            % variable, this holds the name of the
                            % variable; otherwise empty string.
-        stateDerivativeFunction  % anonymous function with the state derivative
+        stateDerivativeFunction  % anonymous function with the
+                                 % nominal state derivative
         controlDelay       % controlDelay (in sampleTime units) before a control can be applied
         
         solverName         % name of solver class
@@ -188,6 +189,12 @@ classdef Tmpc < handle
                     '           stateVariable and controlVariable'
                     });
             declareParameter(...
+                'VariableName','otherOptimizationVariables',...
+                'DefaultValue',{},...
+                'Description',{
+                    'Cell array with any auxiliary optimization variables'
+                    });
+            declareParameter(...
                 'VariableName','controlDelay',...
                 'DefaultValue',0,...
                 'Description',{
@@ -213,7 +220,7 @@ classdef Tmpc < handle
                     '        [ x(t), x(t+Ts),  ... , x(t+(N-1) * Ts)] ';
                     '  . the control,'
                     '        [ u(t), u(t+Ts),  ... , u(t+(N-1) * Ts)] ';
-                    '  . any parameters definied in ''parameters''';
+                    '  . any parameters defined in ''parameters''';
                     'and returns the corresponding state derivatives';
                     '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
                     'that is used to obtain the stateVariable'
@@ -223,6 +230,9 @@ classdef Tmpc < handle
                     'The function must accept all inputs to be either'
                     '  . matrices of doubles of appropriate sizes, or'
                     '  . Tcalculus symbolic matrices also of appropriate size.';
+                    ' ';
+                    'This derivative is used by MPC and should correspond to the'
+                    'nominal dynamics.'
                     });
             declareParameter(...
                 'VariableName','objective',...
@@ -441,7 +451,7 @@ classdef Tmpc < handle
                                     'executeScript',executeScript,...
                                     'objective',objective,...
                                     'optimizationVariables',...
-                                    {obj.optimizedControls,stateVariable},...
+                                    {obj.optimizedControls,stateVariable,otherOptimizationVariables{:}},...
                                     'constraints',constraints,...
                                     'parameters',obj.parameters,...
                                     'outputExpressions',outputExpressions,...
@@ -585,7 +595,7 @@ classdef Tmpc < handle
                                  control(:,1:obj.controlDelay));
             end
             feval(['setV_',obj.futureControlName],obj.solverObject,...
-                  control(obj.controlDelay+1:end));
+                  control(:,obj.controlDelay+1:end));
             obj.controlSet=true;
         end
 
@@ -625,8 +635,8 @@ classdef Tmpc < handle
             [varargout{:},solution.control,solution.state]=getOutputs(obj.solverObject);
         end
         
-        function [t,u0_warm]=applyControls(obj,solution,nSteps,ufinal);
-        % [t,u0_warm]=applyControls(obj,solution,nSteps,ufinal);
+        function [t,u0_warm,u_applied]=applyControls(obj,solution,nSteps,ufinal,stateDerivativeFunctionReal);
+        % [t,u0_warm,u_applied]=applyControls(obj,solution,nSteps,ufinal,stateDerivativeFunctionReal);
         %
         % Given a solver solution
         % . applies the first nSteps control
@@ -636,7 +646,12 @@ classdef Tmpc < handle
         % . warm start for the next MPC optimization,
         %   inserting the control 'ufinal' at the end of the interval. 
 
+            if (nargin<5)
+                stateDerivativeFunctionReal=obj.stateDerivativeFunction;
+            end
+            
             t=obj.history.time(obj.history.currentIndex);
+            u_applied=solution.control(:,1:nSteps);
             for k=1:nSteps
                 t=t+obj.sampleTimeValue;
                 obj.history.currentIndex=obj.history.currentIndex+1;
@@ -658,11 +673,11 @@ classdef Tmpc < handle
                     % dynamics
                     obj.history.state(:,obj.history.currentIndex)=...
                         obj.history.state(:,obj.history.currentIndex-1)+obj.sampleTimeValue*...
-                        obj.stateDerivativeFunction(obj.history.state(:,obj.history.currentIndex-1),...
+                        stateDerivativeFunctionReal(obj.history.state(:,obj.history.currentIndex-1),...
                                                     obj.history.control(:,obj.history.currentIndex-1),...
                                                     obj.parameterValues{:});
                 catch me
-                    fprintf('error in appyling ''stateDerivativeFunction'' to numerical values\n');
+                    fprintf('error in appyling ''stateDerivativeFunctionReal'' to numerical values\n');
                     rethrow(me);
                 end
             end

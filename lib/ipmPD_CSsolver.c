@@ -150,7 +150,7 @@ EXPORT void ipmPD_CSsolver(
 #endif
 
   printf2("%s.c (skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,skipAffine,(double)delta,allowSave,nU,nG,nF);
-  printf3("Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma     alphaP     alphaI     alphaE   time[us]\n");
+  printf3("Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma   alphaP     alphaDI    alphaDE    time[us]\n");
 #if nF>0
   printf3("%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n",*maxIter,gradTolerance,equalTolerance,desiredDualityGap,muMin);
 #else
