@@ -166,11 +166,12 @@ if verboseLevel>1
 end
 
 if verboseLevel>0
-    fprintf('  sparsify_tprod(%3d): size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
-            thisExp,['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
+    fprintf('  sparsify_tprod(%3d): tprod(',thisExp);
     for i=1:length(operands)
         fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osizeX{i}),']'],nnzX{i});
     end
+    fprintf('  )\\    -> size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
+            ['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
     fprintf(')\n');
 end
 
