@@ -30,6 +30,9 @@ milliseconds. The C code can be used from inside *Matlab* using an
 (automatically generated) cmex interface or in standalone
 applications. No libraries are required for the standalone code.
 
+A technical description of the algorithms behind *TensCalc* can be found at
+	https://www.ece.ucsb.edu/~hespanha/published/tenscalc_imp-20170630.pdf	
+
 ## Installation
 
 The *TensCalc* toolbox supports *Matlab* running under:
