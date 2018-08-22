@@ -188,7 +188,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
             end
         else
             if isempty(is)
-                error('ldl needs pivoting');
+                error('ldl needs pivoting: either use LU instead of LDL or make sure the diagonal is not zero');
             end
             operands=reshape(full([instrLDL(col,is);instrV(is)]),1,[]);
             instrD(col)=newInstruction(obj,obj.Itypes.I_minus_dot,[],...
