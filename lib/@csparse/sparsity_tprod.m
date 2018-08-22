@@ -170,7 +170,7 @@ if verboseLevel>0
     for i=1:length(operands)
         fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osizeX{i}),']'],nnzX{i});
     end
-    fprintf('  )\\    -> size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
+    fprintf('  )\n    -> size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
             ['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
     fprintf(')\n');
 end
