@@ -90,7 +90,18 @@ function varargout=cmex2optimizeCS(varargin)
         'VariableName','addEye2Hessian',...
         'DefaultValue',1e-9,...
         'Description',{
-            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.'
+            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.';
+            'A larger value for |addEye2Hessian| has two main effects:'
+            '1) Improves the numerical conditioning of the system of equations that'
+            '   finds the Newton search direction.';
+            '2) Moves the search direction towards the gradient descent of';
+            '   the Lagragian (and away from the Newton direction).';
+            'Both effects improve the robustness of the solver, but this is typically';
+            'achieved at the expense of slower convergence.'
+            'For convex problems, one typically chooses |addEye2Hessian| equal to the';
+            'square root of the machine percision.'
+            'For non-convex problems, one can try to increase this parameter when';
+            'the Newton direction actually causes and increase of the Lagragian.'
                       });
     
     declareParameter(...
@@ -135,6 +146,8 @@ function varargout=cmex2optimizeCS(varargin)
     classname=regexprep(classname,'+TS=','_TS_');
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
+    
+    debugConvergence=false; % not implemented for cmex
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
@@ -294,9 +307,9 @@ function varargout=cmex2optimizeCS(varargin)
                               classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('Hess_',size(Hess__)),Hess__);
+                                 Tvariable('Hess_',size(Hess__),true),Hess__);
     outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('dHess_',size(dHess__)),dHess__);
+                                 Tvariable('dHess_',size(dHess__),true),dHess__);
     
     %% Declare ipm solver 
     classhelp{end+1}='% Solve optimization';
