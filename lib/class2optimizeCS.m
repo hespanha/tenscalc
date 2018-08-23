@@ -258,9 +258,9 @@ function varargout=class2optimizeCS(varargin)
                               classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('Hess_',size(Hess__)),Hess__);
+                                 Tvariable('Hess_',size(Hess__),true),Hess__);
     outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('dHess_',size(dHess__)),dHess__);
+                                 Tvariable('dHess_',size(dHess__),true),dHess__);
 
     %% Declare ipm solver 
     classhelp{end+1}='% Solve optimization';
