@@ -146,6 +146,8 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
 
+    debugConvergence=false; % not implemented for cmex
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
