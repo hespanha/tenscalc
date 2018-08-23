@@ -149,8 +149,11 @@ EXPORT void ipmPD_CSsolver(
   double J;
 #endif
 
-  printf2("%s.c (skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,skipAffine,(double)delta,allowSave,nU,nG,nF);
-  printf3("Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma   alphaP     alphaDI    alphaDE    time[us]\n");
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,nU,nG,nF);
+#if verboseLevel>=3
+  char *header="Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma   alphaP     alphaDI    alphaDE     time\n";
+#endif
+  printf3(header);
 #if nF>0
   printf3("%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n",*maxIter,gradTolerance,equalTolerance,desiredDualityGap,muMin);
 #else
@@ -181,12 +184,13 @@ EXPORT void ipmPD_CSsolver(
 #endif
 
   while (1) {
-#if verboseLevel>=3
-    dt1=clock();
-#endif
-
     (*iter)++;
+#if verboseLevel>=3
+    if ((*iter) % 50 ==0)
+      printf3(header);
+    dt1=clock();
     printf3("%3d:",*iter);
+#endif
 
     if ((*iter) > (*maxIter)) {
       printf3("maximum # iterations (%d) reached.\n",*maxIter);
@@ -215,9 +219,7 @@ EXPORT void ipmPD_CSsolver(
 
 #if nG>0
     getNorminf_G__(&norminf_eq);
-#if verboseLevel>=3
     printf3("%10.2e",norminf_eq);
-#endif
 #else
     printf3("    -eq-  ");
 #endif
@@ -331,7 +333,7 @@ EXPORT void ipmPD_CSsolver(
     // 2) equality constraints fairly well satisfied (perhaps not very important)
     if (alphaPrimal> alphaMax/2
 #if nG>0
-	&& norminf_eq<100*equalTolerance
+	&& (norminf_eq<100*equalTolerance || norminf_eq<1e-3)
 #endif
         ) {
       getRho__(&sigma);
@@ -471,7 +473,7 @@ EXPORT void ipmPD_CSsolver(
 #if nG>0
     int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
 #endif
-    if (alphaPrimal>.5 && th_grad
+    if (alphaPrimal>alphaMax_/2 && th_grad
 #if nG>0
 	&& th_eq
 #endif
@@ -479,15 +481,19 @@ EXPORT void ipmPD_CSsolver(
       mu *= muFactorAggressive;
       if (mu < muMin) mu = muMin;
       setMu__(&mu); 
-      printf3(" *");
+      printf3(" * ");
     } else {
-      mu *= muFactorConservative;
-      if (mu < muMin) mu = muMin;
-      setMu__(&mu);
       if (alphaPrimal<.1) {
-	mu = MIN(1e2,1.25*mu);
+	mu *= 1.25;
+	if (mu > 1e2) mu = 1e2;
 	setMu__(&mu);
 	initDualIneq__();
+	printf3("^");
+      } else {
+	mu *= muFactorConservative;
+	if (mu < muMin) mu = muMin;
+	setMu__(&mu);
+	printf3("v");
       }
 #if verboseLevel>=3
       if (th_grad)
@@ -568,17 +574,46 @@ EXPORT void ipmPD_CSsolver(
     getGapMinFMinLambda__(&gap,&ineq,&dual);
 #endif
   }
-  
-  printf2("%3d:status=0x%X, ",(*iter),(*status));
+
+  if (*status) {
+    char sep='(';
+    printf2("%3d:status=0x%X ",(*iter),(*status));
+    if ((*status) & 16) {
+      printf2("%clarge gradient",sep);
+      sep=',';
+    }
+    if ((*status) & 32) {
+      printf2("%cbad equality const.",sep);
+      sep=',';
+    }
+    if ((*status) & 64) {
+      printf2("%clarge duality gap",sep);
+      sep=',';
+    }
+    if ((*status) & 128) {
+      printf2("%clarge mu",sep);
+      sep=',';
+    }
+    if ((*status) & 256) {
+      printf2("%calpha negligible",sep);
+    } else if ((*status) & 512) {
+      printf2("%calpha<.1",sep);
+    } else if ((*status) & 1024) {
+      printf2("%calpha<.5",sep);
+    }
+    printf2(")\n                ");
+  } else {
+    printf2("%3d:status=0x%X, ",(*iter),(*status));
+  }
   printf2("cost=%13.5e",J);
 #if nG>0
   printf2(", |eq|=%10.2e",norminf_eq);
 #endif
 #if nF>0
-  printf2(", ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alphaPrimal);
+  printf2(", ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alphaPrimal);
 #endif
   printf2(", |grad|=%10.2e",norminf_grad);
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
-#endif
+#endif  // verboseLevel>=2
 }
 

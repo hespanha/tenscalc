@@ -102,6 +102,10 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
 
     Lf_uu=gradient(Lf_u,u);
     
+    if debugConvergence
+        declareGet(code,Lf,'getLf__');
+        declareGet(code,full(Lf_uu),'getLfuu__');
+    end
     
     alphaPrimal=Tvariable('alphaPrimal__',[]);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
@@ -302,6 +306,10 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         declareCopy(code,{u,nu,lambda},{newU_s,newNu_s,newLambda_s},'updatePrimalDual__');
     end % smallerNewtonMatrix
     
+    if debugConvergence;
+        declareGet(code,full(Hess_),'getHess__');
+    end
+
     % declareGet(code,full(WW),'getWW__');
     % declareGet(code,u,'getU__');
     % declareGet(code,lambda,'getLambda__');

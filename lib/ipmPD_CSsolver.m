@@ -38,8 +38,11 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         muMin=obj.desiredDualityGap/obj.nF/2;
     end 
     
-    printf2('%s.m (skipAffine=%d,delta=%g): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.skipAffine,obj.delta,obj.nU,obj.nG,obj.nF);
-    printf3('Iter   cost      |grad|     |eq|     inequal     dual      gap       mu      alphaA    sigma     alphaP     alphaI     alphaE   time[ms]\n');
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.nU,obj.nG,obj.nF);
+    if obj.verboseLevel>=3
+        headers='Iter   cost      |grad|     |eq|     inequal     dual      gap       mu    alphaA    sigma      alphaP     alphaDI    alphaDE       time\n';
+        fprintf(headers);
+    end
     if obj.nF>0
         printf3('%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n',...
                 maxIter,obj.gradTolerance,obj.equalTolerance,obj.desiredDualityGap,muMin);
@@ -80,12 +83,14 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
     end
 
     while (1) 
-        if obj.verboseLevel>=3
-            dt1=clock();
-        end
-        
         iter=iter+1;
-        printf3('%3d:',iter);
+        if obj.verboseLevel>=3
+            if mod(iter,50)==0
+                fprintf(headers);                
+            end
+            fprintf('%3d:',iter);
+            dt1=clock();
+        end        
         
         if iter > maxIter 
             printf3('maximum # iterations (%d) reached.\n',maxIter);
@@ -97,15 +102,38 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         %% Check exit conditions %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        if obj.verboseLevel>=3
+        if obj.verboseLevel>=3 || obj.debugConvergence
             J=getJ__(obj);
+        end
+        if obj.verboseLevel>=3
             fprintf('%11.3e',full(J));
         end
 
         if obj.debugConvergence 
+            J=getJ__(obj);
             if J>obj.debugConvergenceThreshold
                 printf2('\n%3d: ATTENTION: cost > %10.2e - cost is probably too large\n',...
                             iter,obj.debugConvergenceThreshold);
+            end
+        end
+
+        if obj.debugConvergence 
+            Lf_=getLf__(obj);
+            fprintf(' Lf = %9.2e ',Lf_);
+            tol=1e-7;
+            Lfuu_=getLfuu__(obj);
+            egLfuu=eig(Lfuu_);
+            if min(egLfuu)<-tol
+                fprintf('\nATTENTION: Lf not convex, Lfuu eigenvalues: %4d positive, %4d zero, %4d negative (>=%8e) \n',...
+                        sum(egLfuu>tol),...
+                        sum(egLfuu<=tol & egLfuu>-tol),...
+                        sum(egLfuu<=-tol),...
+                        min(egLfuu));
+                Hess_=getHess__(obj);
+                eg=eig(Hess_);
+                fprintf('                       Hessian eigenvalues: %4d positive, %4d negative, %4d zero\n',...
+                        sum(eg>tol),sum(eg<=-tol),sum(eg<=tol & eg>-tol));
+                fprintf('                               ');
             end
         end
 
@@ -150,9 +178,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         
         if obj.nG>0
             norminf_eq=getNorminf_G__(obj);
-            if obj.verboseLevel>=3
-                printf3('%10.2e',norminf_eq);
-            end
+            printf3('%10.2e',norminf_eq);
         else
             printf3('    -eq-  ');
         end
@@ -266,7 +292,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 % 2) equality constraints fairly well satisfied (perhaps not very important)
                 % 3) small gradient
                 %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+                th_eq=(obj.nG==0) || (norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance);
                 if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad 
                     sigma=getRho__(obj);
                     if (sigma>1) sigma=1; end
@@ -434,7 +460,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         %%%%%%%%%%%%%%%%%%%%%%%
         
         if obj.debugConvergence
-            if obj.nF>0 && alphaPrimal<obj.alphaMax/5
+            if obj.nF>0 && alphaPrimal<obj.alphaMax/5 && isfinite(obj.debugConvergenceThreshold)
                 kk=find(newF_s<=0 | newLambda_s<=0);
                 fprintf('%3d: ATTENTION: alphaPrimal = %8.2e < %8.2e due to %4d entries (lambda * ineq)\n',iter,alphaPrimal,obj.alphaMax/5,length(kk));
                 for ii=kk(:)'
@@ -558,17 +584,49 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
         end
         
-        printf2('%3d:status=0x%s, ',iter,dec2hex(status));
-        printf2('cost=%13.5e, ',full(J));
+        if (status)
+            fprintf('%3d:status=0x%s ',iter,dec2hex(status));
+            sep='(';
+            if (status & 16)
+                fprintf("%clarge gradient",sep);
+                sep=',';
+            end
+            if (status & 32)
+                fprintf("%cbad equality const.");
+                sep=',';
+            end
+            if (status & 64)
+                fprintf("%clarge duality gap");
+                sep=',';
+            end
+            if (status & 128)
+                fprintf("%clarge mu");
+                sep=',';
+            end
+            if (status & 256)
+                fprintf("%calpha negligible");
+                sep=',';
+            elseif (status & 512)
+                fprintf("%calpha<.1");
+                sep=',';
+            elseif (status & 1024)
+                fprintf("%calpha<.5");
+                sep=',';
+            end
+            fprintf(')\n                ');
+        else
+            fprintf('%3d:status=0x%s, ',iter,dec2hex(status));
+        end
+        fprintf('cost=%13.5e, ',full(J));
         norminf_grad=getNorminf_Grad__(obj);
-        printf2('|grad|=%10.2e',norminf_grad);
+        fprintf('|grad|=%10.2e',norminf_grad);
         if obj.nG>0
-            printf2(', |eq|=%10.2e',norminf_eq);
+            fprintf(', |eq|=%10.2e',norminf_eq);
         end
         if obj.nF>0
-            printf2(', ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',ineq,dual,gap,alphaPrimal,mu);
+            fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',ineq,dual,gap,alphaPrimal,mu);
         end
-        printf2(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
+        fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end
     
 end
