@@ -1,10 +1,15 @@
-function obj=Tvariable(name,osize)
-% var = Tconstant(name,[n1,n2,...,na])
+function obj=Tvariable(name,osize,nowarningsamesize)
+% var = Tconstant(name,[n1,n2,...,na],nowarningsamesize))
 %
 % Returns a Tcalculus tensor symbolic variable.  The integers
 % n1,n2,...,na specify the dimension of each index of the tensor.
 % When the tensor dimensions are missing, they are guessed from the
 % value (removing singleton dimensions at the end).
+%   
+% The optional 3rd argument 'nowarningsamesize', prevents a warning
+% that is given when one attempts to create a variable that already
+% exists. The warning is only omitted when the new variable has the
+% same size as the existing one.
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -30,6 +35,13 @@ function obj=Tvariable(name,osize)
         error('Tvariable: missing 2nd parameter (size)');
     end
     
+    if nargin<3
+        nowarningsamesize=false;
+    end
+    if ~islogical(nowarningsamesize)
+        error('Tvariable: (optional) 3rd argument must be boolean');
+    end
+    
     if ~isvarname(name)
         error('Tvariable: 1st parameter a valid variable name')
     end
@@ -38,7 +50,7 @@ function obj=Tvariable(name,osize)
         osize=evalin('caller',osize);
     end
 
-    obj=Tcalculus('variable',osize,name,[],{},1);
+    obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize);
     
     assignin('caller',name,obj);
 end
