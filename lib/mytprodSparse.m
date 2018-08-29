@@ -26,20 +26,23 @@ for l=1:2:length(varargin)
     parameters{i}=varargin{l+1};
 
     if length(osize{i})==2
+        % matrix
         [ii,jj,instrX{i}]=find(varargin{l});
-        subsX{i}=[ii';jj'];
-        instrX{i}=instrX{i}';
+        subsX{i}=[ii(:)';jj(:)'];
     else
+        % tensor
         ii=find(varargin{l});
         sub=cell(length(osize{i}),1);
-        [sub{:}]=ind2sub(osize{i},ii);
+        [sub{:}]=ind2sub(osize{i},ii(:));
         subsX{i}=cat(2,sub{:})';
-        instrX{i}=nonzeros(varargin{l})';
+        instrX{i}=nonzeros(varargin{l});
     end
+    instrX{i}=instrX{i}(:)';
     
     if verboseLevel>2
-        fprintf('Operand %d\n',i);
-        fprintf('  Subscripts (pre)\n');
+        fprintf('Operand %d (size = [%s], indices = [%s])\n',...
+                i,index2str(osize{i}),index2str(parameters{i}));
+        fprintf('  Subscripts (pre) (size=[%s])\n',index2str(size(subsX{i})));
         disp(subsX{i})
     end
     % get subs in the right order for CStprodindices_raw
@@ -50,7 +53,7 @@ for l=1:2:length(varargin)
         subsX{i}=subsX{i}';
         instrX{i}=instrX{i}(k);
         if verboseLevel>2
-            fprintf('  Subscripts (post)\n');
+            fprintf('  Subscripts (post) (size=[%s])\n',index2str(size(subsX{i})));
             disp(subsX{i})
         end
     end
@@ -71,7 +74,7 @@ for l=1:2:length(varargin)
                 i,index2str(osize{i}),index2str(parameters{i}),...
                 index2str(size(subsX{i})),index2str(size(instrX{i})));
     end
-    
+
     dimY=max([dimY,parameters{i}]);
     nSums=max([nSums,-parameters{i}]);
 end
@@ -106,6 +109,9 @@ end
 
 %% Expand "smallest" operand
 i=operandOrder(1);
+if verboseLevel>3
+    fprintf('Expanding smallest operand %d\n',i);
+end
 subsYS=zeros(dimYS,nnzExpansion(i));
 ind=1:dimYS;
 ind(parameters{i})=[];
@@ -124,6 +130,9 @@ end
 
 %% Expand remaining operators
 for i=operandOrder(2:end)
+    if verboseLevel>3
+        fprintf('Expanding operand %d\n',i);
+    end
     % Look only within existing expansion
     if verboseLevel>3
         [subsX{i}',instrX{i}']

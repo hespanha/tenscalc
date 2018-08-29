@@ -188,7 +188,8 @@ for jj=1:length(ks)
                 if length(osize)==2
                     % more efficient for 2 dimensions (especially if sparse)
                     [i,j,value]=find(value);
-                    subscripts=[i,j]';
+                    subscripts=[i(:),j(:)]';
+                    value=value(:);
                 else
                     value=value(:);   % flatten to 1st dimension
                     subscripts=memory2subscript(osize,1:prod(osize));
