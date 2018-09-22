@@ -99,7 +99,7 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         end
 
         norminf_grad=getNorminf_Grad__(obj);
-        printf3('%10.2e',norminf_grad);
+        printf3('%10.2e',full(norminf_grad));
         
         if obj.debugConvergence 
             if norminf_grad>obj.debugConvergenceThreshold
@@ -124,7 +124,7 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         if obj.nG>0
             norminf_eq=getNorminf_G__(obj);
             if obj.verboseLevel>=3
-                printf3('%10.2e',norminf_eq);
+                printf3('%10.2e',full(norminf_eq));
             end
         else
             printf3('    -eq-  ');
@@ -132,7 +132,7 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         
         if obj.nF>0
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
-            printf3('%10.2e%10.2e%10.2e',ineq,dual,gap);
+            printf3('%10.2e%10.2e%10.2e',full(ineq),full(dual),full(gap));
             if (ineq<=0) 
                 printf3('  -> (primal) variables violate constraints\n');
                 status = 1;
