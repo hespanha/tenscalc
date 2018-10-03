@@ -60,7 +60,11 @@ function s=str(obj,tprod2mat,maxDepth)
                         if isequal(parameters.subs{j}(:)',1:osize1(j))
                             s=horzcat(s,':,');
                         else
-                            s=horzcat(s,'[',index2str(parameters.subs{j}(:)'),'],');
+                            if all(parameters.subs{j}(:)==1)
+                                s=horzcat(s,'ones(',index2str(size(parameters.subs{j}(:)')),'),');
+                            else
+                                s=horzcat(s,'[',index2str(parameters.subs{j}(:)'),'],');
+                            end
                         end
                     end
                 elseif isfield(parameters,'typical_subscripts')
