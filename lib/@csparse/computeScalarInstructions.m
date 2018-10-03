@@ -35,13 +35,15 @@ if nargin<3
     folder='.';
 end
 
-%fprintf('  computeScalarInstructions... ');
+if length(ks)>=100
+    fprintf('  computeScalarInstructions (%d expressions)...\n',length(ks));
+end
 t0=clock;
 for jj=1:length(ks)
     thisExp=ks(jj);
-    % if mod(jj,1000)
-    %     fprintf('   expr %d/%d...',jj,length(Ks));
-    % end
+    if mod(jj,100)==0
+        fprintf('   computeScalarInstructions: currently at expr %d/%d...\n',jj,length(ks));
+    end
     subscripts=getOne(obj.vectorizedOperations,'subscripts',thisExp);
     if ~any(isnan(subscripts))
          continue;
