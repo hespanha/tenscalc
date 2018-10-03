@@ -23,7 +23,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
 
 %profile on
     
- if smallerNewtonMatrix
+    if smallerNewtonMatrix
         fprintf('\n  Starting ipmPD_CS symbolic computations (smallNewtonMatrix)...\n');
     else
         fprintf('\n  Starting ipmPD_CS symbolic computations (largeNewtonMatrix)...\n');
@@ -34,7 +34,8 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
     nU=length(u);
     nG=length(G);
     nF=length(F);
-
+    fprintf('    # primal vars = %d, # equal constr = %d, # inequal constr = %d...\n',nU,nG,nF);
+    
     fprintf('    getJ()...');
     t2=clock();
     declareGet(code,f,'getJ__');

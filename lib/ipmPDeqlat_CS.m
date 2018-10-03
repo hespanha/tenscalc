@@ -46,6 +46,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
     nFu=length(Fu);
     nFd=length(Fd);
     nF=nFu+nFd;
+    fprintf('    # primal vars = %d, # equal constr = %d, # inequal constr = %d...\n',nZ,nG,nF);
     
     fprintf('    getfg()...');
     t2=clock();

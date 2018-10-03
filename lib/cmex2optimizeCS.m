@@ -263,8 +263,8 @@ function varargout=cmex2optimizeCS(varargin)
 
     %% Define constraints, dual variables, and declare 'sets' for initializing dual variables
 
-    if verboseLevel>1
-        fprintf('Defining constraints and dual variables... ');
+    if verboseLevel>0
+        fprintf('  Defining primal variables, constraints, and dual variables... ');
     end
 
     [G,F,nus,lambdas,outputExpressions,tpl]=...
