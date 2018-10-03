@@ -133,16 +133,16 @@ end
 [subsY,ia,ic]=unique(subsYS(nSums+1:end,:)','rows');
 subsY=subsY';
 
-if verboseLevel<=1 && length(ia)>10000
+if verboseLevel<=1 && length(ia)>20000
     verboseLevel=2;
-    fprintf('Computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
+    fprintf('   Computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
 end
 
 %% Compute instructions
 instrY=nan(size(subsY,2),1);
 % ATTENTION: very slow, needs to be sped up
 for i=1:length(ia)
-    if verboseLevel>1 && mod(i,2000)==0
+    if verboseLevel>1 && mod(i,5000)==0
         fprintf('%d ',i);
     end
     k=find(ic==i);
