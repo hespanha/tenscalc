@@ -523,47 +523,40 @@ classdef Tcalculus
             end
         end
         
-        function obj=repmat(obj1,sz,repmat2tprod)
-            if nargin<3
-                repmat2tprod=false;
-            end
+        function obj=repmat(obj1,sz)
             if nargin<2
                 error('Tcalculus.repmat: must include size multiplier');
             end
             osize1=size(obj1);
-            if repmat2tprod
-                error('repmat2prod not implemented');
+            % resolve 1-d objects: assume column vector
+            if length(osize1)==1 && length(sz)==2
+                osize1=[osize1,1];
+            end
+            if length(osize1)~=length(sz)
+                obj1,sz
+                error(['repmat''s 2nd argument must match size of object ' ...
+                       'length (%d~=%d)'],length(sz),length(osize1))
+            end
+            if strcmp(type(obj1),'zeros') 
+                obj=Tzeros(osize1.*sz);
+                updateFile2table(obj,1);
+                return
+            end
+            if strcmp(type(obj1),'ones') 
+                obj=Tones(osize1.*sz);
+                updateFile2table(obj,1);
+                return
+            end
+            if 0
+                obj=Tcalculus('repmat',osize1.*sz,sz,obj1.TCindex,{},1);
             else
-                % resolve 1-d objects: assume column vector
-                if length(osize1)==1 && length(sz)==2
-                    osize1=[osize1,1];
+                % convert repmat to subref
+                subs=cell(length(sz),1);
+                for i=1:length(sz)
+                    subs{i}=repmat(1:osize1(i),1,sz(i));
                 end
-                if length(osize1)~=length(sz)
-                    obj1,sz
-                    error(['repmat''s 2nd argument must match size of object ' ...
-                           'length (%d~=%d)'],length(sz),length(osize1))
-                end
-                if strcmp(type(obj1),'zeros') 
-                    obj=Tzeros(osize1.*sz);
-                    updateFile2table(obj,1);
-                    return
-                end
-                if strcmp(type(obj1),'ones') 
-                    obj=Tones(osize1.*sz);
-                    updateFile2table(obj,1);
-                    return
-                end
-                if 0
-                    obj=Tcalculus('repmat',osize1.*sz,sz,obj1.TCindex,{},1);
-                else
-                    % convert repmat to subref
-                    subs=cell(length(sz),1);
-                    for i=1:length(sz)
-                        subs{i}=repmat(1:osize1(i),1,sz(i));
-                    end
-                    S=struct('type','()','subs',{subs});
-                    obj=subsref(obj1,S);
-                end
+                S=struct('type','()','subs',{subs});
+                obj=subsref(obj1,S);
             end
         end
 
@@ -1150,9 +1143,9 @@ classdef Tcalculus
                 elseif strcmp(type(obj1),'ones') && myisequal(osize1,[1,1])
                     obj=obj2;
                 elseif strcmp(type(obj2),'ones') && osize2(1)==1 && osize2(2)>1 
-                    obj=repmat(obj1,[1,osize2(2)],0);
+                    obj=repmat(obj1,[1,osize2(2)]);
                 elseif strcmp(type(obj1),'ones') && osize1(2)==1 && osize1(1)>1 
-                    obj=repmat(obj2,[osize1],0); % needed for ones(100,1)*rand(1,36)
+                    obj=repmat(obj2,[osize1]); % needed for ones(100,1)*rand(1,36)
                 elseif (strcmp(type(obj1),'ones') || strcmp(type(obj2),'ones')) &&...
                         ~isempty(osize1) && ~isempty(osize2)
                     obj=osize1(end)*Tones([osize1(1),osize2(end)]);
