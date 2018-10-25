@@ -42,7 +42,7 @@ function [ddx,ts]=tsDerivative2(x,ts,invDts,invD2ts)
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-    if isequal(class(ts),'Tcalculus') && length(size(ts))~=1
+    if isequal(class(ts),'Tcalculus') && length(size(ts))~=1 && ~isempty(size(ts))
         error('tsDerivative: requires times vector to be one-dimensional ([%s])\n',...
               index2str(size(ts)));
     end
