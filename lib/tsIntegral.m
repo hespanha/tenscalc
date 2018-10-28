@@ -37,8 +37,8 @@ function y=tsIntegral(x,ts);
               index2str(osize));
     end
     
-    if length(ts)~=osize(end)
-        error('tsDerivative: length of sample times does not match size of input (%d,[%s])\n',...
+    if length(ts)>1 && length(ts)~=osize(end)
+        error('tsIntegral: length of sample times does not match size of input (%d,[%s])\n',...
               length(ts),index2str(osize));
     end
     
@@ -48,8 +48,13 @@ function y=tsIntegral(x,ts);
         whichtprod=@tprod;
     end
 
-    dt=.5*[ts(2)-ts(1);ts(3:end)-ts(1:end-2);ts(end)-ts(end-1)];
-    y=whichtprod(dt,-1,x,[1:length(osize)-1,-1]);
+    if length(ts)>1
+        dt=.5*[ts(2)-ts(1);ts(3:end)-ts(1:end-2);ts(end)-ts(end-1)];
+        y=whichtprod(dt,-1,x,[1:length(osize)-1,-1]);
+    else
+        dt=[.5*ts;ts*ones(osize(end)-2,1);.5*ts];
+        y=whichtprod(dt,-1,x,[1:length(osize)-1,-1]);
+    end
     
 end
 
