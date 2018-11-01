@@ -1,7 +1,7 @@
 function str=mymat2str(mat)
 % str=mymat2str(mat)
-%   Converts a matrix to a string. Similar to mat2str, but faster and 
-%   omits the brackets []. 
+%   Converts a matrix to a string. Similar to mat2str, but faster,
+%   omits the brackets, and handles N-dimensional arrays
 %
 % Copyright 2012-2017 Joao Hespanha
 
