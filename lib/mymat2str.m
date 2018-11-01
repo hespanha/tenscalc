@@ -19,12 +19,18 @@ function str=mymat2str(mat)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    if isempty(mat)
-        str='';
+    if length(size(mat))<=2
+        if isempty(mat)
+            str='';
+        else
+            format=repmat('%.20g,',1,size(mat,2));
+            format(end)=';';
+            str=sprintf(format,mat');
+            str(end)=[];
+        end
     else
-        format=repmat('%.20g,',1,size(mat,2));
-        format(end)=';';
-        str=sprintf(format,mat');
+        str=serialize(mat);
+        % remove final ';'
         str(end)=[];
     end
 end

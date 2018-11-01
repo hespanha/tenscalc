@@ -653,7 +653,7 @@ for i=1:length(obj.gets)
         if length(osize)==2 & size(subscripts,2)~=prod(osize)
             %% sparse matrices returned in compressed-column form
 
-            error('return sparse matrices is not complete, make matrix full');
+            error('current version does not support the return of sparse matrices, make matrix full uisng ''full(.)''');
             
             % compute sparse arrays
             %[subscripts',instructions]
