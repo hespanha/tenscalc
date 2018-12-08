@@ -105,6 +105,27 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         'Description',{
             'Cell-array of Tcalculus symbolic objects representing the '
             'variables to be returned.'
+            ' ';
+            'The following Tcalculus symbolic variables are assigned special values';
+            'and can be using in outputExpressions';
+            '* |P1lambda1_|,|P1lambda2_|,... |P2lambda1_|,|P2lambda2_|,...'
+            '      - Lagrangian multipliers associated with the inequalities constraints';
+            '        for P1 and P2 (in the order that they appear and with the same size';
+            '        as the corresponding constraints).';
+            '* |P1nu1_|,|P1nu2_|,... ,|P2nu1_|,|P2nu2_|,...'
+            '* |P1xnu1_|,|P1xnu2_|,... ,|P2xnu1_|,|P2xnu2_|,...'    
+            '      - Lagrangian multipliers associated with the equality constraints';
+            '        for P1 and P2 (in the order that they appear and with the same size'
+            '        as the corresponding constraints). The P1x and P2x variables correspond';
+            '        to the latentConstraints.'
+            '* |Hess_| - Hessian matrix used by the (last) newton step to update';
+            '            the primal variables (not including |addEye2Hessian|).'
+            ' ';
+            'ATTENTION: To be able to include these variables as input parameters,';
+            '           they will have to be created outside this function'
+            '           *with the appropriate sizes*.'
+            '           Eventually, their values will be overridden by the solver'
+            '           to reflect the values above.'
                       });
 
     localVariables_=parameters4all(localVariables_);
@@ -446,12 +467,14 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    ipmPDeqlat_CS(code,P1objective,P2objective,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
-                  Fu,Gu,Fd,Gd,H,...
-                  smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                  umfpack,...
-                  classname,allowSave,debugConvergence,profiling);
+    Hess__=ipmPDeqlat_CS(code,P1objective,P2objective,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
+                         Fu,Gu,Fd,Gd,H,...
+                         smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                         umfpack,...
+                         classname,allowSave,debugConvergence,profiling);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('Hess_',size(Hess__),true),Hess__);
     
     %% Declare ipm solver 
     nZ=size(u,1)+size(d,1)+size(x,1);
