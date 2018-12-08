@@ -207,7 +207,7 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function disp(obj,tprod2mat,maxDepth)
-            
+        % disp(x) displays the formula x
             if nargin<2
                 tprod2mat=false;
             end
@@ -230,6 +230,15 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function varargout=size(obj,dim)
+        % m=size(x) returns the size of the tensor x as a vector.
+        %
+        % [m1,m2,...,mn]=size(x) returns the number of elements of
+        % x in each of its dimensions. An error results in x has
+        % less dimensions than the number of outputs.
+        %
+        % m=size(x,d) returns the number of elements of x in the
+        % dimension d
+        
             if 0
                 global TCsymbolicExpressions
                 osize=TCsymbolicExpressions(obj.TCindex).osize;
@@ -295,10 +304,27 @@ classdef Tcalculus
         end
         
         function bool=isempty(obj)
+        % b=isempty(x) returns true if x is a tensor with zero
+        % elements. 
+        %
+        % Note that a scalar (which has size = []) is not empty.
             bool=any(size(obj)==0);
         end
         
         function len=length(obj)
+        % length(x) returns the number of elements of x, i.e.,
+        % prod(size(x)). This is differs from the usual length()
+        % function in matlab, which returns max(size(x)). 
+        %
+        % Note that a scalar (which has size = []) has 1 element
+            len=prod(size(obj));
+        end
+
+        function len=numel(obj)
+        % length(x) returns the number of elements of x, i.e.,
+        % prod(size(x)).
+        %    
+        % Note that a scalar (which has size = []) has 1 element
             len=prod(size(obj));
         end
 
@@ -366,6 +392,14 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Referencing, rashaping                 %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        function n=numArgumentsFromSubscript(obj,s,indexingContent)
+            if isequal(s.type,'.') 
+                n=1;
+            else
+                error('indexing ''%s'' not valid for Tcalculus objects',s.type);
+            end
+        end
 
         function obj=subsref(obj1,S)
             % very ineficient since this method is called for every obj.osize, obj.objs, etc.
@@ -472,12 +506,29 @@ classdef Tcalculus
             end
         end
         
-        function obj=norm2(obj1)
+        function obj=norm2(obj1,S)
+        % y=norm2(x) returns the sum of the square of all entries opf
+        % x, which for matrices corresponds to the square of the
+        % Frobenius norm of x.
+        %
+        % y=norm2(x,S) returns the value of the quadratic form
+        % <x,Sx>. This form is only applicable when x is a vector
+        % (1d-tensor) and S a square matrix (2d-tensor).
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
             else
-                obj=Tcalculus('norm2',[],[],obj1.TCindex,{},1);
+                if nargin<2
+                    obj=Tcalculus('norm2',[],[],obj1.TCindex,{},1);
+                else
+                    mx=size(obj1);
+                    ms=size(S);
+                    if length(mx)==1 && length(ms)==2 && ms(1)==mx(1) && ms(2)==mx(1)
+                        obj=tprod(obj1,-1,S,[-1,-2],obj1,-2);
+                    else
+                        error('norm2: norm2(x,S) called with x[%s] not a column vector and/or S[%s] not a square matrix of compatible size\n',index2str(size(obj1)),index2str(size(S)));
+                    end
+                end
             end
         end
         

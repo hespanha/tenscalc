@@ -31,7 +31,7 @@ function obj=tprod_simplify(obj)
     if ~strcmp(type(obj),'tprod')
         return
     end
-
+    
     %% Compile operatos in indices into cell arrays
     ops=operands(obj);
     inds=op_parameters(obj);
@@ -266,8 +266,8 @@ function obj=tprod_simplify(obj)
     % end
 
     if isempty(ops)
-        obj
-        error('tprod simplification result in tprod with empty arguments\n');
+        % all operands were removed and simply "adding" 1s
+        obj=Tconstant(prod(sums_size))*Tones(tprod_size);
     end
     
     if ~isempty(msg)
