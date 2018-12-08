@@ -135,7 +135,8 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         LPG=tprod(lambda./F,1,F_u,[1,2]);
         Hess_=[Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate'),G_u';
                G_u,Tzeros([nG,nG])];
-        WW=  [Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+tprod(addEye2Hessian,[],Teye(size(Lf_uu)),[1,2]),G_u';
+        WW=  [Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')...
+                                              +tprod(addEye2Hessian,[],Teye(size(Lf_uu)),[1,2]),G_u';
               G_u,tprod(-addEye2Hessian,[],Teye([nG,nG]),[1,2])];
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
         
