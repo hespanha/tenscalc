@@ -22,7 +22,7 @@ fprintf('  saving path...');
 try
     savepath;
 catch me
-    fprintf('ATTENTION: unable to save path, add following strings to the matlab path:');
+    fprintf('ATTENTION: unable to save path. This was probably caused because of insufficient permissions. Either change the permissions of your ''matlabroot'' folder or add following strings to the matlab path:');
     disp(folders)
     rethrow(me)
 end
