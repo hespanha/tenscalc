@@ -63,7 +63,7 @@ function varargout=cmex2optimizeCS(varargin)
             ' ';
             'The following Tcalculus symbolic variables are assigned special values';
             'and can be using in outputExpressions';
-            '* |lambda1_|,|_lambda2_|,... - Lagrangian multipliers associated with';
+            '* |lambda1_|,|lambda2_|,... - Lagrangian multipliers associated with';
             '                         the inequalities constraints';
             '                         (in the order that they appear and with';
             '                          the same size as the corresponding constraints)';
