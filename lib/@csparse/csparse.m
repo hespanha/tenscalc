@@ -588,7 +588,6 @@ classdef csparse < handle
                 TCobj=tprod_tprod2matlab(TCobj);
                 typ=type(TCobj);
             end
-            
             if length(obj.TCindex2CSvectorized)>=TCobj.TCindex && ...
                     obj.TCindex2CSvectorized(TCobj.TCindex)~=0
                 % allreadey added TCobj
