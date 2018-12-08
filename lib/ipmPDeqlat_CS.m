@@ -1,8 +1,8 @@
-function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
-                       Fu,Gu,Fd,Gd,H,...
-                       smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                       atomicFactorization,...
-                       cmexfunction,allowSave,debugConvergence,profiling)
+function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
+                               Fu,Gu,Fd,Gd,H,...
+                               smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                               atomicFactorization,...
+                               cmexfunction,allowSave,debugConvergence,profiling)
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.
@@ -247,6 +247,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                     Lg_xz,Lg_xn;
                     G_z,Tzeros([nG,nG+nH])];
             end
+            Hess_=WW;
             %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
             
             ff=f;
@@ -278,20 +279,30 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
         else
             if nF>0
                 WW=[[Lf_uz-Lf_ul*LFF;
-                     Lg_dz-Lg_dl*LFF]+addEye2Hessian*Teye((nZ)*[1,1]),...
+                     Lg_dz-Lg_dl*LFF]+addEye2Hessian*Teye([nZ,nZ]),...
                     [Lf_un;
                      Lg_dn];
-                    G_z,-addEye2Hessian*Teye((nG)*[1,1])];
+                    G_z,-addEye2Hessian*Teye([nG,nG])];
+                Hess_=[[Lf_uz-Lf_ul*LFF;
+                        Lg_dz-Lg_dl*LFF],...
+                       [Lf_un;
+                        Lg_dn];
+                       G_z,Tzeros([nG,nG])];
                 %WW=[Lf_uz-Lf_ul*LFF,Lf_un;
                 %    Lg_dz-Lg_dl*LFF,Lg_dn;
                 %    G_z,Tzeros([nG,nG+nH])];
                 %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
             else
                 WW=[[Lf_uz;
-                     Lg_dz]+addEye2Hessian*Teye((nZ)*[1,1]),...
+                     Lg_dz]+addEye2Hessian*Teye([nZ,nZ]),...
                     [Lf_un;
                      Lg_dn];
-                    G_z,-addEye2Hessian*Teye((nG)*[1,1])];
+                    G_z,-addEye2Hessian*Teye([nG,nG])];
+                Hess_=[[Lf_uz;
+                        Lg_dz],...
+                       [Lf_un;
+                        Lg_dn];
+                       G_z,Tzeros([nG,nG])];
             end
             
             ff=f;
@@ -482,6 +493,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                     Lg_xz,Lg_xn;
                     G_z,Tzeros([nG,nG+nH])];
             end
+            Hess_=WW;
             
             if nF>0
                 b_a=[-Lf_u;
@@ -515,6 +527,7 @@ function ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,..
                     Lg_dz,Lg_dn;
                     G_z,Tzeros([nG,nG+nH])];
             end
+            Hess_=WW;
 
             if nF>0
                 b_a=[-Lf_u;
