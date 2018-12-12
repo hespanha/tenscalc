@@ -100,8 +100,8 @@
 \begin{abstract}
   This toolbox provides functions to process tensor-valued time
   series, including differentiations, integration, resampling,
-  etc. These functions can be applied to numerical values or to \TC{}
-  Symbolic Tensor-Valued Expressions (STVEs).
+  solution of ODEs, etc. These functions can be applied to numerical
+  values or to \TC{} Symbolic Tensor-Valued Expressions (STVEs).
 \end{abstract}
 
 \tableofcontents
@@ -121,13 +121,12 @@ $\alpha=0$) is called the \emph{dimension} of the tensor.
 
 \medskip
 
-A \emph{tensor-valued time series} (TTTS) is a sampled-based
+A \emph{tensor-valued time series} (TVTS) is a sampled-based
 representation of a time-varying tensor, i.e., a function $F:\R\to \R^{n_1\times
-  n_2\times\cdots\times n_\alpha}$. A TTTS represents $F$ through a pair $(X,T)$ where
+  n_2\times\cdots\times n_\alpha}$. A TVTS represents $F$ through a pair $(X,T)$ where
 $T\in\R^{n_t}$ is a vector of sample times
 and $X\in\R^{n_1\times n_2\times\cdots\times
   n_\alpha\times n_t}$ is an \emph{$\alpha+1$-index tensor} with the understanding that
-$i\in\{1,2,\dots,n_t\}$,
 \begin{align*}
   F(T_i)=\big[ X_{i_1,i_2,\dots,i_\alpha,i}\big]_{i_1=1,i_2=1,\dots,i_\alpha=1}^{i_1=n_1,i_2=n_2,\dots,i_\alpha=n_\alpha},
   \quad\forall i\in\{1,2,\dots,n_t\},
@@ -139,18 +138,82 @@ last index represents time.
 
 \section{Functions provided by \TTS}
 
+\subsection{Signal processing functions}
+
+These functions take one or two TVTS signals as input and operate on
+them to produce a TVTS output.
+
 \begin{command}{tsDerivative}
 \begin{lstlisting}
-[dx,ts]=tsDerivative(x,ts)
+  [dx,ts]=tsDerivative(x,ts)
+  [dx,ts]=tsDerivative(x,ts,invDts,invD2ts)
 \end{lstlisting}
 \end{command}
 
-This function returns a TTTS \lstinline{(dx,ts)} that represents the
-time derivative of the input TTTS \lstinline{(x,ts)}. The output
-sampling times \lstinline{ts} are equal to the input sampling times
-\lstinline{ts} and therefore the size of derivatine \lstinline{dx} is
-equal to the size of the input \lstinline{x}. The time derivative is
-computed assuming that the input time-series is piecewise quadratic.
+This function returns a TVTS \lstinline{(dx,ts)} that represents the
+time derivative of the input TVTS \lstinline{(x,ts)}. The time
+derivative is computed assuming that the input time-series is
+piecewise quadratic.
+
+The input parameters are:
+\begin{enumerate}
+\item \lstinline{x}: matrix representing the values of the TVTS at the
+  sampling times. Can be
+  \begin{enumerate}
+  \item $n\times N$ \lstinline{double} matrix, or
+  \item $n\times N$ \lstinline{Tcalculus} matrix.
+  \end{enumerate}
+
+\item \lstinline{ts}: vector/scalar representing the sampling times of
+  the \lstinline{x} TVTS. Can be
+  \begin{enumerate}
+  \item $N\times1$ \lstinline{double} or vector of samplig time;
+  \item $1\times1$ \lstinline{double} scalar with the sampling interval;
+  \item $N$ \lstinline{Tcalculus} vector of samplig time; or
+  \item \lstinline{Tcalculus} scalar with the (fixed) sampling interval.
+  \end{enumerate}
+\item \lstinline{invDts}: (optional) vector/scalar representing the inverse of
+  the sampling intervals. Can be
+  \begin{enumerate}
+  \item $N-1$ \lstinline{Tcalculus} vector of inverses of samplig
+    intervals, i.e., 
+    \begin{lstlisting}
+      invDts  = 1./(ts(2:end)-ts(1:end-1));
+    \end{lstlisting}
+  \item \lstinline{Tcalculus} scalar with the inverse of the (fixed)
+    sampling interval, i.e., \lstinline{invDts=1/ts}.
+  \end{enumerate}
+  This parameter is only needed when \lstinline{ts} is of type
+  \lstinline{Tcalculus}.  By including this variable, the output does
+  not include divisions and is therefore more ``friendly'' for
+  optimizations.
+\item \lstinline{invDts}: $(N-2)$ \lstinline{Tcalculus} vector with
+  the inverses of the sampling 2-intervals, i.e.,
+  \begin{lstlisting}
+    invD2ts  = 1./(ts(3:end)-ts(1:end-2))
+  \end{lstlisting}
+  This parameter is only needed when \lstinline{ts} is of type
+  \lstinline{Tcalculus}.  By including this variable, the output does
+  not include divisions and is therefore more ``friendly'' for
+  optimizations.
+
+\end{enumerate}
+
+The output parameters are:
+\begin{enumerate}
+\item \lstinline{dx}: matrix representing the values of the derivative
+  of \lstinline{x} the sampling times. Will be
+  \begin{enumerate}
+  \item $n\times N$ \lstinline{double} matrix, or
+  \item $n\times N$ \lstinline{Tcalculus} matrix.
+  \end{enumerate}
+
+\item \lstinline{ts}: vector/scalar representing the sampling times of
+  the \lstinline{dx} TVTS and replicates exactly the input
+  \lstinline{ts}.
+\end{enumerate}
+
+\joao{All remining functions need to be updated.}
 
 \begin{command}{tsDerivative2}
 \begin{lstlisting}
@@ -158,25 +221,13 @@ computed assuming that the input time-series is piecewise quadratic.
 \end{lstlisting}
 \end{command}
 
-This function returns a TTTS \lstinline{(ddx,ts)} that represents the
-second time derivative of the input TTTS \lstinline{(x,ts)}. The
+This function returns a TVTS \lstinline{(ddx,ts)} that represents the
+second time derivative of the input TVTS \lstinline{(x,ts)}. The
 output sampling times \lstinline{ts} are equal to the input sampling
 times \lstinline{ts} and therefore the size of derivatine
 \lstinline{dx} is equal to the size of the input \lstinline{x}. The
 time derivatives are computed assuming that the input time-series is
 piecewise quadratic.
-
-\begin{command}{tsIntegral}
-\begin{lstlisting}
-y=tsIntegral(x,ts)
-\end{lstlisting}
-\end{command}
-
-This function returns a tensor \lstinline{y} that represents the time
-integral of the input TTTS \lstinline{(x,ts)}. The size of the
-integral \lstinline{y} is equal to the size of the input \lstinline{x}
-with the last (time) dimension removed. The integral is computed
-assuming that the input time-series is piecewise quadratic.
 
 \begin{command}{tsDot}
 \begin{lstlisting}
@@ -278,6 +329,58 @@ quaternion:
 The size of the output \lstinline{y} is equal to the
 size of the input \lstinline{x}.
 
+\subsection{Criteria}
+
+The following functions take a one or two TVTS signals as input and
+produce a scalar that determines a particular property of the
+TVTS. Typically, they are used to define optimization criteria.
+
+\begin{command}{tsIntegral}
+\begin{lstlisting}
+y=tsIntegral(x,ts)
+\end{lstlisting}
+\end{command}
+
+This function returns a tensor \lstinline{y} that represents the time
+integral of the input TVTS \lstinline{(x,ts)}. The size of the
+integral \lstinline{y} is equal to the size of the input \lstinline{x}
+with the last (time) dimension removed. The integral is computed
+assuming that the input time-series is piecewise quadratic.
+
+\subsection{Dynamical systems functions}
+
+These functions produce \TC{} constraints that encode the solution
+dynamical systems modeled by differential and difference equations.
+
+\begin{command}{tsODEzho}
+\begin{lstlisting}
+constraint=tsODE(x,u,d,ts,fun)
+\end{lstlisting}
+\end{command}
+
+ZHO on input \lstinline{u} but no ZHO on input \lstinline{d} 
+
+\begin{align*}
+  \dot x = f(x,u,d,t)
+\end{align*}
+
+\lstinline{fun(x,u,d,t)}
+
+
+\begin{command}{tsCLTIzho}
+\begin{lstlisting}
+constraint=tsCLTI(x,u,ts,A,B)
+\end{lstlisting}
+\end{command}
+
+
+\begin{command}{tsDLTI}
+\begin{lstlisting}
+constraint=tsCLTI(x,u,ts,A,B)
+\end{lstlisting}
+\end{command}
+
+  
 
 % \bibliographystyle{ieeetr}
 % \bibliographystyle{abbrvnat}
