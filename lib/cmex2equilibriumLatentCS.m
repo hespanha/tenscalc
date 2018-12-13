@@ -254,6 +254,17 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         error('latent constraints parameter must be a cell array\n');
     end
 
+    if ~iscell(outputExpressions)
+        outputExpressions
+        error('outputExpressions must be a cell array of Tcalculus variables');
+    end
+    for i=1:length(outputExpressions)
+        if ~isequal(class(outputExpressions{i}),'Tcalculus')
+            outputExpressions{i}
+            error('outputExpression{%d} is not a Tcalculus variable',i);
+        end 
+    end
+
     fprintf('cmex2equilibriumLatentCS: ...');
     t_cmexCS=clock();
     

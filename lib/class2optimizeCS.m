@@ -177,6 +177,17 @@ function varargout=class2optimizeCS(varargin)
         error('Constraints parameter must be a cell array\n');
     end
 
+    if ~iscell(outputExpressions)
+        outputExpressions
+        error('outputExpressions must be a cell array of Tcalculus variables');
+    end
+    for i=1:length(outputExpressions)
+        if ~isequal(class(outputExpressions{i}),'Tcalculus')
+            outputExpressions{i}
+            error('outputExpression{%d} is not a Tcalculus variable',i);
+        end 
+    end
+
     fprintf('class2optimizeCS:... ');
     t_classCS=clock();
     
