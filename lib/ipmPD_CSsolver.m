@@ -122,17 +122,27 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             fprintf(' Lf = %9.2e ',Lf_);
             tol=1e-7;
             Lfuu_=getLfuu__(obj);
-            egLfuu=eig(Lfuu_);
-            if min(egLfuu)<-tol
-                fprintf('\nATTENTION: Lf not convex, Lfuu eigenvalues: %4d positive, %4d zero, %4d negative (>=%8e) \n',...
+            [vv,egLfuu]=eig(Lfuu_,'vector');
+            kk=egLfuu<=tol;
+            if any(kk)
+                fprintf('\nATTENTION: Lf not strictly convex, Lfuu eigenvalues: %4d positive, %4d zero, %4d negative (>=%8e) \n',...
                         sum(egLfuu>tol),...
                         sum(egLfuu<=tol & egLfuu>-tol),...
                         sum(egLfuu<=-tol),...
                         min(egLfuu));
-                Hess_=getHess__(obj);
-                eg=eig(Hess_);
-                fprintf('                       Hessian eigenvalues: %4d positive, %4d negative, %4d zero\n',...
-                        sum(eg>tol),sum(eg<=-tol),sum(eg<=tol & eg>-tol));
+                fprintf('       Lfuu negative semidefinite subspace:\n');
+                disp(vv(:,kk));
+                fprintf('                               ');
+                fprintf('                               ');
+            end
+            Hess_=getHess__(obj);
+            [vv,eg]=eig(Hess_,'vector');
+            kk=(eg<=tol & eg>-tol);
+            if any(kk)
+                fprintf('\nATTENTION: Hessian is singular, eigenvalues: %4d positive, %4d negative, %4d zero\n',...
+                        sum(eg>tol),sum(eg<=-tol),sum(kk));
+                fprintf('       Hessian kernel:\n');
+                disp(vv(:,kk));
                 fprintf('                               ');
             end
         end
@@ -587,30 +597,30 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         if (status)
             fprintf('%3d:status=0x%s ',iter,dec2hex(status));
             sep='(';
-            if (status & 16)
+            if bitand(status,16)
                 fprintf("%clarge gradient",sep);
                 sep=',';
             end
-            if (status & 32)
-                fprintf("%cbad equality const.");
+            if bitand(status,32)
+                fprintf("%cbad equality const.",sep);
                 sep=',';
             end
-            if (status & 64)
-                fprintf("%clarge duality gap");
+            if bitand(status,64)
+                fprintf("%clarge duality gap",sep);
                 sep=',';
             end
-            if (status & 128)
-                fprintf("%clarge mu");
+            if bitand(status,128)
+                fprintf("%clarge mu",sep);
                 sep=',';
             end
-            if (status & 256)
-                fprintf("%calpha negligible");
+            if bitand(status,256)
+                fprintf("%calpha negligible",sep);
                 sep=',';
-            elseif (status & 512)
-                fprintf("%calpha<.1");
+            elseif bitand(status,512)
+                fprintf("%calpha<.1",sep);
                 sep=',';
-            elseif (status & 1024)
-                fprintf("%calpha<.5");
+            elseif bitand(status,1024)
+                fprintf("%calpha<.5",sep);
                 sep=',';
             end
             fprintf(')\n                ');

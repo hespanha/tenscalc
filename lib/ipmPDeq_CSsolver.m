@@ -545,7 +545,40 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
         end
         
-        printf2('%3d:status=0x%s, ',iter,dec2hex(status));
+        if (status)
+            fprintf('%3d:status=0x%s ',iter,dec2hex(status));
+            sep='(';
+            if bitand(status,16)
+                fprintf("%clarge gradient",sep);
+                sep=',';
+            end
+            if bitand(status,32)
+                fprintf("%cbad equality const.",sep);
+                sep=',';
+            end
+            if bitand(status,64)
+                fprintf("%clarge duality gap",sep);
+                sep=',';
+            end
+            if bitand(status,128)
+                fprintf("%clarge mu",sep);
+                sep=',';
+            end
+            if bitand(status,256)
+                fprintf("%calpha negligible",sep);
+                sep=',';
+            elseif bitand(status,512)
+                fprintf("%calpha<.1",sep);
+                sep=',';
+            elseif bitand(status,1024)
+                fprintf("%calpha<.5",sep);
+                sep=',';
+            end
+            fprintf(')\n                ');
+        else
+            fprintf('%3d:status=0x%s, ',iter,dec2hex(status));
+        end
+
         printf2('cost=%13.5e,%13.5e ',full(f),full(g));
         norminf_grad=getNorminf_Grad__(obj);
         printf2('|grad|=%10.2e',norminf_grad);
