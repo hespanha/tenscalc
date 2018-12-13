@@ -352,33 +352,74 @@ assuming that the input time-series is piecewise quadratic.
 These functions produce \TC{} constraints that encode the solution
 dynamical systems modeled by differential and difference equations.
 
-\begin{command}{tsODEzho}
+\begin{command}{tsODE}
 \begin{lstlisting}
 constraint=tsODE(x,u,d,ts,fun)
 \end{lstlisting}
 \end{command}
 
-ZHO on input \lstinline{u} but no ZHO on input \lstinline{d} 
-
+This function returns a \lstinline{Tcalculus} constraint that encodes
+the solution to an Ordinary differential equation of the form
 \begin{align*}
-  \dot x = f(x,u,d,t)
+  \dot x = f(x,u,d,t), \quad x\in\R^n, u\in\R^k, d\in\R^m.
 \end{align*}
 
-\lstinline{fun(x,u,d,t)}
 
+The input parameters are:
+\begin{enumerate}
+\item \lstinline{x}: $n\times N$ \lstinline{Tcalculus} matrix representing
+  the state at the sampling times.
 
-\begin{command}{tsCLTIzho}
-\begin{lstlisting}
-constraint=tsCLTI(x,u,ts,A,B)
-\end{lstlisting}
-\end{command}
+\item \lstinline{u}: $k\times N$ \lstinline{Tcalculus} matrix representing
+  the input $u(t)$ at the sampling times. This input is assumed
+  piecewise constant between sampling times, i.e.,
+  \begin{align*}
+    u(t)=u(t_k), &\forall t\in[t_k,t_{k+1}).
+  \end{align*}
+  
+\item \lstinline{d}: $k\times N$ \lstinline{Tcalculus} matrix representing
+  the input $d(t)$ at the sampling times. This input is assumed
+  continuous between sampling times.
 
+\item \lstinline{ts}: vector/scalar representing the sampling times of
+  the \lstinline{x} TVTS. Can be
+  \begin{enumerate}
+  \item $N\times1$ \lstinline{double} or vector of samplig time;
+  \item $1\times1$ \lstinline{double} scalar with the sampling interval;
+  \item $N$ \lstinline{Tcalculus} vector of samplig time; or
+  \item \lstinline{Tcalculus} scalar with the (fixed) sampling interval.
+  \end{enumerate}
 
-\begin{command}{tsDLTI}
-\begin{lstlisting}
-constraint=tsCLTI(x,u,ts,A,B)
-\end{lstlisting}
-\end{command}
+\item \lstinline{fun}: handle to a matlab function that computes the
+  right-hand side of the ODE:
+  \begin{lstlisting}
+    fun(x,u,d,t).
+  \end{lstlisting}
+
+\item \lstinline{method}: integration method used to solve the
+  ODE. Can be one of the following:
+  \begin{enumerate}
+  \item \lstinline{'forwardEuler'} (explicit) forward Euler method:
+    \begin{align*}
+      x(t_{k+1})= x(t_k)+ (t_{k+1}-t_k) f\big(x(t_k),u(t_k),d(t_k),t_k\big)
+    \end{align*}
+  \item \lstinline{'backwardEuler'} (implicit) backward Euler
+    method:
+    \begin{align*}
+      x(t_{k+1})= x(t_k)+ (t_{k+1}-t_k) f\big(x(t_{k+1}),u(t_{k}),d(t_{k+1}),t_{k+1}\big)
+    \end{align*}
+    Notice that this method still does ``forward integration'' on $u$
+    because this variable is assumed piecewise constant.
+  \item \lstinline{midPoint} (implicit) mid-point method
+    method:
+    \begin{align*}
+      x(t_{k+1})= x(t_{k-1})+ (t_{k+1}-t_{k-1}) f\big(x(t_k),(u(t_{k-1})+u(t_{k}))/2,d(t_k),t_k\big)
+    \end{align*}
+    Notice that this method still does ``forward integration'' on $u$
+    because this variable is assumed piecewise constant.
+  \end{enumerate}
+\end{enumerate}
+
 
   
 
