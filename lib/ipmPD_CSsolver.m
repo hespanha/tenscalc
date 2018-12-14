@@ -130,10 +130,11 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                         sum(egLfuu<=tol & egLfuu>-tol),...
                         sum(egLfuu<=-tol),...
                         min(egLfuu));
-                fprintf('       Lfuu negative semidefinite subspace:\n');
-                disp(vv(:,kk));
-                fprintf('                               ');
-                fprintf('                               ');
+                if obj.verboseLevel>=4
+                    fprintf('       Lfuu negative semidefinite subspace:\n');
+                    disp(vv(:,kk));
+                    fprintf('                               ');
+                end
             end
             Hess_=getHess__(obj);
             [vv,eg]=eig(Hess_,'vector');
@@ -141,9 +142,11 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             if any(kk)
                 fprintf('\nATTENTION: Hessian is singular, eigenvalues: %4d positive, %4d negative, %4d zero\n',...
                         sum(eg>tol),sum(eg<=-tol),sum(kk));
-                fprintf('       Hessian kernel:\n');
-                disp(vv(:,kk));
-                fprintf('                               ');
+                if obj.verboseLevel>=4
+                    fprintf('       Hessian kernel:\n');
+                    disp(vv(:,kk));
+                    fprintf('                               ');
+                end
             end
         end
 
