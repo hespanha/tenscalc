@@ -71,8 +71,10 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             if ~isempty(k)
                 printf2('%3d: ATTENTION: initial ineq < %10.2e for %4d entries - scale optimization variables or add constraint\n',...
                         iter,1/sqrt(obj.debugConvergenceThreshold),length(k));
-                for ii=k(:)'
-                    printf2('\t ineq %4d: %9.2e\n',ii,F_(ii));
+                if obj.verboseLevel>=4
+                    for ii=k(:)'
+                        printf2('\t ineq %4d: %9.2e\n',ii,F_(ii));
+                    end
                 end
             end
         end
@@ -133,8 +135,8 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 if obj.verboseLevel>=4
                     fprintf('       Lfuu negative semidefinite subspace:\n');
                     disp(vv(:,kk));
-                    fprintf('                               ');
                 end
+                fprintf('                               ');
             end
             Hess_=getHess__(obj);
             [vv,eg]=eig(Hess_,'vector');
@@ -145,8 +147,8 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 if obj.verboseLevel>=4
                     fprintf('       Hessian kernel:\n');
                     disp(vv(:,kk));
-                    fprintf('                               ');
                 end
+                fprintf('                               ');
             end
         end
 
@@ -476,14 +478,16 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             if obj.nF>0 && alphaPrimal<obj.alphaMax/5 && isfinite(obj.debugConvergenceThreshold)
                 kk=find(newF_s<=0 | newLambda_s<=0);
                 fprintf('%3d: ATTENTION: alphaPrimal = %8.2e < %8.2e due to %4d entries (lambda * ineq)\n',iter,alphaPrimal,obj.alphaMax/5,length(kk));
-                for ii=kk(:)'
-                    fprintf('\t ineq %4d: %8.2e * %8.2e = %8.2e (%8.2e) -> %9.2e * %9.2e = %9.2e (%8.2e)',...
-                            ii,oldLambda(ii),oldF(ii),oldLambda(ii)*oldF(ii),oldmu,...
-                            newLambda_s(ii),newF_s(ii),newLambda_s(ii)*newF_s(ii),newmu);
-                    if (newF_s(ii)<0)
-                        fprintf(' -- probably inequality too large (needs scaling)\n');
-                    else
-                        fprintf(' -- probably inequality too large or mu too small\n');
+                if obj.verboseLevel>=4
+                    for ii=kk(:)'
+                        fprintf('\t ineq %4d: %8.2e * %8.2e = %8.2e (%8.2e) -> %9.2e * %9.2e = %9.2e (%8.2e)',...
+                                ii,oldLambda(ii),oldF(ii),oldLambda(ii)*oldF(ii),oldmu,...
+                                newLambda_s(ii),newF_s(ii),newLambda_s(ii)*newF_s(ii),newmu);
+                        if (newF_s(ii)<0)
+                            fprintf(' -- probably inequality too large (needs scaling)\n');
+                        else
+                            fprintf(' -- probably inequality too large or mu too small\n');
+                        end
                     end
                 end
             end
@@ -551,7 +555,9 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                     %disp(l_')
                     fprintf('%3d: ATTENTION: all abs(lambda) < %10.2e (%10.2e<=abs(F)<=%10.2e) - either all inequalities inactive or scale inequality constraint\n',...
                             iter,1/obj.debugConvergenceThreshold,min(abs(F_)),max(abs(F_)));
-                    disp([l_,F_])
+                    if obj.verboseLevel>=4
+                        disp([l_,F_])
+                    end
                 end
             end
         end        
