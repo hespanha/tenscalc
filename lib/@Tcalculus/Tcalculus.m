@@ -213,7 +213,7 @@ classdef Tcalculus
             end
 
             if nargin<3
-                maxDepth=inf;
+                maxDepth=5;
             end
 
             if tprod2mat
