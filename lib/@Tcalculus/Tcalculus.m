@@ -90,7 +90,7 @@ classdef Tcalculus
         % op_parameters - cell array (indices for tprod
         %                             signs for plus)
         % file_line - string with file/line number where created 
-        %             when caller is a double the file and line
+        %             when called with a double the file and line
         %             number is retrieved from dbstack():
         %             0  - file_line from function that called  addTC2table
         %             1  - file_line from caller of function that
@@ -117,13 +117,17 @@ classdef Tcalculus
                 nowarningsamesize=false;
             end
             
-            if obj.update_file_line && ~ischar(file_line)
-                st=dbstack();
-                if length(st)<file_line+2
-                    file_line='command line';
+            if ~ischar(file_line)
+                if obj.update_file_line
+                    st=dbstack();
+                    if length(st)<file_line+2
+                        file_line='command line';
+                    else
+                        file_line=sprintf('file ''%s'', function ''%s'', line number %d',...
+                                          st(file_line+2).file,st(file_line+2).name,st(file_line+2).line);
+                    end
                 else
-                    file_line=sprintf('file ''%s'', function ''%s'', line number %d',...
-                                      st(file_line+2).file,st(file_line+2).name,st(file_line+2).line);
+                    file_line='';
                 end
             end
 
@@ -188,13 +192,17 @@ classdef Tcalculus
         end
         
         function updateFile2table(obj,file_line)
-            if obj.update_file_line && ~ischar(file_line)
-                st=dbstack();
-                if length(st)<file_line+2
-                    file_line='command line';
+            if ~ischar(file_line)
+                if obj.update_file_line
+                    st=dbstack();
+                    if length(st)<file_line+2
+                        file_line='command line';
+                    else
+                        file_line=sprintf('file ''%s'', function ''%s'', line number %d',...
+                                          st(file_line+2).file,st(file_line+2).name,st(file_line+2).line);
+                    end
                 else
-                    file_line=sprintf('file ''%s'', function ''%s'', line number %d',...
-                                      st(file_line+2).file,st(file_line+2).name,st(file_line+2).line);
+                    file_line='';
                 end
             end
 
