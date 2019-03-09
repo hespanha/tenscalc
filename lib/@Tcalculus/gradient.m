@@ -57,6 +57,8 @@ function grad=gradient(obj,var)
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
         grads{i}=gradient(objs{i},var);
+        updateFile2table(objs{i},1);
+        updateFile2table(grads{i},1);
     end
 
     switch obj_type
