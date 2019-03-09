@@ -1,4 +1,4 @@
-function str=index2str(index,format)
+function str=index2str(index,format,compress)
 % str=index2str(index)
 %   Converts an array to string
 %
@@ -25,12 +25,21 @@ function str=index2str(index,format)
         format='%d';
     end
     
+    if nargin<3
+        compress=false;
+    end
+    
     if size(index,1)==1
-        str=num2str(index,[format,',']);
-        if ~isempty(str)
-            str(end)=[];
+        di=diff(index);
+        if compress && length(index)>3 && all(di==di(1))
+            str=num2str([index(1),di(1),index(end)],[format,':',format,':',format]);
+        else
+            str=num2str(index,[format,',']);
+            if ~isempty(str)
+                str(end)=[];
+            end
+            str=regexprep(str,' ','');
         end
-        str=regexprep(str,' ','');
     else
         str=cellstr(num2str(index,[format,',']))';
         str=strjoin(str,';');

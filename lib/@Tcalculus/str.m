@@ -63,7 +63,7 @@ function s=str(obj,tprod2mat,maxDepth)
                             if all(parameters.subs{j}(:)==1)
                                 s=horzcat(s,'ones(',index2str(size(parameters.subs{j}(:)')),'),');
                             else
-                                s=horzcat(s,'[',index2str(parameters.subs{j}(:)'),'],');
+                                s=horzcat(s,'[',index2str(parameters.subs{j}(:)','%d',true),'],');
                             end
                         end
                     end
