@@ -86,12 +86,19 @@ fprintf(fid,'  end %% properties\n');
 fprintf(fid,'  methods\n');
 
 if ~isempty(logFile)
-    
+
     if 1
         %% Write description of the csparse object
         fprintf(fil,'* Sparse object:\n');
         fprintf(fil,'%s',str(obj,1));
     end
+
+    % c=[obj.TCindex2CSvectorized,(1:length(obj.TCindex2CSvectorized))'];
+    % c(obj.TCindex2CSvectorized==0,:)=[];
+    % [~,k]=sort(c(:,1));
+    % c=c(k,:);
+    % fprintf(fil,'CSparse index, TC index\n');
+    % fprintf(fil,'  %6d %6d\n',c');
     
     %% Write Dependency groups to the log file
     fprintf(fil,'\n* Dependency groups:\n');
