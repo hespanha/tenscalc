@@ -44,7 +44,8 @@ function outStr=str(obj,verboseLevel)
             else
                 outStr=[outStr,' '];
             end
-            outStr=[outStr,sprintf('    %3d: %-20s %-12s = %20s(',i,name,...
+            tc=find(obj.TCindex2CSvectorized==i);
+            outStr=[outStr,sprintf('    %3d (TC:%-10s): %-20s %-12s = %20s(',i,index2str(tc),name,...
                              ['[',index2str(osize),']'],type)];
             ops=cellstr(getMulti(obj.vectorizedOperations,'name',operands));
             ops=sprintf(',%s',ops{:});
