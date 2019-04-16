@@ -453,7 +453,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     else
         P2nu=Tzeros(0);
     end
-    if size(Fu,1)>0
+    if size(Fd,1)>0
         P2lambda=packVariables(P2lambdas,'P2lambda_');
         P2lambda0=packExpressions(P2lambdas);
         src{end+1}=P2lambda0;
