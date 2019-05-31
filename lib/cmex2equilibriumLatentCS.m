@@ -207,6 +207,12 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             error('all P1optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(P1optimizationVariables{i}));
         end
+        for j=1:length(parameters)
+            if isequal(name(P1optimizationVariables{i}),name(parameters{j}))
+                P1optimizationVariables{i}
+                error('optimization variable ''%s'' cannot also be a parameter\n',name(P1optimizationVariables{i}));
+            end
+        end
     end
 
     if ~iscell(P2optimizationVariables)
@@ -224,6 +230,12 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             P2optimizationVariables{i}
             error('all P2optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(P2optimizationVariables{i}));
+        end
+        for j=1:length(parameters)
+            if isequal(name(P2optimizationVariables{i}),name(parameters{j}))
+                P2optimizationVariables{i}
+                error('optimization variable ''%s'' cannot also be a parameter\n',name(P2optimizationVariables{i}));
+            end
         end
     end
 

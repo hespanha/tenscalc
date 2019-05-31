@@ -167,6 +167,12 @@ function varargout=class2optimizeCS(varargin)
             error('all optimizationVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
                   i,type(optimizationVariables{i}));
         end
+        for j=1:length(parameters)
+            if isequal(name(optimizationVariables{i}),name(parameters{j}))
+                optimizationVariables{i}
+                error('optimization variable ''%s'' cannot also be a parameter\n',name(optimizationVariables{i}));
+            end
+        end
     end
 
     if ~isempty(size(objective))
