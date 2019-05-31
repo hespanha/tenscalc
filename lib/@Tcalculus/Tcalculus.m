@@ -672,6 +672,16 @@ classdef Tcalculus
             end
         end
         
+        function obj=trace(obj1)
+            osize1=size(obj1);
+            if length(osize1)==2 && osize1(1)==osize1(2)
+                obj=tprod(obj1,[-1,-1]);
+                else
+                    obj1
+                    error('ambigous Tcalculus/trace()');
+            end
+        end
+        
         function obj=transpose(obj1)
             obj=ctranspose(obj1);
             updateFile2table(obj,1);
