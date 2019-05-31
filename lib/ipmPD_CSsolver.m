@@ -186,7 +186,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         end
         
         if isnan(norminf_grad) 
-            printf3('  -> failed to invert hessian\n');
+            printf2('  -> failed to invert hessian\n');
             status = 4;
             break;
         end
@@ -202,12 +202,12 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
             printf3('%10.2e%10.2e%10.2e',full(ineq),full(dual),full(gap));
             if (ineq<=0) 
-                printf3('  -> (primal) variables violate constraints\n');
+                printf2('  -> (primal) variables violate constraints\n');
                 status = 1;
                 break;
             end
             if (dual<=0) 
-                printf3('  -> negative value for dual variables\n');
+                printf2('  -> negative value for dual variables\n');
                     status = 2;
                     break;
             end
@@ -218,7 +218,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         if norminf_grad<=obj.gradTolerance && ...
                 (obj.nF==0 || gap<=obj.desiredDualityGap) && ...
                 (obj.nG==0 || norminf_eq<=obj.equalTolerance)
-            printf3('  -> clean exit\n');
+            printf2('  -> clean exit\n');
             status = 0;
             break;
         end
@@ -356,7 +356,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 alphaPrimal=alphaMax/.99;
                 setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                 if isnan(ineq) 
-                    printf3('  -> failed to invert hessian\n');
+                    printf2('  -> failed to invert hessian\n');
                     status = 4;
                     break;
                 end
@@ -638,9 +638,9 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
         end
         fprintf('cost=%13.5e, ',full(J));
         norminf_grad=getNorminf_Grad__(obj);
-        fprintf('|grad|=%10.2e',norminf_grad);
+        fprintf('|grad|=%10.2e',full(norminf_grad));
         if obj.nG>0
-            fprintf(', |eq|=%10.2e',norminf_eq);
+            fprintf(', |eq|=%10.2e',full(norminf_eq));
         end
         if obj.nF>0
             fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',ineq,dual,gap,alphaPrimal,mu);
