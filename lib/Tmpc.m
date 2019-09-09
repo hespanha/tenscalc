@@ -391,6 +391,7 @@ classdef Tmpc < handle
             obj.parametersSet(end+1)=false;
             
             try
+                % Forward Euler integration for the dynamics
                 dynamics=(stateVariable==thisState+...
                           sampleTime*stateDerivativeFunction(thisState,...
                                                              thisControl,...
@@ -480,6 +481,10 @@ classdef Tmpc < handle
         end
     
         function setParameter(obj,name,value)
+        % setParameter(obj,name,value);
+        %
+        % Sets the value of parameter called 'name' with the given value
+
             k=find(strcmp(name,obj.parameterNames));
             if isempty(k)
                 obj.parameterNames,
@@ -507,6 +512,34 @@ classdef Tmpc < handle
                 end
             end
         end
+    
+        function setSolverInputStart(obj,value)
+        % setSolverInputStart(obj,value)
+        %
+        % Sets the value for the input that will be used to initialize
+        % the solver.
+        %
+        % A warm start from the previous MPC optimization often helps.
+            
+            feval(['setV_',obj.futureControlName],obj.solverObject,...
+                  value(:,obj.controlDelay+1:end));
+            obj.controlSet=true;
+        end
+        
+        function setSolverStateStart(obj,value)
+        % setSolverStateStart(obj,value)
+        %
+        % Sets the value for the state that will be used to
+        % initialize the solver. 
+        %
+        % A warm start compatible with the value given to
+        % |setInputStart| often helps.
+
+            
+            feval(['setV_',obj.stateName],obj.solverObject,value(:,2:end));
+            obj.stateSet=true;
+        end
+        
     
         function setInitialState(obj,tinit,xinit,uinit);
         % setInitialState(obj,tinit,xinit);  
@@ -538,7 +571,7 @@ classdef Tmpc < handle
         end
         
         function state=setSolverWarmStart(obj,control)
-        % setSolverWarmStart(obj,control)
+        % state=setSolverWarmStart(obj,control)
         %
         % Given 
         %    control = Sequence of future controls.
@@ -555,7 +588,13 @@ classdef Tmpc < handle
         %               [ x(t), x(t+Ts),  ... , x(t+(nHorizon-1)*Ts) ]% ;
         % and initializes the solver with these sequences.
         %
-        % The differential equation is integrated using forward Euler.
+        % The differential equation is integrated using forward
+        % Euler.
+        %
+        % ATTENTION: This function does not enforce state
+        % constraints. If state constraints are being used one
+        % should move the output |state| away from the constraints
+        % and reset it using |setSolverStateStart|
 
             if ~isequal(size(control),[obj.nControls,obj.nHorizon-obj.controlDelay])
                 error('size of control [%d,%d] does not match expected size [%d,%d]',...
@@ -579,7 +618,7 @@ classdef Tmpc < handle
             setParameter(obj,obj.currentStateName,state(:,1));
             for k=1:obj.nHorizon
                 try
-                    % dynamics
+                    % Forward Euler integration for the dynamics
                     state(:,k+1)=state(:,k)+obj.sampleTimeValue*...
                         obj.stateDerivativeFunction(state(:,k),control(:,k),...
                                                     obj.parameterValues{:});
@@ -670,7 +709,7 @@ classdef Tmpc < handle
                     extendHistory(obj)
                 end
                 try
-                    % dynamics
+                    % Forward Euler integration for the dynamics
                     obj.history.state(:,obj.history.currentIndex)=...
                         obj.history.state(:,obj.history.currentIndex-1)+obj.sampleTimeValue*...
                         stateDerivativeFunctionReal(obj.history.state(:,obj.history.currentIndex-1),...

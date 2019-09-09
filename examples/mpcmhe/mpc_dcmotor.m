@@ -34,12 +34,16 @@ Tvariable p [1,1];
 Tvariable k [1,1];
 Tvariable r [1,T];
 
+% parameters for state and input constraints
+Tvariable umax [];
+Tvariable xmax [2,1];
+
 % DC-motor-like transfer function
 % [dot x1]=[0  1][x1]+[0]u
 % [dot x2] [0  p][x2] [k]
 %        y=x1     
 
-dxFun=@(x,u,p,k,Ts,r)[0,1;0,p]*x+[0;k]*u;
+dxFun=@(x,u,p,k,Ts,r,umax,xmax)[0,1;0,p]*x+[0;k]*u;
 
 J=norm2(x(1,:)-r)+norm2(u)/50;
 
@@ -52,9 +56,10 @@ mpc=Tmpc('reuseSolver',true,...
          'stateVariable',x,...
          'stateDerivativeFunction',dxFun,....
          'objective',J,...
-         'constraints',{u<=1, u>=-1},...
+         'constraints',{u<=umax, u>=-umax,...
+                        x<=repmat(xmax,[1,T]),x>=-repmat(xmax,[1,T])},...
          'outputExpressions',{J,x,u},...
-         'parameters',{p,k,Ts,r},...
+         'parameters',{p,k,Ts,r,umax,xmax},...
          'solverParameters',{;
                     'compilerOptimization','-O0',...
                     'solverVerboseLevel',3 ...
@@ -68,6 +73,12 @@ setParameter(mpc,'k',1);
 Ts=.1;
 setParameter(mpc,'Ts',Ts);
 
+umax=1;
+xmax=[.4;.5];
+setParameter(mpc,'umax',umax);
+setParameter(mpc,'xmax',xmax);
+
+
 % set process initial condition
 t0=0;
 x0=[.2;.2];
@@ -77,7 +88,7 @@ fig=1;
 figure(fig);clf;
 
 mu0=1;
-maxIter=20;
+maxIter=50;
 saveIter=false;
 
 ref=@(t).6*sin(t);
@@ -94,14 +105,25 @@ for i=1:40
     setParameter(mpc,'r',r);
     
     % move warm start away from constraints
-    u_warm=min(u_warm,.95);
-    u_warm=max(u_warm,-.95);
-    setSolverWarmStart(mpc,u_warm);
+    u_warm=min(u_warm,umax-.05);
+    u_warm=max(u_warm,-umax+.05);
+    x_warm=setSolverWarmStart(mpc,u_warm);
+    % move state away from constraints
+    x_warm=min(x_warm,xmax-.05);
+    x_warm=max(x_warm,-xmax+.05);
+    setSolverStateStart(mpc,x_warm);
     
     [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
     
-    fprintf('t=%g, J=%g computed in %g iterations & %g secs\n',t,J,solution.iter,solution.time);
+    if solution.status==0
+        fprintf('t=%g, J=%g computed in %g iterations & %g secs\n',t,J,solution.iter,solution.time);
+    else
+        fprintf('t=%g, J=%g computed in %g iterations & %g secs\n',t,J,solution.iter,solution.time);
+        disp(solution);
+        warning('solver failed')
+    end
     
+        
     if true %mod(t/Ts,5)==0
         if 0
             plot(t:Ts:t+Ts*(T-1),x,'.-',t:Ts:t+Ts*(T-1),u,'.-',t:Ts:t+Ts*(T-1),r,'.-');grid on;

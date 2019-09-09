@@ -31,7 +31,6 @@ T=30;    % forward horizon
 L=8;    % backward horizon
 delay=1;
 
-% create symbolic optimization
 Tvariable Ts [];
 Tvariable x        [nx,L+T+1];    % [x(t-L*Ts),...,x(t),...,x(t+T*Ts)]
 Tvariable y_past   [ny,L+1];      % [y(t-L*Ts),...,y(t)]
@@ -83,6 +82,8 @@ mpcmhe=Tmpcmhe('reuseSolver',true,...
                     'alphaMin',1e-4,...
                     'solverVerboseLevel',3 ...
                    });
+
+%% Simulate system
 
 % set parameter values
 setParameter(mpcmhe,'p',2);
