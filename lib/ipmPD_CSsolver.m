@@ -300,7 +300,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                     setAlphaPrimal__(obj,alphaPrimal);
                 end
                 setAlphaDualIneq__(obj,alphaPrimal);
-                printf3('%10.2e',alphaPrimal);
+                printf3('%10.2e',full(alphaPrimal));
                 
                 % update mu based on sigma, but this only seems to be safe for:
                 % 1) 'long' newton steps in the affine direction
@@ -417,9 +417,9 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             updatePrimalDual__(obj);
             
             if obj.nG>0
-                printf3('%10.2e %10.2e %10.2e',alphaPrimal,alphaDualIneq,alphaDualEq);
+                printf3('%10.2e %10.2e %10.2e',full(alphaPrimal),full(alphaDualIneq),full(alphaDualEq));
             else
-                printf3('%10.2e %10.2e   -eq-    ',alphaPrimal,alphaDualIneq);
+                printf3('%10.2e %10.2e   -eq-    ',full(alphaPrimal),full(alphaDualIneq));
             end
             
             if obj.skipAffine==1
@@ -643,7 +643,7 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             fprintf(', |eq|=%10.2e',full(norminf_eq));
         end
         if obj.nF>0
-            fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',ineq,dual,gap,alphaPrimal,mu);
+            fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
         end
         fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end
