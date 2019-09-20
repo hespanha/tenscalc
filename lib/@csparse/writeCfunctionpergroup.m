@@ -457,6 +457,10 @@ for i=1:nGroups
             % not pretty, but apparently C cannot use matlab's fig
             countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
             f=fopen('tmp_toremove.c','r');
+            if f<0
+                ls -l
+                error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
+            end
             str=fread(f,inf);
             fclose(f);
             delete('tmp_toremove.c');
