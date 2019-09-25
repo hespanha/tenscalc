@@ -184,6 +184,10 @@ classdef Tmpc < handle
                     '  . objective';
                     '  . constraints';
                     '  . outputExpressions';
+                    'but care must be placed in not having constraints on';
+                    '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
+                    'that are scheduled to be applied before u(t+controlDelay*Ts)'
+                    'and are therefore not optimization variables.'
                     ' '
                     'ATTENTION: note the "mismatch" between the times of'
                     '           stateVariable and controlVariable'
@@ -321,9 +325,13 @@ classdef Tmpc < handle
                 obj.sampleTimeName=name(sampleTime);
                 found=false;
                 for i=1:length(parameters)
-                    if ~strcmp(class(parameters{i}),'Tcalculus')...
-                            || ~strcmp(type(parameters{i}),'variable')
-                        error('each parameter must be a Tcalculus variable');
+                    if ~strcmp(class(parameters{i}),'Tcalculus')
+                        disp(parameters{i})
+                        error('Tmpc: parameter %d not of class Tcalculus',i);
+                    end
+                    if ~strcmp(type(parameters{i}),'variable')
+                        disp(parameters{i})
+                        error('Tmpc: parameter %d not a Tcalculus variable',i);
                     end
                     if strcmp(name(parameters{i}),obj.sampleTimeName)
                         found=true;
@@ -349,6 +357,14 @@ classdef Tmpc < handle
             obj.parametersSet=false(size(parameters));
             obj.parameterNames=cell(size(parameters));
             for i=1:length(parameters)
+                if ~strcmp(class(parameters{i}),'Tcalculus')
+                    disp(parameters{i})
+                    error('Tmpc: parameter %d not of class Tcalculus',i);
+                end
+                if ~strcmp(type(parameters{i}),'variable')
+                    disp(parameters{i})
+                    error('Tmpc: parameter %d not a Tcalculus variable',i);
+                end
                 obj.parameterNames{i}=name(parameters{i});
             end
             obj.stateName=name(stateVariable);
@@ -447,7 +463,7 @@ classdef Tmpc < handle
                     end
                 end
             end
-                
+
             [classname,code]=solver('pedigreeClass',solverClassname,...
                                     'executeScript',executeScript,...
                                     'objective',objective,...
@@ -574,7 +590,7 @@ classdef Tmpc < handle
         % state=setSolverWarmStart(obj,control)
         %
         % Given 
-        %    control = Sequence of future controls.
+        %    control = Sequence of future controls (past the delay).
         %            Should be a matrix with size
         %                  # controls x (horizon length - controlDelay)
         %            with values
@@ -598,7 +614,7 @@ classdef Tmpc < handle
 
             if ~isequal(size(control),[obj.nControls,obj.nHorizon-obj.controlDelay])
                 error('size of control [%d,%d] does not match expected size [%d,%d]',...
-                      size(control),obj.nControls,obj.nHorizon-obj.controlDelay);
+                      size(control,1),size(control,2),obj.nControls,obj.nHorizon-obj.controlDelay);
             end
             if ~all(obj.parametersSet(1:length(obj.parameterValues)))
                 fprintf('did not set values for:');

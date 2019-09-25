@@ -29,8 +29,6 @@ function y=tsIntegral(x,ts);
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-    ts=ts(:);
-
     osize=size(x);
     if length(osize)<1 || length(osize)>2 
         error('tsIntegral: only implemented for time series of vectors ([%s])\n',...

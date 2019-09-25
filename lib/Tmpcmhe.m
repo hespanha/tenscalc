@@ -383,9 +383,13 @@ classdef Tmpcmhe < handle
                 obj.sampleTimeName=name(sampleTime);
                 found=false;
                 for i=1:length(parameters)
-                    if ~strcmp(class(parameters{i}),'Tcalculus')...
-                            || ~strcmp(type(parameters{i}),'variable')
-                        error('each parameter must be a Tcalculus variable');
+                    if ~strcmp(class(parameters{i}),'Tcalculus')
+                        disp(parameters{i})
+                        error('Tmpc: parameter %d not of class Tcalculus',i);
+                    end
+                    if ~strcmp(type(parameters{i}),'variable')
+                        disp(parameters{i})
+                        error('Tmpc: parameter %d not a Tcalculus variable',i);
                     end
                     if strcmp(name(parameters{i}),obj.sampleTimeName)
                         found=true;
