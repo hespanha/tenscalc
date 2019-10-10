@@ -626,12 +626,45 @@ classdef Tcalculus
             obj=Tcalculus(type,osize,dimension,obj1.TCindex,{},2);
         end
         
-        function obj=min(obj1,dimension)
-            obj=reduce(obj1,dimension,'min');
+        function obj=compare(obj1,obj2,type)
+        % used by (binary) min and max
+            [obj1,obj2]=toCalculus(obj1,obj2);
+            osize1=size(obj1);
+            osize2=size(obj2);
+            % scalar? multiply by ones of appropriate size
+            if isempty(osize1) && ~isempty(osize2)
+                obj1=growScalar(obj1,osize2);
+                osize1=size(obj1);
+            elseif isempty(osize2) && ~isempty(osize1)
+                obj2=growScalar(obj2,osize1);
+                osize2=size(obj2);
+            end
+            osize=size(obj1);
+            obj=Tcalculus(type,osize,[],[obj1.TCindex;obj2.TCindex],{},2);
         end
-        function obj=max(obj1,dimension)
-            obj=reduce(obj1,dimension,'max');
+        
+            
+        function obj=min(obj1,obj2,dimension)
+            if nargin==1 
+                obj=reduce(obj1,1,'min');
+            elseif nargin==3 && isempty(obj2)
+                obj=reduce(obj1,dimension,'min');
+            elseif nargin==2
+                %error('min2 not implemented');
+                obj=compare(obj1,obj2,'min2');
+            end 
         end
+        function obj=max(obj1,obj2,dimension)
+            if nargin==1 
+                obj=reduce(obj1,1,'max');
+            elseif nargin==3 && isempty(obj2)
+                obj=reduce(obj1,dimension,'max');
+            elseif nargin==2
+                %error('max2 not implemented');
+                obj=compare(obj1,obj2,'max2');
+            end 
+        end
+        
         function obj=all(obj1,dimension)
             obj=reduce(obj1,dimension,'all');
         end

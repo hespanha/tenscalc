@@ -278,7 +278,8 @@ function varargout=cmex2optimizeCS(varargin)
                                 name(optimizationVariables{i}),index2str(msize));
     end
 
-    %% Define constraints, dual variables, and declare 'sets' for initializing dual variables
+    %% Define constraints, dual variables, and declare 'sets' for
+    %% initializing primal and dual variables
 
     if verboseLevel>0
         fprintf('  Defining primal variables, constraints, and dual variables... ');

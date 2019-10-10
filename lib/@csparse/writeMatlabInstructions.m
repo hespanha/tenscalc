@@ -100,6 +100,18 @@ function writeMatlabInstructions(obj,fid,ks)
             fprintf(fid,'\t\tobj.m%d=min(obj.m%d,[],%s);\n',...
                     obj.memoryLocations(k),operands,mymat2str(parameters));
             
+          case obj.Itypes.I_Mmax
+            fprintf(fid,'\t\tobj.m%d=max(obj.m%d,[],%s);\n',...
+                    obj.memoryLocations(k),operands,mymat2str(parameters));
+            
+          case obj.Itypes.I_Mmin2
+            fprintf(fid,'\t\tobj.m%d=min(obj.m%d,obj.m%d);\n',...
+                    obj.memoryLocations(k),operands);
+            
+          case obj.Itypes.I_Mmax2
+            fprintf(fid,'\t\tobj.m%d=max(obj.m%d,obj.m%d);\n',...
+                    obj.memoryLocations(k),operands);
+            
           case obj.Itypes.I_Msum
             fprintf(fid,'\t\tobj.m%d=sum(obj.m%d,%d);\n',...
                     obj.memoryLocations(k),operands,parameters(1));

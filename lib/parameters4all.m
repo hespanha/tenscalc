@@ -235,7 +235,9 @@ function localVariables_=parameters4all(localVariables_)
             '   * |setP_{parameter}(obj,value)|'
             '                   - sets the value of one of the parameters'
             '   * |setV_{variable}(obj,value)|'
-            '                   - sets the value of one of the optimization variables'
+            '                   - sets the value of one of the optimization variables';
+            '   * |[y1,y2,...]=getOutputs(obj)|';
+            '                   - gets the values of the |outputExpressions|';
             '   * |[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter))|'
             'where'
             '   * |mu0|      - initial value for the barrier variable'

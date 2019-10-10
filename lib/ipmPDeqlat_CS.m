@@ -92,7 +92,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         muOnes=muOnes(ones(nF,1));
 
         declareSet(code,mu,'setMu__');
-        declareGet(code,{gap,min(F,1),min(lambda,1)},'getGapMinFMinLambda__');
+        declareGet(code,{gap,min(F,[],1),min(lambda,[],1)},'getGapMinFMinLambda__');
     end
     if nG>0
         declareGet(code,norminf(G),'getNorminf_G__');
@@ -390,7 +390,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 rho=(newF_a*newLambda_a)./gap;
                 
                 declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
-                declareGet(code,min(newF_a,1),'getMinF_a__');
+                declareGet(code,min(newF_a,[],1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
         end
@@ -459,7 +459,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 newF_s=substitute(newF_s,x,newX_s);
             end
             declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
-            declareGet(code,min(newF_s,1),'getMinF_s__');
+            declareGet(code,min(newF_s,[],1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
             end
@@ -606,7 +606,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 rho=(newF_a*newLambda_a)./gap;
                 
                 declareGet(code,{maxAlphaPrimal_a,maxAlphaDual_a},'getMaxAlphas_a__');
-                declareGet(code,min(newF_a,1),'getMinF_a__');
+                declareGet(code,min(newF_a,[],1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
         end
@@ -657,7 +657,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 newF_s=substitute(newF_s,x,newX_s);
             end
             declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
-            declareGet(code,min(newF_s,1),'getMinF_s__');
+            declareGet(code,min(newF_s,[],1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
             end

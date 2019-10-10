@@ -17,7 +17,7 @@
 
 clear all
 % remove previous solvers
-delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
+%delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %% Generate solver
 

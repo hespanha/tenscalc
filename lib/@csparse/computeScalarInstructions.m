@@ -269,6 +269,12 @@ for jj=1:length(ks)
               case 'max'
                 [subscripts,instructions]=sparsity_max(obj,thisExp);
                 
+              case 'min2'
+                [subscripts,instructions]=sparsity_min2(obj,thisExp);
+                
+              case 'max2'
+                [subscripts,instructions]=sparsity_max2(obj,thisExp);
+                
               case 'plus'
                 [subscripts,instructions]=sparsity_plus(obj,thisExp);
             
@@ -407,3 +413,5 @@ for jj=1:length(ks)
 end
 
 %fprintf('    done computeScalarInstructions (%.3f sec)\n',etime(clock(),t0));
+
+end
