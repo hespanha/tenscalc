@@ -215,8 +215,9 @@ typedef struct instructionsTable_s {
 
 #define verboseLevel 0
 
-#ifdef IGNORE_MEX
 #undef printf
+
+#ifdef IGNORE_MEX
 #define printf0(...) printf(__VA_ARGS__)
 #else
 #define printf0(...) mexPrintf(__VA_ARGS__)
@@ -240,6 +241,8 @@ typedef struct instructionsTable_s {
 #define printf3(...) 
 #endif
 
+// Using mexPrintf in destructor causes matlab to crash upon exit if dynamic library is not unloaded
+
 #ifdef DYNAMIC_LIBRARY
 #ifdef __linux__
 /* Initializer */
@@ -250,7 +253,7 @@ static void initializer(void) {
 /* Finalizer */
 __attribute__((destructor))
 static void finalizer(void) {
-  printf0("%s: unloading dynamic library (UTHash)\n", __FILE__);
+  printf("%s: unloading dynamic library (UTHash)\n", __FILE__);
   initInstructionsTable(); // free memory
 }
 #elif __APPLE__
@@ -262,7 +265,7 @@ static void initializer(void) {
 /* Finalizer */
 __attribute__((destructor))
 static void finalizer(void) {
-  printf0("%s: unloading dynamic library (UTHash)\n", __FILE__);
+  printf("%s: unloading dynamic library (UTHash)\n", __FILE__);
   initInstructionsTable(); // free memory
 }
 #elif _WIN32
@@ -287,15 +290,16 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 EXPORT instructionsTable_t instructionsTable;
 EXPORT instruction_t *instructionsTable_hash=NULL; // initialize hash table
 
+// Using mexPrintf in destructor causes matlab to crash upon exit if dynamic library is not unloaded
 EXPORT void initInstructionsTable()
 {
   // Currently the instruction table is a global variable, 
   // but it could be dynamically allocated using malloc.
 
   if (instructionsTable_hash==NULL) {
-    printf0("initInstructionsTable: Initializing table... ");
+    printf("initInstructionsTable: Initializing table... ");
   } else {
-    printf0("initInstructionsTable: Initializing table (removing %"PRId64" instructions, %"PRId64" parameters, %"PRId64" operands)... ",
+    printf("initInstructionsTable: Initializing table (removing %"PRId64" instructions, %"PRId64" parameters, %"PRId64" operands)... ",
 	    instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
     HASH_CLEAR(hh,instructionsTable_hash);
   }
@@ -303,7 +307,7 @@ EXPORT void initInstructionsTable()
   instructionsTable.nParameters=0;
   instructionsTable.nOperands=0;
   instructionsTable.isSorted=false;
-  printf0("done\n");
+  printf("done\n");
 }
 
 /*******************************************************************************
