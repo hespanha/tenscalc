@@ -525,12 +525,12 @@ if verboseLevel>0
 end
 for i=1:length(obj.sets)
     if verboseLevel>0
-        fprintf('   void %s(double *input);\n',obj.sets(i).functionName);
+        fprintf('   void %s(const double *input);\n',obj.sets(i).functionName);
     end
     if ~isempty(Hfunction)
-        fprintf(fih,'extern void %s(double *);\n',obj.sets(i).functionName);
+        fprintf(fih,'extern void %s(const double *);\n',obj.sets(i).functionName);
     end
-    fprintf(fid,'EXPORT void %s(double *input) {\n',obj.sets(i).functionName);
+    fprintf(fid,'EXPORT void %s(const double *input) {\n',obj.sets(i).functionName);
     if profiling
         fprintf(fid,'  countCallSet[%d]++;\n',i-1);
         fprintf(fid,'  clock_t t0=clock();\n',i-1);

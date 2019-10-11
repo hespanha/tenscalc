@@ -1,3 +1,4 @@
+
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.
@@ -130,16 +131,20 @@ if 1
 
     %% Plots
     figure(1),clf
-    subplot(4,1,1)
+    subplot(6,1,1)
     plot(t,truePosition,'-.',t,thisMeasurement,'-+',t,position_l2_star,'-o',...
          t(k_outlier),zeros(length(k_outlier),1),'*')
     grid on
     legend('true position','measurements','l2 estimates','outliers');
     title('l2 estimate')
-    subplot(4,1,2)
+    subplot(6,1,2)
     plot(t,thisMeasurement-position_l2_star,'-+')
     grid on
     legend('l2 estimated noise')
+    subplot(6,1,3)
+    plot(t,position_l2_star-truePosition,'-+')
+    grid on
+    legend('l2 estimation error')
     drawnow
 end
 
@@ -246,17 +251,20 @@ clear obj
 
 %% plots
 figure(1)
-subplot(4,1,3)
+subplot(6,1,4)
 plot(t,truePosition,'-.',t,thisMeasurement,'-+',t,position_l2_star,'-o',t,position_l1l2_star,'-*',...
      t(k_outlier),zeros(length(k_outlier),1),'*')
 grid on
 legend('true position','measurements','l2 estimates','l1-l2 estimates','outliers');
 title('l1-l2 estimation')
-subplot(4,1,4)
+subplot(6,1,5)
 plot(t,thisMeasurement-position_l1l2_star-noise1_star,'-.',t,noise1_star,'-+',t(1:end-2),acceleration1_star,'-o')
 grid on
 legend('l2 noise','l1 noise','l1 acceleration')
-title('l1-l2 estimate')
+subplot(6,1,6)
+plot(t,position_l1l2_star-truePosition,'-+')
+grid on
+legend('l1-l2 estimation error')
 drawnow
 
 if allowSave && isequal(optimizeCS,@cmex2optimizeCS)
