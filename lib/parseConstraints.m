@@ -67,6 +67,7 @@ end
 if nargout>=6
     % template for createGateway
     template=struct('MEXfunction',{},...% string
+                    'Sfunction',{},...  % string
                     'Cfunction',{},...  % string
                     'method',{},...     % string
                     'inputs',struct(...  

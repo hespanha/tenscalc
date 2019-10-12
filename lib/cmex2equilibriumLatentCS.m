@@ -298,6 +298,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     
     % template for createGateway
     template=struct('MEXfunction',{},...% string
+                    'Sfunction',{},...  % string
                     'Cfunction',{},...  % string
                     'method',{},...     % string
                     'inputs',struct(...  
