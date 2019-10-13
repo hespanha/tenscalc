@@ -16,15 +16,14 @@ auto/
 /uthash/
 
 ## examples from others
-/examples/calvin/
 /examples/cvxgen/
-/examples/david/
-/examples/gilbert/
+/examples/davidCopp/
+/examples/johnGilbert/
 /examples/scott/
 /examples/sharad/
 /examples/phase_recovery/
-/examples/steven/
-/examples/victor/
+/examples/stevenQuintero/
+/examples/victorFragoso/
 
 ## old files
 old/
