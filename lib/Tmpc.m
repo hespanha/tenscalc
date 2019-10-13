@@ -33,7 +33,9 @@ classdef Tmpc < handle
         solverName         % name of solver class
         solverObject       % solver object
         parameters         % solver symbolic parameters
-                           % (including the parameters ones added by Tmpc);
+                           % (including the parameters ones added
+                           % by Tmpc);
+        objective          % MPC cost
         nOutputExpressions % number of output expressions
                            % (exclusing the ones added by Tmpc)
 
@@ -62,10 +64,11 @@ classdef Tmpc < handle
                                     ...     % (one state per row, one time instant per column)
                        'control',{[]},...   % matrix with control history
                                       ...   % (one control per row, one time instant per column);
+                       'objective',{[]},... % vector of MPC costs
                        'status',{[]},...    % vector of solver status
                        'iter',{[]},...      % vector of # of solver iterations
                        'stime',{[]},...     % vector of solver times
-                       'currentIndex',{0}); % index of current time (in xxxHistory arrays)
+                       'currentIndex',{0}); % index of current time (in History arrays)
                          %   time has valid data from 1:currentIndex
                          %   state has valid data from (:,1:currentIndex)
                          %   control has valid data from (:,1:currentIndex+controlDelay-1)
@@ -229,7 +232,7 @@ classdef Tmpc < handle
                     '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
                     'that is used to obtain the stateVariable'
                     '        [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
-                    'through forward Euler integration';
+                    'through trapesoidal integration with ZOH for u.'
                     ' '
                     'The function must accept all inputs to be either'
                     '  . matrices of doubles of appropriate sizes, or'
@@ -289,6 +292,7 @@ classdef Tmpc < handle
             end
             % save parameters
             obj.stateDerivativeFunction=stateDerivativeFunction;
+            obj.objective=objective;
             obj.nStates=size(stateVariable,1);
             obj.nControls=size(controlVariable,1);
             obj.nHorizon=size(controlVariable,2);
@@ -390,7 +394,7 @@ classdef Tmpc < handle
                                                 [obj.nControls,obj.nHorizon-obj.controlDelay]);
                 obj.futureControlName=name(obj.optimizedControls);
                 thisControl=[obj.delayedControls,obj.optimizedControls];
-                objective=substitute(objective,controlVariable,thisControl);
+                obj.objective=substitute(obj.objective,controlVariable,thisControl);
                 constraints=substitute(constraints,controlVariable,thisControl);
                 outputExpressions=substitute(outputExpressions,controlVariable,thisControl);
                 obj.parameters{end+1}=obj.delayedControls;
@@ -406,12 +410,25 @@ classdef Tmpc < handle
             obj.parameterNames{end+1}=name(currentState);
             obj.parametersSet(end+1)=false;
             
-            try
-                % Forward Euler integration for the dynamics
-                dynamics=(stateVariable==thisState+...
-                          sampleTime*stateDerivativeFunction(thisState,...
-                                                             thisControl,...
-                                                             parameters{:}));
+            try 
+                if 1
+                    %% Trapesoidal integration for u with ZOH
+                    %    (x_{k+1} - x_k)/Ts == (f(x_{k+1},u_k)+f(x_k,u_k))/2
+                    dynamics=(stateVariable-thisState)==.5*sampleTime*(...
+                        stateDerivativeFunction(stateVariable,...
+                                                thisControl,...
+                                                parameters{:})...
+                        +stateDerivativeFunction(thisState,...
+                                                 thisControl,...
+                                                 parameters{:}));
+                else
+                    %% Forward Euler integration 
+                    dynamics=(stateVariable==thisState+...
+                              sampleTime*stateDerivativeFunction(thisState,...
+                                                                 thisControl,...
+                                                                 parameters{:}));
+                end
+                
                 % add output expressions for debug
                 % outputExpressions{end+1}=thisState;
                 % outputExpressions{end+1}=stateDerivativeFunction(stateVariable,...
@@ -429,7 +446,7 @@ classdef Tmpc < handle
                          
             % add state & control to outputs
             obj.nOutputExpressions=length(outputExpressions);
-            outputExpressions=[outputExpressions,{obj.optimizedControls,stateVariable}];
+            outputExpressions=[outputExpressions,{obj.optimizedControls,stateVariable,obj.objective}];
 
             %% Call solver
             switch solverType
@@ -466,7 +483,7 @@ classdef Tmpc < handle
 
             [classname,code]=solver('pedigreeClass',solverClassname,...
                                     'executeScript',executeScript,...
-                                    'objective',objective,...
+                                    'objective',obj.objective,...
                                     'optimizationVariables',...
                                     {obj.optimizedControls,stateVariable,otherOptimizationVariables{:}},...
                                     'constraints',constraints,...
@@ -486,11 +503,12 @@ classdef Tmpc < handle
         function extendHistory(obj)
         % extendHistory(obj)
         %
-        % adds time-steps to the xxxHistory matrices
+        % adds time-steps to the History matrices
             
             obj.history.time=[obj.history.time;nan(obj.times2add,1)];
             obj.history.state=[obj.history.state,nan(obj.nStates,obj.times2add)];
             obj.history.control=[obj.history.control,nan(obj.nControls,obj.times2add)];
+            obj.history.objective=[obj.history.objective;nan(obj.times2add,1)];
             obj.history.status=[obj.history.status;nan(obj.times2add,1)];
             obj.history.iter=[obj.history.iter;nan(obj.times2add,1)];
             obj.history.stime=[obj.history.stime;nan(obj.times2add,1)];
@@ -687,57 +705,67 @@ classdef Tmpc < handle
                 solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter));
             
             varargout=cell(obj.nOutputExpressions,1);
-            [varargout{:},solution.control,solution.state]=getOutputs(obj.solverObject);
+            [varargout{:},solution.control,solution.state,solution.objective]=getOutputs(obj.solverObject);
         end
         
-        function [t,u0_warm,u_applied]=applyControls(obj,solution,nSteps,ufinal,stateDerivativeFunctionReal);
-        % [t,u0_warm,u_applied]=applyControls(obj,solution,nSteps,ufinal,stateDerivativeFunctionReal);
+        function [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
+        % [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
         %
         % Given a solver solution
-        % . applies the first nSteps control
+        % . applies the first control
+        % . computed the state evolution using ODE23
         % and returns
         % . time for the first state value for the next MPC optimization
         %   (usefull to set up reference signals)
         % . warm start for the next MPC optimization,
         %   inserting the control 'ufinal' at the end of the interval. 
 
-            if (nargin<5)
+            if (nargin<4)
                 stateDerivativeFunctionReal=obj.stateDerivativeFunction;
             end
             
             t=obj.history.time(obj.history.currentIndex);
-            u_applied=solution.control(:,1:nSteps);
-            for k=1:nSteps
-                t=t+obj.sampleTimeValue;
-                obj.history.currentIndex=obj.history.currentIndex+1;
-                obj.history.time(obj.history.currentIndex)=t;
-                obj.history.control(:,obj.history.currentIndex+obj.controlDelay-1)=...
-                    solution.control(:,k);
-                if k==1
-                    obj.history.status(obj.history.currentIndex+obj.controlDelay-1)=...
-                        solution.status;
-                    obj.history.iter(obj.history.currentIndex+obj.controlDelay-1)=...
-                        solution.iter;
-                    obj.history.stime(obj.history.currentIndex+obj.controlDelay-1)=...
-                        solution.time;
-                end
-                if size(obj.history.state,2)<obj.history.currentIndex
-                    extendHistory(obj)
-                end
-                try
+            u_applied=solution.control(:,1);
+            t=t+obj.sampleTimeValue;
+            obj.history.currentIndex=obj.history.currentIndex+1;
+            obj.history.time(obj.history.currentIndex)=t;
+            obj.history.control(:,obj.history.currentIndex+obj.controlDelay-1)=...
+                solution.control(:,1);
+            obj.history.objective(obj.history.currentIndex+obj.controlDelay-1)=...
+                solution.objective;
+            obj.history.status(obj.history.currentIndex+obj.controlDelay-1)=...
+                solution.status;
+            obj.history.iter(obj.history.currentIndex+obj.controlDelay-1)=...
+                solution.iter;
+            obj.history.stime(obj.history.currentIndex+obj.controlDelay-1)=...
+                solution.time;
+            if size(obj.history.state,2)<obj.history.currentIndex
+                extendHistory(obj)
+            end
+            try
+                if 1
+                    % Integration for the dynamics using ode23
+                    [tout,yout]=ode23(...
+                        @(t,x)stateDerivativeFunctionReal(x,...
+                                                          obj.history.control(:,obj.history.currentIndex-1),...
+                                                          obj.parameterValues{:}),...
+                        [obj.history.time(obj.history.currentIndex-1),obj.history.time(obj.history.currentIndex)],...
+                        obj.history.state(:,obj.history.currentIndex-1));
+                    obj.history.state(:,obj.history.currentIndex)=yout(end,:)';
+                else
                     % Forward Euler integration for the dynamics
                     obj.history.state(:,obj.history.currentIndex)=...
                         obj.history.state(:,obj.history.currentIndex-1)+obj.sampleTimeValue*...
                         stateDerivativeFunctionReal(obj.history.state(:,obj.history.currentIndex-1),...
                                                     obj.history.control(:,obj.history.currentIndex-1),...
                                                     obj.parameterValues{:});
-                catch me
-                    fprintf('error in appyling ''stateDerivativeFunctionReal'' to numerical values\n');
-                    rethrow(me);
                 end
+            catch me
+                fprintf('error in appyling ''stateDerivativeFunctionReal'' to numerical values\n');
+                rethrow(me);
             end
             
-            u0_warm=[solution.control(:,nSteps+1:end),ufinal*ones(1,nSteps)];
+            u0_warm=[solution.control(:,2:end),ufinal*ones(1,1)];
             t=t+obj.sampleTimeValue;
             
             obj.stateSet=false;
@@ -759,6 +787,7 @@ classdef Tmpc < handle
             history.t=obj.history.time(1:obj.history.currentIndex-1);
             history.u=obj.history.control(:,1:obj.history.currentIndex-1);
             history.x=obj.history.state(:,1:obj.history.currentIndex-1);
+            history.objective=obj.history.objective(1:obj.history.currentIndex-1);
             history.status=obj.history.status(1:obj.history.currentIndex-1);
             history.iter=obj.history.iter(1:obj.history.currentIndex-1);
             history.stime=obj.history.stime(1:obj.history.currentIndex-1);
