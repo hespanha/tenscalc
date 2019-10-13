@@ -17,7 +17,10 @@
 
 clear all
 % remove previous solvers
-delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
+%delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
+
+s = RandStream('mt19937ar','Seed',1);
+RandStream.setGlobalStream(s);
 
 %% Generate solver
 
@@ -27,8 +30,8 @@ nx=2;    % state size;
 nu=1;    % control size;
 nd=1;    % disturbance size;
 ny=1;    % output sizes
-T=30;    % forward horizon
-L=8;    % backward horizon
+T=60;    % forward horizon
+L=20;    % backward horizon
 delay=1;
 
 Tvariable Ts [];
@@ -41,23 +44,25 @@ Tvariable d        [nd,L+T];      % [d(t-L*Ts,...,x(t),...,x(t+(T-1)*Ts)]
 Tvariable p  [1,1];
 Tvariable k  [1,1];
 Tvariable r  [1,T-delay];         % [r(t+(delay+1)*Ts), ...,u(t+T*Ts)]
-Tvariable umax [];
-
-Tvariable cc [4];                 % optimization weights
+Tvariable uMax [];
 
 % DC-motor-like transfer function
 % [dot x1]=[0  1][x1]+[0]u
 % [dot x2] [0  p][x2] [k]
 %        y=x1     
 
-dxFun=@(x,u,d,p,k,Ts,r,cc,umax)[0,1;0,p]*x+[0;k]*(u+d);
-yFun=@(x,u,d,p,k,Ts,r,cc,umax)x(1,:);
+dxFun=@(x,u,d,p,k,Ts,r,cc,uMax)[0,1;0,p]*x+[0;k]*(u+d);
+yFun=@(x,u,d,p,k,Ts,r,cc,uMax)x(1,:);
 
 u=[u_past,u_future];
-JJ=[norm2(yFun(x(:,L+delay+2:L+T+1))-r);
-    norm2(u_future);
-    norm2(d);
-    norm2(yFun(x(:,1:L+1))-y_past)];
+
+JJ=[norm2(yFun(x(:,L+delay+2:L+T+1))-r)/(T-delay);
+    norm2(u_future)/(T-delay);
+    norm2(d)/(L+T);
+    norm2(yFun(x(:,1:L+1))-y_past)/(L+1)];
+
+Tvariable cc size(JJ);    % optimization weights
+
 Jcc=cc.*JJ;
 J=cc*JJ;
 
@@ -74,10 +79,10 @@ mpcmhe=Tmpcmhe('reuseSolver',true,...
                'stateDerivativeFunction',dxFun,...
                'outputFunction',yFun,...
                'objective',J,...
-               'controlConstraints',{u_future<=umax, u_future>=-umax},...
+               'controlConstraints',{u_future<=uMax, u_future>=-uMax},...
                'disturbanceConstraints',{d<=1, d>=-1},...
                'outputExpressions',{J,JJ,cc,Jcc,x,u_past,u_future,d},...
-               'parameters',{p,k,Ts,r,cc,umax},...
+               'parameters',{p,k,Ts,r,cc,uMax},...
                'solverParameters',{;
                     'alphaMin',1e-4,...
                     'solverVerboseLevel',3 ...
@@ -88,11 +93,11 @@ mpcmhe=Tmpcmhe('reuseSolver',true,...
 % set parameter values
 setParameter(mpcmhe,'p',2);
 setParameter(mpcmhe,'k',5);
-setParameter(mpcmhe,'umax',3);
-Ts=.1;
+setParameter(mpcmhe,'uMax',5);
+Ts=.05;
 setParameter(mpcmhe,'Ts',Ts);
 
-cc=[30;.01;-1e4;-1e4];
+cc=[10;.005;-5e2;-5e2];
 setParameter(mpcmhe,'cc',cc);
 
 % set process initial condition, inputs, disturbances, and noise and
@@ -120,10 +125,10 @@ fig=1;
 figure(fig);clf;
 
 mu0=1;
-maxIter=30;
+maxIter=100;
 saveIter=false;
 
-ref=@(t).6*sign(sin(3*t));
+ref=@(t)1*sign(sin(2*t));
 
 % cold start
 x_warm=.1*randn(nx,1);
@@ -132,7 +137,7 @@ d_warm=0*.1*randn(nd,L+T);
 
 %x_warm=state(:,1); % cheating
 
-for i=1:50
+for i=1:100
     % move warm-start away from constraints
     u_warm=min(u_warm,.95);
     u_warm=max(u_warm,-.95);
@@ -180,13 +185,14 @@ for i=1:50
     fprintf('cc    =');fprintf('%10.3e ',cc);fprintf('\n');
     fprintf('JJ*cc =');fprintf('%10.3e ',Jcc);fprintf('\n');
     
-    % apply 3 optimal controls/disturbances and get time,
-    % (noiseless) measurements, and warm start for the next iteration
-    u_final=zeros(nu,3);
-    d_final=zeros(nd,3);
-    noise=zeros(ny,3);
+    % apply optimal controls, get time, measurements, and warm start for the next iteration
+    u_final=zeros(nu,1);
+    d_final=zeros(nd,1);
+    noise=.1*randn(ny,1);
+    %disturbance=[];  % worst-case
+    disturbance=.1*randn(nu,1);
     [t,t_y_past,y_past,t_u_past,u_past,x_warm,u_warm,d_warm,t_state,state]=...
-        applyControl(mpcmhe,u_past,y_past,solution,3,noise,u_final,d_final); 
+        applyControl(mpcmhe,u_past,y_past,solution,disturbance,noise,u_final,d_final); 
     
     if verbose
         fprintf('applyControl()\n');
@@ -208,7 +214,7 @@ for i=1:50
 
     end
 
-    if true %mod(i,5)==0
+    if true || mod(i,5)==0
         if 0
             plot(solution.t_state,solution.state,'.-',...
                  t+(-L:delay-1)*Ts,u_past,'.-',...
@@ -232,14 +238,27 @@ for i=1:50
 end
 
 history=getHistory(mpcmhe);
+
 fig=fig+1;figure(fig);clf;
-plot(history.t,history.x,'.-',...
-     history.t,history.u,'.-',history.t,history.d,'.-',...
-     history.t,ref(history.t),'.-',history.t,history.y,'.-');grid on;
-legend('x1','x2','u','d','r','y');
+set(fig,'Name','Closed-loop (Tmpc)');
+subplot(2,1,1)
+plot(history.t,ref(history.t),'.-',...
+     history.t,history.x(1,:),'.-',...
+     history.t,history.y,'.-');grid on;
+legend('r','x1','y');
+subplot(2,1,2)
+plot(history.t,history.x(2,:),'.-',...
+     history.t,history.u,'.-',...
+     history.t,history.d,'.-');grid on;
+legend('x2','u','d');
 xlabel('t');
 
 fig=fig+1;figure(fig);clf;
+set(fig,'Name','Solver (Tmpc)');
+subplot(2,1,1);
+plot(history.t,history.objective,'.-');grid on;
+ylabel('MPCMHE cost');
+subplot(2,1,2);
 yyaxis left
 plot(history.t,history.iter,'.-');grid on;
 ylabel('# iterations');
@@ -247,6 +266,7 @@ yyaxis right
 plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
 ylabel('solver time [ms]');
 xlabel('t');
+
 
 
 
