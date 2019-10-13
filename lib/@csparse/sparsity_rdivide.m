@@ -40,7 +40,6 @@ if isempty(osize2)
     if isempty(instrX2)
         error('sparsity_rdivide: structurally zero scalar for x2 not allowed in x1./x2')
     end
-
     subsY=subsX1;
     
     %% Determine instructions for Y
@@ -57,7 +56,11 @@ else
     %% Determine instructions for Y
     operands=[instrX1(kX1(kX2))';instrX2(kX2)'];
 end
-operands=mat2cell(operands,2,ones(size(operands,2),1));
-instrY=newInstructions(obj,obj.Itypes.I_div,{[]},operands,thisExp);
+if isempty(operands)
+    instrY=zeros(0,1);
+else
+    operands=mat2cell(operands,2,ones(size(operands,2),1));
+    instrY=newInstructions(obj,obj.Itypes.I_div,{[]},operands,thisExp);
+end
 
 %disp(obj)
