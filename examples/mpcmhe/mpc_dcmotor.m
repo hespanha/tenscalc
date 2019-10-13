@@ -67,7 +67,8 @@ constraints={u<=uMax, u>=-uMax,...
              x1<=repmat(xMax,[1,T]),x1>=-repmat(xMax,[1,T])};
 
 [classname,code]=cmex2optimizeCS(...
-    'classname','tmp_mpc_dcmotor',...
+    'pedigreeClass','tmp_mpc',...
+    'executeScript','asneeded',...
     ...
     'objective',J,...
     'optimizationVariables',{x1,u},...
@@ -75,23 +76,28 @@ constraints={u<=uMax, u>=-uMax,...
     'parameters',{p,k,Ts,r,uMax,xMax,x0},...
     'outputExpressions',{J,x,u,x1warm,uwarm},...
     ...
-    'simulinkLibrary','tmp_mpc_dcmotor_SL',...
-    ...
     'compilerOptimization','-O0',...
     'solverVerboseLevel',2);
     
-open_system('tmp_mpc_dcmotor_SL');
+classname=getValue(classname);
+code=getValue(code);
 
+obj=feval(classname);
 
 
 %% Simulate system
 
 % set parameter values
 p=2;k=1;
+setP_p(obj,p);
+setP_k(obj,k);
 Ts=.1;
+setP_Ts(obj,Ts);
 
 uMax=1;
 xMax=[.4;.3];
+setP_uMax(obj,uMax);
+setP_xMax(obj,xMax);
 
 refmax=.35;
 refomega=.5;
@@ -100,39 +106,103 @@ refomega=.5;
 t0=0;
 x0=[.2;.2];
 
+% reference signals
+ref=@(t)-refmax*sign(sin(refomega*t));
+
 % cold start
 u_cold=.1*randn(nu,T);
 x1_cold=.1*randn(nx,T);
+setV_u(obj,u_cold);
+setV_x1(obj,x1_cold);
 
 mu0=1;
 maxIter=50;
 saveIter=false;
 
-open_system('mpc_dcmotor_simulink_S');
-set_param('mpc_dcmotor_simulink_S',...
-          'RelTol','1e-6',...
-          'StartTime','0','StopTime','15');
-out=sim('mpc_dcmotor_simulink_S');
+nSteps=150;
 
-fig=21;figure(fig);clf;
-set(fig,'Name','Closed-loop (simulink)');
-plot(x.time,squeeze(x.signals.values),'.-',...
-     u.time,squeeze(u.signals.values),'.-',...
-     ref.time,squeeze(ref.signals.values),'.-');grid on;
+closedloop.t=nan(nSteps+1,1);
+closedloop.J=nan(nSteps+1,1);
+closedloop.iter=nan(nSteps+1,1);
+closedloop.stime=nan(nSteps+1,1);
+closedloop.x=nan(nx,nSteps+1);
+closedloop.u=nan(nu,nSteps+1);
+closedloop.r=nan(1,nSteps+1);
+
+closedloop.tt=nan(0,1);
+closedloop.xx=nan(0,nx);
+
+closedloop.t(1)=t0;
+closedloop.x(:,1)=x0;
+
+fig=1;
+figure(fig);clf;
+set(fig,'Name','MPC solutions');
+
+for i=1:nSteps
+    
+    % current state
+    t=closedloop.t(i);
+    setP_x0(obj,closedloop.x(:,i));
+
+    % set reference signal
+    r=ref(t+(0:T-1)*Ts);
+    setP_r(obj,r);
+    
+    [closedloop.status,closedloop.iter(i),closedloop.stime(i)]=solve(obj,mu0,int32(maxIter),int32(saveIter));
+    [closedloop.J(i),x,u,x1warm,uwarm]=getOutputs(obj);
+    
+    fprintf('t=%g, J=%g computed in %g iterations & %g secs\n',...
+            t,closedloop.J(i),closedloop.iter(i),closedloop.stime(i));
+    if closedloop.status
+        warning('solver failed')
+    end
+    
+        
+    if true %mod(t/Ts,5)==0
+        if 0
+            plot(t:Ts:t+Ts*T,x,'.-',t:Ts:t+Ts*(T-1),u,'.-',t:Ts:t+Ts*(T-1),r,'.-');grid on;
+            legend('x1','x2','u','r');
+        else
+            plot(t:Ts:t+Ts*(T-1),r,'k.-',t:Ts:t+Ts*T,x(1,:),'.-');grid on;
+            legend('x1','r');
+        end
+        hold on;
+    end
+    
+    % apply control
+    closedloop.r(i)=r(1);r(1)=[];
+    closedloop.u(:,i)=u(:,1);u(:,1)=[];
+    [tout,yout]=ode23(@(t,x)[0,1;0,p]*x+[0;k]*closedloop.u(:,i),closedloop.t(i)+[0,Ts],closedloop.x(:,i));
+    closedloop.tt(end+1:end+length(tout))=tout;
+    closedloop.xx(end+1:end+length(tout),:)=yout;    
+    closedloop.x(:,i+1)=yout(end,:)';
+    closedloop.t(i+1)=tout(end,:)';
+    
+    % apply warm start for next iteration
+    setV_u(obj,uwarm);
+    setV_x1(obj,x1warm);
+end
+
+fig=fig+1;figure(fig);clf;
+set(fig,'Name','Closed-loop');
+plot(closedloop.tt,closedloop.xx,'.-',...
+     closedloop.t,closedloop.u,'.-',...
+     closedloop.t,ref(closedloop.t),'.-');grid on;
 legend('x1','x2','u','r');
 xlabel('t');
 
 fig=fig+1;figure(fig);clf;
-set(fig,'Name','Solver (simulink)');
+set(fig,'Name','Solver');
 subplot(2,1,1);
-plot(cost.time,squeeze(cost.signals.values),'.-');grid on;
+plot(closedloop.t,closedloop.J,'.-');grid on;
 ylabel('MPC cost');
 subplot(2,1,2);
 yyaxis left
-plot(iter.time,squeeze(iter.signals.values),'.-');grid on;
+plot(closedloop.t,closedloop.iter,'.-');grid on;
 ylabel('# iterations');
 yyaxis right
-plot(stime.time,1000*squeeze(stime.signals.values),'.-');grid on;
+plot(closedloop.t,1000*closedloop.stime,'.-');grid on;
 ylabel('solver time [ms]');
 xlabel('t');
 
