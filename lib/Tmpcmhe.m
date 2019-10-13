@@ -34,6 +34,7 @@ classdef Tmpcmhe < handle
         solverObject       % solver object
         parameters         % solver symbolic parameters
                            % (including the parameters ones added by Tmpc);
+        objective          % MPC cost
         nOutputExpressions % number of output expressions
                            % (exclusing the ones added by Tmpc)
 
@@ -68,12 +69,13 @@ classdef Tmpcmhe < handle
                                       ...   % (one control per row, one time instant per column);
                        'disturbance',{[]},... % matrix with disturbance history
                                       ...   % (one disturbance per row, one time instant per column);
-                       'output',{[]},... % matrix with output history
+                       'objective',{[]},... % vector of MPC-MHE costs
+                       'output',{[]},...    % matrix with output history
                                       ...   % (one output per row, one time instant per column);
                        'status',{[]},...    % vector of solver status
                        'iter',{[]},...      % vector of # of solver iterations
                        'stime',{[]},...     % vector of solver times
-                       'currentIndex',{0}); % index of current time (in xxxHistory arrays)
+                       'currentIndex',{0}); % index of current time (in History arrays)
                          %   time has valid data from 1:currentIndex
                          %   state has valid data from (:,1:currentIndex)
                          %   control has valid data from (:,1:currentIndex+controlDelay-1)
@@ -238,9 +240,9 @@ classdef Tmpcmhe < handle
                     '  . any parameters defined in ''parameters''';
                     'and returns the corresponding state derivatives';
                     '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
-                    'that is used through forward Euler integration to obtain';
-                    'the stateVariable:'
+                    'through trapesoidal integration with ZOH for u and d.'
                     '        [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
+                    ' ';
                     'The function must accept all inputs can be either'
                     '  . matrices of doubles of appropriate sizes, or'
                     '  . Tcalculus symbolic matrices also of appropriate size.';
@@ -324,6 +326,7 @@ classdef Tmpcmhe < handle
             end
             % save parameters
             obj.stateDerivativeFunction=stateDerivativeFunction;
+            obj.objective=objective;
             obj.outputFunction=outputFunction;
             obj.nStates=size(stateVariable,1);
             obj.nControls=size(futureControlVariable,1);
@@ -436,7 +439,7 @@ classdef Tmpcmhe < handle
             obj.latentStateName=name(nextState);
             allState=[initialState,nextState];
             
-            objective=substitute(objective,stateVariable,allState);
+            obj.objective=substitute(obj.objective,stateVariable,allState);
             controlConstraints=substitute(controlConstraints,stateVariable,allState);
             disturbanceConstraints=substitute(disturbanceConstraints,stateVariable,allState);
             outputExpressions=substitute(outputExpressions,stateVariable,allState);
@@ -445,12 +448,26 @@ classdef Tmpcmhe < handle
             previousControl=[pastControlVariable,futureControlVariable];
             
             try
-                % Forward Euler integration for the dynamics
-                dynamics=(nextState==previousState+...
-                          sampleTime*stateDerivativeFunction(previousState,...
-                                                             previousControl,...
-                                                             disturbanceVariable,...
-                                                             parameters{:}));
+                if 1
+                    %% Trapesoidal integration for u with ZOH
+                    %    (x_{k+1} - x_k)/Ts == (f(x_{k+1},u_k,d_k)+f(x_k,u_k,d_k))/2
+                    dynamics=(nextState-previousState)==.5*sampleTime*(...
+                        stateDerivativeFunction(previousState,...
+                                                previousControl,...
+                                                disturbanceVariable,...
+                                                parameters{:})...
+                        +stateDerivativeFunction(nextState,...
+                                                 previousControl,...
+                                                 disturbanceVariable,...
+                                                 parameters{:}));
+                else
+                    % Forward Euler integration for the dynamics
+                    dynamics=(nextState==previousState+...
+                              sampleTime*stateDerivativeFunction(previousState,...
+                                                                 previousControl,...
+                                                                 disturbanceVariable,...
+                                                                 parameters{:}));
+                end
             catch me
                 fprintf('error in appyling ''stateDerivativeFunction'' to symbolic variables\n');
                 rethrow(me);
@@ -462,7 +479,7 @@ classdef Tmpcmhe < handle
             obj.nOutputExpressions=length(outputExpressions);
             outputExpressions=[outputExpressions,...
                                {futureControlVariable,...
-                                disturbanceVariable{:},allState}];
+                                disturbanceVariable{:},allState,obj.objective}];
 
             %% Call solver
             switch solverType
@@ -505,8 +522,8 @@ classdef Tmpcmhe < handle
             end
             [classname,code]=solver('pedigreeClass',solverClassname,...
                                     'executeScript',executeScript,...
-                                    'P1objective',objective,...
-                                    'P2objective',-objective,...
+                                    'P1objective',obj.objective,...
+                                    'P2objective',-obj.objective,...
                                     'P1optimizationVariables',{futureControlVariable},...
                                     'P2optimizationVariables',disturbanceVariable,...
                                     'P1constraints',controlConstraints,...
@@ -529,13 +546,14 @@ classdef Tmpcmhe < handle
         function extendHistory(obj)
         % extendHistory(obj)
         %
-        % adds time-steps to the xxxHistory matrices
+        % adds time-steps to the History matrices
             
             obj.history.time=[obj.history.time;nan(obj.times2add,1)];
             obj.history.state=[obj.history.state,nan(obj.nStates,obj.times2add)];
             obj.history.control=[obj.history.control,nan(obj.nControls,obj.times2add)];
             obj.history.disturbance=[obj.history.disturbance,nan(obj.nDisturbances,obj.times2add)];
             obj.history.output=[obj.history.output,nan(obj.nOutputs,obj.times2add)];
+            obj.history.objective=[obj.history.objective;nan(obj.times2add,1)];
             obj.history.status=[obj.history.status;nan(obj.times2add,1)];
             obj.history.iter=[obj.history.iter;nan(obj.times2add,1)];
             obj.history.stime=[obj.history.stime;nan(obj.times2add,1)];
@@ -653,7 +671,7 @@ classdef Tmpcmhe < handle
             obj.history.control(:,1:obj.nBackwardHorizon+obj.controlDelay)=u_init;
             obj.history.disturbance(:,1:obj.nBackwardHorizon)=d_init;
             for k=1:obj.nBackwardHorizon+1
-                if i<=obj.nBackwardHorizon
+                if k<=obj.nBackwardHorizon
                     try
                         % Forward Euler integration for the dynamics
                         obj.history.state(:,k+1)=obj.history.state(:,k)+obj.sampleTimeValue*...
@@ -689,7 +707,7 @@ classdef Tmpcmhe < handle
 
             k_y_past=obj.history.currentIndex-obj.nBackwardHorizon:...
                      obj.history.currentIndex;
-            y_past=obj.history.output(:,k_u_past);
+            y_past=obj.history.output(:,k_y_past);
             t_y_past=obj.history.time(k_y_past);
             
             k_state=obj.history.currentIndex-obj.nBackwardHorizon:...
@@ -853,7 +871,7 @@ classdef Tmpcmhe < handle
             varargout=cell(obj.nOutputExpressions,1);
             [varargout{:},solution.futureControl,...
              solution.disturbance,solution.initialState,...
-             solution.state]=getOutputs(obj.solverObject);
+             solution.state,solution.objective]=getOutputs(obj.solverObject);
             solution.t=obj.history.time(obj.history.currentIndex);
             solution.t_futureControl=solution.t+...
                 obj.sampleTimeValue*(obj.controlDelay:obj.nForwardHorizon-1);
@@ -864,11 +882,11 @@ classdef Tmpcmhe < handle
         end
         
         function [t,t_y_past,y_past,t_u_past,u_past,x_warm,u_warm,d_warm,t_state,state]=...
-                applyControl(obj,u_past,y_past,solution,nSteps,noise,u_final,d_final);
+                applyControl(obj,u_past,y_past,solution,disturbance,noise,u_final,d_final);
         % [t,t_y_past,y_past,t_u_past,u_past,x_warm,u_warm,d_warm,t_state,state]=...
-        %                applyControls(obj,u_past,y_past,solution,nSteps,noise,u_final,d_final)
+        %                applyControls(obj,u_past,y_past,solution,disturbance,noise,u_final,d_final)
         %
-        % Applied the first nSteps of an MPCMHE control.
+        % Applied the first step of an MPCMHE control.
         %
         % Inputs:
         %   u_past = Sequence of past control controls.
@@ -883,18 +901,21 @@ classdef Tmpcmhe < handle
         %            with value at time t equal to
         %                 [ y(t-L*Ts), ..., y(t)]
         %   solution = MPCMHE solution returned by solver()
-        %   nSteps   = How many control signals to apply
+        %   disturbance = Vector of input disturbance at time 
+        %                 [ t ]
+        %                 if empty, the worst-case disturbance from
+        %                 the last solution is used
         %   noise    = Vector of measurement noise that will
-        %              appear in the output at times 
-        %                 [ t+Ts, ..., t+nSteps*Ts ]
-        %   u_final  = Sequence of ontrol values to be inserted at the end of u_warm
+        %              appear in the output at time 
+        %                 [ t+Ts ]
+        %   u_final  = Sequence of control values to be inserted at the end of u_warm
         %              Should be a matrix with size
-        %                 [ # controls , nSteps ]
+        %                 [ # controls , 1 ]
         %   d_final  = Sequence of disturbance values to be inserted at the end of d_warm
         %              Should be a matrix with size
-        %                 [ # disturbances , nSteps ]
+        %                 [ # disturbances , 1 ]
         % Computes the resulting states and outputs and returns
-        %   t = new current time (essentially the previous time + nSteps*Ts)
+        %   t = new current time (essentially the previous time + Ts)
         %   u_past = Sequence of past control controls.
         %            Should be a matrix with size
         %                 [ # controls , L + controlDelay ]
@@ -902,7 +923,7 @@ classdef Tmpcmhe < handle
         %                 [ u(t-L*Ts), ..., u(t+(delay-1)*Ts) ]
         %            where u(s) is applied from time s to time s+Ts
         %   t_u_past = Sequence of times for u_past.
-        %   y_past = Sequence of past measurements.
+        %   y_past = Sequence of (noisy) past measurements.
         %            Should be a matrix with size
         %                 [ # outputs , L + 1 ]
         %            with value at (the new) time t equal to
@@ -939,64 +960,76 @@ classdef Tmpcmhe < handle
         %   t_state = Sequence of times for state.
 
             t=obj.history.time(obj.history.currentIndex);
-            if size(obj.history.state,2)<obj.history.currentIndex+nSteps;
+            if size(obj.history.state,2)<obj.history.currentIndex+1
                 extendHistory(obj)
             end
-            for k=1:nSteps
-                t=t+obj.sampleTimeValue;
-                obj.history.time(obj.history.currentIndex+k)=t;
-                
-                % control & disturbance
-                obj.history.control(:,obj.history.currentIndex+k+obj.controlDelay-1)=...
-                    solution.futureControl(:,k);
-                obj.history.disturbance(:,obj.history.currentIndex+k-1)=...
-                    solution.disturbance(:,obj.nBackwardHorizon+k);
-                try
+
+            t=t+obj.sampleTimeValue;
+            obj.history.time(obj.history.currentIndex+1)=t;
+            
+            % control & disturbance
+            obj.history.control(:,obj.history.currentIndex+obj.controlDelay)=...
+                solution.futureControl(:,1);
+            if isempty(disturbance) 
+                obj.history.disturbance(:,obj.history.currentIndex)=...
+                    solution.disturbance(:,obj.nBackwardHorizon+1);
+            else
+                obj.history.disturbance(:,obj.history.currentIndex)=disturbance;
+            end
+            try
+                if 1
+                    % Integration for the dynamics using ode23
+                    [tout,yout]=ode23(...
+                        @(t,x)obj.stateDerivativeFunction(x,...
+                                                          obj.history.control(:,obj.history.currentIndex),...
+                                                          obj.history.disturbance(:,obj.history.currentIndex),...
+                                                          obj.parameterValues{:}),...
+                        [obj.history.time(obj.history.currentIndex),obj.history.time(obj.history.currentIndex+1)],...
+                        obj.history.state(:,obj.history.currentIndex));
+                    obj.history.state(:,obj.history.currentIndex+1)=yout(end,:)';                    
+                else
                     % Forward Euler integration for the dynamics
-                    obj.history.state(:,obj.history.currentIndex+k)=...
-                        obj.history.state(:,obj.history.currentIndex+k-1)+...
+                    obj.history.state(:,obj.history.currentIndex+1)=...
+                        obj.history.state(:,obj.history.currentIndex)+...
                         obj.sampleTimeValue*obj.stateDerivativeFunction(...
-                            obj.history.state(:,obj.history.currentIndex+k-1),...
-                            obj.history.control(:,obj.history.currentIndex+k-1),...
-                            obj.history.disturbance(:,obj.history.currentIndex+k-1),...
+                            obj.history.state(:,obj.history.currentIndex),...
+                            obj.history.control(:,obj.history.currentIndex),...
+                            obj.history.disturbance(:,obj.history.currentIndex),...
                             obj.parameterValues{:});
-                catch me
-                    fprintf('error in appyling ''stateDerivativeFunction'' to numerical values\n');
-                    rethrow(me);
                 end
-                if k==1
-                    % save status with same index as 1st control
-                    obj.history.status(obj.history.currentIndex+k+obj.controlDelay-1)=...
-                        solution.status;
-                    obj.history.iter(obj.history.currentIndex+k+obj.controlDelay-1)=...
-                        solution.iter;
-                    obj.history.stime(obj.history.currentIndex+k+obj.controlDelay-1)=...
-                        solution.time;
-                end
-
+            catch me
+                fprintf('error in appyling ''stateDerivativeFunction'' to numerical values\n');
+                rethrow(me);
+            end
+            % save status etc.
+            obj.history.objective(obj.history.currentIndex+obj.controlDelay)=...
+                solution.objective;
+            obj.history.status(obj.history.currentIndex+obj.controlDelay)=...
+                solution.status;
+            obj.history.iter(obj.history.currentIndex+obj.controlDelay)=...
+                solution.iter;
+            obj.history.stime(obj.history.currentIndex+obj.controlDelay)=...
+                solution.time;
+            
+            %% Attention: if output depends on the current u & d and
+            %%            controlDelay=0 this will results in NaN's
+            try
+                % output
+                obj.history.output(:,obj.history.currentIndex+1)=obj.outputFunction(...
+                    obj.history.state(:,obj.history.currentIndex+1),...
+                    obj.history.control(:,obj.history.currentIndex+1),...
+                    obj.history.disturbance(:,obj.history.currentIndex+1),...
+                    obj.parameterValues{:})+noise;
+            catch me
+                fprintf('error in appyling ''outputFunction'' to numerical values\n');
+                rethrow(me);
             end
             
-            %% Attention - if output depends on current u & d and
-            %% controlDelay=0 this will results in NaN's
-            for k=1:nSteps
-                try
-                    % output
-                    obj.history.output(:,obj.history.currentIndex+k)=obj.outputFunction(...
-                        obj.history.state(:,obj.history.currentIndex+k),...
-                        obj.history.control(:,obj.history.currentIndex+k),...
-                        obj.history.disturbance(:,obj.history.currentIndex+k),...
-                        obj.parameterValues{:})+noise(:,k);
-                catch me
-                    fprintf('error in appyling ''outputFunction'' to numerical values\n');
-                    rethrow(me);
-                end
-            end
+            obj.history.currentIndex=obj.history.currentIndex+1;
             
-            obj.history.currentIndex=obj.history.currentIndex+nSteps;
-
-            u_warm=[solution.futureControl(:,nSteps+1:end),u_final];
-            d_warm=[solution.disturbance(:,nSteps+1:end),d_final];
-            x_warm=solution.state(:,nSteps+1);
+            u_warm=[solution.futureControl(:,2:end),u_final];
+            d_warm=[solution.disturbance(:,2:end),d_final];
+            x_warm=solution.state(:,2);
 
             t=obj.history.time(obj.history.currentIndex);
             
@@ -1007,7 +1040,7 @@ classdef Tmpcmhe < handle
 
             k_y_past=obj.history.currentIndex-obj.nBackwardHorizon:...
                      obj.history.currentIndex;
-            y_past=obj.history.output(:,k_u_past);
+            y_past=obj.history.output(:,k_y_past);
             t_y_past=obj.history.time(k_y_past);
             
             k_state=obj.history.currentIndex-obj.nBackwardHorizon:...
@@ -1028,6 +1061,7 @@ classdef Tmpcmhe < handle
         %    history.t      - sampling times
         %    history.u      - control values
         %    history.x      - state values
+        %    history.objective - MPC/MHE cost
         %    history.status - solver status
         %    history.iter   - # of solver iterations
         %    history.stime  - solver times
@@ -1037,6 +1071,7 @@ classdef Tmpcmhe < handle
             history.d=obj.history.disturbance(:,1:obj.history.currentIndex-1);
             history.x=obj.history.state(:,1:obj.history.currentIndex-1);
             history.y=obj.history.output(:,1:obj.history.currentIndex-1);
+            history.objective=obj.history.objective(1:obj.history.currentIndex-1);
             history.status=obj.history.status(1:obj.history.currentIndex-1);
             history.iter=obj.history.iter(1:obj.history.currentIndex-1);
             history.stime=obj.history.stime(1:obj.history.currentIndex-1);
