@@ -165,7 +165,10 @@ function writeMatlabInstructions(obj,fid,ks)
                        '@(x__)x__.^2';'@(x__)2*x__';'@(x__)2*ones(size(x__))';
                        '@(x__)x__.^3';'@(x__)3*x__.^2';'@(x__)6*x__';
                        '@(x__)log(1+x__)/log(2)';'@(x__)1./(1+x__)/log(2)';'@(x__)-1./(1+x__).^2';
-                       };
+                       '@(x__)log(1+exp(x__))';'@(x__)1./(1+exp(-x__))';...
+                                               '@(x__)1./(2+exp(-x__)+exp(x__))';
+                       '@(x__)relu(x__)';'@(x__)heaviside(x__)';
+                      };
             q=find(strcmp(parameters,functions));
             if isempty(q)
                 error('computeScalarInstructions: compose object not implemented for function ''%s''\n',parameters);

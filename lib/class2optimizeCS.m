@@ -305,7 +305,7 @@ function varargout=class2optimizeCS(varargin)
     defines.verboseLevel=solverVerboseLevel;
     
     pth=fileparts(which('class2optimizeCS.m'));
-    declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.m'),'solve',defines);
+    declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.m'),'solve',defines,[],[],'solve');
     
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';

@@ -346,7 +346,10 @@ for jj=1:length(ks)
                            '@(x__)sqrt(x__)';'@(x__).5./sqrt(x__)';'@(x__)-.25./x__.^1.5';
                            '@(x__)x__.^2';'@(x__)2*x__';'@(x__)2*ones(size(x__))';
                            '@(x__)x__.^3';'@(x__)3*x__.^2';'@(x__)6*x__';
-                           '@(x__)atan(x__)';'@(x__)1./(1+x__.^2)';'@(x__)-2*x__./(1+x__.^2).^2'};
+                           '@(x__)atan(x__)';'@(x__)1./(1+x__.^2)';'@(x__)-2*x__./(1+x__.^2).^2';
+                           '@(x__)log(1+exp(x__))';'@(x__)1./(1+exp(-x__))';...
+                                '@(x__)1./(2+exp(-x__)+exp(x__))';
+                           '@(x__)relu(x__)';'@(x__)heaviside(x__)';'@(x__)zeros(size(x__))'};
                 instruction={obj.Itypes.I_log;obj.Itypes.I_inv;obj.Itypes.I_minus_inv_sqr;
                              obj.Itypes.I_2_inv_cube;
                              obj.Itypes.I_exp;
@@ -357,7 +360,9 @@ for jj=1:length(ks)
                              obj.Itypes.I_sqrt;obj.Itypes.I_Dsqrt;obj.Itypes.I_DDsqrt;
                              obj.Itypes.I_sqr;obj.Itypes.I_2times;obj.Itypes.I_2;
                              obj.Itypes.I_cube;obj.Itypes.I_3sqr;obj.Itypes.I_6times;
-                             obj.Itypes.I_atan;obj.Itypes.I_Datan;obj.Itypes.I_DDatan};
+                             obj.Itypes.I_atan;obj.Itypes.I_Datan;obj.Itypes.I_DDatan;
+                             obj.Itypes.I_srelu;obj.Itypes.I_dsrelu;obj.Itypes.I_ddsrelu;
+                             obj.Itypes.I_relu;obj.Itypes.I_heaviside;obj.Itypes.I_zero};
                 sparsityType={@sparsity_compose_full;@sparsity_compose_full;@sparsity_compose_full;
                               @sparsity_compose_full;
                               @sparsity_compose_full;
@@ -368,14 +373,25 @@ for jj=1:length(ks)
                               @sparsity_compose;@sparsity_compose_full;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose;
-                              @sparsity_compose;@sparsity_compose_full;@sparsity_compose};
+                              @sparsity_compose;@sparsity_compose_full;@sparsity_compose;
+                              @sparsity_compose;@sparsity_compose_full;@sparsity_compose_full;
+                              @sparsity_compose;@sparsity_compose;@sparsity_compose};
+                
+                if length(functions)~=length(instruction) || length(functions)~=length(sparsityType)
+                    error('computeScalarInstructions: internal inconsistency detected in compose()')
+                end
                 fun=getOne(obj.vectorizedOperations,'parameters',thisExp);
                 k=find(strcmp(fun,functions));
                 if isempty(k)
                     error('computeScalarInstructions: compose object not implemented for function ''%s''\n',fun);
                 end
-                [subscripts,instructions]=sparsityType{k}(obj,thisExp,instruction{k});
-                    
+                if instruction{k}~=obj.Itypes.I_zero
+                    [subscripts,instructions]=sparsityType{k}(obj,thisExp,instruction{k});
+                else
+                    osize=getOne(obj.vectorizedOperations,'osize',thisExp);
+                    subscripts=zeros(length(osize),0);
+                    instructions=zeros(0,1);
+                end
               otherwise
                 disp(obj)
                 error('computeScalarInstructions: type ''%s'' not yet implemented\n',type);

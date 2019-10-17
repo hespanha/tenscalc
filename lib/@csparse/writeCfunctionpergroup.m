@@ -790,7 +790,7 @@ for i=1:length(obj.copies)
         
         if ~isequal(subscriptsDestination,subscriptsSource)
             subscriptsDestination,subscriptsSource
-            error('writeC: source and destination for Copy command with different sparsity structures\n');
+            error('writeC: source and destination for Copy command with different sparsity structures, you may need to use full() in the source\n');
         end
     end
     instructionsDestination=obj.memoryLocations(instructionsDestination);

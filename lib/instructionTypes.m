@@ -112,6 +112,18 @@ instructionTypes={
                            %   operand = a1
     'I_DDatan'             % computes -2*a1/(1+a1^2)^2
                            %   operand = a1;
+    'I_srelu'              % computes log(1+exp(a1))
+                           %   operand = a1;
+    'I_dsrelu'             % computes 1/(1+exp(-a1))
+                           %   operand = a1;
+    'I_ddsrelu'            % computes 1/(2+exp(-a1)+exp(a1))
+                           %   operand = a1;
+    'I_relu'               % computes max(a1,0)
+                           %   operand = a1;
+    'I_heaviside'          % computes (x1>0)?
+                           %   operand = a1;
+    'I_zero'               % computes 0
+                           %   operand = a1;
     
 %% Atomic C instructions;
     'I_luS2A'              % performs an atomic LU factorization of a

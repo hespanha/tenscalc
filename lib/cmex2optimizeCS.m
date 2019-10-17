@@ -381,7 +381,7 @@ function varargout=cmex2optimizeCS(varargin)
     
     pth=fileparts(which('cmex2optimizeCS.m'));
     declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.c'),'ipmPD_CSsolver',...
-                    defines,template(end).inputs,template(end).outputs);
+                    defines,template(end).inputs,template(end).outputs,template(end).method);
 
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';

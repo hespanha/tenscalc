@@ -496,7 +496,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     defines.verboseLevel=solverVerboseLevel;
     
     pth=fileparts(which('class2equilibriumLatentCS.m'));
-    declareFunction(code,fsfullfile(pth,'ipmPDeq_CSsolver.m'),'solve',defines);
+    declareFunction(code,fsfullfile(pth,'ipmPDeq_CSsolver.m'),'solve',defines,[],[],'solve');
     
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';

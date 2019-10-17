@@ -971,6 +971,15 @@ classdef Tcalculus
                               @(x__)(x__.^2-1).*exp(-x__.^2/2)./sqrt(2*pi));
             updateFile2table(obj,1);
         end
+        function obj=relu(obj1)
+            obj=compose(obj1,@(x__)relu(x__),@(x__)heaviside(x__),@(x__)zeros(size(x__)));
+            updateFile2table(obj,1);
+        end
+        function obj=srelu(obj1)
+            obj=compose(obj1,@(x__)log(1+exp(x__)),...
+                        @(x__)1./(1+exp(-x__)),@(x__)1./(2+exp(-x__)+exp(x__)));
+            updateFile2table(obj,1);
+        end
             
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                 Binary operators                         %%%%%
@@ -1138,16 +1147,22 @@ classdef Tcalculus
             %     osize2=[];
             % end
 
-            if  ~myisequal(osize1,osize2) && ~isempty(osize2)
+            if  ~myisequal(osize1,osize2) && ~isempty(osize1) && ~isempty(osize2)
                 obj1,obj2
-                error('can only element-wise divide objects of the same size (or divide by scalar): [%s] ~= [%s]\n',...
+                error('can only element-wise divide objects of the same size, divide by scalar, or divide scalar: [%s] ~= [%s]\n',...
                       index2str(osize1),index2str(osize2))
             end
             
             if strcmp(type(obj1),'zeros') 
                 obj=obj1;
             else
-                obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
+                if isempty(osize1)
+                    obj=Tcalculus('rdivide',osize2,[],[obj1.TCindex;obj2.TCindex],{},1);
+                elseif isempty(osize2)
+                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
+                else
+                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
+                end
             end
         end
 

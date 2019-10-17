@@ -66,6 +66,23 @@ classdef csparse < handle
                           'output',{},...        % output parameters
                           'defines',{});         % #defines
         
+        %% template for createGateway
+        template=struct('MEXfunction',{},...% string
+                        'Sfunction',{},...  % string
+                        'Cfunction',{},...  % string
+                        'method',{},...     % string
+                        'help',{},...       % string
+                        'inputs',struct(...  
+                            'type',{},...   % string
+                            'name',{},...   % cell-array of strings (one per dimension)
+                            'sizes',{}),... % cell-array of strings (one per dimension)
+                        'outputs',struct(...% string
+                            'type',{},...   % string
+                            'name',{},...   % cell-array of strings (one per dimension)
+                            'sizes',{}),... % cell-array of strings (one per dimension)
+                        'preprocess',{},... % strings (starting with parameters in parenthesis)'
+                        'includes',{});     % cell-array of strings (one per file)
+        
         %% Information about all the vectorized operations needed:
         %    each vectorized operation is essentially one TC operation.
         
@@ -297,7 +314,7 @@ classdef csparse < handle
 %% Declare operation methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        function declareSet(obj,TCdestination,functionName)
+        function declareSet(obj,TCdestination,functionName,help)
         % declareSet(obj,TCdestination,functionName)
         %
         % Declares a 'set' operation to be compiled.  Each 'set'
@@ -318,10 +335,29 @@ classdef csparse < handle
             if length(obj.vectorizedOperations)>before
                 fprintf('declareSet: ATTENTION setting a previously unseen variable, which may lead to unpredictable behavior\n');
             end
+            
+            % add to template
+            obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
+            obj.template(end,1).Sfunction=sprintf('%sS',functionName);
+            obj.template(end,1).Cfunction=sprintf('%s',functionName);
+            obj.template(end,1).method=sprintf('%s',functionName);
+            if nargin<4
+                obj.template(end,1).help='';
+            else
+                obj.template(end,1).help=help;
+            end            
+            obj.template(end,1).inputs(1).type=obj.scratchbookType;
+            if strcmp(type(TCdestination),'variable')
+                obj.template(end,1).inputs(1).name=name(TCdestination);
+            else
+                obj.template(end,1).inputs(1).name='input1';
+            end
+            obj.template(end,1).inputs(1).sizes=TCdestination.osize;
+            
             %computeScalarInstructions(obj,k);
         end
         
-        function declareGet(obj,TCsource,functionName)
+        function declareGet(obj,TCsource,functionName,help)
         % declareGet(obj,TCsource,functionName) 
         %
         % Declares a 'get' operation to be compiled.  Each 'get'
@@ -343,9 +379,29 @@ classdef csparse < handle
             end
             obj.gets(end+1,1)=...
                 struct('functionName',{functionName},'source',{k},'parentGroups',{[]});
+        
+            % add to template
+            obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
+            obj.template(end,1).Sfunction=sprintf('%sS',functionName);
+            obj.template(end,1).Cfunction=sprintf('%s',functionName);
+            obj.template(end,1).method=sprintf('%s',functionName);
+            if nargin<4
+                obj.template(end,1).help='';
+            else
+                obj.template(end,1).help=help;
+            end            
+            for i=1:length(TCsource)
+                obj.template(end,1).outputs(i).type=obj.scratchbookType;
+                if strcmp(type(TCsource{i}),'variable')
+                    obj.template(end,1).outputs(i).name=name(TCsource{i});
+                else
+                    obj.template(end,1).outputs(i).name=sprintf('output%d',i);
+                end
+                obj.template(end,1).outputs(i).sizes=TCsource{i}.osize;
+            end
         end
         
-        function declareCopy(obj,TCdestination,TCsource,functionName)
+        function declareCopy(obj,TCdestination,TCsource,functionName,help)
         % declareCopy(obj,TCdestination,TCsource,functionName)
         %
         % Declares a 'copy' operation to be compiled.  Each 'copy'
@@ -407,6 +463,18 @@ classdef csparse < handle
             end
             obj.copies(end+1,1)=struct('functionName',{functionName},'source',{k2},'destination',{k1},...
                                        'childrenGroups',{[]},'parentGroups',{[]});
+        
+        
+            % add to template
+            obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
+            obj.template(end,1).Sfunction=sprintf('%sS',functionName);
+            obj.template(end,1).Cfunction=sprintf('%s',functionName);
+            obj.template(end,1).method=sprintf('%s',functionName);
+            if nargin<5
+                obj.template(end,1).help='';
+            else
+                obj.template(end,1).help=help;
+            end            
         end
         
         % function [TCvar,subscripts,instructions]=declareComputation(obj,TCsource,name)
@@ -502,18 +570,18 @@ classdef csparse < handle
                                       'source',k,'magic',magic);
         end
         
-        function declareFunction(obj,filename,funname,defines,inputs,outputs)
-        %   declarefunction(obj,filename,funname,defines,inputs,outputs) 
+        function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,help)
+        %   declarefunction(obj,filename,functionName,defines,inputs,outputs) 
         % or 
-        %   declarefunction(obj,filename,funname,defines) 
+        %   declarefunction(obj,filename,functionName,defines) 
         %
-        %   Declares a C (first firm) or a matlab (second form) 
+        %   Declares a C (first form) or a matlab (second form) 
         %   function that typically calls the functions
         %   created through declareSet, declareGet, declareCopy,
         %   declareSave. The function can be found in the file
-        %   'filename' and is called 'funname()'. 
+        %   'filename' and is called 'functionName()'. 
         %   (for matlab functions, the 1st function in the file
-        %   will be changed to funname(), if that was not the case)
+        %   will be changed to functionName(), if that was not the case)
         %
         %   For matlab functions, the structure 'defines' specifies a
         %   set of constants that will be included in the class and
@@ -537,13 +605,25 @@ classdef csparse < handle
         %      defines.name1 = {string or scalar}
         %      defines.name2 = {string or scalar}
 
-            obj.externalFunctions(end+1).functionName=funname;
+            obj.externalFunctions(end+1).functionName=functionName;
             obj.externalFunctions(end).fileName=filename;
             obj.externalFunctions(end).defines=defines;
-            if nargin>4
-                obj.externalFunctions(end).inputs=inputs;
-                obj.externalFunctions(end).outputs=outputs;
-            end
+            obj.externalFunctions(end).inputs=inputs;
+            obj.externalFunctions(end).outputs=outputs;
+        
+            % add to template
+            obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
+            obj.template(end,1).Sfunction=sprintf('%sS',functionName);
+            obj.template(end,1).Cfunction=sprintf('%s',functionName);
+            obj.template(end,1).method=method;
+            obj.template(end,1).inputs=inputs;
+            obj.template(end,1).outputs=outputs;
+            if nargin<8
+                obj.template(end,1).help='';
+            else
+                obj.template(end,1).help=help;
+            end            
+        
         end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Create table with vectorized operations
@@ -1031,10 +1111,162 @@ classdef csparse < handle
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Compile code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function statistics=cmex2compute(code,classname,folder,minInstructions4loop,createGateWayParameters)
+        % cmex2compute(code,classname,folder,minInstructions4loop,createGateWayParameters)
+        %
+        % Compiles code to C and generates matlab class to call
+        % the different sets/gets/copies.
+        % 
+        % This method is essentially a wrapper around the compile2C
+        % method, followed by a call to createGateway (with mostly
+        % default parameters)
+        %
+        % Inputs:
+        %   obj                  - csparse object
+        %   classname            - name of class to create
+        %   folder               - (optional) folder where class is created
+        %   minInstructions4loop - (optional) minimum number of similar instructions to
+        %                          be implwmented as a for loop (rather than inlined) 
+        %                          default: 10
+        %   createGateWayParameters - (optional) cell array of pairs 
+        %                              'parameter','value'
+        %                           to be passed to 'createGateWay'
+        %                           see ''createGateway help'' 
+        % Outputs:
+        %   statistics - Structure with various ''createGateway'' statistics,
+        %                including the file sizes and compilations times
+            if nargin<5
+                createGateWayParameters={};
+            end
+            if nargin<4 || isempty(minInstructions4loop)
+                minInstructions4loop=10;
+            end
+            if nargin<3 || isempty(folder)
+                folder='.';
+            end
+
+            %% transfer any folder in classname into folder
+            [folder,classname]=fileparts(fsfullfile(folder,classname));
+            
+            %% create folder if it does not exist
+            if ~strcmp(folder,'.') && ~exist(folder,'dir')
+                fprintf('cmex2compute: outputs folder ''%s'' does not exist, creating it\n',folder);
+                if mkdir(folder)==0
+                    error('Unable to create folder ''%s''\n',folder)
+                end
+            end
+            
+            rmpath(folder);
+            addpath(folder);
+    
+            classFolder=fsfullfile(folder,sprintf('@%s',classname));
+            if ~exist(classFolder,'dir')
+                fprintf('class classFolder @%s does not exist, creating it... ',classname);
+                mkdir(classFolder);
+            end
+   
+
+            %% Fix class when gotten from pedigree
+            classname=regexprep(classname,'+TS=','_TS_');
+            classname=regexprep(classname,'-','_');
+            classname=regexprep(classname,'+','_');
+            
+            %% Compile code
+            fprintf(' Creating C code... ');
+            t_compile2C=clock();
+            compile2C(code,'C',minInstructions4loop,...
+                      sprintf('%s.c',classname),...
+                      sprintf('%s.h',classname),...
+                      sprintf('%s.log',classname),...
+                      classFolder);
+            code.statistics.time.compile2C=etime(clock,t_compile2C);
+            
+            fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
+            
+            tpl=code.template;
+            % add classname to cmex & S-functions to make names unique 
+            for i=1:length(tpl)
+                tpl(i).MEXfunction=sprintf('%s_%s',classname,tpl(i).MEXfunction);
+                tpl(i).Sfunction=sprintf('%s_%s',classname,tpl(i).Sfunction);
+                % no simulink functions
+                tpl(i).Sfunction='';
+            end
+
+            t_createGateway=clock();
+            
+            statistics=createGateway('template',tpl,...
+                                     'CfunctionsSource',fsfullfile(classFolder,sprintf('%s.c',classname)),...
+                                     'callType','dynamicLibrary',...
+                                     'dynamicLibrary',classname,...
+                                     'folder',folder,...
+                                     'className',classname,...
+                                     createGateWayParameters{:});
+
+            statistics.time.createGateway=etime(clock,t_createGateway);
+            statistics.createGateway=statistics;
+            
+            fprintf('  done creating & compiling gateways & library (%.2f sec)\n',...
+                    etime(clock,t_createGateway));
+            
+            rehash path;
+        end
+        
+function class2compute(code,classname,folder)
+        % cmex2compute(code,classname,folder)
+        %
+        % Compiles code to matlab and generates matlab class to call
+        % the different sets/gets/copies.
+        % 
+        % This method is essentially a wrapper around the compile2matlab method.
+        %
+        % Inputs:
+        %   obj                  - csparse object
+        %   classname            - name of class to create
+        %   folder               - (optional) folder where class is created
+            if nargin<3 || isempty(folder)
+                folder='.';
+            end
+    
+            %% transfer any folder in classname into folder
+            [folder,classname]=fileparts(fsfullfile(folder,classname));
+            
+            %% create folder if it does not exist
+            if ~strcmp(folder,'.') && ~exist(folder,'dir')
+                fprintf('class2compute: outputs folder ''%s'' does not exist, creating it\n',folder);
+                if mkdir(folder)==0
+                    error('Unable to create folder ''%s''\n',folder)
+                end
+            end
+            
+            rmpath(folder);
+            addpath(folder);
+            
+            %% Fix class when gotten from pedigree
+            classname=regexprep(classname,'+TS=','_TS_');
+            classname=regexprep(classname,'-','_');
+            classname=regexprep(classname,'+','_');
+
+            classHelp=helpFromTemplate(classname,code.template);
+
+            fprintf(' creating matlab code... ');
+            t_compile2matlab=clock();
+            compile2matlab(code,...
+                           fsfullfile(folder,sprintf('%s.m',classname)),...
+                           fsfullfile(folder,sprintf('%s.log',classname)),...
+                           classHelp);
+            statistics.time.compile2matlab=etime(clock,t_compile2matlab);
+            
+            fprintf(' done creating matlab code (%.3f sec)\n',etime(clock,t_compile2matlab));
+            
+            rehash path;
+        end
+        
         function compile2C(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling)
         % compile2C(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
         %
         % Compiles code to C and appends it to a given file.
+        %
         % Inputs:
         % obj - csparse object
         % codeType - Type of code produced:'
@@ -1080,16 +1312,16 @@ classdef csparse < handle
         % folder    - folder where all files will be written (optional)
         % profiling - when non-zero adds profiling code (optional)
             
-            if nargin<7
+            if nargin<8
                 profiling=false;
             end
-            if nargin<6
+            if nargin<7
                 folder='.';
             end
-            if nargin<5
+            if nargin<6
                 logFile='';
             end
-            if nargin<4
+            if nargin<5
                 Hfunction='';
             end
 

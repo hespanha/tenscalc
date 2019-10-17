@@ -1492,6 +1492,40 @@ EXPORT int writeCinstructionsC(/* inputs */
 	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,
 	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
+    case I_srelu:
+      countFlops_nexp++;
+      countFlops_nlog++;
+      fprintf(fid,"\tm[%"PRId64"]=log(1+exp(m[%"PRId64"]));//srelu(%"PRId64")\n",
+      	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
+    case I_dsrelu:
+      countFlops_nexp++;
+      countFlops_ndiv++;
+      fprintf(fid,"\tm[%"PRId64"]=1/(1+exp(-m[%"PRId64"]));//dsrelu(%"PRId64")\n",
+      	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
+    case I_ddsrelu:
+      countFlops_nexp+=2;
+      countFlops_ndiv++;
+      countFlops_nsum++;
+      fprintf(fid,"\tm[%"PRId64"]=1/(2+exp(-m[%"PRId64"])+exp(m[%"PRId64"]));//ddsrelu(%"PRId64")\n",
+      	      memoryLocations[indices[0]-1]-1,
+	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
+    case I_relu:
+      countFlops_nif  += 1;
+      
+      fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>0)?m[%"PRId64"]:0;//relu(%"PRId64")\n",
+	      memoryLocations[indices[0]-1]-1,
+	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
+    case I_heaviside:
+      countFlops_nif  += 1;
+      
+      fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>0)?1:0;//heaviside(%"PRId64")\n",
+	      memoryLocations[indices[0]-1]-1,
+	      memoryLocations[operands[0]-1]-1,indices[0]);
+      break;
 
     case I_luS2A:
       countFlops_numfpack++;

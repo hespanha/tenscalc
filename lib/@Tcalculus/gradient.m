@@ -161,7 +161,7 @@ function grad=gradient(obj,var)
         grad=tprod(grads{1},...
                      [-1:-1:-length(osize1),1:length(var_size)],...
                      abs(objs{1}),-1:-1:-length(osize1));
-        error('Do not attemp to take derivative of norm1() as it is typically smooth at optimal value.')
+        error('Do not attemp to take derivative of norm1() as it is typically not smooth at optimal value.')
         
       case 'compose'
         fun=parameters(obj);
@@ -202,17 +202,36 @@ function grad=gradient(obj,var)
         osize1=objs{1}.size;
         osize2=objs{2}.size;
         if isempty(osize2)
-            % division by scalar
-            if strcmp(type(grads{2}),'zeros')
-                % denominator is a "constant"
-                grad=grads{1}/objs{2};
-            else
-                grad=grads{1}/objs{2}...
-                     -tprod(objs{1},1:length(osize1),...
-                            grads{2},length(osize1)+1:length(osize1)+length(var_size))...
-                     /(objs{2}*objs{2});
-            end
+            %% division by scalar
+            % [d/dX A./b]_IK = d(A_I / b)/ d X_K 
+            %                = (dA_I/dX_K) / b - A_I (db/dX_K) /b^2
+            %                = [dA/dX]_IK /b   - A_I [db/dX]_K /b^2
+            % I = 1:length(size(A)); K = I(end)+(1:length(size(X)))
+            I=1:length(osize1);
+            K=I(end)+(1:length(var_size));
+            grad=grads{1}/objs{2}-tprod(objs{1},I,grads{2},K)/(objs{2}*objs{2});
+        elseif isempty(osize1)
+            %% scalar divided by tensor
+            % [d/dX a./B]_IK = d(a/B_I)/ d X_K 
+            %                = (da/dX_K) / B_I - a (dB_I/dX_K) / B_I.^2
+            %                = [da/dX]_K / B_I - a [dB/dX]_IK / B_I.^2
+            % I = 1:length(size(B)); K = I(end)+(1:length(size(X)))
+            I=1:length(osize2);
+            K=I(end)+(1:length(var_size));
+            grad=tprod(grads{1},K,1./objs{2},I)-...
+                 tprod(grads{2},[I,K],objs{1}./(objs{2}.*objs{2}),I);
+        elseif myisequal(osize1,osize2)
+            %% tensor divided by tensor
+            % [d/dX A./B]_IK = d(A_I/B_I)/ d X_K 
+            %                = (dA_I/dX_K) / B_I - A_I (dB_I/dX_K) / B_I^2
+            %                = [dA/dX]_IK / B_I - A_I [dB/dX]_IK / B_I^2
+            % I = 1:length(size(A)); K = I(end)+(1:length(size(X)))
+            I=1:length(osize1);
+            K=I(end)+(1:length(var_size));
+            grad=tprod(grads{1},[I,K],1./objs{2},I)-...
+                 tprod(objs{1}./(objs{2}.*objs{2}),I,grads{2},[I,K]);
         else
+            osize1,osize2
             error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size))
         end
         

@@ -562,7 +562,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     
     pth=fileparts(which('cmex2equilibriumLatentCS.m'));
     declareFunction(code,fsfullfile(pth,'ipmPDeq_CSsolver.c'),'ipmPDeq_CSsolver',...
-                    defines,template(end).inputs,template(end).outputs);
+                    defines,template(end).inputs,template(end).outputs,template(end).method);
     
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';

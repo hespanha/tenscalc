@@ -44,7 +44,16 @@ if isempty(osize2)
     
     %% Determine instructions for Y
     operands=[instrX1';instrX2*ones(1,length(instrX1))];
-else
+elseif isempty(osize1)  
+    % scalar divided by
+    if isempty(instrX2)
+        error('sparsity_rdivide: structurally zero scalar for x2 not allowed in x1./x2')
+    end
+    subsY=subsX2;
+    
+    %% Determine instructions for Y
+    operands=[instrX1*ones(1,length(instrX2));instrX2'];
+elseif myisequal(osize1,osize2)
     if size(subsX2,2)~=prod(osize)
         error('sparsity_rdivide: structurally zero values for x2 not allowed in x1./x2')
     end
@@ -55,6 +64,9 @@ else
     
     %% Determine instructions for Y
     operands=[instrX1(kX1(kX2))';instrX2(kX2)'];
+else
+    osize1,osize2,;
+    error('sparsity_rdivide: mismatched sizes in x1./x2');
 end
 if isempty(operands)
     instrY=zeros(0,1);
@@ -62,5 +74,4 @@ else
     operands=mat2cell(operands,2,ones(size(operands,2),1));
     instrY=newInstructions(obj,obj.Itypes.I_div,{[]},operands,thisExp);
 end
-
 %disp(obj)
