@@ -28,6 +28,8 @@ function obj=tprod_simplify(obj)
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
+    verboseLevel=0;
+    
     if ~strcmp(type(obj),'tprod')
         return
     end
@@ -270,7 +272,7 @@ function obj=tprod_simplify(obj)
         obj=Tconstant(prod(sums_size))*Tones(tprod_size);
     end
     
-    if ~isempty(msg)
+    if ~isempty(msg) && verboseLevel>0
         fprintf(msg)
         disp(obj)
     end

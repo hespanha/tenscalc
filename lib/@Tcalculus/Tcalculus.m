@@ -975,6 +975,10 @@ classdef Tcalculus
             obj=compose(obj1,@(x__)relu(x__),@(x__)heaviside(x__),@(x__)zeros(size(x__)));
             updateFile2table(obj,1);
         end
+        function obj=heaviside(obj1)
+            obj=compose(obj1,@(x__)heaviside(x__),@(x__)zeros(size(x__)),@(x__)zeros(size(x__)));
+            updateFile2table(obj,1);
+        end
         function obj=srelu(obj1)
             obj=compose(obj1,@(x__)log(1+exp(x__)),...
                         @(x__)1./(1+exp(-x__)),@(x__)1./(2+exp(-x__)+exp(x__)));
