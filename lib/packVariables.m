@@ -44,9 +44,9 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
     unpackCmd='';
     for i=1:length(inVariables)
         if ~isequal(inVariables{i}.type,'variable')
-            var
-            var.type
-            error('Can only pack variables (not %s)',var.type);
+            inVariables{i}
+            inVariables{i}.type
+            error('Can only pack variables (not %s)',        inVariables{i}.type);
         end
         len=prod(size(inVariables{i}));
         packCmd=sprintf('%sreshape(%s,%d,1);',packCmd,name(inVariables{i}),len);

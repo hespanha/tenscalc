@@ -1,0 +1,92 @@
+function localVariables_=parameters4compute(localVariables_)
+% Declare input parameters common to the 4 tenscalc functions:
+%   cmex2compute.m
+%   class2compute.m
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% CreateGateway parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+    declareParameter(...
+        'VariableName','minInstructions4loop',...
+        'DefaultValue',100,...
+        'Description',{
+            'Minimum number of similar instruction that will be execute as part of a'
+            'for(;;) loop, rather than being executed as independent C commands.'
+            'When equal to ''inf'', instructions will never be grouped into foor loops.'
+            ' ';
+            'This parameter is only used for C-code solvers.';
+                      });
+        
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% CreateGateway parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+    declareParameter(...
+        'VariableName','csparseObject',...
+        'Description', {
+            'csparse object with computations to be performed.'
+                       });
+    
+    declareParameter(...
+        'VariableName','classname',...
+        'DefaultValue',getFromPedigree(),...
+        'Description', {
+            'Name of the class to be created.'
+            'A matlab class will be created with this name plus a |.m| extension.';
+            ' '
+            'One can look "inside" this class to find the name of the cmex functions.'
+                       });
+    
+    declareParameter(...
+    'VariableName','folder',...
+    'DefaultValue','.',...
+    'Description', {
+        'Path to the folder where the files will be created.';
+        'Needs to be in the Matlab path.'
+                   });
+
+    declareParameter(...
+        'VariableName','absolutePath',...
+        'DefaultValue',true,...
+        'AdmissibleValues',{true,false},...
+        'Description', {
+            'When ''true'' the the cmex functions use an absolute path to open';
+            'the dynamic library, which means that the dynamic library cannot';
+            'be moved away from the folder where it was created.';
+            ' '
+            'When ''false'' no path information about the dynamic library is'
+            'included in the cmex function, which must then rely on the OS-specific';
+            'method used to find dynamic libraries. See documentation of ''dlopen'''
+            'for linux and OSX or ''LoadLibrary'' for Microsoft Windows.'
+            ' '
+            'This parameter is used only when ''callType''=''dynamicLibrary''.'
+            ' ';
+            'This parameter is only used for C-code solvers.';
+                       }); 
+
+    declareParameter(...
+        'VariableName','compilerOptimization',...
+        'DefaultValue','-Ofast',...
+        'AdmissibleValues',{'-O0','-O1','-O2','-O3','-Ofast'},...
+        'Description', {
+            'Optimization flag used for compilation.'
+            'Only used when compileGateways, compileLibrary, or compileStandalones'
+                       });
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Output parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    declareOutput(...
+        'VariableName','classname',...
+        'Description', {
+            'Name of the class created.'
+                       });
+    
+    declareOutput(...
+        'VariableName','statistics',...
+        'Description', {
+            'Structure with various statistics, including the file sizes and compilations times'
+                       });
+    
+end
