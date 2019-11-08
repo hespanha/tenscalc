@@ -36,9 +36,9 @@ function localVariables_=parameters4all(localVariables_)
             'When |false| the barrier parameter |mu| is updated based on how much';
             'progress can be achieved in the search direction obtained with |mu=0|.';
             'This is known as the ''affine search direction step''.';
-            'Setting to |true| can significantly speed up convergence by rapidly';
-            'decreasing the barrier parameter. However, it can be fragile for';
-            'tough non-convex problems.'     
+            'This step (obtained by setting to |skipAffine|=|false|) can significantly'
+            'speed up convergence by rapidly decreasing the barrier parameter.'
+            'However, it can be fragile for tough non-convex problems.'     
                       });
 
     declareParameter(...
@@ -210,7 +210,7 @@ function localVariables_=parameters4all(localVariables_)
         'DefaultValue',false,...
         'AdmissibleValues',{true,false},...
         'Description',{
-            'When nonzero, adds profiling to the C code.';
+            'When |true|, adds profiling to the C code.';
             ' '
             'Accumulated profiling information is diplayed on the screen when the'
             'dynamic library is unloaded.'
