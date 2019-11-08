@@ -37,31 +37,30 @@ instrX2=getOne(obj.vectorizedOperations,'instructions',operands(2));
 
 if isempty(osize2)
     % division by scalar
+    %fprintf('sparsity_rdivide: division by scalar\n');
     if isempty(instrX2)
         error('sparsity_rdivide: structurally zero scalar for x2 not allowed in x1./x2')
     end
     subsY=subsX1;
-    
     %% Determine instructions for Y
     operands=[instrX1';instrX2*ones(1,length(instrX1))];
 elseif isempty(osize1)  
     % scalar divided by
+    %fprintf('sparsity_rdivide: scalar divided by\n');
     if isempty(instrX2)
         error('sparsity_rdivide: structurally zero scalar for x2 not allowed in x1./x2')
     end
     subsY=subsX2;
-    
     %% Determine instructions for Y
     operands=[instrX1*ones(1,length(instrX2));instrX2'];
 elseif myisequal(osize1,osize2)
+    % entry-wise division
+    %fprintf('sparsity_rdivide: entry-wise division\n');
     if size(subsX2,2)~=prod(osize)
         error('sparsity_rdivide: structurally zero values for x2 not allowed in x1./x2')
     end
-    
-    [kX2,kX1]=ismember(subsX2',subsX1','rows');
-    
+    [kX2,kX1]=ismember(subsX2',subsX1','rows');    
     subsY=subsX1(:,kX1(kX2));
-    
     %% Determine instructions for Y
     operands=[instrX1(kX1(kX2))';instrX2(kX2)'];
 else
