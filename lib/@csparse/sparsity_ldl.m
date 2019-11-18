@@ -101,7 +101,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     end
         
     if verboseLevel>1
-        fig=gcf;
+        fig=get(0,'CurrentFigure');
         f=figure(101);
         set(f,'Name',typical_subscripts);
         clf
@@ -243,7 +243,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
                   double(subsLDL(2,k)),...
                   instrLDL(k),n,n);
         
-        figure(101);
+        figure(f);
         subplot(2,3,5)
         plot(1:n,1:n,'rx');
         legend('pivots');
@@ -274,10 +274,12 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
 
         %fprintf('\nq=%s;\n',mat2str(q));
         %fprintf('\np=%s;\n',mat2str(p));
-        try
-            figure(fig);
-        catch me
-            fprintf('Unable to go back to current figure (did you close the window?)\n');
+        if ~isempty(fig)
+            try
+                figure(fig);
+            catch me
+                fprintf('Unable to go back to current figure (did you close the window?)\n');
+            end
         end
     end
     
