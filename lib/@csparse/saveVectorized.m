@@ -1,7 +1,7 @@
 function saveVectorized(obj,filename)
 % saveVectorized(obj,filename)
 %
-% Saves the csparse object as a compuational graph. See computation
+% Saves the csparse object as a computational graph. See computation
 % graphs for the file format.
 %
 % Copyright 2012-2017 Joao Hespanha

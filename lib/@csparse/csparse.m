@@ -57,6 +57,7 @@ classdef csparse < handle
         saves=struct('functionName',{},...  % desired name for the C function
                      'filename',{},...      % filename where variable will be saved
                      'source',{},...        % elementary expression to be retrieved
+                     'parentGroups',{},...  % groups of instructions that source depends on
                      'magic',{});           % magic number to match files
 
         %% Information about ExternalFunctions
@@ -567,7 +568,7 @@ classdef csparse < handle
             magic=int64(etime(clock(),[2000,1,1,0,0,0])*1e9); % ns 2000/1/1
             %fprintf('      declareSave(%s,magic=%d\n',functionName,magic);
             obj.saves(end+1,1)=struct('functionName',functionName,'filename',filename,...
-                                      'source',k,'magic',magic);
+                                      'source',k,'parentGroups',[],'magic',magic);
         end
         
         function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,help)

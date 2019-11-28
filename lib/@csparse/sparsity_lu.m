@@ -64,7 +64,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         fprintf('    using values from "%s"\n    ',typical_values);
         nnan=sum(isnan(A(:)));
         if nnan>0
-            error('typical values include %d nan entries',nnan);
+            error('typical values include %d nan entries',full(nnan));
         end
     end
 

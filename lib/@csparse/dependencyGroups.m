@@ -75,6 +75,16 @@ for i=1:length(obj.gets)
     outputInstructions=union(outputInstructions,instr);
     %obj.gets(i).functionName,length(instr)
 end
+for i=1:length(obj.saves)
+    %dependencies(:,j)=parentsOf(obj,getOne(obj.vectorizedOperations,'instructions',obj.saves(i).source));
+    instr=getMulti(obj.vectorizedOperations,'instructions',obj.saves(i).source);
+    instr=vertcat(instr{:});
+    dependencies(:,j)=parentsOf(obj,instr);
+    obj.dependencyGroupColName{j}=obj.saves(i).functionName;
+    j=j+1;
+    outputInstructions=union(outputInstructions,instr);
+    %obj.saves(i).functionName,length(instr)
+end
 for i=1:length(obj.copies)
     % for k=1:length(obj.copies(i).source)
     %     dependencies(:,j)=dependencies(:,j)|...
@@ -203,6 +213,10 @@ end
 j=1;
 for i=1:length(obj.gets)
     obj.gets(i).parentGroups=find(dependencyGroups(:,j));
+    j=j+1;
+end
+for i=1:length(obj.saves)
+    obj.saves(i).parentGroups=find(dependencyGroups(:,j));
     j=j+1;
 end
 for i=1:length(obj.copies)

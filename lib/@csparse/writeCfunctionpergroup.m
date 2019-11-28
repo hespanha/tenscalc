@@ -837,6 +837,13 @@ for i=1:length(obj.saves)
     else
         fprintf(fid,'  %s SCRATCHBOOK_TYPE *m=scratchbook;\n',m_storageclass);
     end
+
+    % perform needed computations
+    if ~isempty(obj.saves(i).parentGroups)
+        fprintf(fid,callComputeFunctions,...
+                repmat(obj.saves(i).parentGroups(:)'-1,NcallComputeFunctions,1));
+    end
+    
     fprintf(fid,'#if _WIN32\n');
     fprintf(fid,'  int fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC);\n');
     fprintf(fid,'#else\n');
