@@ -251,7 +251,7 @@ function localVariables_=parameters4all(localVariables_)
             '                  when |saveIter<0|, the hessian matrix is not saved.';
             ' '
             '                  The "hessian" matrix will be saved regardless of the';
-            '                  value of |saveIter|, when the solver exists with |status=-2|'
+            '                  value of |saveIter|, when the solver exists with |status=4|'
             '   * |status|   - solver exist status';
             '                 *  0  = success';
             '                 *  >0 = solver terminated unexpectedly';
