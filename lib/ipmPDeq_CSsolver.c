@@ -239,11 +239,11 @@ EXPORT void ipmPDeq_CSsolver(
 	printf3("  -> failed to invert hessian\n");
 	(*status) = 4;
 #if allowSave==1
-	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4 (grad)\n");
 	saveWW__(saveNamePrefix "_WW.values");
-	printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4\n");
+	printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4 (grad)\n");
 	savedx_s__(saveNamePrefix "_dx_s.values");
-	printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4\n");
+	printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4 (grad)\n");
 	saveb_s__(saveNamePrefix "_B_s.values");
 #endif
 	break;
@@ -442,11 +442,18 @@ EXPORT void ipmPDeq_CSsolver(
 	  printf3("  -> failed to invert hessian\n");
 	  (*status) = 4;
 #if allowSave==1
-	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
+	  {
+	    /* #define  NWW 357 */
+	    /* double buffer[NWW*NWW]; */
+	    /* extern void getWWW__(double *); */
+	    /* getWW__(buffer); */
+	  }
+	  
+	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4 (ineq)\n");
 	  saveWW__(saveNamePrefix "_WW.values");
-	  printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4\n");
+	  printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4 (ineq)\n");
 	  savedx_s__(saveNamePrefix "_dx_s.values");
-	  printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4\n");
+	  printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4 (ineq)\n");
 	  saveb_s__(saveNamePrefix "_B_s.values");
 #endif
 	  break;
