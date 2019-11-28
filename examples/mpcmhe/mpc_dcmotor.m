@@ -42,10 +42,14 @@ dxFun=@(x,u,p,k)[0,1;0,p]*x+[0;k]*u;
 Tvariable uMax [];
 Tvariable xMax [2,1];
 
-% Criterium
+% Criterion
 
 Tvariable r [1,T];   % reference
 J=norm2(xFut(1,:)-r)+norm2(uFut)/50;
+
+% inequality constraints
+constraints={uFut<=uMax, uFut>=-uMax,...
+             xFut<=repmat(xMax,[1,T]),xFut>=-repmat(xMax,[1,T])};
 
 % Warm start
 
@@ -55,10 +59,6 @@ xFutWarm=min(xFutWarm,.9*repmat(xMax,[1,T]));
 xFutWarm=max(xFutWarm,-.9*repmat(xMax,[1,T]));
 uFutWarm=min(uFutWarm,.9*uMax);
 uFutWarm=max(uFutWarm,-.9*uMax);
-
-% inequality constraints
-constraints={uFut<=uMax, uFut>=-uMax,...
-             xFut<=repmat(xMax,[1,T]),xFut>=-repmat(xMax,[1,T])};
 
 [classname,code]=cmex2optimizeCS(...
     'pedigreeClass','tmp_mpc_dcmotor',...
@@ -78,9 +78,8 @@ code=getValue(code);
 obj=feval(classname);
 
 
-%% Simulate system
+%% Set parameter values
 
-% set parameter values
 p=2;k=1;
 setP_p(obj,p);
 setP_k(obj,k);
@@ -94,6 +93,8 @@ setP_xMax(obj,xMax);
 
 refmax=.35;
 refomega=.5;
+
+%% Simulate system
 
 % set process initial condition
 t0=0;
