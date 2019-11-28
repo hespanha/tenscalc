@@ -13,14 +13,14 @@ function [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,var
 %
 % Outputs:
 %   Ts []              - Tcalculus variable with sampling interval
-%   xMeas  [nx,1]      - Tcalculus variable with (current) measured state
+%   xMeas  [nX,1]      - Tcalculus variable with (current) measured state
 %                          [ x(t) ]    
-%   xFut   [nx,T]      - Tcalculus variable with future state vector
+%   xFut   [nX,T]      - Tcalculus variable with future state vector
 %                          [ x(t+Ts), x(t+2*Ts), ..., x(t+T*Ts) ];    
-%   uPast [nu,delay]   - Tcalculus variable with previously computed inputs
+%   uPast [nU,delay]   - Tcalculus variable with previously computed inputs
 %                          [u(t), u(t+Ts), ..., u(t+(delay-1)*Ts) ] 
 %                        (only needed if delay>1)
-%   uFut [nu,T-delay]  - Tcalculus variable with previously computed inputs 
+%   uFut [nU,T-delay]  - Tcalculus variable with previously computed inputs 
 %                          [u(t+delay*Ts), ... , u(t+(T-1)*Ts) ] 
 %   dynamics           - Tcalculus constraint encoding trapesoidal integration, 
 %                        but with u assumed held constant (ZOH)
