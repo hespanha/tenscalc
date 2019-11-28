@@ -336,7 +336,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         if atomicFactorization
             lu_ww=declareAlias(code,lu_ww,'lu_ww',true);
         end
-        
+        %declareGet(code,full(WW),'getWW__');
+
         if ~skipAffine
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %% affine scaling direction
