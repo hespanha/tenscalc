@@ -208,7 +208,7 @@ EXPORT void ipmPD_CSsolver(
     printf3("%10.2e",norminf_grad);
 
     if (isnan(norminf_grad)) {
-	printf3("  -> failed to invert hessian\n");
+	printf2("  -> failed to invert hessian\n");
 	(*status) = 4;
 #if allowSave==1
 	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
@@ -227,12 +227,12 @@ EXPORT void ipmPD_CSsolver(
     getGapMinFMinLambda__(&gap,&ineq,&dual);
     printf3("%10.2e%10.2e%10.2e",ineq,dual,gap);
     if (ineq<=0) {
-        printf3("  -> (primal) variables violate constraints\n");
+        printf2("  -> (primal) variables violate constraints\n");
         (*status) = 1;
         break;
     }
     if (dual<=0) {
-        printf3("  -> negative value for dual variables\n");
+        printf2("  -> negative value for dual variables\n");
         (*status) = 2;
         break;
     }
@@ -398,7 +398,7 @@ EXPORT void ipmPD_CSsolver(
       alphaPrimal=alphaMax_/STEPBACK;
       setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
       if (isnan(ineq)) {
-	  printf3("  -> failed to invert hessian\n");
+	  printf2("  -> failed to invert hessian\n");
 	  (*status) = 4;
 #if allowSave==1
 	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");

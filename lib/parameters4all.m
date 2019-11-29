@@ -300,62 +300,70 @@ function localVariables_=parameters4all(localVariables_)
             'to the begining of the path if not there already.'
                        });
     
-    declareParameter(...
-        'VariableName','codeType',...
-        'DefaultValue','C',...
-        'AdmissibleValues',{'C','C+asmSB','C+asmLB'},...
-        'Description',{
-            'Type of code produced:'
-            '* |C| - all computations done in pure C code. Ideal for final code.'
-            '          '
-            '          Impact on non-optimized compilation:'
-            '            * medium compilation times'
-            '            * largest code size'
-            '            * slowest run times';
-            '          '
-            '          Impact on optimized code:'
-            '            Gives the most freedom to the compiler for optimization'
-            '            * slowest compile optimization times'
-            '            * fastest run times'
-            '            * smallest code sizes';
-            '          '
-            '* |C+asmLB| - little C code, with most of the computations done'
-            '          by large blocks of inlined assembly code. Ideal for testing.'
-            '          '
-            '          Impact on non-optimized compilation:'
-            '            * fastest compilation times'
-            '            * smallest code size'
-            '            * fastest run times (for non-optimized code)'
-            '          '
-            '          Impact on optimized compilation:'
-            '            Most of the compiler optimization is restricted to re-ordering'
-            '            and/or inlining the large blocks of asm code'
-            '            * fastest compile optimization times'
-            '            * slowest run times'
-            '            * largest optimized code sizes (due to inlining large blocks)';
-            '          '
-            '          NOT FULLY IMPLEMENTED.';
-            '          '
-            '* |C+asmSB| - little C code, with most of the computations done'
-            '          by small blocks of inlined assembly code'
-            '          '
-            '          Impact on non-optimized compilation:'
-            '            * medium compilation times'
-            '            * medium code size'
-            '            * medium run times'
-            '          '
-            '          Impact on optimized code:'
-            '            Most of the compiler optimization is restricted to re-ordering'
-            '            and/or inlining the small blocks of asm code'
-            '            * medium compile optimization times,'
-            '            * medium run times'
-            '            * medium code sizes';
-            '          '
-            '          NOT FULLY IMPLEMENTED NOR TESTED.'
-            ' ';
-            'This parameter is only used for C-code solvers.';
-                      });
-
+    if 0
+        declareParameter(...
+            'VariableName','codeType',...
+            'DefaultValue','C',...
+            'AdmissibleValues',{'C','C+asmSB','C+asmLB'},...
+            'Description',{
+                'Type of code produced:'
+                '* |C| - all computations done in pure C code. Ideal for final code.'
+                '          '
+                '          Impact on non-optimized compilation:'
+                '            * medium compilation times'
+                '            * largest code size'
+                '            * slowest run times';
+                '          '
+                '          Impact on optimized code:'
+                '            Gives the most freedom to the compiler for optimization'
+                '            * slowest compile optimization times'
+                '            * fastest run times'
+                '            * smallest code sizes';
+                '          '
+                '* |C+asmLB| - little C code, with most of the computations done'
+                '          by large blocks of inlined assembly code. Ideal for testing.'
+                '          '
+                '          Impact on non-optimized compilation:'
+                '            * fastest compilation times'
+                '            * smallest code size'
+                '            * fastest run times (for non-optimized code)'
+                '          '
+                '          Impact on optimized compilation:'
+                '            Most of the compiler optimization is restricted to re-ordering'
+                '            and/or inlining the large blocks of asm code'
+                '            * fastest compile optimization times'
+                '            * slowest run times'
+                '            * largest optimized code sizes (due to inlining large blocks)';
+                '          '
+                '          NOT FULLY IMPLEMENTED.';
+                '          '
+                '* |C+asmSB| - little C code, with most of the computations done'
+                '          by small blocks of inlined assembly code'
+                '          '
+                '          Impact on non-optimized compilation:'
+                '            * medium compilation times'
+                '            * medium code size'
+                '            * medium run times'
+                '          '
+                '          Impact on optimized code:'
+                '            Most of the compiler optimization is restricted to re-ordering'
+                '            and/or inlining the small blocks of asm code'
+                '            * medium compile optimization times,'
+                '            * medium run times'
+                '            * medium code sizes';
+                '          '
+                '          NOT FULLY IMPLEMENTED NOR TESTED.'
+                ' ';
+                'This parameter is only used for C-code solvers.';
+                          });
+    else
+        declareParameter(...
+            'VariableName','codeType',...
+            'DefaultValue','C',...
+            'AdmissibleValues',{'C'},...
+            'Description',{'parameter not used in current version'});
+    end
+    
     declareParameter(...
         'VariableName','scratchbookType',...
         'DefaultValue','double',...
@@ -365,7 +373,6 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-    
     declareParameter(...
         'VariableName','fastRedundancyCheck',...
         'DefaultValue',false,...
@@ -463,6 +470,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                        });
+
     declareParameter(...
         'VariableName','targetComputer',...
         'DefaultValue',lower(computer),...
@@ -472,6 +480,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                        });
+
     declareParameter(...
         'VariableName','serverComputer',...
         'DefaultValue',lower(computer),...
@@ -482,6 +491,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                        });
+
     declareParameter(...
         'VariableName','absolutePath',...
         'DefaultValue',true,...
@@ -500,13 +510,15 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                        }); 
+
     declareParameter(...
-    'VariableName','serverProgramName',...
-    'DefaultValue','',...
-    'Description', {
-        'Name of the executable file for the server executable.'
-        'This parameter is used only when |callType=''client-server''|.'
-        });
+        'VariableName','serverProgramName',...
+        'DefaultValue','',...
+        'Description', {
+            'Name of the executable file for the server executable.'
+            'This parameter is used only when |callType=''client-server''|.'
+                       });
+
     declareParameter(...
         'VariableName','serverAddress',...
         'DefaultValue','localhost',...
@@ -516,6 +528,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                        });
+
     declareParameter(...
         'VariableName','port',...
         'DefaultValue',1968,...
@@ -549,5 +562,5 @@ function localVariables_=parameters4all(localVariables_)
                 'Data to be passed to debugConvergenceAnalysis.'
                           });
     end
-
+    
 end
