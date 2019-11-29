@@ -17,7 +17,8 @@
 
 clear all;
 % remove previous solvers
-% ATTENTION: for cmex version must not erase tmpC_mpcmhe_uni_WW.subscripts & tmpC_mpcmhe_uni_WW.values
+% ATTENTION: for cmex version must not erase 
+%          @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.subscripts & @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.values
 %!rm -rf *toremove* tmp* % @tmp*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,16 +88,22 @@ J=cc*JJ;
 % Warm start
 tol=.9;
 xWarm=[x(:,2:end),zeros(nX,1)];
-uFutWarm=[uFut(:,2:end),.01+zeros(nU,1)];
+uFutWarm=[uFut(:,2:end),zeros(nU,1)];
 uFutWarm=min(uFutWarm,tol*uMax);
 uFutWarm=max(uFutWarm,-tol*uMax);
 dWarm=[d(:,2:end),zeros(nD,1)];
 dWarm=min(dWarm,tol*dMax);
 dWarm=max(dWarm,-tol*dMax);
 
-[classname,code]=cmex2equilibriumLatentCS(...
-    'pedigreeClass','tmp_mm_uni',...
-    'executeScript','yes',...
+if strcmp(computer,'PCWIN64');
+    coder=@class2equilibriumLatentCS;
+else
+    coder=@cmex2equilibriumLatentCS;
+end    
+classname=coder(...
+    ...%'pedigreeClass','tmp_mm_uni',...
+    ...%'executeScript','yes',...
+    'classname','tmp_mpcmhe_uni',...
     ...
     'P1objective',J,...
     'P2objective',-J,...
@@ -119,8 +126,6 @@ dWarm=max(dWarm,-tol*dMax);
     'compilerOptimization','-O0',...
     'solverVerboseLevel',2);
     
-classname=getValue(classname);
-code=getValue(code);
 obj=feval(classname);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -252,8 +257,10 @@ for k=1:200
      %subplot(4,4,mod(k,16)+1);
      figure(1);
      plot(closedloop.x(1,:),closedloop.x(2,:),'g.-',...
-          closedloop.x(4,:),closedloop.x(5,:),'b.-');grid on
-     legend('pursuer','evader');
+          closedloop.x(4,:),closedloop.x(5,:),'b.-',...
+          hatx(1,L+1:end),hatx(2,L+1:end),'g:',...
+          hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
+     legend('pursuer','evader','pursuer prediction','evader prediction');
      axis equal
      figure(2);
      subplot(3,1,1);
