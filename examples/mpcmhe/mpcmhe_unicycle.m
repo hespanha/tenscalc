@@ -212,7 +212,7 @@ for k=1:200
                 closedloop.t(end),closedloop.J(end),closedloop.iter(end),1e3*closedloop.stime(end));
 
         if closedloop.status(end)==4
-            error('failed to invert hessian, regenerate code to compile with saves values for hessian\n')
+            error('failed to invert hessian, regenerate code to compile with saved values for hessian')
         end
         if closedloop.status(end)>0
             uFut=lastUfut(:,2:end);
