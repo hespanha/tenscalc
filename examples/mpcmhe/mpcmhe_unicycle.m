@@ -15,11 +15,11 @@
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-clear all;
+clear all
 % remove previous solvers
 % ATTENTION: for cmex version must not erase 
 %          @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.subscripts & @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.values
-%!rm -rf *toremove* tmp* % @tmp*
+%!rm -rf *toremove* tmp* @tmp*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Generate solver
@@ -99,10 +99,17 @@ if strcmp(computer,'PCWIN64');
     coder=@class2equilibriumLatentCS;
 else
     coder=@cmex2equilibriumLatentCS;
-end    
+end 
+if exist('tmp_recompile.txt')
+    fprintf('Recompilation needed\n');
+    executeScript='yes';
+    delete('tmp_recompile.txt');
+else
+    executeScript='asneeded';
+end
 classname=coder(...
-    ...%'pedigreeClass','tmp_mm_uni',...
-    ...%'executeScript','yes',...
+    'pedigreeClass','tmp_mm_uni',...
+    'executeScript',executeScript,...
     'classname','tmp_mpcmhe_uni',...
     ...
     'P1objective',J,...
@@ -118,14 +125,18 @@ classname=coder(...
     ...
     'muFactorAggressive',.5,...
     'muFactorConservative',.95,...
-    ...;
+    ...
+    'gradTolerance',1e-7,...
+    'equalTolerance',1e-8,...
+    'desiredDualityGap',1e-7,...
+    ...
     'allowSave',true,...
     ...%'smallerNewtonMatrix',true,...
     ...%'umfpack',true,...
     ...
     'compilerOptimization','-O0',...
     'solverVerboseLevel',2);
-    
+
 obj=feval(classname);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,7 +171,7 @@ t0=0;
 x0=[0;0;0;.5;.5];
 
 mu0=1;
-maxIter=200;
+maxIter=125;
 saveIter=-1; % on save on error
 
 closedloop.t=t0;
@@ -177,7 +188,11 @@ closedloop.d=[];
 figure(1);clf;
 set(1,'Name','Trajectory');
 figure(2);clf;
-set(2,'Name','MPC-MHE solutions');
+set(2,'Name','Measurements');
+figure(3);clf;
+set(3,'Name','MPC-MHE solutions');
+figure(4);clf;
+set(4,'Name','Solver');
 
 for k=1:200
     % get measurement
@@ -212,6 +227,8 @@ for k=1:200
                 closedloop.t(end),closedloop.J(end),closedloop.iter(end),1e3*closedloop.stime(end));
 
         if closedloop.status(end)==4
+            % create file to force recompilation
+            fclose(fopen('tmp_recompile.txt','w'));
             error('failed to invert hessian, regenerate code to compile with saved values for hessian')
         end
         if closedloop.status(end)>0
@@ -231,7 +248,7 @@ for k=1:200
     % Apply control
      closedloop.u(:,end+1)=uFut(:,1);     
      % Apply disturbance 
-     if closedloop.t(end)<55
+     if closedloop.t(end)<=55
          closedloop.d(:,end+1)=[.05;0];
      else
          closedloop.d(:,end+1)=hatd(:,L+1);
@@ -254,27 +271,45 @@ for k=1:200
      setV_x1(obj,xWarm(:,2:end));
 
      
-     %subplot(4,4,mod(k,16)+1);
-     figure(1);
-     plot(closedloop.x(1,:),closedloop.x(2,:),'g.-',...
-          closedloop.x(4,:),closedloop.x(5,:),'b.-',...
-          hatx(1,L+1:end),hatx(2,L+1:end),'g:',...
-          hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
-     legend('pursuer','evader','pursuer prediction','evader prediction');
-     axis equal
-     figure(2);
-     subplot(3,1,1);
-     plot(closedloop.t(1:end-1),closedloop.JJ,'*');grid on
-     legend('x','u','n','d');
-     subplot(3,1,2);
-     plot(closedloop.t(1:end-1),closedloop.u,'g.-');grid on
-     subplot(3,1,3);
-     plot(closedloop.t(1:end-1),closedloop.d,'b.-');grid on
-     
-     title(sprintf('t=%d J=%.2f (status=%d, niter=%d, %.1fms)\n',...
-                   closedloop.t(end),closedloop.J(end),...
-                   closedloop.status(end),closedloop.iter(end),1e3*closedloop.stime(end)));
-     drawnow
+     if mod(k,10)==0
+         figure(1);
+         %subplot(4,4,mod(k,16)+1);
+         plot(closedloop.x(1,:),closedloop.x(2,:),'g.-',...
+              closedloop.x(4,:),closedloop.x(5,:),'b.-',...
+              hatx(1,L+1:end),hatx(2,L+1:end),'g:',...
+              hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
+         legend('pursuer','evader','pursuer prediction','evader prediction');
+         axis equal
+         figure(2);
+         plot(closedloop.y(1,:),closedloop.y(2,:),'g.-',...
+              closedloop.y(3,:),closedloop.y(4,:),'b.-',...
+              hatx(1,L+1:end),hatx(2,L+1:end),'g:',...
+              hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
+         legend('noisy pursuer','noisy evader','pursuer prediction','evader prediction');
+         axis equal
+         figure(3);
+         subplot(3,1,1);
+         plot(closedloop.t(1:end-1),closedloop.J,'-',closedloop.t(1:end-1),closedloop.JJ,'.');grid on
+         legend('J','J_x','J_u','J_n','J_d');
+         subplot(3,1,2);
+         plot(closedloop.t(1:end-1),closedloop.u,'.-');grid on;
+         legend('pursuer \omega','location','best');
+         subplot(3,1,3);
+         plot(closedloop.t(1:end-1),closedloop.d,'.-');grid on
+         legend('evader v_x','evader v_y','location','best');
+         figure(4);
+         subplot(3,1,1)
+         plot(closedloop.t(1:end-1),closedloop.iter,'.');grid on
+         ylabel('# iter');
+         subplot(3,1,2)
+         plot(closedloop.t(1:end-1),1000*closedloop.stime,'.');grid on
+         ylabel('[ms]');
+         subplot(3,1,3)
+         plot(closedloop.t(1:end-1),closedloop.status,'*');grid on
+         ylabel('status');
+
+         drawnow;
+     end
 end
 
 clear obj;
