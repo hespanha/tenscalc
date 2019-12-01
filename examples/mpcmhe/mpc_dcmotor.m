@@ -183,7 +183,7 @@ set(fig,'Name','Closed-loop');
 plot(closedloop.tt,closedloop.xx,'.-',...
      closedloop.t,closedloop.u,'.-',...
      closedloop.t,ref(closedloop.t),'.-');grid on;
-legend('xFut','x2','u','r');
+legend('x1','x2','u','r');
 xlabel('t');
 
 fig=fig+1;figure(fig);clf;

@@ -112,7 +112,7 @@ set(fig,'Name','Closed-loop (simulink)');
 plot(x.time,squeeze(x.signals.values),'.-',...
      u.time,squeeze(u.signals.values),'.-',...
      ref.time,squeeze(ref.signals.values),'.-');grid on;
-legend('xFut','x2','u','r');
+legend('x1','x2','u','r');
 xlabel('t');
 
 fig=fig+1;figure(fig);clf;
