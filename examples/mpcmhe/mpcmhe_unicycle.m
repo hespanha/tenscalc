@@ -26,7 +26,7 @@ clear all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 L=8;    % backward horizon
-T=12;   % forward horizon
+T=12;   % forward horizon  (T=20 gives nicer results)
 
 % System dynamics:
 % pursuer
@@ -107,6 +107,7 @@ if exist('tmp_recompile.txt')
 else
     executeScript='asneeded';
 end
+
 classname=coder(...
     'pedigreeClass','tmp_mm_uni',...
     'executeScript',executeScript,...
@@ -171,8 +172,10 @@ t0=0;
 x0=[0;0;0;.5;.5];
 
 mu0=1;
-maxIter=125;
-saveIter=-1; % on save on error
+
+maxIter=100;
+saveIter=-1; % save on error
+
 
 closedloop.t=t0;
 closedloop.x=x0;
@@ -222,7 +225,7 @@ for k=1:200
         [closedloop.J(end+1,1),...
          closedloop.JJ(:,end+1),...
          uFut,hatd,hatx,uFutWarm,dWarm,xWarm]=getOutputs(obj);
-    
+        
         fprintf('t=%g, J=%g computed in %g iterations & %g ms\n',...
                 closedloop.t(end),closedloop.J(end),closedloop.iter(end),1e3*closedloop.stime(end));
 
@@ -231,6 +234,7 @@ for k=1:200
             fclose(fopen('tmp_recompile.txt','w'));
             error('failed to invert hessian, regenerate code to compile with saved values for hessian')
         end
+        
         if closedloop.status(end)>0
             uFut=lastUfut(:,2:end);
             lastUfut=uFut;
@@ -242,6 +246,8 @@ for k=1:200
             lastUfutT=closedloop.t(end);
         end
     
+        
+        
     end
     
     
