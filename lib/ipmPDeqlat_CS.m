@@ -24,6 +24,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 %% See ../doc/ipm.tex for an explanation of the formulas used here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    szHess_=TcheckVariable('Hess_');
+
 %profile on
     
     if smallerNewtonMatrix
@@ -248,6 +250,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                     G_z,Tzeros([nG,nG+nH])];
             end
             Hess_=WW;
+
             %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
             
             ff=f;
@@ -735,6 +738,11 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         else
             declareSave(code,dx_s,'savedx_s__',[cmexfunction,'_dx_s.subscripts']);
         end
+    end
+
+    if ~isempty(szHess_) && ~myisequal(szHess_,size(Hess_))
+        error('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
+              szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
     end
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
