@@ -66,6 +66,15 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         if nnan>0
             error('typical values include %d nan entries',full(nnan));
         end
+        
+        % add some noise to remove non structural zeros (in A its the LU factorization)
+        symm=isequal(A,A');
+        tol=min(find(abs(A)))*eps^2;
+        A=A+sparse(double(subscripts(1,:)),double(subscripts(2,:)),tol*randn(size(subscripts,2),1));
+        if symm
+            % preserve symmetry
+            A=(A+A')/2;
+        end
     end
 
 
@@ -108,6 +117,8 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         else
             title(sprintf('asymetric A %dx%d (original)',size(A)));
         end
+        hold on;
+        
         if n<100
             subplot(2,4,2);
             [l,u]=lu(A);
@@ -121,11 +132,11 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 
         subplot(2,4,4)
         if isequal(p,q)
-            plot(1:length(p),p,'rx');
-            legend('row/col  perm');
+            plot(1:length(p),p,'r.');
+            legend('row/col  perm','location','southoutside');
         else
-            plot(1:length(p),p,'rx',1:length(q),q,'go');
-            legend('row perm','col perm');
+            plot(1:length(p),p,'r.',1:length(q),q,'g.');
+            legend('row perm','col perm','location','southoutside');
         end
         axis ij;axis image;
         
@@ -258,22 +269,20 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         
         figure(f);
         subplot(2,4,7)
-        plot(1:n,1:n,'rx');
-        legend('pivots');
-        hold on;
         spy(LU);
+        hold on;
+        plot(1:n,1:n,'r.');
+        legend('nz entries','pivots','location','southoutside');
         title('L+U (csparse''s lu (pivots in red))')
         subplot(2,4,8)
-        plot(1:length(p),p,'rx',1:length(q),q,'go');
+        plot(1:length(p),p,'r.',1:length(q),q,'g.');
         axis ij;axis image
-        legend('row perm','col perm');
+        legend('row perm','col perm','location','southoutside');
 
         % plot pivots in original matrix
         subplot(2,4,1);
-        plot(p,q,'rx');
-        legend('pivots')
-        hold on;
-        spy(A);
+        plot(p,q,'r.');
+        legend('nz entries','pivots','location','southoutside')
 
         drawnow
 

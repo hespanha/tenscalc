@@ -62,6 +62,15 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         A=sparse(double(subsX(1,:)),double(subsX(2,:)),values,n,n);
     else
         fprintf('    using values from "%s", ',typical_values);
+        nnan=sum(isnan(A(:)));
+        if nnan>0
+            error('typical values include %d nan entries',full(nnan));
+        end
+        
+        % add some noise to remove non structural zeros (in A its the LU factorization)
+        tol=min(find(abs(A)))*eps^2;        A=A+sparse(double(subscripts(1,:)),double(subscripts(2,:)),tol*randn(size(subscripts,2),1));
+        % preserve symmetry
+        A=(A+A')/2;
     end
 
 
