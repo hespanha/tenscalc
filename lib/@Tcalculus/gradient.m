@@ -201,7 +201,15 @@ function grad=gradient(obj,var)
       case 'rdivide'
         osize1=objs{1}.size;
         osize2=objs{2}.size;
-        if isempty(osize2)
+        if isempty(osize1) && isempty(osize2)
+            %% scalar by scalar
+            % [d/dX a./b]_K = d(a / b)/ d X_K 
+            %               = (da/dX_K) / b - a (db/dX_K) /b^2
+            %                = [da/dX]_K /b   - a [db/dX]_K /b^2
+            % K = (1:length(size(X)))
+            K=(1:length(var_size));
+            grad=grads{1}/objs{2}-tprod(objs{1},[],grads{2},K)/(objs{2}*objs{2});
+        elseif isempty(osize2)
             %% division by scalar
             % [d/dX A./b]_IK = d(A_I / b)/ d X_K 
             %                = (dA_I/dX_K) / b - A_I (db/dX_K) /b^2
