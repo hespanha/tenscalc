@@ -3,7 +3,7 @@ function varargout=class2compute(varargin)
     %% Function global help
     declareParameter(...
         'Help', {
-            'Creates a set of cmex C functions for performing a csparse computation.'
+            'Creates a set of matlab functions for performing a csparse computation.'
             ' '
             'The computation is performed through a matlab class with methods'
             'for the set, get, and copy operations.'
