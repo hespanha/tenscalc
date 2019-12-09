@@ -51,6 +51,72 @@ for i=1:length(operands)
         fprintf('    Subscripts (pre)\n');
         disp(subsX{i})
     end
+    
+    % handle repeated indices:
+    % 1) replace operand by diagonal 
+    % 2) erase repeated indiced from parameters{i}
+    uindi=unique(parameters{i});
+    if length(uindi)~=length(parameters{i})
+        k=1;
+        kk=max(find(parameters{i}(k)==parameters{i}));
+        while kk>k
+            % k & kk are equal
+            % parameters{i},k,kk
+
+            % find entries with matching indices
+            keq=find(subsX{i}(k,:)==subsX{i}(kk,:));
+            %subsX{i}(:,keq)
+            
+            % order entries (by subscript without the one to be removed)
+            [~,kx]=sortrows(subsX{i}([end:-1:kk+1,kk-1:-1:1],keq)');
+            keq=keq(kx);
+
+            if verboseLevel>2
+                disp('before');
+                fprintf('  osizeX{i} = ');
+                disp(osizeX{i});
+                fprintf('  parameters{i} = ');
+                disp(parameters{i})
+                fprintf('  subsX{i} =\n');
+                disp(subsX{i});
+                fprintf('  instrX{i} =\n');
+                disp(instrX{i}');
+            end
+           
+            subsX{i}=subsX{i}(:,keq);
+            subsX{i}(kk,:)=[];
+            instrX{i}=instrX{i}(keq);
+            osizeX{i}(kk)=[];
+            parameters{i}(kk)=[];
+
+            if verboseLevel>2
+                disp('after');
+                fprintf('  osizeX{i} = ');
+                disp(osizeX{i});
+                fprintf('  parameters{i} = ');
+                disp(parameters{i})
+                fprintf('  subsX{i} =\n');
+                disp(subsX{i});
+                fprintf('  instrX{i} =\n');
+                disp(instrX{i}');
+            end
+
+            % prepare for next one
+            k=k+1;
+            if k<length(parameters{i})
+                kk=max(find(parameters{i}(k)==parameters{i}));
+            else
+                kk=-inf;
+            end
+        end % while
+        nnzX{i}=length(instrX{i});
+        
+        if verboseLevel>1
+            fprintf('  Operand %d: size=[%s], nnz=%d, indices=[%s]\n',...
+                    i,index2str(osizeX{i}),length(instrX{i}),index2str(parameters{i}));
+        end
+    end
+    
     % get subs in the right order for CStprodindices_raw
     % (least-to-most significant index)
     % UNCLEAR IF NEEDED NOW THAT WE DO NOT USE CStprodindices_raw
@@ -84,7 +150,7 @@ for i=1:length(operands)
 end
 osizeY=tprodSizes(nSums+1:end)';
 
-%% Compute # non-zero elements if operand was to be expanded
+%% Compute # non-zero elements if operand were to be expanded
 nnzExpansion=zeros(1,length(operands));
 for i=1:length(operands)
     % Which indices/sizes do not appear?
