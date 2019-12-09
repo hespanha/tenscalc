@@ -54,8 +54,8 @@
 \lstset{language=[TC]Matlab}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
-%\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+%\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
+\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
 
 %% Macros & options for this Document
 
@@ -82,7 +82,7 @@
   Nonlinear Optimization Using Symbolic Tensor Calculus}
 
 \author{\jph}
-\date{May 11, 2016}
+\date{December 8, 2018}
 
 \begin{document}                        \maketitle
 
@@ -1098,22 +1098,67 @@ and to simulate its operation in feedback.
 \section{Tensor calculus}
 \label{se:tensor-calculus}
 
-In \TC{}, an \emph{$\alpha$-index tensor} is an array in $\R^{n_1\times n_2\times\cdots\times
-  n_\alpha}$ where $\alpha$ is an integer in $\Z_{\ge 0}$. By convention, the case
-$\alpha=0$ corresponds to a \emph{scalar} in $\R$. We use the terminology
-\emph{vector} and \emph{matrix} for the cases $\alpha=1$ and $\alpha=2$,
-respectively. The integar $\alpha$ is called the \emph{index} of the tensor
-and the vector of integers $[n_1,n_2,\dots,n_\alpha]$ (possibly empty for
-$\alpha=0$) is called the \emph{dimension} of the tensor.
+In \TC{}, an \emph{$\alpha$-index tensor} is an array in
+$\R^{n_1\times n_2\times\cdots\times n_\alpha}$ where $\alpha$ is an integer in
+$\Z_{\ge 0}$. By convention, the case $\alpha=0$ corresponds to a
+\emph{scalar} in $\R$. We use the terminology \emph{vector} and
+\emph{matrix} for the cases $\alpha=1$ and $\alpha=2$, respectively. The integar
+$\alpha$ is called the \emph{index} of the tensor and the tuple of integers
+$(n_1,n_2,\dots,n_\alpha)$ (possibly empty for $\alpha=0$) is called the
+\emph{dimension} of the tensor.
 
+\medskip
+
+Given a tensor $A\in\R^{n_1\times n_2\times\cdots\times n_\alpha}$,
+$n_A\eqdef(n_1,n_2,\dots,n_A)$ denotes the dimension of the tensor;
+$\R^{(n_A)}$ the linear space $\R^{n_1\times n_2\times\cdots\times n_\alpha}$;
+\begin{align*}
+  \scr{I}_A\eqdef \Big\{ (i_1,i_2,\dots,i_\alpha):  i_1\in\{1,\dots,n_1\},
+  i_2\in\{1,\dots,n_2\}, \dots, i_\alpha\in\{1,\dots,n_\alpha\} \Big\}
+\end{align*}
+the set of all tuples of indices into the entries of $A$. The entry of
+$A$ corresponding to the indices in the tuple $i\in\scr{I}_A$ is denoted
+by $A_i$ and the whole tensor in $\R^{n_A}$ with entries given by
+$A_i$, $i\in\scr{I}_A$ is denoted by
+\begin{align*}
+  \big[A_i\big]_{i\in\scr{A}}.
+\end{align*}
+
+
+\medskip
+
+Given two tensors $A\in\R^{(n_A)}, B\in\R^{(n_B)}$ with dimensions
+\begin{align*}
+  &n_A\eqdef(n_1,n_2,\dots,n_\alpha), &
+  &n_B\eqdef(m_1,m_2,\dots,m_\beta), &
+\end{align*}
+we define
+\begin{align*}
+  n_A\times n_B \eqdef(n_1,n_2,\dots,n_\alpha,m_1,m_2,\dots,m_\beta),
+\end{align*}
+which allow us to write
+\begin{align*}
+  \R^{(n_A)}\times \R^{(n_B)}=\R^{(n_A\times n_B)}.
+\end{align*}
+Given indices $i\eqdef(i_1,i_2,\dots,i_\alpha)\in\scr{I}_A$,
+$j=(j_1,j_2,\dots,j_\beta)\in\scr{I}_B$, we denote by
+\begin{align*}
+  (i,j)\eqdef(i_1,i_2,\dots,i_\alpha,j_1,j_2,\dots,j_\beta)
+\end{align*}
+the concatenation of all the indices and by
+\begin{align*}
+  \scr{I}_A\times\scr{I}_B\eqdef\big\{(i,j):i\in\scr{I}_A,j\in\scr{I}_B\big\}
+\end{align*}
+the set of all corresponding indices. 
 
 \subsection{Tensor Addition}
 
 Tensors with the same dimension can be added/subtracted entry by
-entry. Specifically, given $A,B\in \R^{n_1\times n_2\times\cdots\times n_\alpha}$, we define
+entry. Specifically, given two tensors $A,B$ with the same dimension
+$n_A=n_B$, we define the tensor $A\pm B$ with the same dimension
+$n_{A+B}=n_A=n_B$ with entries defined by
 \begin{align*}
-  (A\pm B)_{i_1,i_2,\cdots,i_\alpha}=A_{i_1,i_2,\cdots,i_\alpha}\pm B_{i_1,i_2,\cdots,i_\alpha}, \quad
-  \forall i_1\in\{1,\dots,n_1\},\;\dots,\;i_\alpha\in\{1,\dots,n_\alpha\}.
+  A\pm B = \big[ A_i\pm B_i\big]_{i\in\scr{I}_A=\scr{I}_B=\scr{I}_{A+B}}.
 \end{align*}
 
 \begin{technical}
@@ -1126,8 +1171,8 @@ entry. Specifically, given $A,B\in \R^{n_1\times n_2\times\cdots\times n_\alpha}
 
 \subsection{Tensor Multiplication}
 
-Given an $\alpha$-index array $A\in\R^{n_1\times n_2\times\cdots\times n_\alpha}$, a $\beta$-index array
-$B\in\R^{m_1\times m_2\times\cdots\times m_\beta}$, and a $\delta$-index array $D\in\R^{o_1\times o_2\times\cdots\times o_\delta}$, we
+Given an $\alpha$-index tensor $A\in\R^{n_1\times n_2\times\cdots\times n_\alpha}$, a $\beta$-index tensor
+$B\in\R^{m_1\times m_2\times\cdots\times m_\beta}$, and a $\delta$-index tensor $C\in\R^{o_1\times o_2\times\cdots\times o_\delta}$, we
 say that the integer-valued vectors $p\in\Z^\alpha$, $q\in\Z^\beta$, $r\in\Z^\delta$ are
 \emph{product compatible for $\R^{n_1\times n_2\times\cdots\times n_\alpha}$, $\R^{m_1\times m_2\times\cdots\times m_\beta}$,
   and $\R^{o_1\times o_2\times\cdots\times o_\delta}$} if the following conditions hold;
@@ -1140,15 +1185,15 @@ say that the integer-valued vectors $p\in\Z^\alpha$, $q\in\Z^\beta$, $r\in\Z^\de
 \item if $p_i=q_j=r_l$, then $n_i=m_j=o_l$.
 \end{enumerate}
 For a product compatible pair, we define the \emph{$(p,q,r)$-product of
-  $A$, $B$, and $D$} to be a $\gamma$-index array defined by
+  $A$, $B$, and $C$} to be a $\gamma$-index tensor defined by
 \begin{align}\label{eq:tprod}
   (A^{(p)} * B^{(q)} * C^{(r)})_{k_1,\dots,k_\gamma}=\sum_{\ell_1,\dots,\ell_\sigma}
-  A_{i_1,\cdots,i_\alpha} B_{j_1,\dots,j_\beta} D_{l_1,\dots,l_\delta}
+  A_{i_1,\cdots,i_\alpha} B_{j_1,\dots,j_\beta} C_{l_1,\dots,l_\delta}
 \end{align}
 where
 \begin{enumerate}
 \item the summation indices $\ell_1,\dots\ell_\sigma$ are matched to the
-  $A$-indices $i_x$, the $B$-indices $j_y$, and the $D$-indices $l_z$
+  $A$-indices $i_x$, the $B$-indices $j_y$, and the $C$-indices $l_z$
   based on the negative entries of $p$, $q$, and $r$ as follows
   \begin{align*}
     p_x&=-w\;\Rightarrow\; \ell_w=i_x, &
@@ -1157,7 +1202,7 @@ where
     \forall w\in\{1,\dots,\sigma\}.
   \end{align*}
 \item the product indices $k_1,\dots,k_\gamma$ are matched to the
-  $A$-indices $i_x$, the $B$-indices $j_y$ , and the $D$-indices $l_z$
+  $A$-indices $i_x$, the $B$-indices $j_y$ , and the $C$-indices $l_z$
   based on the positive entries of $p$, $q$, and $r$ as follows
   \begin{align*}
     p_x&=w\;\Rightarrow\; k_w=i_x, &
@@ -1245,71 +1290,82 @@ Suppose that $a\in\R$ (scalar), $x\in\R^2$, $y\in\R^2$, $A\in\R^{3\times 2}$, $B
   out symbolic simplifications, but this is transparent to the user.  \frqed
 \end{technical}
 
-\subsection{Vectorized Composition}
+\subsection{Composition}
 
-Given two functions $f:\R\to\R$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times
-  m_\beta}$, the \emph{vectorized composition of $z=G(x)$ with
-  $f(z)$} is defined by
+Given two functions $F:\R^{(n_A)}\to\R^{(n_B)}$ and
+$G:\R^{(n_B)}\to\R^{(n_C)}$, the \emph{(usual) composition of $F$ with
+  $G$} is defined by
 \begin{align*}
-  f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta}\\
-  x&\mapsto(f\circ_z G)_{i_1,\dots,i_\beta}
-  \eqdef f\big(x,G_{i_1,\dots,i_\beta}(x)\big).
+  G \circ F:\R^{(n_A)}&\to\R^{(n_C)}\\
+  x&\mapsto G\big(F(x)\big)
+\end{align*}
+and given a third function $g:\R\to\R$, the \emph{component-wise
+  composition of $F$ with $g$} is defined by
+\begin{align*}
+  g\circ F:\R^{(n_A)}&\to\R^{(n_B)}\\
+  x&\mapsto \big[g\big(F_i(x)\big)\big]_{i\in \scr{I}_B}.
+\end{align*}
+More generally, given a function $g:\R\to\R^{(n_C)}$, the
+\emph{component-wise composition of $F$ with $g$} is defined by
+\begin{align*}
+  g\circ F:\R^{(n_A)}&\to\R^{(n_B\times n_C)}\\
+  x&\mapsto \big[g_j\big(F_i(x)\big)\big]_{(i,j)\in \scr{I}_B\times\scr{I}_C}.
 \end{align*}
 
-\begin{technical}
-  More generally, given two functions $f:\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{\bar m_1\times\cdots\times
-    \bar m_{\bar \beta}}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times m_\beta}$, the
-  \emph{vectorized composition of $z=G(x)$ with $f(x,z)$} is defined
-  by
-\begin{align*}
-  f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta \times \bar m_1\times\cdots\times \bar m_{\bar \beta}}\\
-  x&\mapsto(f\circ_z G)_{i_1,\dots,i_\beta ,\bar i_1,\dots,\bar i_\beta}
-  \eqdef f_{\bar i_1,\dots,\bar i_\beta}\big(G_{i_1,\dots,i_\beta}(x)\big).
-\end{align*}
-
-\end{technical}
+% \begin{technical}
+%   More generally, given two functions $f:\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{\bar m_1\times\cdots\times
+%     \bar m_{\bar \beta}}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{m_1\times\cdots\times m_\beta}$, the
+%   \emph{component-wise composition of $z=G(x)$ with $f(x,z)$} is defined
+%   by
+% \begin{align*}
+%   f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta}\\
+%   x&\mapsto(f\circ G)_{i_1,\dots,i_\beta}
+%   \eqdef f\big(x,G_{i_1,\dots,i_\beta}(x)\big).
+% \end{align*}
+% \begin{align*}
+%   f\circ G:\R^{n_1\times\cdots\times n_\alpha}&\to\R^{m_1\times\cdots\times m_\beta \times \bar m_1\times\cdots\times \bar m_{\bar \beta}}\\
+%   x&\mapsto(f\circ G)_{i_1,\dots,i_\beta ,\bar i_1,\dots,\bar i_\beta}
+%   \eqdef f_{\bar i_1,\dots,\bar i_\beta}\big(x,G_{i_1,\dots,i_\beta}(x)\big).
+% \end{align*}
+% \end{technical}
 
 \subsection{Tensor Gradient}
 
-Given a function $F:\R^{n_1\times \cdots\times n_\alpha}\to\R^{m_1\times \cdots\times m_\beta}$ that maps $\alpha$-index
-tensors to $\beta$-index tensors, the \emph{gradient of $x\mapsto F(x)$} is the
-function defined by
+Given a function $F:\R^{(n_A)}\to\R^{(n_B)}$, the \emph{gradient of
+  $x\mapsto F(x)$} is the function defined by
 \begin{align*}
-  \nabla_x F:\R^{n_1\times \cdots\times n_\alpha}&\to\R^{m_1\times \cdots\times m_\beta\times n_1\times \cdots\times n_\alpha}\\
-  x&\mapsto(\nabla_x F)_{i_1,\dots,i_\beta,j_1,\dots,j_\alpha}\eqdef\PDeriv{F_{i_1,\dots,i_\beta}}{x_{j_1,\dots,j_\alpha}}.
+  \nabla_x F:\R^{(n_A)}&\to\R^{(n_B\times n_A)}\\
+  x&\mapsto\big[\nabla_x F\big]_{(i,j)\in\scr{I}_B\times\scr{I}_A}
+  \eqdef\Big[\PDeriv{F_i(x)}{x_j}\Big]_{(i,j)\in\scr{I}_B\times\scr{I}_A}
 \end{align*}
 The hessian matrix is then defined by
 \begin{align*}
   H_{xx} F=\nabla_x (\nabla_x F).
 \end{align*}
 
-\begin{technical}
-  
-\textbf{Sum rule:} Given two functions
-$F,G:\R^{n_1,\dots,n_\alpha}\to\R^{m_1,\dots,m_\beta}$, the gradient of their sum is
-given by
+\paragraph{Sum rule:} Given two functions
+$F,G:\R^{(n_A)}\to\R^{(n_B)}$, the gradient of their sum is
+given by the sum of the gradients:
 \begin{align*}
   \nabla_x \big( F(x)+G(x) \big)
   &=\nabla_x F(x)+ \nabla_xG(x).
 \end{align*}
-\textbf{Product rule:} Given two function
-$F:\R^{n_1,\dots,n_\alpha}\to\R^{m_1,\dots,m_\beta}$, $G:\R^{n_1,\dots,n_\alpha}\to\R^{\bar
-  m_1,\dots,\bar m_{\bar \beta}}$, $H:\R^{n_1,\dots,n_\alpha}\to\R^{\tilde
-  m_1,\dots,\tilde m_{\bar \beta}}$ and a triple $(p,q,r)$ that is product
-compatible for their co-domains, the gradient of their $(p,q,r)$-product
-is given by
+\paragraph{Product rule:} Given two function
+$F:\R^{(n_A)}\to\R^{(n_B)}$, $G:\R^{(n_A)}\to\R^{(n_C)}$,
+$H:\R^{(n_A)}\to\R^{(n_D)}$ and a triple $(p,q,r)$ that is product
+compatible for their co-domains, the gradient of their
+$(p,q,r)$-product is given by
 \begin{multline*}
   \nabla_x \big( F(x)^{(p)} * G(x)^{(q)} * H(x)^{(r)} \big)
   =\nabla_xF(x)^{(\bar p)} * G(x)^{(q)} * H(x)^{(r)}\\
   + F(x)^{(p)} * \nabla_xG(x)^{(\bar q)} * H(x)^{(r)}
   + F(x)^{(p)} *  G(x)^{(q)} * \nabla_x H(x)^{(\bar r)},
 \end{multline*}
-where 
+where $n_A\eqdef(n_1,n_2,\dots,n_\alpha)$, $\eta\eqdef\max\{0,p,q,r\}$, and
 \begin{align*}
-  \bar p&\eqdef(p_1,\dots,p_\beta,\eta+1,\dots,\eta+\alpha), \\
-  \bar q&\eqdef(q_1,\dots,q_{\bar \beta},\eta+1,\dots,\eta+\alpha), \\
-  \bar r&\eqdef(r_1,\dots,r_{\tilde \beta},\eta+1,\dots,\eta+\alpha), \\
-  \eta&\eqdef\max\{0,p_1,\dots,p_\beta,q_1,\dots,q_{\bar\beta},r_1,\dots,r_{\bar\beta}\}.
+  \bar p&\eqdef(p,\eta+1,\dots,\eta+\alpha), &
+  \bar q&\eqdef(q,\eta+1,\dots,\eta+\alpha), &
+  \bar r&\eqdef(r,\eta+1,\dots,\eta+\alpha).
 \end{align*}
 For the particular case of the Frobenius-norm squared of $F(x)$:
 \begin{align*}
@@ -1319,24 +1375,124 @@ we get
 \begin{align*}
   \nabla_x \|F(x)\|_F^2 &=2 \nabla_xF(x)^{(-1,\dots,-\alpha,1,\dots,\alpha)} * F(x)^{(-1,\dots,-\alpha)}
 \end{align*}
-\textbf{Vectored Composition rule:} Given two functions $f:\R^{n_1\times\cdots\times
-  n_\alpha}\times\R\to\R^{m_1\times\cdots\times m_\beta}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{\bar m_1\times\cdots\times\bar
-  m_{\bar\beta}}$, the gradient of the vectorized composition is given by
+\paragraph{Composition rule:} Given two functions
+$F:\R^{(n_A)}\to\R^{(n_B)}$ and
+$G:\R^{(n_B)}\to\R^{(n_C)}$, the gradient of the
+composition is given by
 \begin{align*}
-  \big( \nabla_x(f\circ_z G) (x)\big)_{\bar i_1,\dots,\bar i_{\bar \beta},i_1,\dots,i_\beta,j_1,\dots,j_\alpha}
-  &=\PDeriv{ f_{i_1,\dots,i_\beta}\big(x,G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)\big)}{x_{j_1,\dots,j_\alpha}}\\
-  &=\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{x_{j_1,\dots,j_\alpha}}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}
-  +\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{z}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}\PDeriv{G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}{x_{j_1,\dots,j_\alpha}},
+  \nabla_x (G \circ F):\R^{(n_A)}&\to\R^{(n_C\times n_A)}\\
+  x&\mapsto \Big[\PDeriv{G_i\big(F(x)\big)}{x_j}\Big]_{(i,j)\in\scr{I}_C\times\scr{I}_A}
 \end{align*}
-Therefore,
+where
 \begin{align*}
-  \nabla_x(f\circ_z G)(x)=(\nabla_x f(x,z))\circ_z G(x)+
-  \PDeriv{f(x,z)}{z}\circ_z G(x)\tprod{(1,\dots,\bar \beta+\beta)}{(1,\dots,\bar\beta,\bar\beta+\beta+1,\bar\beta+\beta+\alpha)} \nabla_x G(x),
+  \Big[\PDeriv{G_i\big(F(x)\big)}{x_j}\Big]_{(i,j)\in\scr{I}_C\times\scr{I}_A}
+  &= \Big[\sum_{k\in\scr{I}_B}\PDeriv{G_i\big(F(x)\big)}{F_k}\PDeriv{F_k(x)}{x_j}\Big]_{(i,j)\in\scr{I}_C\times\scr{I}_A}\\
+  &= \nabla_z G(F(x))^{(p)} * \nabla_x F(x)^{(q)} 
 \end{align*}
-where $\PDeriv{f(x,z)}{z}$ denotes the (scalar) partial derivative of
-$f(x,z)$ with respect to $z$, viewed as an $\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{m_1\times\cdots\times
-  m_\beta}$ mapping.\frqed
-\end{technical}
+where $n_A\eqdef(n_1,n_2,\dots,n_\alpha)$, $n_B\eqdef(m_1,m_2,\dots,m_\beta)$,
+$n_C\eqdef(s_1,s_2,\dots,s_\gamma)$ and
+\begin{align*}
+  &p=(1,2,\dots,\gamma,-1,-2,\dots,-\beta), &
+  &q=(-1,-2,\dots,-\beta,1,2,\dots,\alpha).
+\end{align*}
+Given a third function $g:\R\to\R$, the gradient of the component-wise
+composition of $F$ with $g$ is given by
+\begin{align*}
+  \nabla_x (g\circ F):\R^{(n_A)}&\to\R^{(n_B\times n_A)}\\
+  x&\mapsto \Big[\PDeriv{g(F_i(x))}{x_j}\Big]_{(i,j)\in\scr{I}_B\times\scr{I}_A}
+\end{align*}
+where
+\begin{align*}
+  \Big[\PDeriv{g(F_i(x))}{x_j}\Big]_{(i,j)\in\scr{I}_B\times\scr{I}_A}
+  &= \Big[\PDeriv{g(F_i(x))}{z}\PDeriv{F_i(x)}{x_j}\Big]_{(i,j)\in\scr{I}_B\times\scr{I}_A}\\
+  &= \Big(\Big(\PDeriv{g}{z} \circ F\Big)(x)\Big)^{(p)} * \nabla_x F(x)^{(q)} 
+\end{align*}
+where
+\begin{align*}
+  &p=(1,2,\dots,\beta), &
+  &q=(1,2,\dots,\beta,\beta+1,\beta+2,\dots,\beta+\alpha).
+\end{align*}
+More generally, given a third function $g:\R\to\R^{(n_C)}$, the gradient
+of the component-wise composition of $F$ with $g$ is given by
+\begin{align*}
+  \nabla_x (g\circ F):\R^{(n_A)}&\to\R^{(n_B\times n_C \times n_A)}\\
+  x&\mapsto \Big[\PDeriv{g_k(F_i(x))}{x_j}\Big]_{(i,k,j)\in\scr{I}_B\times\scr{I}_C\times\scr{I}_A}
+\end{align*}
+where
+\begin{align*}
+  \Big[\PDeriv{g_k(F_i(x))}{x_j}\Big]_{(i,k,j)\in\scr{I}_B\times\scr{I}_C\times\scr{I}_A}
+  &= \Big[\PDeriv{g_k(F_i(x))}{z}\PDeriv{F_i(x)}{x_j}\Big]_{(i,k,j)\in\scr{I}_B\times\scr{I}_C\times\scr{I}_A}\\
+  &= \Big(\Big(\PDeriv{g_k}{z} \circ F\Big)(x)\Big)^{(p)} * \nabla_x F(x)^{(q)} 
+\end{align*}
+where
+\begin{align*}
+  &p=(1,2,\dots,\beta+\gamma), &
+  &q=(1,2,\dots,\beta,\beta+\gamma+1,\beta+\gamma+2,\dots,\beta+\gamma+\alpha).
+\end{align*}
+
+% \paragraph{Vectored Composition rule:} Given two functions $f:\R^{n_1\times\cdots\times
+%   n_\alpha}\times\R\to\R^{m_1\times\cdots\times m_\beta}$ and $G:\R^{n_1\times\cdots\times n_\alpha}\to\R^{\bar m_1\times\cdots\times\bar
+%   m_{\bar\beta}}$, the gradient of the component-wise composition is given by
+% \begin{align*}
+%   \big( \nabla_x(f\circ_z G) (x)\big)_{\bar i_1,\dots,\bar i_{\bar \beta},i_1,\dots,i_\beta,j_1,\dots,j_\alpha}
+%   &=\PDeriv{ f_{i_1,\dots,i_\beta}\big(x,G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)\big)}{x_{j_1,\dots,j_\alpha}}\\
+%   &=\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{x_{j_1,\dots,j_\alpha}}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}
+%   +\PDeriv{f_{i_1,\dots,i_\beta}(x,z)}{z}\Big|_{z=G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}\PDeriv{G_{\bar i_1,\dots,\bar i_{\bar \beta}}(x)}{x_{j_1,\dots,j_\alpha}},
+% \end{align*}
+% Therefore,
+% \begin{align*}
+%   \nabla_x(f\circ_z G)(x)=(\nabla_x f(x,z))\circ_z G(x)+
+%   \PDeriv{f(x,z)}{z}\circ_z G(x)\tprod{(1,\dots,\bar \beta+\beta)}{(1,\dots,\bar\beta,\bar\beta+\beta+1,\bar\beta+\beta+\alpha)} \nabla_x G(x),
+% \end{align*}
+% where $\PDeriv{f(x,z)}{z}$ denotes the (scalar) partial derivative of
+% $f(x,z)$ with respect to $z$, viewed as an $\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{m_1\times\cdots\times
+%   m_\beta}$ mapping.
+
+\paragraph{Matrix rules:} Given a function
+$F:\R^{(n_A)}\to\R^{{n_C}}$, $n_C\eqdef(n,n)$ the gradients
+\begin{align*}
+  &\nabla_x \log\det F(x):\R^{(n_A)}\to\R^{(n_A)}, \\
+  &\nabla_x \trace F(x)^{-1}:\R^{(n_A)}\to\R^{(n_A)}, \\
+  &\nabla_x F(x)^{-1}:\R^{(n_A)}\to\R^{(n_C\times n_A)}, &
+\end{align*}
+are given by
+\begin{align*}
+  \nabla_x \big(\log\det F (x)\big)
+  &= \Big[\sum_{ij\in\scr{I}_B}\PDeriv{\log\det\big(F(x)\big)}{F_{ij}}\PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}[F(x)^{-1}]_{ji}
+  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= (F(x)^{-1})^{(p)} * \nabla_x F(x)^{(q)}, \quad
+  p\eqdef(-2,-1), \;
+  q\eqdef(-1,-2,1,2,\dots,\alpha),\\
+  %
+  \nabla_x \big(\trace F(x)^{-1}\big)
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{\trace F(x)^{-1}}{F_{ij}}
+  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &=-\Big[\sum_{(i,j)\in\scr{I}_C}[F(x)^{-2}]_{ji}
+  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= -(F(x)^{-2})^{(p)} * \nabla_x F(x)^{(q)}, \quad
+  p\eqdef(-2,-1), \;
+  q\eqdef(-1,-2,1,2,\dots,\alpha),\\
+  %
+  \nabla_x (F^{-1}(x))
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{[F(x)^{-1}]_{k\ell}}{F_{ij}}
+  \PDeriv{F_{ij}(x)}{x_r}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
+  &= -\Big[\sum_{(i,j)\in\scr{I}_C}[A^{-1}]_{ki}
+  \PDeriv{F_{ij}(x)}{x_r}[A^{-1}]_{j\ell}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
+  &= - \big(F(x)^{-1}\big)^{(p)} * \nabla_x F(x)^{(q)} * \big(F(x)^{-1}\big)^{(r)},
+  \\&\qquad\qquad
+  p=(1,-1), \;
+  q=(-1,-2,3,4,\dots,2+\alpha),\;
+  r=(-2,2).
+\end{align*}
+where we used the facts that
+\begin{align*}
+  &\PDeriv{\log\det(A)}{A_{ij}}=[A^{-1}]_{ji}, &
+  &\PDeriv{\trace A^{-1}}{A_{ij}}=-[A^{-2}]_{ji}, &
+  &\PDeriv{[A^{-1}]_{k\ell}}{A_{ij}}=-[A^{-1}]_{ki}[A^{-1}]_{j\ell}.
+\end{align*}
+
+
 
 \subsection{Table interpolation}
 
