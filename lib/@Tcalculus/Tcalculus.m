@@ -885,6 +885,45 @@ classdef Tcalculus
             end
         end
             
+        function obj=logdet(obj1)
+        % logdet(A) - return the log of the determinant of a matrix
+            obj1=toCalculus(obj1);
+            osize1=size(obj1);
+            if length(osize1)~=2
+                error('logdet is only defined for 2D matrices');
+            end
+            if osize1(1)~=osize1(2)
+                error('logdet is only defined for square matrices');
+            end
+            obj=Tcalculus('logdet',[],[],obj1.TCindex,{},1);
+        end
+            
+        function obj=traceinv(obj1)
+        % traceinv(A) - return the trace of the inverse of a matrix
+            obj1=toCalculus(obj1);
+            osize1=size(obj1);
+            if length(osize1)~=2
+                error('traceinv is only defined for 2D matrices');
+            end
+            if osize1(1)~=osize1(2)
+                error('traceinv is only defined for square matrices');
+            end
+            obj=Tcalculus('traceinv',[],[],obj1.TCindex,{},1);
+        end
+            
+        function obj=inv(obj1)
+        % inv(A) - return the inverse of a matrix
+            obj1=toCalculus(obj1);
+            osize1=size(obj1);
+            if length(osize1)~=2
+                error('inv is only defined for 2D matrices');
+            end
+            if osize1(1)~=osize1(2)
+                error('inv is only defined for square matrices');
+            end
+            obj=Tcalculus('inv',osize1,[],obj1.TCindex,{},1);
+        end
+            
         %function obj=abs(obj1)
         %    obj=Tcalculus('abs',size(obj1),[],obj1.TCindex,{},1);
         %end

@@ -335,6 +335,12 @@ for jj=1:length(ks)
               case 'ldl_d'
                 [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
                 
+              case 'logdet_ldl'
+                [subscripts,instructions]=sparsity_logdet_ldl(obj,thisExp);
+                
+              case 'logdet_lu'
+                [subscripts,instructions]=sparsity_logdet_lu(obj,thisExp);
+                
               case 'compose'
                 functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                            '@(x__)2./x__.^3';

@@ -236,6 +236,8 @@ classdef csparse < handle
                     'plus','tprod','norm2','norm1','norminf','all','any','min','max','min2','max2',...
                     'abs','clp','compose',...
                     'lu','lu_sym','ldl','ldl_l','ldl_d','chol',...
+                    'inv_ldl','logdet_ldl','traceinv_ldl',...
+                    'inv_lu','logdet_lu','traceinv_lu',...
                     'mldivide','mldivide_l1','mldivide_u','mldivide_u1','mldivide_d',...
                     'rdivide','mtimes','ctranspose','times','sum','diag','tprod_matlab'...
                        },...
@@ -315,7 +317,7 @@ classdef csparse < handle
 %% Declare operation methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        function declareSet(obj,TCdestination,functionName,help)
+        function declareSet(obj,TCdestination,functionName,helpmsg)
         % declareSet(obj,TCdestination,functionName)
         %
         % Declares a 'set' operation to be compiled.  Each 'set'
@@ -345,7 +347,7 @@ classdef csparse < handle
             if nargin<4
                 obj.template(end,1).help='';
             else
-                obj.template(end,1).help=help;
+                obj.template(end,1).help=helpmsg;
             end            
             obj.template(end,1).inputs(1).type=obj.scratchbookType;
             if strcmp(type(TCdestination),'variable')
@@ -358,7 +360,7 @@ classdef csparse < handle
             %computeScalarInstructions(obj,k);
         end
         
-        function declareGet(obj,TCsource,functionName,help)
+        function declareGet(obj,TCsource,functionName,helpmsg)
         % declareGet(obj,TCsource,functionName) 
         %
         % Declares a 'get' operation to be compiled.  Each 'get'
@@ -389,7 +391,7 @@ classdef csparse < handle
             if nargin<4
                 obj.template(end,1).help='';
             else
-                obj.template(end,1).help=help;
+                obj.template(end,1).help=helpmsg;
             end            
             for i=1:length(TCsource)
                 obj.template(end,1).outputs(i).type=obj.scratchbookType;
@@ -402,7 +404,7 @@ classdef csparse < handle
             end
         end
         
-        function declareCopy(obj,TCdestination,TCsource,functionName,help)
+        function declareCopy(obj,TCdestination,TCsource,functionName,helpmsg)
         % declareCopy(obj,TCdestination,TCsource,functionName)
         %
         % Declares a 'copy' operation to be compiled.  Each 'copy'
@@ -474,7 +476,7 @@ classdef csparse < handle
             if nargin<5
                 obj.template(end,1).help='';
             else
-                obj.template(end,1).help=help;
+                obj.template(end,1).help=helpmsg;
             end            
         end
         
@@ -571,7 +573,7 @@ classdef csparse < handle
                                       'source',k,'parentGroups',[],'magic',magic);
         end
         
-        function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,help)
+        function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,helpmsg)
         %   declarefunction(obj,filename,functionName,defines,inputs,outputs) 
         % or 
         %   declarefunction(obj,filename,functionName,defines) 
@@ -622,7 +624,7 @@ classdef csparse < handle
             if nargin<8
                 obj.template(end,1).help='';
             else
-                obj.template(end,1).help=help;
+                obj.template(end,1).help=helpmsg;
             end            
         
         end
@@ -652,17 +654,33 @@ classdef csparse < handle
 
             typ=type(TCobj);
             switch (typ)
+              case 'traceinv'
+                ops=operands(TCobj);
+                op1=Tcalculus(ops(1));
+                TCobj=trace(op1\Teye(size(op1)));
+                typ=type(TCobj);
+              case 'inv'
+                ops=operands(TCobj);
+                op1=Tcalculus(ops(1));
+                TCobj=op1\Teye(size(op1));
+                typ=type(TCobj);
               case 'interpolate'
-                TCobj=interpolate(TCobj.objs{1},TCobj.objs{2},TCobj.objs{3},TCobj.objs{4},...
+                ops=operands(TCobj);
+                TCobj=interpolate(Tcalculus(ops(1)),Tcalculus(ops(2)),...
+                                  Tcalculus(ops(3)),Tcalculus(ops(4)),...
                                   TCobj.value,true);
                 typ=type(TCobj);
               case 'Ginterpolate'
-                TCobj=Ginterpolate(TCobj.objs{1},TCobj.objs{2},TCobj.objs{3},TCobj.objs{4},...
-                                  TCobj.value,true);
+                ops=operands(TCobj);
+                TCobj=Ginterpolate(Tcalculus(ops(1)),Tcalculus(ops(2)),...
+                                   Tcalculus(ops(3)),Tcalculus(ops(4)),...
+                                   TCobj.value,true);
                 typ=type(TCobj);
               case 'Hinterpolate'
-                TCobj=Hinterpolate(TCobj.objs{1},TCobj.objs{2},TCobj.objs{3},TCobj.objs{4},...
-                                  TCobj.value,true);
+                ops=operands(TCobj);
+                TCobj=Hinterpolate(Tcalculus(ops(1)),Tcalculus(ops(2)),...
+                                   Tcalculus(ops(3)),Tcalculus(ops(4)),...
+                                   TCobj.value,true);
                 typ=type(TCobj);
             end
             if obj.tprod2matlab && strcmp(typ,'tprod') 
@@ -740,6 +758,23 @@ classdef csparse < handle
                                     % (derivative of exp may be shorter because
                                     % truncated by gradient)
                 parametersMatch=true;
+                
+              case {'logdet','traceinv'}
+                pars=[];
+                parametersMatch=false;
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                opatomic=getOne(obj.vectorizedOperations,'atomic',ops(1));
+                switch optype
+                  case {'ldl'}
+                    typ=[typ,'_ldl'];
+                  case {'lu','lu_sym'}
+                    typ=[typ,'_lu'];
+                  otherwise;
+                    error('unexpected operand for logdet ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl'', ''lu'', or ''lu_sym''\n',optype);
+                end
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                
               case 'mldivide'
                 pars=[];
                 parametersMatch=false;

@@ -56,9 +56,13 @@ function grad=gradient(obj,var)
     grads=cell(length(ops),1);
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
-        grads{i}=gradient(objs{i},var);
         updateFile2table(objs{i},1);
-        updateFile2table(grads{i},1);
+        if ismember(obj_type,{'logdet','traceinv','inv'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
+            grads{i}=gradient(Tcalculus(operands(objs{i})),var);
+        else
+            grads{i}=gradient(objs{i},var);
+            updateFile2table(grads{i},1);
+        end
     end
 
     switch obj_type
@@ -166,8 +170,8 @@ function grad=gradient(obj,var)
       case 'compose'
         fun=parameters(obj);
         osize1=size(objs{1});
-        fsize=size(fun{1}(0));
-        % remove singletons at the end
+        fsize=size(fun{1}(0)); 
+        % remove singletons at the end of fsize
         while ~isempty(fsize) && fsize(end)==1
             fsize(end)=[];
         end
@@ -176,7 +180,23 @@ function grad=gradient(obj,var)
            length(fsize)+length(osize1)+(1:length(var_size))];
         grad=tprod(compose(objs{1},fun{2:end}),p,...
                    grads{1},q);
-      
+
+      case 'logdet'
+        osize1=size(objs{1});
+        grad=tprod(inv(objs{1}),[-2,-1],...
+                   grads{1},[-1,-2,1:length(osize1)]);
+        
+      case 'traceinv'
+        osize1=size(objs{1});
+        grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
+                    grads{1},[-1,-2,1:length(osize1)]);
+                
+      case 'inv'
+        osize1=size(objs{1});
+        grad=-tprod(inv(objs{1}),[1,-1],...
+                    grads{1},[-1,-2,3:2+length(osize1)],...
+                    inv(objs{1}),[-2,2]);
+        
       case 'cat'
         grad=cat(pars,grads{:});
 

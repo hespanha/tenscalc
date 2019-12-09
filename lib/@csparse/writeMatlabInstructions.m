@@ -237,8 +237,8 @@ function writeMatlabInstructions(obj,fid,ks)
             % WW=randn(6,6);WW=sparse(WW);b=randn(6,1);
             % dxl=WW\b
             % [L,U,p,q,r]=lu(WW,'vector');s=inv(r);  %% I_Mlu
-            % m=s*b;m=L\m(p);               %% I_Mmldivide_l1
-            % m=U\m;m(q)=m                  %% I_Mmldivide_u
+            % m=s*b;m=L\m(p,:);               %% I_Mmldivide_l1
+            % m=U\m;m(q,:)=m                  %% I_Mmldivide_u
             
           case obj.Itypes.I_Mlu
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
@@ -251,22 +251,22 @@ function writeMatlabInstructions(obj,fid,ks)
           case obj.Itypes.I_Mmldivide_l1
             fprintf(fid,'\t\tobj.m%d=obj.m%d.s*obj.m%d;\n',...
                     obj.memoryLocations(k),operands(1),operands(2));            %%% problem for ldl factorization
-            fprintf(fid,'\t\tobj.m%d=obj.m%d.L\\(obj.m%d(obj.m%d.p)); %% op %d: [%s]\n',...
+            fprintf(fid,'\t\tobj.m%d=obj.m%d.L\\(obj.m%d(obj.m%d.p,:)); %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),obj.memoryLocations(k),operands(1),k,index2str(osize));
             
           case obj.Itypes.I_Mmldivide_u
             fprintf(fid,'\t\tobj.m%d=obj.m%d.U\\(obj.m%d);\n',...
                     obj.memoryLocations(k),operands(1),operands(2));
-            fprintf(fid,'\t\tobj.m%d(obj.m%d.q)=obj.m%d; %% op %d: [%s]\n',...
+            fprintf(fid,'\t\tobj.m%d(obj.m%d.q,:)=obj.m%d; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),obj.memoryLocations(k),k,index2str(osize));
             
             %% LDL factorization, et al.
             % WW=randn(6,6);WW=sparse(WW+WW');b=randn(6,1);
             % dxl=WW\b
             % [L,D,p,s]=ldl(WW,'vector');  %% I_Mldl
-            % m=s*b;m=L\m(p);              %% I_Mmldivide_l1
+            % m=s*b;m=L\m(p,:);              %% I_Mmldivide_l1
             % m=D\m;                       %% I_Mmldivide_d
-            % m=L'\m;m(p)=m;m=s*m;         %% I_Mmldivide_u1
+            % m=L'\m;m(p,:)=m;m=s*m;         %% I_Mmldivide_u1
             
           case obj.Itypes.I_Mldl
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
@@ -276,7 +276,7 @@ function writeMatlabInstructions(obj,fid,ks)
           case obj.Itypes.I_Mmldivide_u1
             fprintf(fid,'\t\tobj.m%d=obj.m%d.L''\\(obj.m%d);\n',...
                     obj.memoryLocations(k),operands(1),operands(2));
-            fprintf(fid,'\t\tobj.m%d(obj.m%d.p)=obj.m%d;\n',...
+            fprintf(fid,'\t\tobj.m%d(obj.m%d.p,:)=obj.m%d;\n',...
                     obj.memoryLocations(k),operands(1),obj.memoryLocations(k));
             fprintf(fid,'\t\tobj.m%d=obj.m%d.s*obj.m%d; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),obj.memoryLocations(k),k,index2str(osize));
@@ -294,7 +294,27 @@ function writeMatlabInstructions(obj,fid,ks)
           case obj.Itypes.I_Mldl_l
             fprintf(fid,'\t\tobj.m%d=obj.m%d.L; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),k,index2str(osize));
+
+            %% logdet
+            % [L,D,p,s]=ldl(A,'vector');                  %% I_Mldl
+            % log(det(A))=log(det(D)/det(s)^2);           %% I_logdet_ldl
             
+            % [L,U,p,q,r]=lu(A,'vector');s=inv(r);        %% I_Mlu
+            % P(p,p)=eye(size(A));Q(q,q)=eye(size(A));
+            % log(det(A))=log(prod(diag(U))*prod(diag(r)))*det(P)*det(Q);  %% I_logdet_lu
+
+          case obj.Itypes.I_Mlogdet_ldl
+            fprintf(fid,'\t\tobj.m%d=log(det(obj.m%d.D)/det(obj.m%d.s)^2); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
+            
+          case obj.Itypes.I_Mlogdet_lu
+            fprintf(fid,'\t\tobj.m%d.P(obj.m%d.p,1:length(obj.m%d.p))=speye(length(obj.m%d.p)); %% op %d: [%s]\n',...
+                    operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
+            fprintf(fid,'\t\tobj.m%d.Q(obj.m%d.q,1:length(obj.m%d.q))=speye(length(obj.m%d.q)); %% op %d: [%s]\n',...
+                    operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
+            fprintf(fid,'\t\tobj.m%d=log(prod(diag(obj.m%d.U).*diag(obj.m%d.r))*det(obj.m%d.P)*det(obj.m%d.Q)); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
+                        
       otherwise
         instructionTypes
         error('writeMatlabInstructions: instruction %d not implemented (see instructionTypes)\n',type);
