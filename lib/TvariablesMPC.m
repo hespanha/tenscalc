@@ -1,4 +1,6 @@
 function [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,varargin);
+% [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,varargin);
+%
 % Create the key Tvariables needed to create an MPC solver
 % and also the Tcalculus constraints corresponding to the dynamics
 %
