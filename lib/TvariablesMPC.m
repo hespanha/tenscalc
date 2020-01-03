@@ -24,7 +24,7 @@ function [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,var
 %                        (only needed if delay>1)
 %   uFut [nU,T-delay]  - Tcalculus variable with previously computed inputs 
 %                          [u(t+delay*Ts), ... , u(t+(T-1)*Ts) ] 
-%   dynamics           - Tcalculus constraint encoding trapesoidal integration, 
+%   dynamics           - Tcalculus constraint encoding trapezoidal integration, 
 %                        but with u assumed held constant (ZOH)
 %                        between sampling times.
 %
