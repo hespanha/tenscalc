@@ -52,7 +52,7 @@ Tvariable uMax [];
 %        y=x1     
 
 dxFun=@(x,u,d,p,k,Ts,r,cc,uMax)[0,1;0,p]*x+[0;k]*(u+d);
-yFun=@(x,u,d,p,k,Ts,r,cc,uMax)x(1,:);
+yFun=@(x,u,d,p,k,Ts,r,cc,uMax)x(1,:);    % since yFun only uses 1st argument, it can be called with just one argument
 
 u=[u_past,u_future];
 
