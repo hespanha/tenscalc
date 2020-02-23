@@ -887,6 +887,9 @@ classdef Tcalculus
             
         function obj=logdet(obj1)
         % logdet(A) - return the log of the determinant of a matrix
+            if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
+                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+            end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
             if length(osize1)~=2
@@ -900,6 +903,9 @@ classdef Tcalculus
             
         function obj=traceinv(obj1)
         % traceinv(A) - return the trace of the inverse of a matrix
+            if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
+                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+            end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
             if length(osize1)~=2
@@ -913,6 +919,9 @@ classdef Tcalculus
             
         function obj=inv(obj1)
         % inv(A) - return the inverse of a matrix
+            if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
+                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+            end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
             if length(osize1)~=2

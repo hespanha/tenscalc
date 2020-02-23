@@ -184,17 +184,17 @@ function grad=gradient(obj,var)
       case 'logdet'
         osize1=size(objs{1});
         grad=tprod(inv(objs{1}),[-2,-1],...
-                   grads{1},[-1,-2,1:length(osize1)]);
+                   grads{1},[-1,-2,1:length(var_size)]);
         
       case 'traceinv'
         osize1=size(objs{1});
         grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
-                    grads{1},[-1,-2,1:length(osize1)]);
+                    grads{1},[-1,-2,1:length(var_size)]);
                 
       case 'inv'
         osize1=size(objs{1});
         grad=-tprod(inv(objs{1}),[1,-1],...
-                    grads{1},[-1,-2,3:2+length(osize1)],...
+                    grads{1},[-1,-2,3:2+length(var_size)],...
                     inv(objs{1}),[-2,2]);
         
       case 'cat'
