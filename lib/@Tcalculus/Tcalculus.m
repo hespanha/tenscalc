@@ -674,7 +674,7 @@ classdef Tcalculus
             
         function obj=diag(obj1,diag2tprod)
             if nargin<2
-                diag2tprod=false;
+                diag2tprod=true;
             end
             osize1=size(obj1);
             if diag2tprod
