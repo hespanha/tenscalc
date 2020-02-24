@@ -454,7 +454,7 @@ for i=1:nGroups
         if 0
             writeCinstructions(obj,fig,k);    
         else
-            % not pretty, but apparently C cannot use matlab's fig
+            % not pretty, but apparently C cannot use matlab's fd
             countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
             f=fopen('tmp_toremove.c','r');
             if f<0
