@@ -35,7 +35,7 @@ function writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunct
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-verboseLevel=2;
+verboseLevel=0;
 
 allFunctionSameFile=true;
 

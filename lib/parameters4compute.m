@@ -20,14 +20,14 @@ function localVariables_=parameters4compute(localVariables_)
         
     declareParameter(...
         'VariableName','maxInstructionsPerFunction',...
-        'DefaultValue',1000,...
+        'DefaultValue',200,...
         'Description',{
             'Maximum number of instructions to be included into a single function.'
-            'When equal to ''inf'', there is no limit on the size of a sungle function.';
-            'Use a finite value to avoid very large functions for which the compiler'
-            'could misbehave.';
+            'When equal to ''inf'', there is no limit on the size of a single function.';
             ' ';
-            'This parameter is only used for C-code solvers.';
+            'Large values of |maxInstructionsPerFunction| and therefore large functions';
+            'give more opportunities for compiler optimization, but can resul in very';
+            'slow compilation (especially with compiler optimization turned on).';
                       });
         
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
