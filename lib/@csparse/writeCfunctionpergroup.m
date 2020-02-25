@@ -1,47 +1,17 @@
-function writeCfunctionpergroup(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling)
-% writeCfunctionpergroup(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
+function writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunction,...
+                                Cfunction,Hfunction,logFile,folder,profiling)
+% writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunction,...
+%                        Cfunction,Hfunction,logFile,folder,profiling)
 %    Write C code to implements all the gets, sets, and copies in
 %    a csparse object.
 % Inputs:
 % obj - csparse object
-% codeType - Type of code produced:'
-%              ''C'' - all computations done pure C code.'
-%                      Impact on non-optimized compilation:'
-%                        . medium compilation times'
-%                        . largest code size'
-%                        . slowest run times'
-%                      Impact on optimized code (ideal for final code):'
-%                        Gives the most freedom to the compiler for optimization'
-%                        . slowest compile optimization times'
-%                        + fastest run times'
-%                        + smallest code sizes'
-%              ''C+asmSB'' - little C code, with most of the computations done'
-%                      by small blocks of inlined assembly code'
-%                      Impact on non-optimized compilation:'
-%                        . medium compilation times'
-%                        . medium code size'
-%                        . medium run times'
-%                      Impact on optimized code:'
-%                        Most of the compiler optimization is restricted to re-ordering'
-%                        and/or inlining the small blocks of asm code'
-%                        . medium compile optimization times,'
-%                        . medium run times'
-%                        . medium code sizes'
-%              ''C+asmLB'' - little C code, with most of the computations done'
-%                      by large blocks of inlined assembly code'
-%                      Impact on non-optimized compilation (ideal for testing):'
-%                        + fastest compilation times'
-%                        + smallest code size'
-%                        + fastest run times'
-%                      Impact on optimized compilation:'
-%                        Most of the compiler optimization is restricted to re-ordering'
-%                        and/or inlining the large blocks of asm code'
-%                        . fastest compile optimization times'
-%                        . slowest run times'
-%                        . largest optimized code sizes (due to
-%                        inlining large blocks)'
 % minInstructions4loop - minimum number of similar instructions to
 %                        be implmented as a for loop (rather than inlined) 
+% maxInstructionsPerFunction - maximum number of instructions to be
+%                        included in a single function. Used to avoid
+%                        very large functions for which the compiler
+%                        could misbehave.
 % Cfunction - file where the C code should be written
 % Hfunction - file where the C function headers should be written
 % logFile   - file where statistics information should be written
@@ -65,7 +35,7 @@ function writeCfunctionpergroup(obj,codeType,minInstructions4loop,Cfunction,Hfun
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-verboseLevel=0;
+verboseLevel=2;
 
 allFunctionSameFile=true;
 
@@ -434,8 +404,43 @@ for i=1:nGroups
     if ~isempty(Hfunction)
         fprintf(fih,'extern void %s%d();\n',computeFunctions,i-1);
     end
-    fprintf(fig,'EXPORT void %s%d() {\n',computeFunctions,i-1);
+    
     k=find(groups==i);
+    % Check how many functions will be needed
+    nFunctions=ceil(length(k)/maxInstructionsPerFunction);
+    nInstr=floor(length(k)/nFunctions);
+    if verboseLevel>1
+        fprintf('  void %s%d(): %d instructions, %d auxiliary functions\n',computeFunctions,i-1,length(k),nFunctions-1);
+    end
+    % write auxiliary functions
+    for ii=1:nFunctions-1
+        if verboseLevel>1
+            fprintf('    void %s%d_%d(): auxiliary functions with %d instructions\n',...
+                    computeFunctions,i-1,ii-1,nInstr);
+        end
+        fprintf(fig,'void %s%d_%d() {\n',computeFunctions,i-1,ii-1);
+        if m_define
+            fprintf(fid,'#define m scratchbook\n');
+        else
+            fprintf(fid,'  %s SCRATCHBOOK_TYPE *m=scratchbook;\n',m_storageclass);
+        end
+        fprintf(fid,'  // %d instructions\n',nInstr);
+        % not pretty, but apparently C cannot use matlab's fd
+        countFlops=writeCinstructionsC(int64(k(1:nInstr)),int64(obj.memoryLocations'),int64(minInstructions4loop));
+        f=fopen('tmp_toremove.c','r');
+        if f<0
+            ls -l
+            error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
+        end
+        str=fread(f,inf);
+        fclose(f);
+        delete('tmp_toremove.c');
+        fwrite(fig,str);
+        fprintf(fid,'}\n');
+        k=k(nInstr+1:end);
+    end
+    
+    fprintf(fig,'EXPORT void %s%d() {\n',computeFunctions,i-1);
     if obj.debug>0
         fprintf(fig,'  fprintf(stderr,"computing group %d\\n");\n',i-1);
     end
@@ -443,61 +448,41 @@ for i=1:nGroups
         fprintf(fig,'  countExecuteGroup[%d]++;\n',i-1);
         fprintf(fig,'  clock_t t0=clock();\n',i-1);
     end
-    switch (codeType)
-      case 'C',
-        % Most flexibility for the compiler to optimize
-        if m_define
-            fprintf(fid,'#define m scratchbook\n');
-        else
-            fprintf(fid,'  %s SCRATCHBOOK_TYPE *m=scratchbook;\n',m_storageclass);
-        end
-        if 0
-            writeCinstructions(obj,fig,k);    
-        else
-            % not pretty, but apparently C cannot use matlab's fd
-            countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
-            f=fopen('tmp_toremove.c','r');
-            if f<0
-                ls -l
-                error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
-            end
-            str=fread(f,inf);
-            fclose(f);
-            delete('tmp_toremove.c');
-            fwrite(fig,str);
 
-            for q=1:length(countFlops)
-                if countFlops(q)>0
-                    if profiling
-                        fprintf(fig,'   countFlops[%d] += %d;\n',q-1,countFlops(q));
-                    else
-                        fprintf(fig,'   // countFlops[%d] += %d;\n',q-1,countFlops(q));
-                    end
-                end
+    if m_define
+        fprintf(fid,'#define m scratchbook\n');
+    else
+        fprintf(fid,'  %s SCRATCHBOOK_TYPE *m=scratchbook;\n',m_storageclass);
+    end
+    % call auxiliary functions
+    for ii=1:nFunctions-1
+        fprintf(fig,'  %s%d_%d();\n',computeFunctions,i-1,ii-1);
+    end    
+    fprintf(fid,'  // %d instructions\n',length(k));
+    if verboseLevel>1
+        fprintf('    void %s%d(): main functions with %d instructions\n',...
+                computeFunctions,i-1,length(k));
+    end
+    % not pretty, but apparently C cannot use matlab's fd
+    countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
+    f=fopen('tmp_toremove.c','r');
+    if f<0
+        ls -l
+        error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
+    end
+    str=fread(f,inf);
+    fclose(f);
+    delete('tmp_toremove.c');
+    fwrite(fig,str);
+        
+    for q=1:length(countFlops)
+        if countFlops(q)>0
+            if profiling
+                fprintf(fig,'   countFlops[%d] += %d;\n',q-1,countFlops(q));
+            else
+                fprintf(fig,'   // countFlops[%d] += %d;\n',q-1,countFlops(q));
             end
         end
-      case 'C+asmSB',
-        if ~strcmp(obj.scratchbookType,'double')
-            error('writeC: scratchbookType %s not implemented for codeType %s\n',scratchbookType,codeType);
-        end
-        writeCasmSBinstructions(obj,fig,k); % Compiler can mostly optimize by inlining (small blocks)
-      case 'C+asmLB',
-        if ~strcmp(obj.scratchbookType,'double')
-            error('writeC: scratchbookType %s not implemented for codeType %s\n',scratchbookType,codeType);
-        end
-        if 0
-            writeCasmLBinstructions(obj,fig,k);  % Compiler can mostly optimize by inlining (large blocks)
-        else
-            % not pretty, but apparently C cannot use matlab's fig
-            writeAsmInstructionsC(int64(k),int64(obj.memoryLocations'));  
-            f=fopen('tmp_toremove.c','r');
-            str=fread(f,inf);
-            fclose(f);
-            delete('tmp_toremove.c');
-            fwrite(fig,str);
-        end
-      otherwise
-        error('writeC: unknown value of codeType (''%s'')\n',codeType);
     end
     if profiling
         fprintf(fig,'  timeExecuteGroup[%d] += clock()-t0;\n',i-1);

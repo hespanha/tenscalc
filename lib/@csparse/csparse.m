@@ -1148,50 +1148,19 @@ classdef csparse < handle
 %% Compile code
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        function compile2C(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling)
-        % compile2C(obj,codeType,Cfunction,Hfunction,logFile,folder,profiling)
+        function compile2C(obj,minInstructions4loop,maxInstructionsPerFunction,Cfunction,Hfunction,logFile,folder,profiling)
+        % compile2C(obj,minInstructions4loop,maxInstructionsPerFunction,Cfunction,Hfunction,logFile,folder,profiling)
         %
         % Compiles code to C and appends it to a given file.
         %
         % Inputs:
         % obj - csparse object
-        % codeType - Type of code produced:'
-        %              ''C'' - all computations done pure C code.'
-        %                      Impact on non-optimized compilation:'
-        %                        . medium compilation times'
-        %                        . largest code size'
-        %                        . slowest run times'
-        %                      Impact on optimized code (ideal for final code):'
-        %                        Gives the most freedom to the compiler for optimization'
-        %                        . slowest compile optimization times'
-        %                        + fastest run times'
-        %                        + smallest code sizes'
-        %              ''C+asmSB'' - little C code, with most of the computations done'
-        %                      by small blocks of inlined assembly code'
-        %                      Impact on non-optimized compilation:'
-        %                        . medium compilation times'
-        %                        . medium code size'
-        %                        . medium run times'
-        %                      Impact on optimized code:'
-        %                        Most of the compiler optimization is restricted to re-ordering'
-        %                        and/or inlining the small blocks of asm code'
-        %                        . medium compile optimization times,'
-        %                        . medium run times'
-        %                        . medium code sizes'
-        %              ''C+asmLB'' - little C code, with most of the computations done'
-        %                      by large blocks of inlined assembly code'
-        %                      Impact on non-optimized compilation (ideal for testing):'
-        %                        + fastest compilation times'
-        %                        + smallest code size'
-        %                        + fastest run times'
-        %                      Impact on optimized compilation:'
-        %                        Most of the compiler optimization is restricted to re-ordering'
-        %                        and/or inlining the large blocks of asm code'
-        %                        . fastest compile optimization times'
-        %                        . slowest run times'
-        %                        . largest optimized code sizes (due to inlining large blocks)'
         % minInstructions4loop - minimum number of similar instructions to
         %                        be implmented as a for loop (rather than inlined) 
+        % maxInstructionsPerFunction - maximum number of instructions to be
+        %                        included in a single function. Used to avoid
+        %                        very large functions for which the compiler
+        %                        could misbehave.
         % Cfunction - file where the C code should be written
         % Hfunction - file where the C function headers should be written (optional)
         % logFile   - file where statistics information should be written (optional)
@@ -1228,9 +1197,10 @@ classdef csparse < handle
                     size(obj.dependencyGroups,1),...
                     length(obj.sets),length(obj.gets),length(obj.copies));
 
-            fprintf('  write codeType=%s... ',codeType);t0=clock;
+            fprintf('  write C code... ');t0=clock;
             %writeCswitchpergroup(obj,codeType,Cfunction,Hfunction,logFile,profiling);
-            writeCfunctionpergroup(obj,codeType,minInstructions4loop,Cfunction,Hfunction,logFile,folder,profiling);
+            writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunction,...
+                                   Cfunction,Hfunction,logFile,folder,profiling);
             fprintf('done (%.3f sec)\n',etime(clock(),t0));
         end
     

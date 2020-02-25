@@ -18,6 +18,18 @@ function localVariables_=parameters4compute(localVariables_)
             'This parameter is only used for C-code solvers.';
                       });
         
+    declareParameter(...
+        'VariableName','maxInstructionsPerFunction',...
+        'DefaultValue',1000,...
+        'Description',{
+            'Maximum number of instructions to be included into a single function.'
+            'When equal to ''inf'', there is no limit on the size of a sungle function.';
+            'Use a finite value to avoid very large functions for which the compiler'
+            'could misbehave.';
+            ' ';
+            'This parameter is only used for C-code solvers.';
+                      });
+        
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% CreateGateway parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
