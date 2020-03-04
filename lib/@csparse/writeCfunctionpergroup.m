@@ -576,18 +576,39 @@ if verboseLevel>0
 end
 for i=1:length(obj.gets)
     nSources=length(obj.gets(i).source);
+    % check which outputs are sparse
+    isSparse=false(nSources,1);
+    for j=1:nSources
+        subscripts=getOne(obj.vectorizedOperations,'subscripts',obj.gets(i).source(j));
+        osize=getOne(obj.vectorizedOperations,'osize',obj.gets(i).source(j));
+        isSparse(j)=length(osize)==2 & size(subscripts,2)~=prod(osize);
+        if isSparse(j)
+            obj.template(obj.gets(i).templateNdx).outputs(j).type='sparse';
+        end
+    end    
+    
+    if any(isSparse)
+        %error('current version does not support the return of sparse matrices, make matrix full using ''full(.)''');
+        % This code is untested, but does create a sparse matrix assuming the
+        % input pointer points to an mxArray, rather than an array of
+        % doubles. However, currently cmextools does not support sparse arrays.
+        fprintf(fid,'#include "matrix.h"\n');
+        if ~isempty(Hfunction)
+            fprintf(fih,'#include "matrix.h"\n');
+        end
+    end
     % write function header
     fprintf(fid,'EXPORT void %s(',obj.gets(i).functionName);
     if ~isempty(Hfunction)
         fprintf(fih,'extern void %s(',obj.gets(i).functionName);
     end
     for j=1:nSources
-        if length(osize)==2 & size(subscripts,2)~=prod(osize)
+        if isSparse(j)
             % sparse
             if ~isempty(Hfunction)
-                fprintf(fih,'int64_t **y%d_p,int64_t **y%d_i,double **y_v%d',j,j,j);
+                fprintf(fih,'mxArray *y%d',j);
             end
-            fprintf(fid,'double *y%d',j);
+            fprintf(fid,'mxArray *y%d',j);
         else
             % full
             if ~isempty(Hfunction)
@@ -642,8 +663,6 @@ for i=1:length(obj.gets)
         if length(osize)==2 & size(subscripts,2)~=prod(osize)
             %% sparse matrices returned in compressed-column form
 
-            error('current version does not support the return of sparse matrices, make matrix full using ''full(.)''');
-            
             % compute sparse arrays
             %[subscripts',instructions]
             [ji,k]=sortrows(subscripts(end:-1:1,:)');
@@ -657,29 +676,31 @@ for i=1:length(obj.gets)
                 jc(l+1)=this;
             end
             %jc
-            instrX=instrX(k);
-            
             pr=instructions(k)-1; % 0-based indexing
 
-            %% INCOMPLETE
+            fprintf(fid,'  mwIndex *ir=mxGetIr(y%d);\n',j);
+            %fprintf(fid,'  printf("ir=%%p\\n",ir);\n');
+            fprintf(fid,'  mxFree(ir);\n');
+            fprintf(fid,'  ir=mxMalloc(sizeof(int64_t)*%d);\n',length(ir));
+            for l=1:length(ir)
+                fprintf(fid,'     ir[%d]=%d;\n',l-1,ir(l));
+            end
+            fprintf(fid,'  mxSetIr(y%d,ir);\n',j);
             
-            fprintf(fid,'  int64_t p[%d]={0,',osize(2)+1);
-            for l=1:osize(2)
-                fprintf(fid,'%d,',min(find(ij(:,1)>=l))-1); %0-based indexing
+            fprintf(fid,'  mwIndex *jc=mxGetJc(y%d);\n',j);
+            %fprintf(fid,'  printf("jc=%%p\\n",jc);\n');
+            for l=1:length(jc)
+                fprintf(fid,'     jc[%d]=%d;\n',l-1,jc(l));
             end
-            fprintf(fid,'%d};\n  (*y%d_p)=&p;\n',osize(2),j);
-            fprintf(fid,'  int64_t i[%d]={%s};\n',index2str(ir));
-            fprintf(fid,'%d};\n  (*y%d_i)=&i;\n',ij(end,2),j);
-            fprintf(fid,'  if (*y%d_v==0) y%d_v=malloc((size_t)sizeof(double)*%d);\n',j,j,length(instructions));
-            if all(instructions(2:end)-instructions(1:end-1)==1) && strcmp(obj.scratchbookType,'double')
-                % consecutive destination
-                fprintf(fid,'  memcpy(*y%d_v,m+%d,(size_t)%d*sizeof(double));\n',...
-                        j,instructions(1)-1,length(instructions));
-            else
-                fprintf(fid,'{ double *y=*y%d_v;\n',j);
-                fprintf(fid,'  *(y++)=m[%d];\n',instructions-1);
-                fprintf(fid,'  }\n');
+
+            fprintf(fid,'  double *pr=mxGetDoubles(y%d);\n',j);
+            %fprintf(fid,'  printf("pr=%%p\\n",pr);\n');
+            fprintf(fid,'  mxFree(pr);\n');
+            fprintf(fid,'  pr=mxMalloc(sizeof(double)*%d);\n',length(pr));
+            for l=1:length(pr)
+                fprintf(fid,'     pr[%d]=m[%d];\n',l-1,pr(l));
             end
+            fprintf(fid,'  mxSetDoubles(y%d,pr);\n;',j);
 
         else
             % for # dimensions other than 2, must be full

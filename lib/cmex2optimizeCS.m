@@ -257,9 +257,9 @@ function varargout=cmex2optimizeCS(varargin)
         end
         template(end).Cfunction=sprintf('%s_set_%s',classname,name(parameters{i}));
         template(end).method=sprintf('setP_%s',name(parameters{i}));
-        template(end).inputs =struct('type','double',...
+        template(end).inputs =struct('type','double',... % will be overwriten after compile2C
                                      'name',name(parameters{i}),...
-                                     'sizes',size(parameters{i}));
+                                     'sizes',size(parameters{i})); % will be overwriten after compile2C
         declareSet(code,parameters{i},template(end).Cfunction);
         msize=size(parameters{i});while(length(msize)<2),msize(end+1)=1;end
         classhelp{end+1}=sprintf('setP_%s(obj,{[%s] matrix});',...
@@ -394,9 +394,9 @@ function varargout=cmex2optimizeCS(varargin)
     template(end).method='getOutputs';
     template(end).outputs=struct('type',{},'name',{},'sizes',{});
     for i=1:length(outputExpressions)
-        template(end).outputs(i).type='double';
+        template(end).outputs(i).type='double';% will be overwriten after compile2C
         template(end).outputs(i).name=sprintf('y%d',i);
-        template(end).outputs(i).sizes=size(outputExpressions{i});
+        template(end).outputs(i).sizes=size(outputExpressions{i});% will be overwriten after compile2C
         classhelp{end}=sprintf('%sy%d,',classhelp{end},i);
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
@@ -416,6 +416,23 @@ function varargout=cmex2optimizeCS(varargin)
               sprintf('%s.log',classname),...
               classFolder,...
               profiling);
+    % update templates in case compile2C made changes (e.g., turning matrix into sparse
+    for i=1:length(template)
+        for j=1:length(code.template)
+            if strcmp(template(i).MEXfunction,code.template(j).MEXfunction)
+                %template(i),code.template(j),;
+                for l=1:length(template(i).inputs)
+                    template(i).inputs(l).type=code.template(j).inputs(l).type;
+                    template(i).inputs(l).sizes=code.template(j).inputs(l).sizes;
+                end
+                for l=1:length(template(i).outputs)
+                    template(i).outputs(l).type=code.template(j).outputs(l).type;
+                    template(i).outputs(l).sizes=code.template(j).outputs(l).sizes;
+                end
+                break
+            end
+        end
+    end
     code.statistics.time.compile2C=etime(clock,t_compile2C);
     
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));

@@ -594,6 +594,23 @@ function varargout=cmex2equilibriumLatentCS(varargin)
               sprintf('%s.log',classname),...
               classFolder,...
               profiling);
+    % update templates in case compile2C made changes (e.g., turning matrix into sparse
+    for i=1:length(template)
+        for j=1:length(code.template)
+            if strcmp(template(i).MEXfunction,code.template(j).MEXfunction)
+                %template(i),code.template(j),;
+                for l=1:length(template(i).inputs)
+                    template(i).inputs(l).type=code.template(j).inputs(l).type;
+                    template(i).inputs(l).sizes=code.template(j).inputs(l).sizes;
+                end
+                for l=1:length(template(i).outputs)
+                    template(i).outputs(l).type=code.template(j).outputs(l).type;
+                    template(i).outputs(l).sizes=code.template(j).outputs(l).sizes;
+                end
+                break
+            end
+        end
+    end
     code.statistics.time.compile2C=etime(clock,t_compile2C);
     
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));

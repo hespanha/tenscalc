@@ -37,14 +37,16 @@ classdef csparse < handle
 
         
         %% Information about set's
-        sets=struct('functionName',{},... % desired name for the C function
-                    'destination',{},...  % elementary expression to be set
-                    'childrenGroups',{}); % groups of instructions that depend on destination
+        sets=struct('functionName',{},...  % desired name for the C function
+                    'destination',{},...   % elementary expression to be set
+                    'childrenGroups',{},...% groups of instructions that depend on destination
+                    'templateNdx',{});    % index in template
         
         %% Information about get's
         gets=struct('functionName',{},... % desired name for the C function
                     'source',{},...       % elementary expression to be retrieved
-                    'parentGroups',{});   % groups of instructions that source depends on
+                    'parentGroups',{},... % groups of instructions that source depends on
+                    'templateNdx',{});    % index in template
         
         %% Information about copy's
         copies=struct('functionName',{},...   % desired name for the C function
@@ -331,7 +333,9 @@ classdef csparse < handle
             
             k=addTCexpression(obj,TCdestination);
             obj.sets(end+1,1)=...
-                struct('functionName',{functionName},'destination',{k},'childrenGroups',{[]});
+                struct('functionName',{functionName},'destination',{k},'childrenGroups',{[]},...
+                       'templateNdx',length(obj.template)+1);
+
             if ~strcmp(type(TCdestination),'variable')
                 fprintf('declareSet: ATTENTION destination is not a Tvariable, which may lead to unpredictable behavior\n');
             end
@@ -381,7 +385,8 @@ classdef csparse < handle
                 %computeScalarInstructions(obj,k(i));
             end
             obj.gets(end+1,1)=...
-                struct('functionName',{functionName},'source',{k},'parentGroups',{[]});
+                struct('functionName',{functionName},'source',{k},'parentGroups',{[]},...
+                       'templateNdx',length(obj.template)+1);
         
             % add to template
             obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
