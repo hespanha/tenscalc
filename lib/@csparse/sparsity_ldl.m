@@ -109,7 +109,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         p=amd((A+A')/2,struct('dense',1000,'aggressive',true));
     end
         
-    if verboseLevel>1
+    if verboseLevel>1 && nnz(A)<prod(size(A))
         fig=get(0,'CurrentFigure');
         f=figure(101);
         set(f,'Name',typical_subscripts);
@@ -139,7 +139,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         end
 
         subplot(2,3,3)
-        plot(1:length(p),p,'rx');
+        plot(1:length(p),p,'r.');
         legend('row/col  perm');
         axis ij;axis image;
         
@@ -243,7 +243,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     subsLDL=subsLDL';
     instrLDL=instrLDL(k);
 
-    if verboseLevel>1
+    if verboseLevel>1 && nnz(A)<prod(size(A))
         LDL=sparse(double(subsLDL(1,:)),...
                    double(subsLDL(2,:)),...
                    instrLDL,n,n);
@@ -254,7 +254,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         
         figure(f);
         subplot(2,3,5)
-        plot(1:n,1:n,'rx');
+        plot(1:n,1:n,'r.');
         legend('pivots');
         hold on;
         spy(LD);
@@ -265,14 +265,14 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         end
 
         subplot(2,3,6)
-        plot(1:length(p),p,'rx');
+        plot(1:length(p),p,'r.');
         axis ij;axis image
         legend('row perm');
 
         % plot pivots in original matrix
         subplot(2,3,1);
         hold on;
-        plot(p,p,'rx');
+        plot(p,p,'r.');
         legend('pivots')
 
         drawnow

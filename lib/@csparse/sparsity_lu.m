@@ -102,7 +102,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         [lp,up]=lu(A(p,q));
     end
     
-    if verboseLevel>1
+    if verboseLevel>1 && nnz(A)<prod(size(A))
         fig=get(0,'CurrentFigure');
         f=figure(101);
         set(f,'Name',typical_subscripts);
@@ -262,7 +262,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     subsLU=subsLU';
     instrLU=instrLU(k);
 
-    if verboseLevel>1
+    if verboseLevel>1 && nnz(A)<prod(size(A))
         LU=sparse(double(subsLU(1,:)),...
                   double(subsLU(2,:)),...
                   ones(1,size(subsLU,2)),n,n);

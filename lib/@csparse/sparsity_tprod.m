@@ -33,6 +33,10 @@ operands=getOne(obj.vectorizedOperations,'operands',thisExp);
 parameters=getOne(obj.vectorizedOperations,'parameters',thisExp);
 parameters=parameters(2:end); % only keep indices 
 
+if verboseLevel>0
+    fprintf('  sparsify_tprod(%3d): tprod(',thisExp);
+end
+
 %% Compute sparsity pattern
 dimY=0;
 nSums=0;
@@ -150,6 +154,14 @@ for i=1:length(operands)
 end
 osizeY=tprodSizes(nSums+1:end)';
 
+if verboseLevel>0
+    for i=1:length(operands)
+        fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osizeX{i}),']'],nnzX{i});
+    end
+    fprintf('  ) size=%-10s\n',['[',index2str(osizeY),']']);
+end
+
+
 %% Compute # non-zero elements if operand were to be expanded
 nnzExpansion=zeros(1,length(operands));
 for i=1:length(operands)
@@ -232,13 +244,12 @@ if verboseLevel>1
 end
 
 if verboseLevel>0
-    fprintf('  sparsify_tprod(%3d): tprod(',thisExp);
-    for i=1:length(operands)
-        fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osizeX{i}),']'],nnzX{i});
-    end
-    fprintf('  )\n    -> size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
+    fprintf('    -> size=%-10s, nnz=%4d (%6.2f%%) <- tprod(',...
             ['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
     fprintf(')\n');
 end
 
+
+
+end
 
