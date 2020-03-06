@@ -82,12 +82,16 @@ typedef enum instructionType_e {
     I_Mldl_d=80,
     I_Mldl_l=81,
     I_Mchol=82,
-    I_Mmldivide_l1=83,
-    I_Mmldivide_u=84,
-    I_Mmldivide_u1=85,
-    I_Mmldivide_d=86,
-    I_Mrdivide=87,
-    I_Mcompose=88,
+    I_Mlogdet_ldl=83,
+    I_Mlogdet_lu=84,
+    I_Minv_ldl=85,
+    I_Minv_lu=86,
+    I_Mmldivide_l1=87,
+    I_Mmldivide_u=88,
+    I_Mmldivide_u1=89,
+    I_Mmldivide_d=90,
+    I_Mrdivide=91,
+    I_Mcompose=92,
 } instructionType_t;
 // profile defines
 #define P_nsum 1
