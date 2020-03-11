@@ -375,7 +375,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 end
                 
                 maxAlphaPrimal_a=clp(F,F_z*dZ_a);
-                maxAlphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaDualIneq_a=clp(lambda,dLambda_a);
                 
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./F;
@@ -455,14 +455,14 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         
         if nF>0
             maxAlphaPrimal_s=clp(F,F_z*dZ_s);
-            maxAlphaDual_s=clp(lambda,dLambda_s);
+            maxAlphaDualIneq_s=clp(lambda,dLambda_s);
             newLambda_s=lambda+alphaDualIneq*dLambda_s;
             newF_s=substitute(F,u,newU_s);
             newF_s=substitute(newF_s,d,newD_s);
             if nX>0
                 newF_s=substitute(newF_s,x,newX_s);
             end
-            declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDualIneq_s},'getMaxAlphas_s__');
             declareGet(code,min(newF_s,[],1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
@@ -596,7 +596,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 end
                 
                 maxAlphaPrimal_a=clp(F,F_z*dZ_a);
-                maxAlphaDual_a=clp(lambda,dLambda_a);
+                maxAlphaDualIneq_a=clp(lambda,dLambda_a);
                 
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./lambda;
@@ -609,7 +609,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 
                 rho=(newF_a*newLambda_a)./gap;
                 
-                declareGet(code,{maxAlphaPrimal_a,maxAlphaDual_a},'getMaxAlphas_a__');
+                declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,[],1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
@@ -653,14 +653,14 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         
         if nF>0
             maxAlphaPrimal_s=clp(F,F_z*dZ_s);
-            maxAlphaDual_s=clp(lambda,dLambda_s);
+            maxAlphaDualIneq_s=clp(lambda,dLambda_s);
             newLambda_s=lambda+alphaDualIneq*dLambda_s;
             newF_s=substitute(F,u,newU_s);
             newF_s=substitute(newF_s,d,newD_s);
             if nX>0
                 newF_s=substitute(newF_s,x,newX_s);
             end
-            declareGet(code,{maxAlphaPrimal_s,maxAlphaDual_s},'getMaxAlphas_s__');
+            declareGet(code,{maxAlphaPrimal_s,maxAlphaDualIneq_s},'getMaxAlphas_s__');
             declareGet(code,min(newF_s,[],1),'getMinF_s__');
             if debugConvergence
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
@@ -751,3 +751,6 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     %profile off
     %profile viewer
     
+    
+end
+
