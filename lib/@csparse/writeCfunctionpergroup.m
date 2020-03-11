@@ -142,6 +142,20 @@ if verboseLevel>0
     fprintf('WARNING: writeC: each instruction is being assigned a specific memory address but one should reuse memory\n');
 end
 
+%% Static library
+fprintf(fid,'#ifndef DYNAMIC_LIBRARY\n');
+fprintf(fid,'#define EXPORT \n');
+%% Dynamic library
+fprintf(fid,'#else\n');
+fprintf(fid,'#ifdef __APPLE__\n');
+fprintf(fid,'#define EXPORT __attribute__((visibility("default")))\n');
+fprintf(fid,'#elif __linux__\n');
+fprintf(fid,'#define EXPORT __attribute__((visibility("default")))\n');
+fprintf(fid,'#elif _WIN32\n');
+fprintf(fid,'#define EXPORT __declspec(dllexport)\n');
+fprintf(fid,'#endif\n');
+fprintf(fid,'#endif\n');
+
 %% status of dependency groups
 fprintf(fid,'/* Status of the dependency groups */\n');
 fprintf(fid,'int groupStatus[]={%s};\n\n',index2str(zeros(1,nGroups)));
@@ -251,15 +265,19 @@ if length(obj.atomicVariables)>0
     end
     fprintf(fid,'};\n');
 end
+if profiling
+    %% Add method to see profiling info
+    obj.template(end+1).MEXfunction=sprintf('%s_profilingView',basename);
+    obj.template(end).Sfunction='';
+    obj.template(end).method='profilingView';
+    obj.template(end).includes={};
+    obj.template(end).Cfunction='profilingView0';
+end
+%% Static library
+fprintf(fid,'#ifndef DYNAMIC_LIBRARY\n');
+fprintf(fid,'SCRATCHBOOK_TYPE scratchbook[%d];\n',max(obj.memoryLocations));
 %% Dynamic library
-fprintf(fid,'#ifdef DYNAMIC_LIBRARY\n');
-fprintf(fid,'#ifdef __APPLE__\n');
-fprintf(fid,'#define EXPORT __attribute__((visibility("default")))\n');
-fprintf(fid,'#elif __linux__\n');
-fprintf(fid,'#define EXPORT __attribute__((visibility("default")))\n');
-fprintf(fid,'#elif _WIN32\n');
-fprintf(fid,'#define EXPORT __declspec(dllexport)\n');
-fprintf(fid,'#endif\n');
+fprintf(fid,'#else\n');
 fprintf(fid,'#include <stdlib.h> /* needed for malloc */\n');
 fprintf(fid,'/* Storage area */\n');
 fprintf(fid,'SCRATCHBOOK_TYPE *scratchbook=NULL;\n');
@@ -325,11 +343,6 @@ fprintf(fid,'       printf("%%s: freed scrapbook, unloading dynamic library\\n",
 fprintf(fid,'       return TRUE; }\n');
 fprintf(fid,'}\n');
 fprintf(fid,'#endif\n');
-
-fprintf(fid,'#else\n');
-%% Static library
-fprintf(fid,'#define EXPORT \n');
-fprintf(fid,'SCRATCHBOOK_TYPE scratchbook[%d];\n',max(obj.memoryLocations));
 fprintf(fid,'#endif\n');
 
 %% Create debug function to print memory in the screen
@@ -413,6 +426,7 @@ for i=1:nGroups
         fprintf('  void %s%d(): %d instructions, %d auxiliary functions\n',computeFunctions,i-1,length(k),nFunctions-1);
     end
     % write auxiliary functions
+    countFlops=0;
     for ii=1:nFunctions-1
         if verboseLevel>1
             fprintf('    void %s%d_%d(): auxiliary functions with %d instructions\n',...
@@ -426,7 +440,7 @@ for i=1:nGroups
         end
         fprintf(fid,'  // %d instructions\n',nInstr);
         % not pretty, but apparently C cannot use matlab's fd
-        countFlops=writeCinstructionsC(int64(k(1:nInstr)),int64(obj.memoryLocations'),int64(minInstructions4loop));
+        countFlops=countFlops+writeCinstructionsC(int64(k(1:nInstr)),int64(obj.memoryLocations'),int64(minInstructions4loop));
         f=fopen('tmp_toremove.c','r');
         if f<0
             ls -l
@@ -464,7 +478,7 @@ for i=1:nGroups
                 computeFunctions,i-1,length(k));
     end
     % not pretty, but apparently C cannot use matlab's fd
-    countFlops=writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
+    countFlops=countFlops+writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
     f=fopen('tmp_toremove.c','r');
     if f<0
         ls -l

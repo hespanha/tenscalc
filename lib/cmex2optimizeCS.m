@@ -232,20 +232,7 @@ function varargout=cmex2optimizeCS(varargin)
                sprintf('obj=%s();',classname)};
     
     % template for createGateway
-    template=struct('MEXfunction',{},...% string
-                    'Sfunction',{},...  % string
-                    'Cfunction',{},...  % string
-                    'method',{},...     % string
-                    'inputs',struct(...  
-                        'type',{},...   % string
-                        'name',{},...   % cell-array of strings (one per dimension)
-                        'sizes',{}),... % cell-array of strings (one per dimension)
-                    'outputs',struct(... % string
-                        'type',{},...   % string
-                        'name',{},...   % cell-array of strings (one per dimension)
-                        'sizes',{}),... % cell-array of strings (one per dimension)
-                    'preprocess',{},... % strings (starting with parameters in parenthesis)'
-                    'includes',{});     % cell-array of strings (one per file)
+    template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
         classhelp{end+1}='% Set parameters';
@@ -431,6 +418,12 @@ function varargout=cmex2optimizeCS(varargin)
                 end
                 break
             end
+        end
+    end
+    for j=1:length(code.template)
+        if strcmp('profilingView',code.template(j).method)
+            template(end+1)=code.template(j);
+            break
         end
     end
     code.statistics.time.compile2C=etime(clock,t_compile2C);
