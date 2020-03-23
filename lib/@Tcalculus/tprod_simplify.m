@@ -133,7 +133,7 @@ function obj=tprod_simplify(obj)
     for i=length(objs):-1:1
         if strcmp(type(objs{i}),'ones')
             onessize=size(objs{i});
-            % loop over ones dimensions
+            % loop over ones dimensions (if any)
             for j=length(inds{i}):-1:1
                 % check if index appears elsewhere
                 appear=false;
@@ -196,14 +196,19 @@ function obj=tprod_simplify(obj)
         obj=repmat(obj,repma);
         return
     end
-    
+
     %% find trivial tprods
     if length(objs)==1 && myisequal(inds{1},1:length(inds{1}))
         obj=objs{1};
         msg='';
         return
     end
-
+    if length(objs)==0
+        obj=Tones(tprod_size);
+        msg='';
+        return
+    end
+    
     %% Break away operands just with positive indices (no sums) -- not fully tested
     noSums=cellfun(@(x)all(x>0),inds);
     if ~all(noSums) && any(noSums)
