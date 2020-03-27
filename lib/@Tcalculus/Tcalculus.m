@@ -566,7 +566,10 @@ classdef Tcalculus
             if nargin<3
                 sum2tprod=true;
             end
-            if nargin<2
+            if length(size(obj1))==1
+                ind1=1;
+            end
+            if nargin<2 && length(size(obj1))~=1
                 error('Tcalculus.sum: must include dimension to sum');
             end
             if sum2tprod

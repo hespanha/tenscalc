@@ -32,7 +32,7 @@ function obj=Tvariable(name,osize,nowarningsamesize)
         error('Tvariable: 1st parameter must be a string (variable name)')
     end
     if nargin<2
-        error('Tvariable: missing 2nd parameter (size)');
+        osize=[];
     end
     
     if nargin<3
