@@ -692,29 +692,26 @@ for i=1:length(obj.gets)
             %jc
             pr=instructions(k)-1; % 0-based indexing
 
+            fprintf(fid,'  double  *pr=mxGetPr(y%d);\n',j);
             fprintf(fid,'  mwIndex *ir=mxGetIr(y%d);\n',j);
-            %fprintf(fid,'  printf("ir=%%p\\n",ir);\n');
-            fprintf(fid,'  mxFree(ir);\n');
-            fprintf(fid,'  ir=mxMalloc(sizeof(int64_t)*%d);\n',length(ir));
+            fprintf(fid,'  mwIndex *jc=mxGetJc(y%d);\n',j);
+            %fprintf(fid,'  printf("pr=%%p, ir=%%p, jc=%%p, \\n",pr,ir,jc);\n');
+            fprintf(fid,'  mxSetNzmax(y%d,%d);\n',j,length(ir));
+            fprintf(fid,'  mxSetPr(y%d, mxRealloc(pr, %d*sizeof(double)));\n',j,length(ir));
+            fprintf(fid,'  mxSetIr(y%d, mxRealloc(ir, %d*sizeof(mwIndex)));\n',j,length(ir));
+            fprintf(fid,'           pr=mxGetPr(y%d);\n',j);
+            fprintf(fid,'           ir=mxGetIr(y%d);\n',j);
+            %fprintf(fid,'           jc=mxGetJc(y%d);\n',j); % redundant since jc does not change
+            %fprintf(fid,'  printf("pr=%%p, ir=%%p, jc=%%p, \\n",pr,ir,jc);\n');
             for l=1:length(ir)
                 fprintf(fid,'     ir[%d]=%d;\n',l-1,ir(l));
             end
-            fprintf(fid,'  mxSetIr(y%d,ir);\n',j);
-            
-            fprintf(fid,'  mwIndex *jc=mxGetJc(y%d);\n',j);
-            %fprintf(fid,'  printf("jc=%%p\\n",jc);\n');
             for l=1:length(jc)
                 fprintf(fid,'     jc[%d]=%d;\n',l-1,jc(l));
             end
-
-            fprintf(fid,'  double *pr=mxGetDoubles(y%d);\n',j);
-            %fprintf(fid,'  printf("pr=%%p\\n",pr);\n');
-            fprintf(fid,'  mxFree(pr);\n');
-            fprintf(fid,'  pr=mxMalloc(sizeof(double)*%d);\n',length(pr));
             for l=1:length(pr)
                 fprintf(fid,'     pr[%d]=m[%d];\n',l-1,pr(l));
             end
-            fprintf(fid,'  mxSetDoubles(y%d,pr);\n;',j);
 
         else
             % for # dimensions other than 2, must be full
