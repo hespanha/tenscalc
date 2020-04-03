@@ -22,7 +22,11 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
 %profile on
-    
+
+    nowarningsamesize=true;
+
+    szHess_=TcheckVariable('Hess_');
+
     if smallerNewtonMatrix
         fprintf('\n  Starting ipmPD_CS symbolic computations (smallNewtonMatrix)...\n');
     else
@@ -57,7 +61,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
     Lf_u=f_u;
     
     if nF>0
-        mu=Tvariable('mu__',[]);
+        mu=Tvariable('mu__',[],nowarningsamesize);
         %muOnes=mu*Tones(nF);
         muOnes=reshape(mu,1);
         muOnes=muOnes(ones(nF,1));
@@ -108,11 +112,11 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         declareGet(code,full(Lf_uu),'getLfuu__');
     end
     
-    alphaPrimal=Tvariable('alphaPrimal__',[]);
+    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
-    alphaDualEq=Tvariable('alphaDualEq__',[]);
+    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize);
     declareSet(code,alphaDualEq,'setAlphaDualEq__');
-    alphaDualIneq=Tvariable('alphaDualIneq__',[]);
+    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize);
     declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
     if useLDL
@@ -322,6 +326,11 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
     % are used by lu, prior to being overwritten by declareSave
     if allowSave
         declareSave(code,WW,'saveWW__',[cmexfunction,'_WW.subscripts'])
+    end
+
+    if ~isempty(szHess_) && ~myisequal(szHess_,size(Hess_))
+        error('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
+              szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
     end
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));

@@ -24,6 +24,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 %% See ../doc/ipm.tex for an explanation of the formulas used here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    nowarningsamesize=true;
+
     szHess_=TcheckVariable('Hess_');
 
 %profile on
@@ -88,7 +90,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     
     %% Declare gets for exit condition and output
     if nF>0
-        mu=Tvariable('mu__',[]);
+        mu=Tvariable('mu__',[],nowarningsamesize);
         %muOnes=mu*Tones(nF);
         muOnes=reshape(mu,1);
         muOnes=muOnes(ones(nF,1));
@@ -158,11 +160,11 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         Lg=Lg+P2xnu*H;
     end
     
-    alphaPrimal=Tvariable('alphaPrimal__',[]);
+    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
-    alphaDualEq=Tvariable('alphaDualEq__',[]);
+    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize);
     declareSet(code,alphaDualEq,'setAlphaDualEq__');
-    alphaDualIneq=Tvariable('alphaDualIneq__',[]);
+    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize);
     declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));

@@ -60,6 +60,8 @@ function [G,F,nus,lambdas,outputExpressions,template]=...
  
 createSets4Duals=false;
 
+nowarningsamesize=true;
+
 if nargin<5
     prefix='';
 end
@@ -81,7 +83,7 @@ for k=1:length(constraints)
         Gcells{end+1}=op1;
         % create appropriate nu
         vname=sprintf('%snu%d_',prefix,length(nus)+1);
-        nus{end+1}=Tvariable([vname,'_'],size(op1));
+        nus{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize);
         if nargout>=6 && createSets4Duals
             template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(nus{end}));
             template(end).Cfunction=sprintf('%s_set_%s',classname,name(nus{end}));
@@ -92,7 +94,7 @@ for k=1:length(constraints)
         end
         declareSet(code,nus{end},sprintf('%s_set_%s',classname,name(nus{end})));
         outputExpressions=substitute(outputExpressions,...
-                                     Tvariable(vname,size(op1)),...
+                                     Tvariable(vname,size(op1),nowarningsamesize),...
                                      nus{end});
       case {'ispositive'}
         % remove ispositive
@@ -100,7 +102,7 @@ for k=1:length(constraints)
         Fcells{end+1}=op1;
         % create appropriate lambda;
         vname=sprintf('%slambda%d_',prefix,length(lambdas)+1);
-        lambdas{end+1}=Tvariable([vname,'_'],size(op1));
+        lambdas{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize);
         if nargout>=6 && createSets4Duals
             template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
             template(end).Cfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
@@ -111,7 +113,7 @@ for k=1:length(constraints)
         end
         declareSet(code,lambdas{end},sprintf('%s_set_%s',classname,name(lambdas{end})));
         outputExpressions=substitute(outputExpressions,...
-                                     Tvariable(vname,size(op1)),...
+                                     Tvariable(vname,size(op1),nowarningsamesize),...
                                      lambdas{end});
       otherwise
         error('constraint of type ''%s'' not implemented\n',type(constraints{k}));

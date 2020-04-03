@@ -37,6 +37,8 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
+    nowarningsamesize=true;
+
     verboseLevel=0;
     
     n=0;
@@ -57,7 +59,7 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
     end
     packCmd=[packCmd,']'];
     
-    outVariable=Tvariable(outVariableName,n);
+    outVariable=Tvariable(outVariableName,n,nowarningsamesize);
     
     if verboseLevel>0
         global substituteCounter;
