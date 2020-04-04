@@ -427,13 +427,20 @@ classdef Tcalculus
                     if ischar(S.subs{i}) && S.subs{i}==':'
                         S.subs{i}=1:osize(i);
                     else
+                        if islogical(S.subs{i})
+                            if length(S.subs{i})==osize(i)
+                                S.subs{i}=find(S.subs{i});
+                            else
+                                error('subsref: index in dimension %d using logical array with length %d that does not match tensor size %d\n',i,length(S.subs{i}),osize(i))
+                            end
+                        end
                         if any(S.subs{i}<1)
                             S.subs{i}
-                            error('subsref: index smaller than 1\n',i)
+                            error('subsref: index in dimension %d smaller than 1\n',i)
                         end
                         if any(S.subs{i}>osize(i))
                             S.subs{i}
-                            error('subsref: index exceeds tensor dimension (%d)\n',osize(i))
+                            error('subsref: index in dimension %d exceeds tensor dimension (%d)\n',osize(i))
                         end
                         if ~myisequal(S.subs{i}(:)',1:osize(i))
                             trivial=false;
