@@ -36,8 +36,8 @@
 \usepackage[norefs,nocites]{refcheck} % options:norefs,nocites,msgs,chkunlbld
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
-%\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
+%\usepackage[fancythm,fancybb,morse]{jphmacros2e} 
+\usepackage[draft,fancythm,fancybb,morse]{jphmacros2e} 
 
 %% Macros & options for this Document
 
@@ -51,7 +51,7 @@
 
 \title{Interior-Point Methods in \TC}
 \author{\jph}
-\date{April 6, 2017}
+\date{April 3, 2020 }
 
 \begin{document}                        \maketitle
 
@@ -63,8 +63,8 @@
 \section{Constrained Optimization}
 \label{sec:ipm-o}
 
-Our goal is to find a vector $u^*\in\scr{U}$ that solves the two coupled
-optimizations
+Our goal is to find a vector $u^*\in\scr{U}$ that solves the
+optimization
 \begin{align}\label{eq:minimization}
   f(u^*)&=\min_{u\in\scr{U}} f(u), &
 \end{align}
@@ -91,34 +91,46 @@ approximation to the solution of \eqref{eq:minimization}.
     comparison of each entry of $x$ with $a$.}
   \begin{subequations}
     \begin{align}
-      \label{eq:equality-constraints}
-      &G(u)=\mbf 0_K, \\
-      \label{eq:inequality-constraints}
-      &\lambda\;\dot\ge\;\mbf 0_M, & &F(u)\ge\mbf 0_M,\\
       \label{eq:central-points}
-      &L_f(u,\lambda,\nu) =\min_{\bar u\in\R^{N}}\; L_f(\bar u,\lambda,\nu), 
+      &L_f(u,\lambda,\nu) =\min_{\bar u\in\R^{N}}\; L_f(\bar u,\lambda,\nu), \\
+      \label{eq:equality-constraints}
+      &G(u)=\sbf 0_K, \\
+      \label{eq:inequality-constraints}
+      &\lambda\;\ge\;\sbf 0_M, & &F(u)\ge\sbf 0_M,
     \end{align}
   \end{subequations}
-  where $L_f(\bar u,\lambda,\nu)\eqdef f(\bar u)-\lambda F(\bar u)+\nu G(\bar u)$.  Then $u$ approximately
+  where
+  \begin{align*}
+    L_f(\bar u,\lambda,\nu)\eqdef f(\bar u)-\lambda\cdot F(\bar u)+\nu\cdot G(\bar u). 
+  \end{align*}
+  Then $u$ approximately
   satisfies \eqref{eq:minimization} in the sense that
   \begin{align}\label{eq:epsilon-equilibria-o}
     f(u)&\le\epsilon_f+\min_{\bar u\in\scr{U}} f(\bar u), &
-    \epsilon_f&\eqdef \lambda F(u).
+    \epsilon_f&\eqdef \lambda\cdot F(u).
   \end{align}
   \frqed
 \end{lemma}
+The following notation is used in
+\eqref{eq:minimization}--\eqref{eq:epsilon-equilibria-o} and below:
+Given an integer $n$, we denote by $\sbf 0_n$ and by $\sbf 1_n$ the
+$n$-vectors with all entries equal to 0 and 1, respectively. Given two
+vectors $x,y\in\R^n$ we denote by $x\ge y$ the entry-wise ``greater than or
+equal to'' comparison of the entries of $x$ and $y$; and by $x\cdot y\in\R$,
+$x\odot y\in\R^n$, and $x\oslash y\in\R^n$ the inner product, entry-wise
+product, and entry-wise division of the two vectors, respectively.
 
 \begin{proof-lemma}{\ref{le:minima-gap}}
   From the definitions of $L_f$, $\epsilon_f$ and using
   \eqref{eq:central-points}, we conclude that
   \begin{align*}
-    f(u)-\epsilon_f& =\min_{\bar u\in\R^{N}}\; f(\bar u)-\lambda F(\bar u)+\nu G(\bar u).
+    f(u)-\epsilon_f& =\min_{\bar u\in\R^{N}}\; f(\bar u)-\lambda\cdot F(\bar u)+\nu\cdot  G(\bar u).
   \end{align*}
   Therefore
   \begin{align*}
-    f(u) =\epsilon_f+\min_{u\in\R^{N}}\; f(u)-\lambda F(u)+\nu G(u)
-    \le \epsilon_f+\min_{u\in\scr{U}}\; f(u)-\lambda F(u)
-    \le \epsilon_f+\max_{\lambda\ge0,\nu}\;\min_{u\in\scr{U}}\; f(u)-\lambda F(u),
+    f(u) =\epsilon_f+\min_{u\in\R^{N}}\; f(u)-\lambda\cdot F(u)+\nu\cdot G(u)
+    \le \epsilon_f+\min_{u\in\scr{U}}\; f(u)-\lambda\cdot F(u)
+    \le \epsilon_f+\max_{\lambda\ge0,\nu}\;\min_{u\in\scr{U}}\; f(u)-\lambda\cdot F(u),
   \end{align*}
   where the first inequality is a consequence of the fact that
   $\scr{U}\subset \R^N$ and \eqref{eq:equality-constraints}, whereas the
@@ -128,7 +140,7 @@ approximation to the solution of \eqref{eq:minimization}.
   \eqref{eq:inequality-constraints}. Because of
   \eqref{eq:equality-constraints}, we further conclude that
   \begin{align*}
-    f(u)&\le \epsilon_f+\max_{\lambda\ge0,\nu}\;\min_{u\in\scr{U}}\; f(u)-\lambda F(u)
+    f(u)&\le \epsilon_f+\max_{\lambda\ge0,\nu}\;\min_{u\in\scr{U}}\; f(u)-\lambda\cdot F(u)
     =\epsilon_f+\min_{\bar u\in\scr{U}}\; f(\bar u).
     \tag*\frqed
   \end{align*}
@@ -143,22 +155,20 @@ Lemma~\ref{le:minima-gap}. The specific system of equations
 consists of:
 \begin{enumerate}
 \item the first-order optimality conditions for the unconstrained
-  minimizations in \eqref{eq:central-points}\footnote{Given an integer
-    $M$, we denote by $\mbf 0_M$ and by $\mbf 1_M$ the $M$-vectors
-    with all entries equal to 0 and 1, respectively.}:
+  minimizations in \eqref{eq:central-points}
   \begin{align}\label{eq:optimality}
-    \nabla L_f(u,\lambda,\nu)&=\mbf 0_{N}, &
+    \nabla_u L_f(u,\lambda,\nu)&=\sbf 0_{N}, &
   \end{align}
+  where $\nabla_u L_f$ denotes the gradient of $L_f$ with respect to the
+  variable $u$;
 \item the equality conditions \eqref{eq:equality-constraints}; and
-\item the equations\footnote{Given two vectors $x,y\in\R^n$ we denote by
-    $x\odot y\in\R^n$ and by $x\oslash y\in\R^n$ the entry-wise product and
-    division of the two vectors, respectively.}
+\item the equations
   \begin{align}\label{eq:barrier}
-    F(u)\odot\lambda&=\mu\mbf 1_{M},
+    F(u)\odot\lambda&=\mu\sbf 1_{M},
   \end{align}
   for some $\mu>0$, which leads to
   \begin{align*}
-    \epsilon_f&=M \mu.
+    \epsilon_f&\eqdef \lambda\cdot F(u)=M \mu.
   \end{align*}
 \end{enumerate}
 Since our goal is to find primal variables $u$ for which
@@ -180,18 +190,16 @@ re-write \eqref{eq:optimality}, \eqref{eq:equality-constraints}, and
 \begin{subequations}\label{eq:primal-dual}
   \begin{gather}
     \label{eq:primal-dual-equalities}
-    \nabla L_f(u,\lambda,\nu)=\mbf 0_{N}, \qquad
-    G(u)=\mbf 0 _{K}, \qquad
-    \lambda\odot F(u)=\mu\mbf 1_{M}, 
+    \nabla_u L_f(u,\lambda,\nu)=\sbf 0_{N}, \qquad
+    G(u)=\sbf 0 _{K}, \qquad
+    \lambda\odot F(u)=\mu\sbf 1_{M}, 
   \end{gather}
 and \eqref{eq:inequality-constraints} as
 \begin{gather}
   \label{eq:primal-dual-inequalities}
-  \lambda\ge \mbf 0_{M}, \qquad F(u)\ge \mbf 0_{M}.
+  \lambda\ge \sbf 0_{M}, \qquad F(u)\ge \sbf 0_{M}.
 \end{gather}
 \end{subequations}
-
-\clearpage
 
 \begin{algorithm}[Primal-dual optimization]~\label{al:primal-dual-o}
 \begin{steps}
@@ -202,10 +210,10 @@ and \eqref{eq:inequality-constraints} as
   It is often a good idea to start with a value for $u_0$ that
   satisfies the equality constraint $G(u_0)=0$, and
   \begin{align*}
-    \lambda_0=\mu\mbf 1_{M}\oslash F(u_0),
+    \lambda_0=\mu\sbf 1_{M}\oslash F(u_0),
   \end{align*}
   which guarantees that we initially have
-  $\lambda_0\odot F(u_0)=\mu\mbf 1_{M}$.\joao{Starting with $\nu_0=0$ seems to be
+  $\lambda_0\odot F(u_0)=\mu\sbf 1_{M}$.\joao{Starting with $\nu_0=0$ seems to be
     okay. Note that the value of $\nu$ only affects the matrix in the
     left-hand side of \eqref{eq:optimization-linearization-11} when
     $G(u)$ is nonlinear.}
@@ -213,29 +221,30 @@ and \eqref{eq:inequality-constraints} as
 \item Linearize the equations in \eqref{eq:primal-dual-equalities} around a
   current estimate $u_k,\lambda_k,\nu_k$, leading to
   \begin{align}\label{eq:optimization-linearization}
-    \matt{
+    &\matt{
       \nabla_{uu} L_f(u_k,\lambda_k,\nu_k)&\nabla_{u\nu} L_f(u_k)&\nabla_{u\lambda} L_f(u_k)\\
       \nabla_u G(u_k) &0&0\\
       \diag(\lambda_k)\nabla_uF(u_k)&0&\diag[F(u_k)] }
     \matt{\Delta u\\\Delta\nu\\\Delta\lambda} =-\matt{
       \nabla_u L_f(u_k,\lambda_k,\nu_k)\\
       G(u_k)\\
-      F(u_k)\odot\lambda_k-\mu\mbf 1_M }\notag\\
+      F(u_k)\odot\lambda_k-\mu\sbf 1_M }\notag\\
     \eqv
-    \matt{
+    &\matt{
       \nabla_{uu} L_f(u_k,\lambda_k,\nu_k)&\nabla_u G(u_k)'&-\nabla_uF(u_k)'\\
       \nabla_u G(u_k) &0&0\\
       -\nabla_uF(u_k)&0&-\diag[F(u_k)\oslash \lambda_k] }
     \matt{\Delta u\\\Delta\nu\\\Delta\lambda} =-\matt{
       \nabla_u L_f(u_k,\lambda_k,\nu_k)\\
       G(u_k)\\
-      -F(u_k)+\mu\mbf 1_M\oslash \lambda_k }
+      -F(u_k)+\mu\sbf 1_M\oslash \lambda_k },
   \end{align}
-  Since $F(u_k)>0$ and $\lambda_k>0$, we can solve this system of equations
-  by first eliminating 
+  where $\nabla_{uu} L_f$ denotes the Hessian matrix of $L_f$ with respect
+  to $u$.  Since $F(u_k)>0$ and $\lambda_k>0$, we can solve this system of
+  equations by first eliminating
   \begin{subequations}\label{eq:optimization-linearization-1}
     \begin{align}
-      \Delta\lambda=-\lambda_k-\diag[\lambda_k\oslash F(u_k)]\nabla_uF(u_k)\Delta u+\mu\mbf 1_M\oslash
+      \Delta\lambda=-\lambda_k-\diag[\lambda_k\oslash F(u_k)]\nabla_uF(u_k)\Delta u+\mu\sbf 1_M\oslash
       F(u_k),
     \end{align}
     which leads to\footnote{For numerical stability, one may solve
@@ -246,7 +255,7 @@ and \eqref{eq:inequality-constraints} as
           \nabla_u G(u_k) &-\epsilon I }
         \matt{\Delta u\\\Delta\nu} \\
         =-\matt{
-          \nabla_u  f(u_k) +\nabla_u  G(u_k)'\nu_k-\mu\nabla_uF(u_k)'\big(\mbf 1_M\oslash F(u_k)\big)\\
+          \nabla_u  f(u_k) +\nabla_u  G(u_k)'\nu_k-\mu\nabla_uF(u_k)'\big(\sbf 1_M\oslash F(u_k)\big)\\
           G(u_k) }
       \end{multline}
       for a small $\epsilon>0$. The matrix in the left-hand side has the top
@@ -261,10 +270,10 @@ and \eqref{eq:inequality-constraints} as
         \nabla_u G(u_k) &0 }
       \matt{\Delta u\\\Delta\nu} \\
       % =-\matt{
-      %   \nabla_u L_f(u_k,\lambda_k,\nu_k)+\nabla_uF(u_k)' (\lambda_k-\mu\mbf 1_M\oslash F(u_k))\\
+      %   \nabla_u L_f(u_k,\lambda_k,\nu_k)+\nabla_uF(u_k)' (\lambda_k-\mu\sbf 1_M\oslash F(u_k))\\
       %   G(u_k) }
       =-\matt{
-        \nabla_u  f(u_k) +\nabla_u  G(u_k)'\nu_k-\mu\nabla_uF(u_k)'\big(\mbf 1_M\oslash F(u_k)\big)\\
+        \nabla_u  f(u_k) +\nabla_u  G(u_k)'\nu_k-\mu\nabla_uF(u_k)'\big(\sbf 1_M\oslash F(u_k)\big)\\
         G(u_k) }.
     \end{multline}
   \end{subequations}
@@ -318,14 +327,14 @@ and \eqref{eq:inequality-constraints} as
   $\mu=\sigma\frac{F(u_k)'\lambda_k}{M}$\joao{Check with code.}:
   \begin{multline*}
     \matt{
-      \nabla_{uu} L_f(u_k,\lambda_k,\nu_k)&\nabla_u G(u_k)'&-\nabla_uF(u_k)\\
+      \nabla_{uu} L_f(u_k,\lambda_k,\nu_k)&\nabla_u G(u_k)'&-\nabla_uF(u_k)'\\
       \nabla_u G(u_k) &0&0\\
       -\nabla_uF(u_k)&0&-\diag[F(u_k)\oslash \lambda_k] }
     \matt{\Delta u_s\\\Delta\nu_s\\\Delta\lambda_s} \\
     =-\matt{
       \nabla_u L_f(u_k,\lambda_k,\nu_k)\\
       G(u_k)\\
-      -F(u_k)-{\color{blue}(\nabla_uF(u_k) \Delta u_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu\mbf 1_M\oslash \lambda_k },
+      -F(u_k)-{\color{blue}(\nabla_uF(u_k) \Delta u_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu\sbf 1_M\oslash \lambda_k },
   \end{multline*}
   where the (optional) blue term would come from a 2nd order expansion
   of the left-hand side of the last equality in
@@ -336,7 +345,7 @@ and \eqref{eq:inequality-constraints} as
     \begin{align}
       \Delta\lambda_s= -\diag[\lambda_k\oslash F(u_k)]\nabla_uF(u_k)\Delta u_s
       -\lambda_k -{\color{blue}(\nabla_uF(u_k) \Delta u_a)\odot\Delta\lambda_a\oslash F(u_k)}
-      +\mu\mbf 1_M\oslash
+      +\mu\sbf 1_M\oslash
       F(u_k),
     \end{align}
     which leads to
@@ -346,12 +355,12 @@ and \eqref{eq:inequality-constraints} as
         \nabla_u G(u_k) &0 }
       \matt{\Delta u_s\\\Delta\nu_s} \\
       % =-\matt{
-      %   \nabla_u L_f(u_k,\lambda_k,\nu_k)+\nabla_uF(u_k)' (\lambda_k-\mu\mbf 1_M\oslash F(u_k))\\
+      %   \nabla_u L_f(u_k,\lambda_k,\nu_k)+\nabla_uF(u_k)' (\lambda_k-\mu\sbf 1_M\oslash F(u_k))\\
       %   G(u_k) }
       =-\matt{
         \nabla_u  f(u_k) +\nabla_u  G(u_k)'\nu_k
         +\nabla_uF(u_k)'({\color{blue}(\nabla_uF(u_k) \Delta u_a)\odot\Delta\lambda_a\oslash F(u_k)})
-        -\mu\nabla_uF(u_k)'\big(\mbf 1_M\oslash F(u_k)\big)\\
+        -\mu\nabla_uF(u_k)'\big(\sbf 1_M\oslash F(u_k)\big)\\
         G(u_k) }.
     \end{multline}
   \end{subequations}
@@ -424,7 +433,7 @@ indication that a global minimum has been found.
   \end{align*}
   which is equivalent to the following ``smooth optimization''
   \begin{align*}
-    \min \big\{v'\mbf 1_m +\cdots:x\in\R^n,v\in\R^m, -v\le Ax-b\le v,\dots\big\};
+    \min \big\{v'\sbf 1_m +\cdots:x\in\R^n,v\in\R^m, -v\le Ax-b\le v,\dots\big\};
   \end{align*}
   or the ``non-differentiable $\ell_2$ optimization''
   \begin{align*}
@@ -436,6 +445,174 @@ indication that a global minimum has been found.
   More examples of such transformations can be found, e.g., in
   \cite{GrantBoyd2008}.\joao{We should dig for more references.} \frqed
 \end{remark}
+
+\subsection{Sensitivity}
+
+Suppose now that the vector $u$ of optimization variable can be
+decomposed as $u=(u_1,u_2)$, $u_1\in\R^{N_1}$, $u_2\in\R^{N_2}$,
+$N_1+N_N$ and we want to determine how a perturbation in $u_1$ away
+from the optimal $u_1^*$ would increase the value of
+\eqref{eq:minimization}, assuming that $u_2$ would adjust to still
+satisfy the constraints and minimize \eqref{eq:minimization} for the
+possibly suboptimal value of $u_1$.
+%
+Specifically, for a given value of $u_1$, let $u_2^\dagger(u_1)$ denote
+the value of $u_2$ that solves the optimization
+\begin{align}\label{eq:minimization-2}
+  f(u_1,u_2^\dagger(u_1))&=\min_{(u_1,u_2)\in\scr{U}} f(u_1,u_2), &
+\end{align}
+with
+\begin{align*}
+  \scr{U}&\eqdef\{(u_1,u_2)\in\R^{N}: F(u_1,u_2)\ge 0,\; G(u_1,u_2)=0\}.
+\end{align*}
+For a given minimum $u^*=(u_1^*,u_2^*)$ of \eqref{eq:minimization}, our
+goal is to determine
+\begin{align*}
+  \Deriv{^2f(u_1,u_2^\dagger(u_1))}{u_1^2}\Big|_{u_1=u_1^*}.
+\end{align*}
+Assuming that the solution \eqref{le:minima-gap} is the unique
+solution to the conditions of Lemma~\ref{le:minima-gap} with $\mu=0$:
+\begin{align}\label{eq:u-star}
+  &\nabla_u L_f(u_1^*,u_2^*,\lambda^*,\nu^*)=\sbf 0_{N}, &
+  &G(u_1^*,u_2^*)=\sbf 0 _{K}, &
+  &\lambda^*\odot F(u_1^*,u_2^*)=\sbf 0_{M}, &
+\end{align}
+and the solution to \eqref{eq:minimization-2} is also the unique
+solution to the corresponding conditions of Lemma~\ref{le:minima-gap}
+with $\mu=0$:
+  \begin{align}\label{eq:u-dagger}
+  &\nabla_{u_2} L_f(u_1,u_2^\dagger(u_1),\lambda^\dagger(u_1),\nu^\dagger(u_1))=\sbf 0_{N_2}, &
+  &G(u_1,u_2^\dagger(u_1))=\sbf 0 _{K}, 
+  &\lambda^\dagger\odot F(u_1,u_2^\dagger(u_1))=\sbf 0_{M}, 
+\end{align}
+we must have
+\begin{align*}
+  &u_2^\dagger(u_1^*)=u_2^*, &
+  &\lambda^\dagger(u_1)=\lambda^*, &
+  &\nu^\dagger(u_1)=\nu^*.
+\end{align*}
+
+\begin{lemma}\label{le:sensitivity}
+  The functions $u_2^\dagger(u_1)$, $\lambda^\dagger(u_1)$, $\nu^\dagger(u_1)$
+  defined implicitly by \eqref{eq:u-dagger} satisfy:
+  \begin{align}\label{eq:sensitivity-Newton}
+    \matt{\nabla_{u_2u_2} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)&
+      \nabla_{u_2} G(u_1,u_2^\dagger)'&
+      - \nabla_{u_2} F(u_1,u_2^\dagger)'\\
+      \nabla_{u_2} G(u_1,u_2^\dagger)&0&0\\
+      -\nabla_{u_2} F(u_1,u_2^\dagger)&0&-\diag[F(u_1,u_2^\dagger)\oslash\lambda^\dagger]}
+    \matt{\PDeriv{u_2^\dagger}{u_1}\\\PDeriv{\nu^\dagger}{u_1}\\\PDeriv{\lambda^\dagger}{u_1}}
+    =-\matt{\nabla_{u_2u_1} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\\
+      \nabla_{u_1} G(u_1,u_2^\dagger)\\
+      -\nabla_{u_1} F(u_1,u_2^\dagger)}
+  \end{align}
+  Moreover, for every value $u_1$ for which the set active inequality
+  constraints does not change in a sufficiently small neighborhood of
+  $u_1$, we have that
+  \begin{align}
+    \label{eq:D-f-1}
+    \Deriv{f(u_1,u_2^\dagger(u_1))}{u_1}
+    &=\nabla_{u_1}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\\
+    \label{eq:D-f-2}
+    \Deriv{^2f(u_1,u_2^\dagger(u_1))}{u_1^2}
+    &=
+    \nabla_{u_1u_1}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\notag\\&\quad
+    +\matt{\nabla_{u_1u_2}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)&
+      \nabla_{u_1} G(u_1,u_2^\dagger)'&
+     -\nabla_{u_1}F(u_1,u_2^\dagger)} 
+    \matt{\PDeriv{u_2^\dagger}{u_1}\\\PDeriv{\nu^\dagger}{u_1}\\\PDeriv{\lambda^\dagger}{u_1}}.
+  \end{align}
+\end{lemma}
+Equation~\ref{eq:sensitivity-Newton} shows that all the partial
+derivatives $\PDeriv{u_2^\dagger}{u_1}$, $\PDeriv{\nu^\dagger}{u_1}$,
+$\PDeriv{\lambda^\dagger}{u_1}$ can be obtained by solving a system of
+equations defined by a subset of the rows and columns of the matrix
+used in the computation of the Newton Step, which appears in
+\eqref{eq:optimization-linearization}.
+
+\begin{proof-lemma}{\ref{le:sensitivity}}
+  To prove~\ref{eq:sensitivity-Newton}, take derivatives of
+  \eqref{eq:u-dagger} with respect to $u_1$, to obtain
+  \begin{align*}
+    &\nabla_{u_2u_1} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)
+    +\nabla_{u_2u_2} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{u_2^\dagger}{u_1}\\&\hspace*{10em}
+    +\nabla_{u_2\lambda} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{\lambda^\dagger}{u_1}
+    +\nabla_{u_2\nu} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{\nu^\dagger}{u_1}
+    =\sbf 0_{N}, \\
+    \yestag\label{eq:G-dagger}
+    &\nabla_{u_1} G(u_1,u_2^\dagger)+\nabla_{u_2} G(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}
+    =\sbf 0_{K}, \\
+    \yestag\label{eq:F-dagger}
+    &
+    \diag[F(u_1,u_2^\dagger)]\PDeriv{\lambda^\dagger}{u_1}
+    +
+    \diag[\lambda^\dagger] \nabla_{u_1} F(u_1,u_2^\dagger)
+    +\diag[\lambda^\dagger] \nabla_{u_2} F(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}
+    =\sbf 0_{M},
+  \end{align*}
+  from which \eqref{eq:sensitivity-Newton} follows by multiplying the
+  bottom row by $\diag[\lambda^\dagger]^{-1}$.
+
+  \medskip
+
+  To prove~\eqref{eq:D-f-1}, we start by using the chain rule to
+  compute
+  \begin{align}\label{eq:first-chain}
+    \Deriv{f(u_1,u_2^\dagger(u_1))}{u_1}
+    &=\nabla_{u_1} f(u_1,u_2^\dagger)+\nabla_{u_2} f(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}.
+  \end{align}
+  To proceed, we note that the first equality in \eqref{eq:u-dagger}
+  is equivalent to
+  \begin{align*}
+    \nabla_{u_2} f(u_1,u_2^\dagger)-{\lambda^\dagger}'\nabla_{u_2} F(u_1,u_2^\dagger)+{\nu^\dagger}'\nabla_{u_2}G(u_1,u_2^\dagger)=\sbf 0_{N_2},
+  \end{align*}
+  and therefore
+  \begin{align*}
+    \nabla_{u_2} f(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}
+    &={\lambda^\dagger}'\nabla_{u_2} F(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}
+    -{\nu^\dagger}'\nabla_{u_2}G(u_1,u_2^\dagger)\PDeriv{u_2^\dagger}{u_1}\\
+    &=-{\lambda^\dagger}'\Big(\diag[F(u_1,u_2^\dagger)\oslash\lambda^\dagger]\PDeriv{\lambda^\dagger}{u_1}
+    +\nabla_{u_1} F(u_1,u_2^\dagger)\Big)
+    +{\nu^\dagger}\nabla_{u_1} G(u_1,u_2^\dagger)\\
+    &=-F(u_1,u_2^\dagger)'\PDeriv{\lambda^\dagger}{u_1}
+    -{\lambda^\dagger}'\nabla_{u_1} F(u_1,u_2^\dagger)
+    +{\nu^\dagger}\nabla_{u_1} G(u_1,u_2^\dagger),
+  \end{align*}
+  where the second equality follows from
+  \eqref{eq:G-dagger}--\eqref{eq:F-dagger}.
+  Using this in \eqref{eq:first-chain}, we conclude that
+  \begin{align*}
+    \Deriv{f(u_1,u_2^\dagger(u_1))}{u_1}
+    &=\nabla_{u_1} f(u_1,u_2^\dagger)
+    -{\lambda^\dagger}' \nabla_{u_1} F(u_1,u_2^\dagger)
+    +{\nu^\dagger}\nabla_{u_1} G(u_1,u_2^\dagger)
+    -F(u_1,u_2^\dagger)'\PDeriv{\lambda^\dagger}{u_1}\\
+    &=\nabla_{u_1}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)
+    -F(u_1,u_2^\dagger)'\PDeriv{\lambda^\dagger}{u_1}\\
+    &=\nabla_{u_1}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)
+    -\sum_{i=1}^MF_i(u_1,u_2^\dagger)\PDeriv{\lambda_i^\dagger}{u_1}.
+  \end{align*}
+  In case the set of active inequality constraints does not change
+  areound $u_1$, each inequality $F_i(u_1,u_2^\dagger)$ either remains
+  active (and therefore $F_i(u_1,u_2^\dagger)=0$) or inactive (and
+  therefore $\lambda_i^\dagger(u_1)=0$. In either case all terms
+  $F_i(u_1,u_2^\dagger)\PDeriv{\lambda_i^\dagger}{u_1}$ are zero
+  and~\eqref{eq:D-f-1} follows.
+
+  \medskip
+
+  Finally, to obtain~\eqref{eq:D-f-2}, we take second derivatives
+  of~\eqref{eq:D-f-1} with respect to $u_1$, obtaining
+  \begin{align*}
+    \Deriv{^2f(u_1,u_2^\dagger(u_1))}{u_1^2}
+    &=
+    \nabla_{u_1u_1}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)
+    +\nabla_{u_1u_2}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{u_2^\dagger}{u_1}\\&\quad
+    +\nabla_{u_1\nu}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{\nu^\dagger}{u_1}
+    +\nabla_{u_1\lambda}L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)\PDeriv{\lambda^\dagger}{u_1},
+  \end{align*}
+  from which~\eqref{eq:D-f-1} follows.\frQED
+\end{proof-lemma}
 
 \section{Interior-Point Method for Minimax Problems}
 \label{sec:ipm}
@@ -469,26 +646,24 @@ approximation to the solution of \eqref{eq:equilibria}.
   u\in\R^{N_u},\hat d\in\R^{N_d}$ and \emph{dual variables}
   $\hat\lambda_{fu}\in\R^{M_u},\hat\lambda_{gd}\in\R^{M_d}$,
   $\hat\nu_{fu}\in\R^{K_u},\hat\nu_{gd}\in\R^{K_d}$ that simultaneously satisfy
-  all of the following conditions\footnote{Given a vector $x\in\R^n$ and a scalar 
-  $a\in\R$, we denote by $x\dot\ge a$ the entry-wise comparison of $x$ greater than 
-  or equal to $a$.}
+  all of the following conditions
   \begin{subequations}
     \begin{align}
+      \label{eq:central-points-ud}
+      &L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu}) =\min_{u\in\R^{N_u}}\; L_f(u,\hat d,\hat \lambda_{fu},\hat \nu_{fu}), &
+      &L_g(\hat u,\hat d,\hat\lambda_{gd},\hat\nu_{gd}) =\min_{d\in\R^{N_d}}\; L_g(\hat u,d,\hat \lambda_{gd},\hat \nu_{gd})\\
       \label{eq:equality-constraints-ud}
       &G_u(\hat u,\hat d)=0, &
       &G_d(\hat u,\hat d)=0, \\
       \label{eq:inequality-constraints-ud}
-      &\hat\lambda_{fu}\dot\ge0, \qquad \hat\lambda_{gd} \dot\ge 0, & &F_u(\hat u,\hat d)\ge0,
-      \qquad F_d(\hat u,\hat d)\ge0,\\
-      \label{eq:central-points-ud}
-      &L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu}) =\min_{u\in\R^{N_u}}\; L_f(u,\hat d,\hat \lambda_{fu},\hat \nu_{fu}), &
-      &L_g(\hat u,\hat d,\hat\lambda_{gd},\hat\nu_{gd}) =\min_{d\in\R^{N_d}}\; L_g(\hat u,d,\hat \lambda_{gd},\hat \nu_{gd})
+      &\hat\lambda_{fu}\ge0, \qquad \hat\lambda_{gd} \ge 0, & &F_u(\hat u,\hat d)\ge0,
+      \qquad F_d(\hat u,\hat d)\ge0,
     \end{align}
   \end{subequations}
   where 
   \begin{align*}
-    &L_f(u,d,\lambda_{fu},\nu_{fu})\eqdef f(u,d)-\lambda_{fu} F_u(u,d)+\nu_{fu} G_u(u,d), \\
-    &L_g(u,d,\lambda_{gd},\nu_{gd})\eqdef g(u,d)-\lambda_{gd} F_d(u,d)+\nu_{gd} G_d(u,d),  
+    &L_f(u,d,\lambda_{fu},\nu_{fu})\eqdef f(u,d)-\lambda_{fu}\cdot F_u(u,d)+\nu_{fu}\cdot G_u(u,d), \\
+    &L_g(u,d,\lambda_{gd},\nu_{gd})\eqdef g(u,d)-\lambda_{gd}\cdot F_d(u,d)+\nu_{gd}\cdot G_d(u,d),  
      \qquad \forall u,d,\lambda,\nu.
   \end{align*}
   Then the pair $(\hat u,\hat d)$ approximately satisfies
@@ -500,8 +675,8 @@ approximation to the solution of \eqref{eq:equilibria}.
   \end{align}
   with
   \begin{align*}
-    \epsilon_f&\eqdef \hat\lambda_{fu} F_u(\hat u,\hat d), &
-    \epsilon_g&\eqdef \hat\lambda_{gd} F_d(\hat u,\hat d).
+    \epsilon_f&\eqdef \hat\lambda_{fu}\cdot F_u(\hat u,\hat d), &
+    \epsilon_g&\eqdef \hat\lambda_{gd}\cdot F_d(\hat u,\hat d).
     \tag*\frqed
   \end{align*}
 \end{lemma}
@@ -511,23 +686,23 @@ approximation to the solution of \eqref{eq:equilibria}.
   sequence of inequalities that start from the equalities in
   \eqref{eq:central-points-ud}:
 \begin{align*}
-  f(\hat u,\hat d)-\epsilon_f&=L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu})-\hat\nu_{fu}G_u(\hat u,\hat d) 
+  f(\hat u,\hat d)-\epsilon_f&=L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu})-\hat\nu_{fu}\cdot G_u(\hat u,\hat d) 
   =\min_{u\in\R^{N_u}}\; L_f(u,\hat d,\hat \lambda_{fu},\hat \nu_{fu}) - 0 \\
-  &=\min_{u\in\R^{N_u}}\; f(u,\hat d)-\hat \lambda_{fu} F_u(u,\hat d)+\hat \nu_{fu} G_u(u,\hat d)\\
-  &\le \max_{\lambda_{fu}\dot\ge0,\nu_{fu}}\min_{u\in\R^{N_u}}\;
-  f(u,\hat d)- \lambda_{fu} F_u(u,\hat d)+ \nu_{fu} G_u(u,\hat d)\\
-  &\le \max_{\lambda_{fu}\dot\ge0,\nu_{fu}}\min_{u\in\scr{U}[\hat d]}\;
-  f(u,\hat d)-\lambda_{fu} F_u(u,\hat d)+\nu_{fu} G_u(u,\hat d)\\
+  &=\min_{u\in\R^{N_u}}\; f(u,\hat d)-\hat \lambda_{fu}\cdot F_u(u,\hat d)+\hat \nu_{fu}\cdot G_u(u,\hat d)\\
+  &\le \max_{\lambda_{fu}\ge0,\nu_{fu}}\min_{u\in\R^{N_u}}\;
+  f(u,\hat d)- \lambda_{fu}\cdot F_u(u,\hat d)+ \nu_{fu}\cdot G_u(u,\hat d)\\
+  &\le \max_{\lambda_{fu}\ge0,\nu_{fu}}\min_{u\in\scr{U}[\hat d]}\;
+  f(u,\hat d)-\lambda_{fu}\cdot F_u(u,\hat d)+\nu_{fu}\cdot G_u(u,\hat d)\\
   &= \min_{u\in\scr{U}[\hat d]}\; f(u,\hat d) \\
 %
   g(\hat u,\hat d)-\epsilon_g
-  &=L_g(\hat u,\hat d,\hat \lambda_{gd},\hat \nu_{gd})-\hat \nu_{gd}G_d(\hat u,\hat d) 
+  &=L_g(\hat u,\hat d,\hat \lambda_{gd},\hat \nu_{gd})-\hat \nu_{gd}\cdot G_d(\hat u,\hat d) 
   =\min_{d\in\R^{N_d}}\;L_g(\hat u,d,\hat \lambda_{gd},\hat \nu_{gd}) - 0 \\
-  &=\min_{d\in\R^{N_d}}\; g(\hat u,d)-\hat \lambda_{gd} F_d(\hat u,d)+\hat \nu_{gd} G_g(\hat u,d)\\
-  &\le \max_{\lambda_{gd}\dot\ge0,\nu_{gd}}\min_{d\in\R^{N_d}}\;
-  g(\hat u,d)-\lambda_{gd} F_d(\hat u,d)+\nu_{gd} G_g(\hat u,d)\\
-  &\le \max_{\lambda_{gd}\dot\ge0,\nu_{gd}}\min_{d\in\scr{D}[\hat u]}\;
-  g(\hat u,d)-\lambda_{gd} F_d(\hat u,d)+\nu_{gd} G_g(\hat u,d)\\
+  &=\min_{d\in\R^{N_d}}\; g(\hat u,d)-\hat \lambda_{gd}\cdot F_d(\hat u,d)+\hat \nu_{gd}\cdot G_g(\hat u,d)\\
+  &\le \max_{\lambda_{gd}\ge0,\nu_{gd}}\min_{d\in\R^{N_d}}\;
+  g(\hat u,d)-\lambda_{gd}\cdot F_d(\hat u,d)+\nu_{gd}\cdot G_g(\hat u,d)\\
+  &\le \max_{\lambda_{gd}\ge0,\nu_{gd}}\min_{d\in\scr{D}[\hat u]}\;
+  g(\hat u,d)-\lambda_{gd}\cdot F_d(\hat u,d)+\nu_{gd}\cdot G_g(\hat u,d)\\
   &=\min_{d\in\scr{D}[\hat u]}\; g(\hat u,d)
   \tag*\frqed.
 \end{align*}
@@ -545,19 +720,19 @@ consists of:
 \begin{enumerate}
 \item the first-order optimality conditions for the unconstrained
   minimizations in \eqref{eq:central-points-ud}\footnote{Given an integer
-    $M$, we denote by $\mbf 0_M$ and by $\mbf 1_M$ the $M$-vectors
+    $M$, we denote by $\sbf 0_M$ and by $\sbf 1_M$ the $M$-vectors
     with all entries equal to 0 and 1, respectively.}:
   \begin{align}\label{eq:equilibrium}
-    \nabla_u L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu})&=\mbf 0_{N_u}, &
-    \nabla_d L_g(\hat u,\hat d,\hat\lambda_{gd},\hat\nu_{gd})&=\mbf 0_{N_d}; &
+    \nabla_u L_f(\hat u,\hat d,\hat\lambda_{fu},\hat\nu_{fu})&=\sbf 0_{N_u}, &
+    \nabla_d L_g(\hat u,\hat d,\hat\lambda_{gd},\hat\nu_{gd})&=\sbf 0_{N_d}; &
   \end{align}
 \item the equality conditions \eqref{eq:equality-constraints-ud}; and
 \item the equations\footnote{Given two vectors $x,y\in\R^n$ we denote by
     $x\odot y\in\R^n$ and by $x\oslash y\in\R^n$ the entry-wise product and
     division of the two vectors, respectively.}
   \begin{align}\label{eq:barrier-ud}
-    F_u(\hat u,\hat d)\odot\hat\lambda_{fu}&=\mu\mbf 1_{M_u}, &
-    F_d(\hat u,\hat d)\odot\hat\lambda_{gd}&=\mu\mbf 1_{M_d}, &
+    F_u(\hat u,\hat d)\odot\hat\lambda_{fu}&=\mu\sbf 1_{M_u}, &
+    F_d(\hat u,\hat d)\odot\hat\lambda_{gd}&=\mu\sbf 1_{M_d}, &
   \end{align}
   for some $\mu>0$, which leads to
   \begin{align*}
@@ -591,19 +766,17 @@ which allow us to re-write \eqref{eq:equilibrium},
 \begin{subequations}
   \begin{gather}
     \label{eq:primal-dual-ud-equalities}
-    \nabla_u L_f(z,\lambda,\nu)=\mbf 0_{N_u}, \qquad
-    \nabla_d L_g(z,\lambda,\nu)=\mbf 0_{N_d}, \qquad
-    G(z)=\mbf 0 _{K_u+K_d}, \qquad
-    \lambda\odot F(z)=\mu\mbf 1_{M_u+M_d}, 
+    \nabla_u L_f(z,\lambda,\nu)=\sbf 0_{N_u}, \qquad
+    \nabla_d L_g(z,\lambda,\nu)=\sbf 0_{N_d}, \qquad
+    G(z)=\sbf 0 _{K_u+K_d}, \qquad
+    \lambda\odot F(z)=\mu\sbf 1_{M_u+M_d}, 
   \end{gather}
 and \eqref{eq:inequality-constraints-ud} as
 \begin{gather}
   \label{eq:primal-dual-ud-inequalities}
-  \lambda\ge \mbf 0_{M_u+M_d}, \qquad F(z)\ge \mbf 0_{M_u+M_d}.
+  \lambda\ge \sbf 0_{M_u+M_d}, \qquad F(z)\ge \sbf 0_{M_u+M_d}.
 \end{gather}
 \end{subequations}
-
-\clearpage
 
 \begin{algorithm}[Primal-dual optimization]~\label{al:primal-dual}
 \begin{steps}
@@ -613,10 +786,10 @@ and \eqref{eq:inequality-constraints-ud} as
   It is often a good idea to start with a value for $z_0$ that
   satisfies the equality constraint $G(z_0)=0$, and
   \begin{align*}
-    \lambda_0=\mu\mbf 1_{M_u+M_d}\oslash F(z_0),
+    \lambda_0=\mu\sbf 1_{M_u+M_d}\oslash F(z_0),
   \end{align*}
   which guarantees that we initially have
-  $\lambda_0\odot F(u_0)=\mu\mbf 1_{M_u+M_d}$.\joao{Starting with
+  $\lambda_0\odot F(u_0)=\mu\sbf 1_{M_u+M_d}$.\joao{Starting with
     $\nu_0=0$ seems to be okay. Note that the value of $\nu$ only affects
     the matrix in the left-hand side of
     \eqref{eq:equilibrium-linearization-31} when $G(u)$ is nonlinear.}
@@ -634,7 +807,7 @@ and \eqref{eq:inequality-constraints-ud} as
   %     \nabla_u L_f(z_k,\lambda_k,\nu_k)\\
   %     \nabla_d L_g(z_k,\lambda_k,\nu_k) \\
   %     G(z_k)\\
-  %     F(z_k)\odot\lambda_k-\mu\mbf 1 }
+  %     F(z_k)\odot\lambda_k-\mu\sbf 1 }
   % \end{align*}
   % or equivalently\joao{This equation may not be needed.}
   \begin{align}\label{eq:equilibrium-linearization}
@@ -647,7 +820,7 @@ and \eqref{eq:inequality-constraints-ud} as
       \nabla_u L_f(z_k,\lambda_k,\nu_k)\\
       \nabla_d L_g(z_k,\lambda_k,\nu_k) \\
       G(z_k)\\
-      -F(z_k)+\mu \mbf 1\oslash \lambda_k }.
+      -F(z_k)+\mu \sbf 1\oslash \lambda_k }.
   \end{align}
   Since the vectors $F(z_k), \lambda_k$ have positive entries, we can
   solve this system of equations by first eliminating
@@ -655,11 +828,11 @@ and \eqref{eq:inequality-constraints-ud} as
     \begin{multline}
       \nabla_z F(z_k)\Delta z
       +\diag[F(z_k)\oslash\lambda_k]\Delta\lambda
-      =-F(z_k)+\mu \mbf 1\oslash \lambda_k \eqv\\
+      =-F(z_k)+\mu \sbf 1\oslash \lambda_k \eqv\\
       \Delta\lambda
       =-\lambda_k
       -\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z 
-      +\mu \mbf 1\oslash F(z_k)
+      +\mu \sbf 1\oslash F(z_k)
     \end{multline}
     which leads to
     \begin{multline}\label{eq:equilibrium-linearization-31}
@@ -696,10 +869,10 @@ and \eqref{eq:inequality-constraints-ud} as
       % =-\matt{
       %   \nabla_u L_f(z_k,\lambda_k,\nu_k)-\nabla_{u\lambda} L_f(z_k)\lambda_k
       %   -\nabla_{u\lambda} L_f(z_k)\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z 
-      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   \nabla_d L_g(z_k,\lambda_k,\nu_k)-\nabla_{d\lambda} L_g(z_k)\lambda_k
       %   -\nabla_{d\lambda} L_g(z_k)\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z 
-      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   G(z_k)}
       \eqv \\
       \matt{
@@ -709,9 +882,9 @@ and \eqref{eq:inequality-constraints-ud} as
       \matt{\Delta z\\\Delta\nu}\\
       =-\matt{
         \nabla_u L_f(z_k,\lambda_k,\nu_k)-\nabla_{u\lambda} L_f(z_k)\lambda_k
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d L_g(z_k,\lambda_k,\nu_k)-\nabla_{d\lambda} L_g(z_k)\lambda_k
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G(z_k)}
       % \eqv \\
       % \matt{
@@ -721,9 +894,9 @@ and \eqref{eq:inequality-constraints-ud} as
       % \matt{\Delta z\\\Delta\nu}\\
       % =-\matt{
       %   \nabla_u \big(L_f(z_k,\lambda_k,\nu_k)-\nabla_{\lambda} L_f(z_k)\lambda_k\big)
-      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   \nabla_d \big(L_g(z_k,\lambda_k,\nu_k)-\nabla_{\lambda} L_g(z_k)\lambda_k\big)
-      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   G(z_k)}
       % \eqv \\
       % \matt{
@@ -733,9 +906,9 @@ and \eqref{eq:inequality-constraints-ud} as
       % \matt{\Delta z\\\Delta\nu}\\
       % =-\matt{
       %   \nabla_u \big(f(z_k)+(\nu_{fu})_kG_u(z_k)\big)
-      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   \nabla_d \big(g(z_k)+(\nu_{gd})_kG_d(z_k)\big)
-      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   G(z_k)}
       \eqv \\
       \matt{
@@ -745,9 +918,9 @@ and \eqref{eq:inequality-constraints-ud} as
       \matt{\Delta z\\\Delta\nu}\\
       =-\matt{
         \nabla_u f(z_k)+\nabla_u \big((\nu_{fu})_k G_u(z_k)\big)
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d g(z_k)+\nabla_d \big((\nu_{gd})_k G_d(z_k)\big)
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G(z_k)}
     \end{multline}
   \end{subequations}
@@ -808,7 +981,7 @@ and \eqref{eq:inequality-constraints-ud} as
       \nabla_u L_f(z_k,\lambda_k,\nu_k)\\
       \nabla_d L_g(z_k,\lambda_k,\nu_k) \\
       G(z_k)\\
-      -F(z_k)-{\color{blue}(\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu \mbf 1\oslash \lambda_k },
+      -F(z_k)-{\color{blue}(\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu \sbf 1\oslash \lambda_k },
   \end{multline*}
   where the (optional) blue term would come from a 2nd order expansion
   of the left-hand side of the last equality in
@@ -820,12 +993,12 @@ and \eqref{eq:inequality-constraints-ud} as
     \begin{multline*}
       \nabla_z F(z_k)\Delta z_s
       +\diag[F(z_k)\oslash\lambda_k]\Delta\lambda_s
-      =-F(z_k)-{\color{blue}(\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu \mbf 1\oslash \lambda_k \eqv\\
+      =-F(z_k)-{\color{blue}(\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash \lambda_k}+\mu \sbf 1\oslash \lambda_k \eqv\\
       \Delta\lambda_s
       =-\lambda_k
       -{\color{blue}(\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)}
       -\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z_s 
-      +\mu \mbf 1\oslash F(z_k)
+      +\mu \sbf 1\oslash F(z_k)
     \end{multline*}
     which leads to
     \begin{multline*}
@@ -864,12 +1037,12 @@ and \eqref{eq:inequality-constraints-ud} as
 % -\nabla_{u\lambda} L_f(z_k)\lambda_k
 %       -{\color{blue}\nabla_{u\lambda} L_f(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
 %       -\nabla_{u\lambda} L_f(z_k)\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z_s 
-%       +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+%       +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
 %         \nabla_d L_g(z_k,\lambda_k,\nu_k)
 % -\nabla_{d\lambda} L_g(z_k)\lambda_k
 %       -{\color{blue}\nabla_{d\lambda} L_g(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
 %       -\nabla_{d\lambda} L_g(z_k)\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z_s 
-%       +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+%       +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
 %         G(z_k)}
 %       \eqv \\
 %       \matt{
@@ -881,11 +1054,11 @@ and \eqref{eq:inequality-constraints-ud} as
 %         \nabla_u L_f(z_k,\lambda_k,\nu_k)
 % -\nabla_{u\lambda} L_f(z_k)\lambda_k
 %       -{\color{blue}\nabla_{u\lambda} L_f(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
-%       +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+%       +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
 %         \nabla_d L_g(z_k,\lambda_k,\nu_k)
 % -\nabla_{d\lambda} L_g(z_k)\lambda_k
 %       -{\color{blue}\nabla_{d\lambda} L_g(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
-%       +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+%       +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
 %         G(z_k)}
       \eqv \\
       \matt{
@@ -896,10 +1069,10 @@ and \eqref{eq:inequality-constraints-ud} as
       =-\matt{
         \nabla_u f(z_k)+\nabla_u \big((\nu_{fu})_k G_u(z_k)\big)
         -{\color{blue}\nabla_{u\lambda} L_f(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d g(z_k)+\nabla_d \big((\nu_{gd})_k G_d(z_k)\big)
         -{\color{blue}\nabla_{d\lambda} L_g(z_k)\big((\nabla_zF(z_k) \Delta z_a)\odot\Delta\lambda_a\oslash F(z_k)\big)}
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G(z_k)}.
     \end{multline*}
 
@@ -974,7 +1147,7 @@ minimum has been found.
   \end{align*}
   which is equivalent to the following ``smooth optimization''
   \begin{align*}
-    \min \big\{v'\mbf 1_m +\cdots:x\in\R^n,v\in\R^m, -v\le Ax-b\le v,\dots\big\};
+    \min \big\{v'\sbf 1_m +\cdots:x\in\R^n,v\in\R^m, -v\le Ax-b\le v,\dots\big\};
   \end{align*}
   or the ``non-differentiable $\ell_2$ optimization''
   \begin{align*}
@@ -984,7 +1157,7 @@ minimum has been found.
     \min \big\{v +\cdots:x\in\R^n,v\ge0, v^2\ge (Ax-b)'(Ax-b),\dots \big\}.
   \end{align*}
   More examples of such transformations can be found, e.g., in
-  \cite{GrantBoyd2008}.\joao{We should dig for more references.} \frqed
+  \cite{GrantBoyd2008}. \frqed
 \end{remark}
 
 \section{Interior-Point Method for Minimax Problems with a Common Latent Variables}
@@ -1060,7 +1233,7 @@ not appear in the conditions.
       &G_u(\hat u,\hat d,\hat x)=0, \qquad
       G_d(\hat u,\hat d,\hat x)=0, \qquad H(\hat u,\hat d,\hat x)=0, \\
       \label{eq:inequality-constraints-ud-latent}
-      &\hat\lambda_{fu}\dot\ge0, \qquad \hat\lambda_{gd} \dot\ge 0, \qquad F_u(\hat u,\hat d,\hat x)\ge0,
+      &\hat\lambda_{fu}\ge0, \qquad \hat\lambda_{gd} \ge 0, \qquad F_u(\hat u,\hat d,\hat x)\ge0,
       \qquad F_d(\hat u,\hat d,\hat x)\ge0,\\
       \label{eq:central-points-ud-latent-1}
       &L_f(\hat u,\hat d,\hat x,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})
@@ -1072,8 +1245,8 @@ not appear in the conditions.
   \end{subequations}
   where 
   \begin{align*}
-    &L_f(u,d,x,\lambda_{fu},\nu_{fu},\nu_{fx})\eqdef f(u,d,x)-\lambda_{fu} F_u(u,d,x)+\nu_{fu} G_u(u,d,x)+\nu_{fx}H(u,d,x), \\
-    &L_g(u,d,x,\lambda_{gd},\nu_{gd},\nu_{gx})\eqdef g(u,d,x)-\lambda_{gd} F_d(u,d,x)+\nu_{gd} G_d(u,d,x)+\nu_{gx}H(u,d,x).
+    &L_f(u,d,x,\lambda_{fu},\nu_{fu},\nu_{fx})\eqdef f(u,d,x)-\lambda_{fu}\cdot F_u(u,d,x)+\nu_{fu}\cdot G_u(u,d,x)+\nu_{fx}\cdot H(u,d,x), \\
+    &L_g(u,d,x,\lambda_{gd},\nu_{gd},\nu_{gx})\eqdef g(u,d,x)-\lambda_{gd}\cdot F_d(u,d,x)+\nu_{gd}\cdot G_d(u,d,x)+\nu_{gx}\cdot H(u,d,x).
   \end{align*}
   Then $(\hat u,\hat d)$ approximately satisfy \eqref{eq:equilibria-bar}
   in the sense that
@@ -1083,8 +1256,8 @@ not appear in the conditions.
   \end{align}
   with
   \begin{align*}
-    \epsilon_f&\eqdef \hat\lambda_{fu} F_u(\hat u,\hat d,\hat x), &
-    \epsilon_g&\eqdef \hat\lambda_{gd} F_d(\hat u,\hat d,\hat x).
+    \epsilon_f&\eqdef \hat\lambda_{fu}\cdot F_u(\hat u,\hat d,\hat x), &
+    \epsilon_g&\eqdef \hat\lambda_{gd}\cdot F_d(\hat u,\hat d,\hat x).
     \tag*\frqed
   \end{align*}
 \end{corollary}
@@ -1125,7 +1298,7 @@ constraint $H(\hat u,\hat d,\hat x)=0$.
     &G_u(\hat u,\hat d,\hat x)=0, \qquad H(\hat u,\hat d,\hat x)=0, \qquad
     G_d(\hat u,\hat d,\hat z)=0, \qquad H(\hat u,\hat d,\hat z)=0, \\
     \label{eq:inequality-constraints-ud-lat}
-    &\hat\lambda_{fu}\dot\ge0, \qquad \hat\lambda_{gd} \dot\ge 0, \qquad F_u(\hat u,\hat d,\hat x)\ge0,
+    &\hat\lambda_{fu}\ge0, \qquad \hat\lambda_{gd} \ge 0, \qquad F_u(\hat u,\hat d,\hat x)\ge0,
     \qquad F_d(\hat u,\hat d,\hat z)\ge0,\\
     \label{eq:central-points-ud-lat}
     &L_f(\hat u,\hat x,\hat d,\hat z,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})
@@ -1136,8 +1309,8 @@ constraint $H(\hat u,\hat d,\hat x)=0$.
 \end{subequations}
 where 
 \begin{align*}
-  &L_f(u,x,d,z,\lambda_{fu},\nu_{fu},\nu_{fx})\eqdef f(u,d,x)-\lambda_{fu} F_u(u,d,x)+\nu_{fu} G_u(u,d,x)+\nu_{fx}H(u,d,x), \\
-  &L_g(u,x,d,z,\lambda_{gd},\nu_{gd},\nu_{gx})\eqdef g(u,d,z)-\lambda_{gd} F_d(u,d,z)+\nu_{gd} G_d(u,d,z)+\nu_{gx}H(u,d,z); 
+  &L_f(u,x,d,z,\lambda_{fu},\nu_{fu},\nu_{fx})\eqdef f(u,d,x)-\lambda_{fu}\cdot F_u(u,d,x)+\nu_{fu}\cdot G_u(u,d,x)+\nu_{fx}\cdot H(u,d,x), \\
+  &L_g(u,x,d,z,\lambda_{gd},\nu_{gd},\nu_{gx})\eqdef g(u,d,z)-\lambda_{gd}\cdot F_d(u,d,z)+\nu_{gd}\cdot G_d(u,d,z)+\nu_{gx}\cdot H(u,d,z); 
 \end{align*}
 then 
 \begin{align*}
@@ -1150,8 +1323,8 @@ then
 \end{align*}
 with
 \begin{align*}
-  \epsilon_f&\eqdef \hat\lambda_{fu} F_u(\hat u,\hat d,\hat x), &
-  \epsilon_g&\eqdef \hat\lambda_{gd} F_d(\hat u,\hat d,\hat z).
+  \epsilon_f&\eqdef \hat\lambda_{fu}\cdot F_u(\hat u,\hat d,\hat x), &
+  \epsilon_g&\eqdef \hat\lambda_{gd}\cdot F_d(\hat u,\hat d,\hat z).
   \tag*\frqed
 \end{align*}
 The result follows from this, together with the observation that $\hat
@@ -1173,15 +1346,15 @@ consists of:
 \item the first-order optimality conditions for the unconstrained
   minimizations in
   \eqref{eq:central-points-ud-latent-1}--\eqref{eq:central-points-ud-latent-2}\footnote{Given
-    an integer $M$, we denote by $\mbf 0_M$ and by $\mbf 1_M$ the
+    an integer $M$, we denote by $\sbf 0_M$ and by $\sbf 1_M$ the
     $M$-vectors with all entries equal to 0 and 1, respectively.}:
   \begin{subequations}\label{eq:equilibrium-latent}
     \begin{align}
       \nabla_u L_f(\hat u,\hat d,\hat
-      x,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})&=\mbf 0_{N_u}, &
-      \nabla_x L_f(\hat u,\hat d,\hat x,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})&=\mbf 0_{N_u}, \\
+      x,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})&=\sbf 0_{N_u}, &
+      \nabla_x L_f(\hat u,\hat d,\hat x,\hat\lambda_{fu},\hat\nu_{fu},\hat\nu_{fx})&=\sbf 0_{N_u}, \\
       \nabla_d L_g(\hat u,\hat d,\hat
-      x,\hat\lambda_{gd},\hat\nu_{gd},\hat\nu_{gx})&=\mbf 0_{N_d}, & \nabla_x
+      x,\hat\lambda_{gd},\hat\nu_{gd},\hat\nu_{gx})&=\sbf 0_{N_d}, & \nabla_x
       L_g(\hat u,\hat d,\hat x,\hat\lambda_{gd},\hat\nu_{gd},\hat\nu_{gx})&=\mbf
       0_{N_d}; &
     \end{align}
@@ -1191,8 +1364,8 @@ consists of:
     $x\odot y\in\R^n$ and by $x\oslash y\in\R^n$ the entry-wise product and
     division of the two vectors, respectively.}
   \begin{align}\label{eq:barrier-ud-latent}
-    F_u(\hat u,\hat d,\hat x)\odot\hat\lambda_{fu}&=\mu\mbf 1_{M_u}, &
-    F_d(\hat u,\hat d,\hat x)\odot\hat\lambda_{gd}&=\mu\mbf 1_{M_d}, &
+    F_u(\hat u,\hat d,\hat x)\odot\hat\lambda_{fu}&=\mu\sbf 1_{M_u}, &
+    F_d(\hat u,\hat d,\hat x)\odot\hat\lambda_{gd}&=\mu\sbf 1_{M_d}, &
   \end{align}
   for some $\mu>0$, which leads to
   \begin{align*}
@@ -1226,22 +1399,20 @@ which allow us to re-write \eqref{eq:equilibrium-latent},
 \begin{subequations}
   \begin{gather}
     \label{eq:primal-dual-ud-equalities-latent-1}
-    \nabla_u L_f(z,\lambda,\nu)=\mbf 0_{N_u}, \qquad
-    \nabla_x L_f(z,\lambda,\nu)=\mbf 0_{N_x}, \\
-    \nabla_d L_g(z,\lambda,\nu)=\mbf 0_{N_d}, \qquad
-    \nabla_x L_g(z,\lambda,\nu)=\mbf 0_{N_x}, \\
+    \nabla_u L_f(z,\lambda,\nu)=\sbf 0_{N_u}, \qquad
+    \nabla_x L_f(z,\lambda,\nu)=\sbf 0_{N_x}, \\
+    \nabla_d L_g(z,\lambda,\nu)=\sbf 0_{N_d}, \qquad
+    \nabla_x L_g(z,\lambda,\nu)=\sbf 0_{N_x}, \\
     \label{eq:primal-dual-ud-equalities-latent-2}
-    G(z)=\mbf 0 _{K_u+K_d+K_x}, \qquad
-    \lambda\odot F(z)=\mu\mbf 1_{M_u+M_d}, 
+    G(z)=\sbf 0 _{K_u+K_d+K_x}, \qquad
+    \lambda\odot F(z)=\mu\sbf 1_{M_u+M_d}, 
   \end{gather}
 and \eqref{eq:inequality-constraints-ud-latent} as
 \begin{gather}
   \label{eq:primal-dual-ud-inequalities-latent}
-  \lambda\ge \mbf 0_{M_u+M_d}, \qquad F(z)\ge \mbf 0_{M_u+M_d}.
+  \lambda\ge \sbf 0_{M_u+M_d}, \qquad F(z)\ge \sbf 0_{M_u+M_d}.
 \end{gather}
 \end{subequations}
-
-\clearpage
 
 \begin{algorithm}[Primal-dual optimization with common latent variable]~\label{al:primal-dual-latent}
 \begin{steps}
@@ -1251,10 +1422,10 @@ and \eqref{eq:inequality-constraints-ud-latent} as
   It is often a good idea to start with a value for $z_0$ that
   satisfies the equality constraint $G(z_0)=0$, and
   \begin{align*}
-    \lambda_0=\mu\mbf 1_{M_u+M_d}\oslash F(z_0),
+    \lambda_0=\mu\sbf 1_{M_u+M_d}\oslash F(z_0),
   \end{align*}
   which guarantees that we initially have
-  $\lambda_0\odot F(u_0)=\mu\mbf 1_{M_u+M_d}$.\joao{Starting with
+  $\lambda_0\odot F(u_0)=\mu\sbf 1_{M_u+M_d}$.\joao{Starting with
     $\nu_0=0$ seems to be okay. Note that the value of $\nu$ only affects
     the matrix in the left-hand side of
     \eqref{eq:equilibrium-linearization-31} when $G(u)$ is nonlinear.}
@@ -1273,7 +1444,7 @@ and \eqref{eq:inequality-constraints-ud-latent} as
   %     \nabla_u L_f(z_k,\lambda_k,\nu_k)\\
   %     \nabla_d L_g(z_k,\lambda_k,\nu_k) \\
   %     G(z_k)\\
-  %     F(z_k)\odot\lambda_k-\mu\mbf 1 }
+  %     F(z_k)\odot\lambda_k-\mu\sbf 1 }
   % \end{align*}
   % or equivalently\joao{This equation may not be needed.}
   \begin{align*}
@@ -1290,18 +1461,18 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       \nabla_d L_g(z_k,\lambda_k,\nu_k) \\
       \nabla_x L_g(z_k,\lambda_k,\nu_k) \\
       G(z_k)\\
-      -F(z_k)+\mu \mbf 1\oslash \lambda_k }.
+      -F(z_k)+\mu \sbf 1\oslash \lambda_k }.
   \end{align*}
   Since the vectors $F(z_k), \lambda_k$ have positive entries, we can
   solve this system of equations by first eliminating
   \begin{multline*}
     \nabla_z F(z_k)\Delta z
     +\diag[F(z_k)\oslash\lambda_k]\Delta\lambda
-    =-F(z_k)+\mu \mbf 1\oslash \lambda_k \eqv\\
+    =-F(z_k)+\mu \sbf 1\oslash \lambda_k \eqv\\
     \Delta\lambda
     =-\lambda_k
     -\diag[\lambda_k\oslash F(z_k)]\nabla_z F(z_k)\Delta z 
-    +\mu \mbf 1\oslash F(z_k)
+    +\mu \sbf 1\oslash F(z_k)
   \end{multline*}
   which leads to
     \begin{multline*}
@@ -1328,13 +1499,13 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       \matt{\Delta z\\\Delta\nu}\\
       =-\matt{
         \nabla_u L_f(z_k,\lambda_k,\nu_k)-\nabla_{u\lambda} L_f(z_k)\lambda_k
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x L_f(z_k,\lambda_k,\nu_k)-\nabla_{x\lambda} L_f(z_k)\lambda_k
-        +\mu \nabla_{x\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d L_g(z_k,\lambda_k,\nu_k)-\nabla_{d\lambda} L_g(z_k)\lambda_k
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x L_g(z_k,\lambda_k,\nu_k)-\nabla_{x\lambda} L_g(z_k)\lambda_k
-        +\mu \nabla_{x\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G(z_k)}
       % \eqv \\
       % \matt{
@@ -1344,9 +1515,9 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       % \matt{\Delta z\\\Delta\nu}\\
       % =-\matt{
       %   \nabla_u \big(L_f(z_k,\lambda_k,\nu_k)-\nabla_{\lambda} L_f(z_k)\lambda_k\big)
-      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   \nabla_d \big(L_g(z_k,\lambda_k,\nu_k)-\nabla_{\lambda} L_g(z_k)\lambda_k\big)
-      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   G(z_k)}
       % \eqv \\
       % \matt{
@@ -1356,9 +1527,9 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       % \matt{\Delta z\\\Delta\nu}\\
       % =-\matt{
       %   \nabla_u \big(f(z_k)+(\nu_{fu})_kG_u(z_k)\big)
-      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   \nabla_d \big(g(z_k)+(\nu_{gd})_kG_d(z_k)\big)
-      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+      %   +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
       %   G(z_k)}
       \eqv \\
       \matt{
@@ -1370,13 +1541,13 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       \matt{\Delta z\\\Delta\nu}\\
       =-\matt{
         \nabla_u \big(f(z_k)+(\nu_{fu})_k G_u(z_k)+(\nu_{fx})_k H(z_k)\big)
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x \big(f(z_k)+(\nu_{fu})_k G_u(z_k)+(\nu_{fx})_k H(z_k)\big)
-        +\mu \nabla_{x\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d \big(g(z_k)+(\nu_{gd})_k G_d(z_k)+(\nu_{gx})_k H(z_k)\big)
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x \big(g(z_k)+(\nu_{gd})_k G_d(z_k)+(\nu_{gx})_k H(z_k)\big)
-        +\mu \nabla_{x\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G(z_k)}
       \eqv \\
       \matt{
@@ -1394,22 +1565,19 @@ and \eqref{eq:inequality-constraints-ud-latent} as
       \matt{\Delta z\\\Delta\nu}\\
       =-\matt{
         \nabla_u \big(f(z_k)+(\nu_{fu})_k G_u(z_k)+(\nu_{fx})_k H(z_k)\big)
-        +\mu \nabla_{u\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{u\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x \big(f(z_k)+(\nu_{fu})_k G_u(z_k)+(\nu_{fx})_k H(z_k)\big)
-        +\mu \nabla_{x\lambda} L_f(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_f(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_d \big(g(z_k)+(\nu_{gd})_k G_d(z_k)+(\nu_{gx})_k H(z_k)\big)
-        +\mu \nabla_{d\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{d\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         \nabla_x \big(g(z_k)+(\nu_{gd})_k G_d(z_k)+(\nu_{gx})_k H(z_k)\big)
-        +\mu \nabla_{x\lambda} L_g(z_k)\big(\mbf 1\oslash F(z_k)\big)\\
+        +\mu \nabla_{x\lambda} L_g(z_k)\big(\sbf 1\oslash F(z_k)\big)\\
         G_u(z_k)\\
         G_d(z_k)\\
         H(z_k)}
     \end{multline*}
-
-
 \end{steps}
 \end{algorithm}
-
 
 %\bibliographystyle{ieeetr}
 \bibliographystyle{abbrvnat}
