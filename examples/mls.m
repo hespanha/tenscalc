@@ -95,12 +95,22 @@ saveIter=-1;
 % Get outputs
 [Justar,Xustar]=getOutputs(obj);
 
+Tcalculus.clear;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Constrained minimization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % minimize \|A X-B\|_F^2
 % w.r.t.   X
 % subject to 0<=X<=.05
+
+Tvariable A [N,n];
+Tvariable B [N,k];
+
+Tvariable  X [n,k];
+Y=A*X-B;
+
+J=norm2(Y)/N;
 
 fprintf('\nConstrained minimization using class2optimize\n');
 classname=generateSolver('classname','tmp_minmlsc',...

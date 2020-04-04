@@ -93,10 +93,20 @@ saveIter=-1;
 % Get outputs
 [Justar,xustar]=getOutputs(obj);
 
+Tcalculus.clear;
+
 %% Unconstrained minimization using a slack variable
 % minimize v
 % w.r.t.   x
 % subject to v>=\|A x-b\|^2
+
+Tvariable A [N,n];
+Tvariable b N;
+Tvariable x n;
+
+y=A*x-b;
+
+J=norm2(y)/N;
 
 Tvariable v [];
 v0=J0+1;
@@ -126,12 +136,23 @@ saveIter=-1;
 % Get outputs
 [Justar,xustar]=getOutputs(obj);
 
+Tcalculus.clear;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Constrained minimization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % minimize \|A x-b\|^2
 % w.r.t.   x
 % subject to 0<=x<=.05
+
+Tvariable A [N,n];
+Tvariable b N;
+Tvariable x n;
+
+y=A*x-b;
+
+J=norm2(y)/N;
+
 fprintf('\nConstrained minimization without a slack variable\n');
 classname=generateSolver('classname','tmp_minslsc2',...
                          'objective',J,...

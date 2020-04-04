@@ -29,7 +29,6 @@ optimizeCS=@cmex2optimizeCS;  % c
 minInstructions4loop=100;
 N=200
 
-codeType='C';
 %compilerOptimization='-O0';
 compilerOptimization='-O1';
 
@@ -83,7 +82,6 @@ if 1
             measurement;dt1;
             weight2acceleration},...
         'skipAffine',false,...
-        'codeType',codeType,...
         'debugConvergence',debugConvergence,...
         'minInstructions4loop',minInstructions4loop,...
         'compilerOptimization',compilerOptimization,...
@@ -149,17 +147,27 @@ if 1
 end
 
 
+Tcalculus.clear;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% L1-L2 optimization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% declare (symbolic) variables
+Tvariable measurement N;          % measurements
+Tvariable dt1 N-1;                % 1/time differences 
+Tvariable weight2acceleration []; % cost-weight for acceleration's l2-norm
+Tvariable position N;             % positions (to be optimized)
+
 Tvariable weight1acceleration []; % cost-weight for acceleration's l1-norm
 Tvariable weight1noise [];        % cost-weight for noise's l1-norm
 Tvariable noise1   N;             % l1 measurement noise (to be optimized)
 Tvariable acceleration1 N-2;      % l1 acceleration (to be optimized)
 Tvariable noise1abs   N;          % noise1 absolute values (to be optimized)
 Tvariable acceleration1abs N-2;   % acceleration1 absolute values (to be optimized)
+
+velocity=(position(2:end)-position(1:end-1)).*dt1;              % velocity
+acceleration=(velocity(2:end)-velocity(1:end-1)).*dt1(1:end-1); % total acceleration
 
 %% construct optimization criteria
 noise2=measurement-position-noise1;                             % l2 measurement noise
@@ -187,7 +195,6 @@ J=norm2(noise2) ...
         weight1acceleration;weight2acceleration;weight1noise},...
     'skipAffine',false,...
     'profiling',false,...
-    'codeType',codeType,...
     'debugConvergence',debugConvergence,...
     'minInstructions4loop',minInstructions4loop,...
     'compilerOptimization',compilerOptimization,...
