@@ -1,5 +1,5 @@
-function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,outVariableName,varargin)
-% [outVariable,packCmd,unpackCmd,out1,out2,... ]=packvariables(inVariables,outVariableName,in1,in2,...)
+function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(inVariables,outVariableName,varargin)
+% [outVariable,whereVariables,packCmd,unpackCmd,out1,out2,... ]=packvariables(inVariables,outVariableName,in1,in2,...)
 %
 % Takes as inputs a cell array of Tcalculus input variables
 % 'inVariables' and creates a single Tcalculus vector (1-index)
@@ -15,6 +15,9 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
 % whose dependence on the input variables in 'inVariables' has been
 % replaced by approproate dependences on the 'outVariable'.
 % See 'help Tcalculus/substitute'
+%
+% The output 'whereVariables' is a cell array with the indices of
+% where each variable is stored in 'outVariable'
 %
 % The outputs 'packCmd' and 'unpackCmd' return strings with MATLAB
 % commands that can be used to pack and unpack a cell array of MATLAB
@@ -44,6 +47,7 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
     n=0;
     packCmd=sprintf('%s=[',outVariableName);
     unpackCmd='';
+    whereVariables=cell(length(inVariables),1);
     for i=1:length(inVariables)
         if ~isequal(inVariables{i}.type,'variable')
             inVariables{i}
@@ -55,6 +59,7 @@ function [outVariable,packCmd,unpackCmd,varargout]=packVariables(inVariables,out
         unpackCmd=sprintf('%s%s=reshape(%s(%d:%d),%s);',...
                        unpackCmd,inVariables{i}.name,outVariableName,n+1,n+len,...
                        index2str(msize(inVariables{i})));
+        whereVariables{i}=n+1:n+len;
         n=n+len;
     end
     packCmd=[packCmd,']'];
