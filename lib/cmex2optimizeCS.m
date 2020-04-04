@@ -48,6 +48,14 @@ function varargout=cmex2optimizeCS(varargin)
             'variables to be optimized.'
                       });
     declareParameter(...
+        'VariableName','sensitivityVariables',...
+        'DefaultValue',{},...        
+        'Description',{
+            'Cell-array of Tcalculus symbolic objects representing the'
+            'optimization variables with respect to which we want to compute cost';
+            'sensitivity.'
+                      });
+    declareParameter(...
         'VariableName','constraints',...
         'DefaultValue',{},...
         'Description',{
@@ -284,7 +292,7 @@ function varargout=cmex2optimizeCS(varargin)
     template=[template;tpl];    
     
     %% Pack primal variables
-    [u,packU,unpackU,objective,outputExpressions,F,G]...
+    [u,whereVariables,packU,unpackU,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
     u0=packExpressions(optimizationVariables);
 
@@ -294,7 +302,7 @@ function varargout=cmex2optimizeCS(varargin)
 
     %% Pack dual variables
     if size(G,1)>0
-        [nu,~,~,outputExpressions]=packVariables(nus,'nu_',outputExpressions);
+        [nu,~,~,~,outputExpressions]=packVariables(nus,'nu_',outputExpressions);
         nu0=packExpressions(nus);
         src{end+1}=nu0;
         dst{end+1}=nu;
@@ -302,7 +310,7 @@ function varargout=cmex2optimizeCS(varargin)
         nu=Tzeros(0);
     end
     if size(F,1)>0
-        [lambda,~,~,outputExpressions]=packVariables(lambdas,'lambda_',outputExpressions);
+        [lambda,~,~,~,outputExpressions]=packVariables(lambdas,'lambda_',outputExpressions);
         lambda0=packExpressions(lambdas);
         src{end+1}=lambda0;
         dst{end+1}=lambda;
@@ -311,17 +319,39 @@ function varargout=cmex2optimizeCS(varargin)
     end
     declareCopy(code,dst,src,'initPrimalDual__');
 
+    %% Find indices of sensitivityVariables in x
+    isSensitivity=false(length(u),1);
+    for i=1:length(sensitivityVariables)
+        found=false;
+        for j=1:length(optimizationVariables)
+            if isequal(sensitivityVariables{i},sensitivityVariables{j})
+                isSensitivity(whereVariables{j})=true;
+                found=true;
+                break;
+            end
+        end
+        if ~found
+            error('sensitivityVariable %s is not an optimizationVariable\n',name(sensitivityVariables{i}));
+        end
+    end
+    
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,...
-                              smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                              useLDL,umfpack,...
-                              classname,allowSave,debugConvergence);
+    [Hess__,dHess__,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+                                                     smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                                                     useLDL,umfpack,...
+                                                     classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('Hess_',size(Hess__),true),Hess__);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('dHess_',size(dHess__),true),dHess__);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('Du1_',size(Du1__),true),Du1__);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('DfDu1_',size(DfDu1__),true),DfDu1__);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('D2fDu1_',size(D2fDu1__),true),D2fDu1__);
     
     %% Declare ipm solver 
     classhelp{end+1}='% Solve optimization';

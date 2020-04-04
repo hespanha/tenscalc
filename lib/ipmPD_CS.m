@@ -1,7 +1,7 @@
-function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
-                                 smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                                 useLDL,atomicFactorization,...
-                                 cmexfunction,allowSave,debugConvergence)
+function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
+                                                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                                                      useLDL,atomicFactorization,...
+                                                      cmexfunction,allowSave,debugConvergence)
 % See ../doc/ipm.tex for an explanation of the formulas used here
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -150,7 +150,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
             dHess_=Tzeros(size(factor_ww,1));
         end
         if atomicFactorization
-            factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
+            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,true);
         end
         
         if skipAffine
@@ -162,7 +162,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
                  -G];
             
             dx_a=factor_ww\b_a;
-            dx_a=declareAlias(code,dx_a,'dUNu_a__');
+            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,true);
             
             dU_a=dx_a(1:nU);
             newU_a=u+alphaPrimal*dU_a;
@@ -194,7 +194,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         t2=clock();
         %% search direction
         dx_s=factor_ww\b_s;
-        dx_s=declareAlias(code,dx_s,'dx_s__');
+        dx_s=declareAlias(code,dx_s,'dx_s__',false,true);
         
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;
@@ -238,10 +238,10 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         if isequal(factor,@ldl)
             dHess_=ldl_d(factor_ww);
         else
-            dHess_=zeros(size(factor_ww,1));
+            dHess_=Tzeros(size(factor_ww,1));
         end
         if atomicFactorization
-            factor_ww=declareAlias(code,factor_ww,'factor_ww',true);
+            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,true);
         end
 
         if skipAffine
@@ -255,7 +255,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
                  F];
             
             dx_a=factor_ww\b_a;
-            dx_a=declareAlias(code,dx_a,'dUNu_a__');
+            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,true);
             
             dU_a=dx_a(1:nU);
             newU_a=u+alphaPrimal*dU_a;
@@ -286,7 +286,7 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
         
         %% search direction
         dx_s=factor_ww\b_s;
-        dx_s=declareAlias(code,dx_s,'dx_s__');
+        dx_s=declareAlias(code,dx_s,'dx_s__',false,true);
         
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;
@@ -312,15 +312,38 @@ function [Hess_,dHess_]=ipmPD_CS(code,f,u,lambda,nu,F,G,...
     end % smallerNewtonMatrix
     
     if debugConvergence;
-        declareGet(code,full(Hess_),'getHess__');
+        declareGet(code,Hess_,'getHess__');
     end
 
+    if nargout>2 && any(isSensitivity)
+        if smallerNewtonMatrix
+            error('ipmPD_CS: computation of sensitivity not implemented for smallerNewtonMatrix\n');
+        end
+        DfDu1__=Lf_u(isSensitivity);
+        D2fDu1__=WW([isSensitivity;false(nF+nG,1)],[isSensitivity;false(nF+nG,1)]);        
+        if any(~isSensitivity)
+            Hess1=WW([~isSensitivity;true(nG+nF,1)],[~isSensitivity;true(nG+nF,1)]);
+            factor_Hess1=factor(Hess1);
+            B1=-WW([~isSensitivity;true(nG+nF,1)],[isSensitivity;false(nG+nF,1)]);
+            if atomicFactorization
+                factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,true);
+            end
+            Du1__=factor_Hess1\B1;
+            D2fDu1__=D2fDu1__+WW([isSensitivity;false(nF+nG,1)],[~isSensitivity;true(nG+nF,1)])*Du1__;        
+        else
+            Du1__=Tconstant([]);
+        end
+    else
+        Du1__=Tconstant([]);
+        DfDu1__=Tconstant([]);
+        D2fDu1__=Tconstant([]);
+    end
+    
     % declareGet(code,full(WW),'getWW__');
     % declareGet(code,u,'getU__');
     % declareGet(code,lambda,'getLambda__');
     % declareGet(code,b_s,'getb_s__');
     % declareGet(code,dx_s,'getDx_s__');
-
 
     % declareSave after lu's to make sure previous "typical" values
     % are used by lu, prior to being overwritten by declareSave
