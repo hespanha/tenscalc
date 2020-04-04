@@ -503,7 +503,7 @@ classdef csparse < handle
         %     %disp(obj)
         % end
         
-        function [TCvar,subscripts,instructions]=declareAlias(obj,TCsource,name,atomic)
+        function [TCvar,subscripts,instructions]=declareAlias(obj,TCsource,name,atomic,nowarningsamesize)
         % TCvar=declareAlias(obj,TCsource,name)
         % TCvar=declareAlias(obj,TCsource,name,atomic)
         % [TCvar,subscripts]=declareAlias(obj,TCsource,name,atomic)
@@ -520,6 +520,10 @@ classdef csparse < handle
                 atomic=false;
             end
             
+            if nargin<5
+                nowarningsamesize=false;
+            end
+            
             k=addTCexpression(obj,TCsource,atomic);
             
             if nargout>1
@@ -533,7 +537,7 @@ classdef csparse < handle
             
             if nargin>=3 && ~isempty(name)
                 % create linked variable
-                TCvar=Tvariable(name,size(TCsource));
+                TCvar=Tvariable(name,size(TCsource),nowarningsamesize);
                 updateFile2table(TCvar,1);
                 old=height(obj.vectorizedOperations);
                 kV=addTCexpression(obj,TCvar,atomic);
