@@ -692,7 +692,7 @@ for i=1:length(obj.gets)
             %jc
             pr=instructions(k)-1; % 0-based indexing
 
-            fprintf(fid,'  double  *pr=mxGetPr(y%d);\n',j);
+            fprintf(fid,'{ double  *pr=mxGetPr(y%d);\n',j);
             fprintf(fid,'  mwIndex *ir=mxGetIr(y%d);\n',j);
             fprintf(fid,'  mwIndex *jc=mxGetJc(y%d);\n',j);
             %fprintf(fid,'  printf("pr=%%p, ir=%%p, jc=%%p, \\n",pr,ir,jc);\n');
@@ -712,7 +712,7 @@ for i=1:length(obj.gets)
             for l=1:length(pr)
                 fprintf(fid,'     pr[%d]=m[%d];\n',l-1,pr(l));
             end
-
+            fprintf(fid,'}\n');
         else
             % for # dimensions other than 2, must be full
             if size(subscripts,2)~=prod(osize)
