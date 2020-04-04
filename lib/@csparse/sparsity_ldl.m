@@ -239,6 +239,10 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     
     % keep subscripts in subsLDL in the "natural" order (sorted by row and then col)
     [i,j,instrLDL]=find(instrLDL);
+    if isempty(i)
+        error('sparsity: trying to do an LDL factorization on a zero matrix');
+    end
+    
     [subsLDL,k]=sortrows([uint64(i),uint64(j)],2:-1:1);
     subsLDL=subsLDL';
     instrLDL=instrLDL(k);
