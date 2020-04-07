@@ -84,6 +84,13 @@ function varargout=cmex2optimizeCS(varargin)
             '* |dHess_| - D factor in the LDL factorization of the Hessian matrix'
             '             used by the (last) newton step to update the primal variables'
             '             (including |addEye2Hessian|, unlike Hess_).'
+            '* |Grad_| - Gradient of Lagrangian at the (last) newton step.'
+            '* |mu_|   - barrier parameter at the (last) newton step.'
+            '* |u_|    - vector of primal variables at the (last) newton step.'
+            '* |F_|    - vector of equalities at the (last) newton step.'
+            '* |G_|    - vector of inequalities at the (last) newton step.'
+            '* |nu_|   - vector of dual equality variables at the (last) newton step.'
+            '* |lambda_|   - vector of dual inequality variables at the (last) newton step.'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
             '           they will have to be created outside this function'
@@ -337,21 +344,41 @@ function varargout=cmex2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
                                                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                                                      useLDL,umfpack,...
                                                      classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
+    
+    % Replace solver variables into output expression
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('Hess_',size(Hess__),true),Hess__);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('dHess_',size(dHess__),true),dHess__);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('Grad_',size(Grad__),true),Grad__);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('mu_',size(mu),true),mu);
+
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('u_',size(u),true),u);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('G_',size(G),true),G);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('F_',size(F),true),F);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('nu_',size(nu),true),nu);
+    outputExpressions=substitute(outputExpressions,...
+                                 Tvariable('lambda_',size(lambda),true),lambda);
+
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('Du1_',size(Du1__),true),Du1__);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('DfDu1_',size(DfDu1__),true),DfDu1__);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('D2fDu1_',size(D2fDu1__),true),D2fDu1__);
+    
+    
     
     %% Declare ipm solver 
     classhelp{end+1}='% Solve optimization';

@@ -214,7 +214,7 @@ function varargout=Tvars2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
                                                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                                                      useLDL,umfpack,...
                                                      classname,allowSave,debugConvergence);
@@ -222,8 +222,17 @@ function varargout=Tvars2optimizeCS(varargin)
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
+    Tout.optimizationVariables=optimizationVariables;
+    Tout.constraints=constraints;
     Tout.Hess=Tvariable('Hess_',size(Hess__));
     Tout.dHess=Tvariable('dHess_',size(dHess__));
+    Tout.Grad=Tvariable('Grad_',size(Grad__));
+    Tout.mu=Tvariable('mu_',size(mu));
+    Tout.u=Tvariable('u_',size(u));
+    Tout.ineq=Tvariable('F_',size(F));
+    Tout.eq=Tvariable('G_',size(G));
+    Tout.nu=Tvariable('nu_',size(nu));
+    Tout.lambda=Tvariable('lambda_',size(lambda));
     Tout.Du1=Tvariable('Du1_',size(Du1__));
     Tout.DfDu1=Tvariable('DfDu1_',size(DfDu1__));
     Tout.D2fDu1=Tvariable('D2fDu1_',size(D2fDu1__));
