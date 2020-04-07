@@ -71,7 +71,7 @@ classdef Tcalculus
     end
     
     methods
-        function obj=Tcalculus(type,osize,parameters,operands,op_parameters,file_line,nowarningsamesize)
+        function obj=Tcalculus(type,osize,parameters,operands,op_parameters,file_line,nowarningsamesize,nowarningever)
         %% Add entry to table TCsymbolicExpressions of symbolic expressions with fields:
         % type       string
         % osize      row vector
@@ -117,6 +117,10 @@ classdef Tcalculus
                 nowarningsamesize=false;
             end
             
+            if nargin<8
+                nowarningsever=false;
+            end
+            
             if ~ischar(file_line)
                 if obj.update_file_line
                     st=dbstack();
@@ -157,7 +161,7 @@ classdef Tcalculus
                     types={TCsymbolicExpressions(:).type};
                     for i=find(strcmp(types,'variable'))
                         if myisequal(TCsymbolicExpressions(i).parameters,parameters) && ...
-                                ~( nowarningsamesize && isequal(TCsymbolicExpressions(i).osize,osize))
+                                ~( nowarningever || (nowarningsamesize && isequal(TCsymbolicExpressions(i).osize,osize)))
                             warning('variable ''%s'' [%s] already exists, new variables ''%s'' [%s] will be created\n',...
                                     parameters,index2str(TCsymbolicExpressions(i).osize),parameters,index2str(osize));
                         end

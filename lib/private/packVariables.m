@@ -41,6 +41,7 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     nowarningsamesize=true;
+    nowarningever=true;
 
     verboseLevel=0;
     
@@ -64,7 +65,7 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
     end
     packCmd=[packCmd,']'];
     
-    outVariable=Tvariable(outVariableName,n,nowarningsamesize);
+    outVariable=Tvariable(outVariableName,n,nowarningsamesize,nowarningever);
     
     if verboseLevel>0
         global substituteCounter;

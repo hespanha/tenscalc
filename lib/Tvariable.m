@@ -1,5 +1,5 @@
-function obj=Tvariable(name,osize,nowarningsamesize)
-% var = Tconstant(name,[n1,n2,...,na],nowarningsamesize))
+function obj=Tvariable(name,osize,nowarningsamesize,nowarningever)
+% var = Tconstant(name,[n1,n2,...,na],nowarningsamesize,nowarningever)
 %
 % Returns a Tcalculus tensor symbolic variable.  The integers
 % n1,n2,...,na specify the dimension of each index of the tensor.
@@ -10,6 +10,10 @@ function obj=Tvariable(name,osize,nowarningsamesize)
 % that is given when one attempts to create a variable that already
 % exists. The warning is only omitted when the new variable has the
 % same size as the existing one.
+%
+% The optional 4th argument 'nowarningever', prevents a warning
+% that is given when one attempts to create a variable that already
+% exists. The warning is always omitted, regardless of the variable sizes.
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -31,6 +35,9 @@ function obj=Tvariable(name,osize,nowarningsamesize)
     if ~ischar(name)
         error('Tvariable: 1st parameter must be a string (variable name)')
     end
+    if ~isvarname(name)
+        error('Tvariable: 1st parameter a valid variable name')
+    end
     if nargin<2
         osize=[];
     end
@@ -42,15 +49,18 @@ function obj=Tvariable(name,osize,nowarningsamesize)
         error('Tvariable: (optional) 3rd argument must be boolean');
     end
     
-    if ~isvarname(name)
-        error('Tvariable: 1st parameter a valid variable name')
+    if nargin<4
+        nowarningever=false;
     end
-
+    if ~islogical(nowarningever)
+        error('Tvariable: (optional) 4rd argument must be boolean');
+    end
+    
     if ischar(osize)
         osize=evalin('caller',osize);
     end
 
-    obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize);
+    obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize,nowarningever);
     
     assignin('caller',name,obj);
 end

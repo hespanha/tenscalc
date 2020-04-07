@@ -1,4 +1,4 @@
-function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
+function [Hess_,dHess_,Lf_u,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
                                                       smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                                                       useLDL,atomicFactorization,...
                                                       cmexfunction,allowSave,debugConvergence)
@@ -24,6 +24,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
 %profile on
 
     nowarningsamesize=true;
+    nowarningever=true;
 
     szHess_=TcheckVariable('Hess_');
 
@@ -61,7 +62,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
     Lf_u=f_u;
     
     if nF>0
-        mu=Tvariable('mu__',[],nowarningsamesize);
+        mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
         %muOnes=mu*Tones(nF);
         muOnes=reshape(mu,1);
         muOnes=muOnes(ones(nF,1));
@@ -112,11 +113,11 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
         declareGet(code,full(Lf_uu),'getLfuu__');
     end
     
-    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize);
+    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
-    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize);
+    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaDualEq,'setAlphaDualEq__');
-    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize);
+    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
     if useLDL
@@ -150,7 +151,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
             dHess_=Tzeros(size(factor_ww,1));
         end
         if atomicFactorization
-            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,true);
+            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,nowarningsamesize,nowarningever);
         end
         
         if skipAffine
@@ -162,7 +163,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
                  -G];
             
             dx_a=factor_ww\b_a;
-            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,true);
+            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,nowarningsamesize,nowarningever);
             
             dU_a=dx_a(1:nU);
             newU_a=u+alphaPrimal*dU_a;
@@ -194,7 +195,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
         t2=clock();
         %% search direction
         dx_s=factor_ww\b_s;
-        dx_s=declareAlias(code,dx_s,'dx_s__',false,true);
+        dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
         
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;
@@ -241,7 +242,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
             dHess_=Tzeros(size(factor_ww,1));
         end
         if atomicFactorization
-            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,true);
+            factor_ww=declareAlias(code,factor_ww,'factor_ww',true,nowarningsamesize,nowarningever);
         end
 
         if skipAffine
@@ -255,7 +256,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
                  F];
             
             dx_a=factor_ww\b_a;
-            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,true);
+            dx_a=declareAlias(code,dx_a,'dUNu_a__',false,nowarningsamesize,nowarningever);
             
             dU_a=dx_a(1:nU);
             newU_a=u+alphaPrimal*dU_a;
@@ -286,7 +287,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
         
         %% search direction
         dx_s=factor_ww\b_s;
-        dx_s=declareAlias(code,dx_s,'dx_s__',false,true);
+        dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
         
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;
@@ -326,7 +327,7 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
             factor_Hess1=factor(Hess1);
             B1=-WW([~isSensitivity;true(nG+nF,1)],[isSensitivity;false(nG+nF,1)]);
             if atomicFactorization
-                factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,true);
+                factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,nowarningsamesize,nowarningever);
             end
             Du1__=factor_Hess1\B1;
             D2fDu1__=D2fDu1__+WW([isSensitivity;false(nF+nG,1)],[~isSensitivity;true(nG+nF,1)])*Du1__;        
@@ -352,8 +353,8 @@ function [Hess_,dHess_,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,i
     end
 
     if ~isempty(szHess_) && ~myisequal(szHess_,size(Hess_))
-        error('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
-              szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
+        warning('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
+                szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
     end
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));

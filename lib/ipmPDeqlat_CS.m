@@ -25,6 +25,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     nowarningsamesize=true;
+    nowarningever=true;
 
     szHess_=TcheckVariable('Hess_');
 
@@ -90,7 +91,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     
     %% Declare gets for exit condition and output
     if nF>0
-        mu=Tvariable('mu__',[],nowarningsamesize);
+        mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
         %muOnes=mu*Tones(nF);
         muOnes=reshape(mu,1);
         muOnes=muOnes(ones(nF,1));
@@ -160,11 +161,11 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         Lg=Lg+P2xnu*H;
     end
     
-    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize);
+    alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
-    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize);
+    alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaDualEq,'setAlphaDualEq__');
-    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize);
+    alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
@@ -227,7 +228,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
         fprintf('(%.2f sec)\n    adding LFF...',etime(clock(),t2));
         t2=clock();
-        LFF=declareAlias(code,LFF,'LFF__');
+        LFF=declareAlias(code,LFF,'LFF__',false,nowarningsamesize,nowarningever);
     end
     
     fprintf('(%.2f sec)\n    WW & b...',etime(clock(),t2));
@@ -330,7 +331,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
         t2=clock();
 
-        WW=declareAlias(code,WW,'WW__');
+        WW=declareAlias(code,WW,'WW__',false,nowarningsamesize,nowarningever);
         
         if debugConvergence
             declareGet(code,{full([u;d]),full(nu),full(lambda)},'getZNL__');
@@ -339,7 +340,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
         lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if atomicFactorization
-            lu_ww=declareAlias(code,lu_ww,'lu_ww',true);
+            lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
         end
         %declareGet(code,full(WW),'getWW__');
 
@@ -355,7 +356,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             fprintf('(%.2f sec)\n    updated vectores...',etime(clock(),t2));
             t2=clock();
             
-            dZNu_a=declareAlias(code,dZNu_a,'dZNu_a__');		    
+            dZNu_a=declareAlias(code,dZNu_a,'dZNu_a__',false,nowarningsamesize,nowarningever);		    
             dU_a=dZNu_a(1:nU);
             dD_a=dZNu_a(nU+1:nU+nD);
             dZ_a=dZNu_a(1:nZ);
@@ -413,7 +414,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         fprintf('(%.2f sec)\n    add direction...',etime(clock(),t2));
         t2=clock();
         
-        dZNu_s=declareAlias(code,dZNu_s,'dZNu_s__');		    
+        dZNu_s=declareAlias(code,dZNu_s,'dZNu_s__',false,nowarningsamesize,nowarningever);		    
         
         fprintf('(%.2f sec)\n    increment primal...',etime(clock(),t2));
         t2=clock();
@@ -547,7 +548,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
         t2=clock();
 
-        WW=declareAlias(code,WW,'WW__');
+        WW=declareAlias(code,WW,'WW__',false,nowarningsamesize,nowarningever);
         
         if debugConvergence
             declareGet(code,{full([u;d]),full(nu),full(lambda)},'getZNL__');
@@ -556,7 +557,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
         lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if atomicFactorization
-            lu_ww=declareAlias(code,lu_ww,'lu_ww',true);
+            lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
         end
         
         if ~skipAffine
@@ -567,7 +568,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             t2=clock();
 
             dx_a=lu_ww\b_a;
-            dx_a=declareAlias(code,dx_a,'dx_a__');
+            dx_a=declareAlias(code,dx_a,'dx_a__',false,nowarningsamesize,nowarningever);
 
             fprintf('(%.2f sec)\n    updated vectores...',etime(clock(),t2));
             t2=clock();
@@ -624,7 +625,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         t2=clock();
         
         dx_s=lu_ww\b_s;
-        dx_s=declareAlias(code,dx_s,'dx_s__');
+        dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
 
         dU_s=dx_s(1:nU);
         dD_s=dx_s(nU+1:nU+nD);
@@ -743,8 +744,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     end
 
     if ~isempty(szHess_) && ~myisequal(szHess_,size(Hess_))
-        error('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
-              szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
+        warning('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
+                szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
     end
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
