@@ -151,7 +151,7 @@ EXPORT void ipmPD_CSsolver(
 
   printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,nU,nG,nF);
 #if verboseLevel>=3
-  char *header="Iter   cost      |grad|      |eq|    inequal     dual      gap       mu       alphaA    sigma   alphaP     alphaDI    alphaDE     time\n";
+  char *header="Iter   cost      |grad|      |eq|    inequal     dual      gap       mu      alphaA    sigma    alphaP     alphaDI    alphaDE     time\n";
 #endif
   printf3(header);
 #if nF>0
