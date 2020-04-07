@@ -722,7 +722,7 @@ for i=1:length(obj.gets)
                     % error specific to optimization
                     error('some optimization variables do not affect the criteria nor the constraints (look for zeros in gradient) ');
                 else
-                    error('getting non-full variable %s(%d)\n',obj.gets(i).functionName,j);
+                    error('getting non-full variable %s(%d) with size [%s]\n',obj.gets(i).functionName,j,index2str(osize));
                 end
             end
 
