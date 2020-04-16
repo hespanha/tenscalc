@@ -167,6 +167,13 @@ function grad=gradient(obj,var)
                      abs(objs{1}),-1:-1:-length(osize1));
         error('Do not attemp to take derivative of norm1() as it is typically not smooth at optimal value.')
         
+      case 'componentwise'
+        fun=parameters(obj);
+        osize1=size(objs{1});
+        p=1:length(osize1);
+        q=[1:length(osize1),length(osize1)+(1:length(var_size))];
+        grad=tprod(fun{3}(objs{1}),p,grads{1},q);
+
       case 'compose'
         fun=parameters(obj);
         osize1=size(objs{1});

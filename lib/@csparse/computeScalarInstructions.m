@@ -341,6 +341,10 @@ for jj=1:length(ks)
               case 'logdet_lu'
                 [subscripts,instructions]=sparsity_logdet_lu(obj,thisExp);
                 
+              case 'componentwise'
+                funs=getOne(obj.vectorizedOperations,'parameters',thisExp);
+                [subscripts,instructions]=sparsity_componentwise(obj,thisExp,funs);
+                
               case 'compose'
                 functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                            '@(x__)2./x__.^3';
