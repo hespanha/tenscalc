@@ -152,6 +152,16 @@ function writeMatlabInstructions(obj,fid,ks)
             fprintf(fid,'\t\tobj.m%d=spdiags(obj.m%d,0,%d,%d); %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands,osize(1),osize(2),k,index2str(osize));
             
+          case obj.Itypes.I_Mcomponentwise
+            mfun=char(parameters{1});
+            s=regexp(mfun,'^@\(([^)]+)\)(.+)$','tokens');
+            if isempty(s)
+                call=sprintf('%s(obj.m%d)',mfun,operands);
+            else
+                call=regexprep(s{1}{2},['\<',s{1}{1},'\>'],sprintf('obj.m%d',operands));
+            end
+            fprintf(fid,'\t\tobj.m%d=%s; %% op %d: [%s]\n',obj.memoryLocations(k),call,k,index2str(osize));
+          
           case obj.Itypes.I_Mcompose
             functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                        '@(x__)2./x__.^3';
