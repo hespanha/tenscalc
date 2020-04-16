@@ -1,7 +1,9 @@
 function obj=Tzeros(varargin)
 % var = Tzeros([])
-%   or 
+%
 % var = Tzeros([n1,n2,...,na])
+%
+% var = Tzeros(n1,n2,...,na)
 %
 %   Returns a Tcalculus tensor with all entries equal to 0.
 %   The integers n1,n2,...,na specify the dimension of each index of the tensor.
