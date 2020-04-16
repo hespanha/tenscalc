@@ -80,6 +80,8 @@ classdef csparse < handle
         TCindex2CSvectorized=[]; % index in vectorizedOperations of
                                  % entries of TCsymbolicExpressions
         
+        typeInstructions=[]; % recall which type of instructions have been generated to prevent mixing of C and matlab
+        
         %% Information about all the scalar operations needed
         %    each vectorized operation should map to just a few
         %    assembly commands (so that one can reuse instructions
@@ -160,7 +162,6 @@ classdef csparse < handle
     end
     
     methods
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Object creation & display method
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -222,7 +223,7 @@ classdef csparse < handle
                     'variable','zeros','constant','eye','ones',...
                     'subsref','cat','reshape','repmat','full',...
                     'plus','tprod','norm2','norm1','norminf','all','any','min','max','min2','max2',...
-                    'abs','clp','compose',...
+                    'abs','clp','compose','componentwise',...
                     'lu','lu_sym','ldl','ldl_l','ldl_d','chol',...
                     'inv_ldl','logdet_ldl','traceinv_ldl',...
                     'inv_lu','logdet_lu','traceinv_lu',...
@@ -287,6 +288,7 @@ classdef csparse < handle
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Method for save and serialize 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         function obj1=saveobj(obj)
             obj1=struct();
             fs=fields(obj);
@@ -301,9 +303,9 @@ classdef csparse < handle
             %fprintf('saveobj(csparse): %s -> %s\n',class(obj),class(obj1))
         end
         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Declare operation methods
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Declare operation methods
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function declareSet(obj,TCdestination,functionName,helpmsg)
         % declareSet(obj,TCdestination,functionName)
@@ -311,6 +313,10 @@ classdef csparse < handle
         % Declares a 'set' operation to be compiled.  Each 'set'
         % operation loads data from a (full) array into a compiled
         % sparse variable.
+            if ~isa(TCdestination,'Tcalculus')
+                error('declareSet 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCdestination));
+            end
+            
             if isempty(TCdestination)
                 TCdestination
                 error('empty declareSet')
@@ -352,12 +358,12 @@ classdef csparse < handle
         
         function declareGet(obj,TCsource,functionName,helpmsg)
         % declareGet(obj,TCsource,functionName) 
-        %
-        % Declares a 'get' operation to be compiled.  Each 'get'
-        % operation retrives data from a compiled sparse
-        % variables. TCsource may be a cell array for multiple
-        % simultaneous gets.
-            
+        %    
+        %    Declares a 'get' operation to be compiled.  Each 'get'
+        %    operation retrives data from a compiled sparse
+        %    variables. TCsource may be a cell array for multiple
+        %    simultaneous gets.
+
             if ~iscell(TCsource) 
                 TCsource={TCsource};
             end
@@ -367,6 +373,10 @@ classdef csparse < handle
             end
             k=zeros(length(TCsource),1);
             for i=1:length(TCsource)
+                if ~isa(TCsource{i},'Tcalculus')
+                    error('declareGet 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCsource{i}));
+                end
+                
                 k(i)=addTCexpression(obj,TCsource{i});
                 %computeScalarInstructions(obj,k(i));
             end
@@ -396,12 +406,12 @@ classdef csparse < handle
         end
         
         function declareCopy(obj,TCdestination,TCsource,functionName,helpmsg)
-        % declareCopy(obj,TCdestination,TCsource,functionName)
-        %
-        % Declares a 'copy' operation to be compiled.  Each 'copy'
-        % operation assigns data from one compiled sparse variable to
-        % another one.  TCsource and TC destination may be cell
-        % arrays for multiple simultaneous copies.
+        % declareCopy(obj,TCdestination,TCsource,functionName) 
+        %    
+        %    Declares a 'copy' operation to be compiled.  Each 'copy'
+        %    operation assigns data from one compiled sparse variable
+        %    to another one.  TCsource and TC destination may be cell
+        %    arrays for multiple simultaneous copies.
             
             if ~iscell(TCdestination) 
                 TCdestination={TCdestination};
@@ -415,6 +425,13 @@ classdef csparse < handle
 
             % remove 0-size variables
             for i=length(TCsource):-1:1
+                if ~isa(TCdestination{i},'Tcalculus')
+                    error('declareCopy 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCdestination{i}));
+                end
+                if ~isa(TCsource{i},'Tcalculus')
+                    error('declareCopy 3rd argument must of of class Tcalculus, not ''%s''\n',class(TCsource{i}));
+                end
+                
                 if prod(size(TCsource{i}))==0
                     %fprintf('discarding copy of 0-sized variable \n');
                    TCsource(i)=[];
@@ -528,6 +545,10 @@ classdef csparse < handle
                 nowarningever=false;
             end
             
+            if ~isa(TCsource,'Tcalculus')
+                error('declareAlias 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCsource));
+            end
+            
             k=addTCexpression(obj,TCsource,atomic);
             
             if nargout>1
@@ -561,9 +582,11 @@ classdef csparse < handle
         
         function declareSave(obj,TCsource,functionName,filename)
         % declareSave(obj,TCsource,functionName,filename)
-        %   Writes to a file the subscripts of its nonzero elements, and
-        %   declares a 'save' operation to be compiled. Each 'save'
-        %   writes to a file the values of a compiled sparse variables
+        %   
+        %   Writes to a file the subscripts of its nonzero elements,
+        %   and declares a 'save' operation to be compiled. Each
+        %   'save' writes to a file the values of a compiled sparse
+        %   variables
             k=addTCexpression(obj,TCsource);
             % magic=int64(intmax('int64')*rand(1)); 
             magic=int64(etime(clock(),[2000,1,1,0,0,0])*1e9); % ns 2000/1/1
@@ -573,9 +596,9 @@ classdef csparse < handle
         end
         
         function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,helpmsg)
-        %   declarefunction(obj,filename,functionName,defines,inputs,outputs) 
-        % or 
-        %   declarefunction(obj,filename,functionName,defines) 
+        % declarefunction(obj,filename,functionName,defines,inputs,outputs) 
+        % 
+        % declarefunction(obj,filename,functionName,defines) 
         %
         %   Declares a C (first form) or a matlab (second form) 
         %   function that typically calls the functions
@@ -627,12 +650,14 @@ classdef csparse < handle
             end            
         
         end
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Create table with vectorized operations
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Create table with vectorized operations
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
         function k=addTCexpression(obj,TCobj,atomic)
         % k=addTCexpression(obj,TCobj)
+        %   
         %   Parses a tenscalc expression into a sequence of
         %   ''vectorizedOperations'' and adds them to the csparse
         %   object.
@@ -747,6 +772,13 @@ classdef csparse < handle
                 nameMatch=false;
                 pars=op_parameters(TCobj);
                 pars={parameters(TCobj),pars{:}}';
+                parametersMatch=true;
+                
+              case 'componentwise'
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                pars=parameters(TCobj);
+                pars=pars(1:2); % derivatives do not need to match, only need to keep matlab and c functions
                 parametersMatch=true;
                 
               case 'compose'
@@ -978,19 +1010,21 @@ classdef csparse < handle
             
         end
         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Create table with instruction
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Create table with instruction
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function instr=newInstructions(obj,types,parameters,operands,vectorizedOperation,fast)
-        % Creates one or several instructions of the given type, with
-        % the given parameters, operands's intructions, and
-        % corresponding vectorizedOperation.  If a similar intruction
-        % already exists, returns the previous location.
-        %
-        % The input parameter 'type' may be a string or a cell array.
-        % The input parameters 'parameters' and 'operands', must be
-        % cell arrays (one per instruction to be created). 
+        % instr=newInstructions(obj,types,parameters,operands,vectorizedOperation,fast)
+        %   
+        %   Creates one or several instructions of the given type,
+        %   with the given parameters, operands's intructions, and
+        %   corresponding vectorizedOperation.  If a similar
+        %   intruction already exists, returns the previous location.
+        %   
+        %   The input parameter 'type' may be a string or a cell
+        %   array.  The input parameters 'parameters' and 'operands',
+        %   must be cell arrays (one per instruction to be created).
             if nargin<6
                 fast=false;  % appendUnique needed to detect structural symmetries
             end
@@ -1027,12 +1061,15 @@ classdef csparse < handle
         end
 
         function instr=newInstruction(obj,typ,parameters,operands,vectorizedOperation,fast)
-        % Creates a single instruction of the given type, with the given
-        % parameters, operands, and corresponding vectorizedOperation.
-        % If a similar intruction already exists, returns the
-        % previous location. 
-        %
-        % Slightly faster than newInstructions for a single instruction.
+        % instr=newInstruction(obj,typ,parameters,operands,vectorizedOperation,fast)
+        %   
+        %   Creates a single instruction of the given type, with the
+        %   given parameters, operands, and corresponding
+        %   vectorizedOperation.  If a similar intruction already
+        %   exists, returns the previous location.
+        %   
+        %   Slightly faster than newInstructions for a single
+        %   instruction.
             if nargin<6
                 fast=false; % appendUnique needed to detect structural symmetries
             end
@@ -1112,12 +1149,15 @@ classdef csparse < handle
             end
         end
         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Find dependencies
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            function children=childrenOf(obj,parents)
-            % Computes the set of instructions that depend on 'parents' (exclusive)
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Find dependencies
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        function children=childrenOf(obj,parents)
+        % children=childrenOf(obj,parents)
+        %   
+        %   Computes the set of instructions that depend on 'parents'
+        %   (exclusive)
             
             children=obj.dependencyGraph*sparse(parents,ones(size(parents)),ones(size(parents)),size(obj.dependencyGraph,1),1);
             while 1
@@ -1129,9 +1169,12 @@ classdef csparse < handle
                 children=new;
             end
         end
-
+        
         function parents=parentsOf(obj,children)
-            % Computes the set of instructions that the 'children' depend on (inclusive)
+        % parents=parentsOf(obj,children)
+        %    
+        %    Computes the set of instructions that the 'children'
+        %    depend on (inclusive)
             parents=sparse(ones(size(children)),children,ones(size(children)),1,size(obj.dependencyGraph,1));
             while 1
                 new=double((parents+parents*obj.dependencyGraph)>0);
@@ -1143,27 +1186,37 @@ classdef csparse < handle
             parents=parents';
         end
         
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Compile code
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Compile code
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function compile2C(obj,minInstructions4loop,maxInstructionsPerFunction,Cfunction,Hfunction,logFile,folder,profiling)
         % compile2C(obj,minInstructions4loop,maxInstructionsPerFunction,Cfunction,Hfunction,logFile,folder,profiling)
         %
-        % Compiles code to C and appends it to a given file.
+        %   Compiles code to C and appends it to a given file.
         %
         % Inputs:
-        % obj - csparse object
-        % minInstructions4loop - minimum number of similar instructions to
-        %                        be implmented as a for loop (rather than inlined) 
-        % maxInstructionsPerFunction - maximum number of instructions to be
-        %                        included in a single function. Used to avoid
-        %                        very large functions for which the compiler
-        %                        could misbehave.
+        %   obj - csparse object
+        %   
+        %   minInstructions4loop - minimum number of similar
+        %                          instructions to be implmented as a
+        %                          for loop (rather than inlined)
+        %   
+        %   maxInstructionsPerFunction - maximum number of
+        %                                instructions to be included
+        %                                in a single function. Used to
+        %                                avoid very large functions
+        %                                for which the compiler could
+        %                                misbehave.
+        %
         % Cfunction - file where the C code should be written
+        %
         % Hfunction - file where the C function headers should be written (optional)
+        %
         % logFile   - file where statistics information should be written (optional)
+        %
         % folder    - folder where all files will be written (optional)
+        %
         % profiling - when non-zero adds profiling code (optional)
             
             if nargin<8
@@ -1179,6 +1232,14 @@ classdef csparse < handle
                 Hfunction='';
             end
 
+            if isequal(obj.typeInstructions,'matlab')
+                error('csparse object was previously used to generate matlab code');
+            end
+            obj.typeInstructions='C';
+
+            % reset in case code was previously generated;
+            obj.memoryLocations=[];
+            
             fprintf('  computeScalarInstructions...\n');t0=clock;
             checkVariableSets(obj);
             computeScalarInstructions(obj,1:height(obj.vectorizedOperations),folder);
@@ -1206,12 +1267,14 @@ classdef csparse < handle
         function compile2matlab(obj,Mfunction,logFile,classhelp,profiling)
         % compile2matlab(obj,Mfunction,logFile,classhelp,profiling)
         %
-        % Compiles code to Matlab and appends it to a given file
-        % Inputs:
-        % obj - csparse object
-        % Mfunction - file where the M code should be written
-        % logFile   - file where statistics information should be written (optional)
-        % profiling - when non-zero adds profiling code (optional)
+        %    Compiles code to Matlab and appends it to a given file
+        %
+        %    Inputs:
+        %
+        %      obj - csparse object
+        %      Mfunction - file where the M code should be written
+        %      logFile   - file where statistics information should be written (optional)
+        %      profiling - when non-zero adds profiling code (optional)
             if nargin<4
                 profiling=false;
             end
@@ -1219,6 +1282,14 @@ classdef csparse < handle
                 logFile='';
             end
 
+            if isequal(obj.typeInstructions,'C')
+                error('csparse object was previously used to generate C code');
+            end
+            obj.typeInstructions='matlab';
+            
+             % reset in case code was previously generated;
+            obj.memoryLocations=[];
+            
             fprintf('  computeMatlabInstructions... ');t0=clock;
             checkVariableSets(obj);
             computeMatlabInstructions(obj);
@@ -1242,9 +1313,9 @@ classdef csparse < handle
         
         function checkVariableSets(obj)
         % checkVariableSets(obj)
-        %
-        % Makes sure that every variable in the csparse object has
-        % a corresponding set or copy
+        %   
+        %   Makes sure that every variable in the csparse object has a
+        %   corresponding set or copy
             
             variables=[];
             variable_names={};
