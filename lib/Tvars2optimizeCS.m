@@ -199,9 +199,15 @@ function varargout=Tvars2optimizeCS(varargin)
     %% Find indices of sensitivityVariables in x
     isSensitivity=false(length(u),1);
     for i=1:length(sensitivityVariables)
+        if ~strcmp(type(sensitivityVariables{i}),'variable')
+            sensitivityVariables{i}
+            error('all sensitivityVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
+                  i,type(sensitivityVariables{i}));
+        end
         found=false;
         for j=1:length(optimizationVariables)
-            if isequal(sensitivityVariables{i},sensitivityVariables{j})
+            if isequal(sensitivityVariables{i},optimizationVariables{j})
+                fprintf('   sensitivityVariable %s: %d values\n',sensitivityVariables{i}.name,length(whereVariables{j}));
                 isSensitivity(whereVariables{j})=true;
                 found=true;
                 break;
@@ -211,6 +217,7 @@ function varargout=Tvars2optimizeCS(varargin)
             error('sensitivityVariable %s is not an optimizationVariable\n',name(sensitivityVariables{i}));
         end
     end
+    fprintf('      %d sensitivity variables\n',sum(isSensitivity));
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
