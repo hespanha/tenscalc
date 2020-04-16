@@ -87,7 +87,9 @@ function s=str(obj,tprod2mat,maxDepth)
         end
         s=horzcat(s,sprintf(') : [%s]\n',index2str(osize)));
     end
-    s=horzcat(s,sprintf('%% created in %s\n',file_line(obj)));
+    if ~isempty(file_line(obj))
+        s=horzcat(s,sprintf('%% created in %s\n',file_line(obj)));
+    end
 end
 
 function name=varname(TCindex)
