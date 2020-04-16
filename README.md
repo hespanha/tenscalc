@@ -251,7 +251,7 @@ Additional technical information can be found at
 
 * While most *Matlab* scripts are agnostic to the underlying operating
   systems (OSs), the use of `mex` functions depends heavily on the
-  operating systems.
+  operating system.
 
   Our goal is to build a toolbox that works across multiple OSs; at
   least under OSX, linux, and Microsoft Windows. However, most of our
