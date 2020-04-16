@@ -143,7 +143,8 @@ function outStr=str(obj,verboseLevel)
     if verboseLevel>0
         for i=1:instructionsTableHeight()
             [type,parameters,operands]=getInstruction(int64(i));
-            if ~isempty(parameters)
+            
+            if strcmp(obj.typeInstructions,'matlab') && ~isempty(parameters)
                 parameters=getArrayFromByteStream(uint8(parameters));
                 if ~isnumeric(parameters)
                     parameters=nan;
