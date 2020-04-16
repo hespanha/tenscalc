@@ -100,7 +100,7 @@ inputs
       int64 minInstructions4Loop [1]
 
 outputs
-      int64 countFlops[16]
+      int64 countFlops[17]
 
 MEXfunction writeAsmInstructionsC
 Cfunction writeAsmInstructionsC
@@ -801,7 +801,8 @@ EXPORT int writeCinstructionsC(/* inputs */
 			       int64_t *indices,              // indices of instructions to write
 			       int64_t *memoryLocations,      // memory locations for
 			                                      // all instructions
-			       int64_t *minInstructions4Loop, // minimum number of instructions implemented as a loop
+			       int64_t *minInstructions4Loop, // minimum number of instructions
+			                                      // implemented as a loop
 			       
                                /* outputs */
                                int64_t *countFlops,          // array with instruction counts
@@ -834,6 +835,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 #define countFlops_ntrig    countFlops[P_ntrig-1]
 #define countFlops_nlog     countFlops[P_nlog-1]
 #define countFlops_nexp     countFlops[P_nexp-1]
+#define countFlops_ncpwise  countFlops[P_cpwise-1]
 #define countFlops_numfpack countFlops[P_numfpack-1]
 
 /*** Defines to help construct loops of instructions ***/
@@ -863,7 +865,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 #define NEXT_RESULT     if (deltaIndices==1)     fprintf(fid,",r++");      else if (deltaIndices==-1)     fprintf(fid,",r--");      else if (deltaIndices!=0)     fprintf(fid,",r+=(%"PRId64")",deltaIndices);
 #define NEXT_OPERAND(i) if (deltaOperands[i]==1) fprintf(fid,",op%d++",i); else if (deltaOperands[i]==-1) fprintf(fid,",op%d--",i); else if (deltaOperands[i]!=0) fprintf(fid,",op%d+=(%"PRId64")",i,deltaOperands[i])
 
-#if P_nCountFlops != 16
+#if P_nCountFlops != 17
 #error "update outputs field of writeCinstructionsC() (line 102)"
 #endif
  
@@ -1333,32 +1335,47 @@ EXPORT int writeCinstructionsC(/* inputs */
 	nOperands-=2;
       }
       break;
+
+    case I_componentwise:
+      countFlops_ncpwise++;
+      
+      fprintf(fid,"\tm[%"PRId64"]=",memoryLocations[indices[0]-1]-1);
+      while (nParameters-- > 0) {
+	if (parameters[0]) 
+	  fprintf(fid,"%c",(char)parameters[0]);
+	else
+	  fprintf(fid,"m[%"PRId64"]",memoryLocations[operands[0]-1]-1);
+	parameters++;
+      }
+      fprintf(fid,";//componentwise(%"PRId64")\n",indices[0]);
+      break;
+      
     case I_round:
-      countFlops_nround  += nOperands;
+      countFlops_nround++;
       
       fprintf(fid,"\tm[%"PRId64"]=round(m[%"PRId64"]);//round(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_ceil:
-      countFlops_nceil  += nOperands;
+      countFlops_nceil++;
       
       fprintf(fid,"\tm[%"PRId64"]=ceil(m[%"PRId64"]);//ceil(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_floor:
-      countFlops_nfloor  += nOperands;
+      countFlops_nfloor++;
       
       fprintf(fid,"\tm[%"PRId64"]=floor(m[%"PRId64"]);//floor(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_abs:
-      countFlops_nabs  += nOperands;
+      countFlops_nabs++;
       
       fprintf(fid,"\tm[%"PRId64"]=fabs(m[%"PRId64"]);//abs(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_sign:
-      countFlops_nsign  += nOperands;
+      countFlops_nsign++;
       
       fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>=0)?1:-1;//sign(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
