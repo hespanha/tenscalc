@@ -124,6 +124,9 @@ instructionTypes={
                            %   operand = a1;
     'I_zero'               % computes 0
                            %   operand = a1;
+    'I_componentwise'      % computes scalar function f(a1)
+                           %   parameters = characters in string for function call, each 0 should be replaced by a1
+                           %   operand = a1
     
 %% Atomic C instructions;
     'I_luS2A'              % performs an atomic LU factorization of a
@@ -187,6 +190,7 @@ instructionTypes={
     'I_Mmldivide_d'
     'I_Mrdivide'
     'I_Mcompose'
+    'I_Mcomponentwise'
 };
 
 % 1-based values
@@ -209,10 +213,14 @@ profileTypes={
     'P_ntrig'
     'P_nlog'
     'P_nexp'
+    'P_cpwise'
     'P_numfpack';
     };
 
 % 1-based values
 m=mat2cell(int32(1:length(profileTypes)),1,ones(1,length(profileTypes)));
 pTypes=cell2struct(m,profileTypes,2);
+
+
+end
 
