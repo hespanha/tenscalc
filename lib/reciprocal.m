@@ -1,7 +1,8 @@
 function y=reciprocal(x)
-% y=reciprocal(x)
-%
-% returns the element-wise reciprocal of x
+% reciprocal - Reciprocal of tensor entries.
+%   
+%    reciprocal(X) returns the element-wise reciprocal of X, which is
+%    the same as 1./X
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -22,4 +23,7 @@ function y=reciprocal(x)
 
 y=1./x;
 
+
+
+end
 

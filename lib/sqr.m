@@ -1,7 +1,7 @@
 function y=sqr(x)
-% y=sqr(x)
+% sqr - Square of tensor entries
 %
-% returns the element-wise square of x
+%    sqr(X) returns the element-wise square of X, i.e., X.^2 or X.*X
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -22,4 +22,7 @@ function y=sqr(x)
 
 y=x.^2;
 
+
+
+end
 
