@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Basics &#8212; Tenscalc Users&#39; Guide</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="_static/sidebar.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Operations on symbolic expressions" href="operations.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="operations.html" title="Operations on symbolic expressions"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="basics">
+<h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
+<p>TensCalc computations and optimizations are defined using symbolic
+expressions supported by the class <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>, named after <em>tensor
+calculus</em>.</p>
+<div class="section" id="what-are-tensors">
+<span id="tensors-section"></span><h2>What are Tensors?<a class="headerlink" href="#what-are-tensors" title="Permalink to this headline">¶</a></h2>
+<p>In TensCalc, tensors are multi-dimensional real-valued arrays over
+which one performs numerical operations. The <a class="reference internal" href="#size" title="size"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">size()</span></code></a> of a tensor is a
+vector that specifies how many entries the tensor has in each
+dimension. The following table shows common tensors and their sizes:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Common tensor types</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>name</p></th>
+<th class="head"><p>number of dimensions</p></th>
+<th class="head"><p>TensCalc’s size</p></th>
+<th class="head"><p>mathematical set</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>scalar</p></td>
+<td><p>0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbb{R}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p><span class="math notranslate nohighlight">\(n\)</span>-vector</p></td>
+<td><p>1</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n]</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbb{R^n}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(n\)</span>-by-<span class="math notranslate nohighlight">\(m\)</span> matrix</p></td>
+<td><p>2</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n,m]</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbb{R^{n\times m}}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>tensor with <span class="math notranslate nohighlight">\(d\)</span> of dimensions</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">d</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nd]</span></code></p></td>
+<td><p><span class="math notranslate nohighlight">\(\mathbb{R^{n_1\times n_2\times \cdots\times n_d}}\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attention!</strong></p>
+<p>It is common (at least within MATLAB©) to make no distinction between
+a scalar, a 1-vector, and a 1-by-1 matrix. In MATLAB© it is also
+common not to distinguish between an <span class="math notranslate nohighlight">\(n\)</span>-vector and an <span class="math notranslate nohighlight">\(n\)</span>-by-1 matrix. However, TensCalc does make a distinction between all
+these and does not allow, e.g., adding a 2-vector with a 2-by-1
+matrix, without an explicit <a class="reference internal" href="#reshape" title="reshape"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">reshape()</span></code></a> operation.</p>
+<p>TensCalc is slightly more permissive with operations between scalars
+and tensors of larger sizes in that it does allow summations between a
+scalar and a tensor of any size, with the understanding that the
+scalar is added to <em>every entry</em> of the tensor, which is consistent
+with MATLAB©’s syntax.</p>
+<p>See <a class="reference internal" href="#size-conversion-section"><span class="std std-ref">Using MATLAB© matrices in TensCalc symbolic expressions</span></a> regarding the rules for automatic
+conversion of sizes between MATLAB© matrices and TensCalc tensors.</p>
+</div>
+<div class="section" id="building-tcalculus-symbolic-expressions">
+<h2>Building <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expressions<a class="headerlink" href="#building-tcalculus-symbolic-expressions" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc symbolic expressions are supported by the class</p>
+<dl class="class">
+<dt id="Tcalculus">
+<em class="property">class </em><code class="sig-name descname">Tcalculus</code><a class="headerlink" href="#Tcalculus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>but you never really need to call this class directly. Instead,
+symbolic expressions are built like regular MATLAB© expressions using
+many of the usual MATLAB© operators and functions, which have been
+overloaded to operate on TensCalc symbolic expressions.</p>
+<div class="section" id="symbolic-variables">
+<span id="tvariable-section"></span><h3>Symbolic variables<a class="headerlink" href="#symbolic-variables" title="Permalink to this headline">¶</a></h3>
+<p>Most symbolic expressions start with symbolic variables that represent
+tensors that will only be assigned numeric values at code-execution
+time. Symbolic variables are created using</p>
+<dl class="function">
+<dt>
+<code class="sig-name descname">Tvariable name size</code></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>character string</em>) – Name of the variable to be created</p></li>
+<li><p><strong>size</strong> (<em>vector of integers</em>) – Size of the tensor as a vector of integers.
+When omitted, the empty size <code class="docutils literal notranslate"><span class="pre">[]</span></code> is assumed, which
+corresponds to a scalar.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The variable is created in the caller’s workspace:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">clear</span> <span class="nb">all</span>
+<span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">a</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">];</span>
+<span class="o">&gt;&gt;</span> <span class="n">whos</span>
+   <span class="n">Name</span>      <span class="n">Size</span>            <span class="n">Bytes</span>  <span class="n">Class</span>        <span class="n">Attributes</span>
+   <span class="n">a</span>         <span class="mi">3</span><span class="n">x4</span>                <span class="mi">39</span>  <span class="n">Tcalculus</span>
+   <span class="n">ans</span>       <span class="mi">3</span><span class="n">x4</span>                <span class="mi">39</span>  <span class="n">Tcalculus</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> can also be used as a regular MATLAB© function using the syntax:</p>
+<dl class="function">
+<dt id="Tvariable">
+<code class="sig-name descname">Tvariable</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#Tvariable" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expression holding the symbolic
+variable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>In this case, <a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> returns a symbolic expression that contains
+the variable. Note that the name of the symbolic variable is still
+given by <code class="docutils literal notranslate"><span class="pre">name</span></code> regardless of the name of the variable that you use
+to store it in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">clear</span> <span class="nb">all</span>
+<span class="o">&gt;&gt;</span> <span class="n">y</span><span class="o">=</span><span class="n">Tvariable</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]);</span>
+<span class="o">&gt;&gt;</span> <span class="n">whos</span>
+   <span class="n">Name</span>      <span class="n">Size</span>            <span class="n">Bytes</span>  <span class="n">Class</span>        <span class="n">Attributes</span>
+   <span class="n">y</span>         <span class="mi">3</span><span class="n">x4</span>                <span class="mi">39</span>  <span class="n">Tcalculus</span>
+<span class="o">&gt;&gt;</span> <span class="n">disp</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="n">variable1</span>   <span class="o">=</span> <span class="n">variable</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="using-matlab-matrices-in-tenscalc-symbolic-expressions">
+<span id="size-conversion-section"></span><h3>Using MATLAB© matrices in TensCalc symbolic expressions<a class="headerlink" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions" title="Permalink to this headline">¶</a></h3>
+<p>Often symbolic expressions involve regular MATLAB© matrices, as in adding a symbolic variable created with <a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> with a regular MATLAB© matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">a</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="o">&gt;&gt;</span> <span class="n">b</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">;</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The following rules are used to convert MATLAB© matrices to TensCalc symbolic expressions. In essence, the conversion is completely transparent <em>unless the matrix is 1-by-1 or n-by-1.</em></p>
+<span id="size-conversion-table"></span><table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>MATLAB© variable</p></th>
+<th class="head"><p>MATLAB©’s size</p></th>
+<th class="head"><p>TensCalc variable</p></th>
+<th class="head"><p>TensCalc’s size</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1-by-1 matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[1,1]</span></code></p></td>
+<td><p>scalar</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">n</span></code>-by-1 column matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n,1]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n</span></code>-vector</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>1-by-<code class="docutils literal notranslate"><span class="pre">n</span></code> row matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[1,n]</span></code></p></td>
+<td><p>1-by-<code class="docutils literal notranslate"><span class="pre">n</span></code> tensor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[1,n]</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">m</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n</span></code> matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[m,n]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">m</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n</span></code> tensor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[m,n]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">n1</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n2</span></code>- … -by-<code class="docutils literal notranslate"><span class="pre">nd</span></code> matrix</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nd]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">n1</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n2</span></code>- … -by-<code class="docutils literal notranslate"><span class="pre">nd</span></code> tensor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nd]</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p>TensCalc also provides a few functions that can be used to directly
+create symbolic tensors that can be useful when either the rules above
+do not have the desired effect (e.g., in the somewhat unlikely case
+wants to create a <code class="docutils literal notranslate"><span class="pre">1-by-1</span></code> tensor, rather than a scalar) or when it
+is more efficient to directly create the symbolic tensor.</p>
+<table class="colwidths-given docutils align-left" id="id3">
+<caption><span class="caption-text">Functions to create (constant) tensors</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 36%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="Tzeros">
+<code class="sig-name descname">Tzeros</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tzeros" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">Tzeros</code><span class="sig-paren">(</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns a tensor with all entries equal to 0. The tensor size
+can be provided as a single vector with the number of entries
+in all directions, or as multiple input parameters, one per
+dimension.</p></td>
+<td><p>This function can be used interchangeably with the regular
+MATLAB© function <code class="docutils literal notranslate"><span class="pre">zeros</span></code>, as long as the the size conversion
+rules in <a class="reference internal" href="#size-conversion-table"><span class="std std-ref">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span></a> are appropriate.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="Tones">
+<code class="sig-name descname">Tones</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tones" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">Tones</code><span class="sig-paren">(</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns a tensor with all entries equal to 1. The tensor size
+is specified as in <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a>.</p></td>
+<td><p>This function can be used interchangeably with the regular
+MATLAB© function <code class="docutils literal notranslate"><span class="pre">ones</span></code>, as long as the the size conversion
+rules in <a class="reference internal" href="#size-conversion-table"><span class="std std-ref">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span></a> are appropriate.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="Teye">
+<code class="sig-name descname">Teye</code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nk</em>, <em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nk</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Teye" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">Teye</code><span class="sig-paren">(</span><em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nk</em>, <em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nk</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns an “identity” tensor with all entries equal to zero,
+except for the entries with the indice 1 equal to the indice
+k+1, the indice 2 equal to the indice k+2, …, as in</p>
+<p><code class="docutils literal notranslate"><span class="pre">(i1,i2,...,ik,i1,i2,...,ik)</span></code></p>
+<p>These entries are all equal to 1.</p>
+</td>
+<td><p>For <code class="docutils literal notranslate"><span class="pre">k=1</span></code>, this function can be used interchangeably with the
+regular MATLAB© function <code class="docutils literal notranslate"><span class="pre">eye</span></code>, but is convenient to
+generate “identity” tensors with a larger number of dimensions.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="Tconstant">
+<code class="sig-name descname">Tconstant</code><span class="sig-paren">(</span><em class="sig-param">mat</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#Tconstant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns a tensor with entries given by the matrix <code class="docutils literal notranslate"><span class="pre">mat</span></code> and
+size specified by <code class="docutils literal notranslate"><span class="pre">size</span></code> as in <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a>.</p></td>
+<td><p>This function is typically used to override the size conversion
+rules in <a class="reference internal" href="#size-conversion-table"><span class="std std-ref">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attention:</strong></p>
+<p>When called with a single argument <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a>, <a class="reference internal" href="#Tones" title="Tones"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tones()</span></code></a>, and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a>
+differ from their MATLAB© counterparts: <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a> and <a class="reference internal" href="#Tones" title="Tones"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tones()</span></code></a> return
+vectors (i.e., tensors with 1 dimension), rather than square matrices,
+and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a> generates an error since it has no counter-part for
+vectors.</p>
+</div>
+</div>
+<div class="section" id="accessing-information-about-the-size-of-symbolic-variables">
+<h2>Accessing information about the size of symbolic variables<a class="headerlink" href="#accessing-information-about-the-size-of-symbolic-variables" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left" id="id4">
+<caption><span class="caption-text">Functions to access information about symbolic expressions</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 43%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="size">
+<code class="sig-name descname">size</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">[n1,n2,...,nd]=size(X)</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">size</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Size of a tensor</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="ndims">
+<code class="sig-name descname">ndims</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ndims" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Number of dimensions in a tensor</p></td>
+<td><p>Similar syntax to MATLAB©.  Note that a scalar (which has empty
+<code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 0 dimensions.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="numel">
+<code class="sig-name descname">numel</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#numel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Number of elements in a tensor</p></td>
+<td><p>Similar syntax to MATLAB©.  Note that a scalar (which has empty
+<code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 1 elements.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="length">
+<code class="sig-name descname">length</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Length of a tensor</p></td>
+<td><p>Similar syntax to MATLAB©.  Note that a scalar (which has empty
+<code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 1 elements.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="isempty">
+<code class="sig-name descname">isempty</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#isempty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>True for an empty tensor</p></td>
+<td><p>Similar syntax to MATLAB©.  Note that a scalar (which has empty
+<code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 1 elements so it is never empty.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="indexing-and-resizing-symbolic-variables">
+<h2>Indexing and resizing symbolic variables<a class="headerlink" href="#indexing-and-resizing-symbolic-variables" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc uses the same syntax as MATLAB© to index tensors:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">X(i,j,k,...)</span></code> returns a subtensor formed by the elements of <code class="docutils literal notranslate"><span class="pre">X</span></code>
+with subscripts vectors <code class="docutils literal notranslate"><span class="pre">i,j,k,...</span></code></p>
+<p>The resulting tensor has the same number of dimensions as <code class="docutils literal notranslate"><span class="pre">X</span></code>,
+with lengths along each dimension given by <code class="docutils literal notranslate"><span class="pre">length(i),</span> <span class="pre">length(j),</span>
+<span class="pre">length(k),...</span></code></p>
+</li>
+<li><p>A colon <code class="docutils literal notranslate"><span class="pre">:</span></code> can be used as a subscript to indicate all subscripts
+on that particular dimension.</p></li>
+<li><p>The keyword <code class="docutils literal notranslate"><span class="pre">end</span></code> can be used within an indexing expression to
+denote the last index. Specifically, <code class="docutils literal notranslate"><span class="pre">end</span> <span class="pre">=</span> <span class="pre">size(X,k)</span></code> when used
+as part of the <code class="docutils literal notranslate"><span class="pre">k</span></code>th index.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subsref(X,S)</span></code> with a subscript reference structure <code class="docutils literal notranslate"><span class="pre">S</span></code> behaves
+as in regular MATLAB©, with he caveat that entries of the tensor
+must always be indexed using subscripts the type <code class="docutils literal notranslate"><span class="pre">()</span></code>.  However,
+this does not preclude the construction of cells of <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>
+objects.</p></li>
+</ul>
+<table class="colwidths-given docutils align-left" id="id5">
+<caption><span class="caption-text">Functions reshape and resize symbolic variables</span><a class="headerlink" href="#id5" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="reshape">
+<code class="sig-name descname">reshape</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#reshape" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">reshape</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Reshape array</p></td>
+<td><p>Similar syntax to MATLAB©, except that it does not support using
+<code class="docutils literal notranslate"><span class="pre">[]</span></code> as one of the dimensions.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="repmat">
+<code class="sig-name descname">repmat</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">size</em><span class="sig-paren">)</span><a class="headerlink" href="#repmat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">repmat</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">n1</em>, <em class="sig-param">...</em>, <em class="sig-param">nd</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Replicate and tile tensor</p></td>
+<td><p>Similar syntax to MATLAB©, with the understanding that the
+number of dimensions of <code class="docutils literal notranslate"><span class="pre">X</span></code> must be strictly preserved. Often
+<a class="reference internal" href="#repmat" title="repmat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">repmat()</span></code></a> needs to be combined with <a class="reference internal" href="#reshape" title="reshape"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">reshape()</span></code></a> to obtain the
+desired effect. For example to replicate twice a 3-vector <code class="docutils literal notranslate"><span class="pre">X</span></code>
+to create a 3-by-2 matrix by placing the copies of <code class="docutils literal notranslate"><span class="pre">X</span></code> side
+by side, one needs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Y</span><span class="o">=</span><span class="n">repmat</span><span class="p">(</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>or, to create a 2-by-3 matrix by placing the copies of <code class="docutils literal notranslate"><span class="pre">X</span></code>
+one on top of the other, one needs:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Y</span><span class="o">=</span><span class="n">repmat</span><span class="p">(</span><span class="n">reshape</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="cat">
+<code class="sig-name descname">cat</code><span class="sig-paren">(</span><em class="sig-param">dim</em>, <em class="sig-param">A</em>, <em class="sig-param">B</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Concatenate tensors along the dimension <code class="docutils literal notranslate"><span class="pre">dim</span></code></p></td>
+<td><p>Similar syntax to MATLAB©, with the understanding that the
+number of dimensions of the input tensors <code class="docutils literal notranslate"><span class="pre">A,B,...</span></code> must
+match for all but dimensions but <code class="docutils literal notranslate"><span class="pre">dim</span></code>. TensCalc will try
+to add singleton dimensions to make <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a> succeed as best as it
+can. For example in the following code, the scalar variable
+<code class="docutils literal notranslate"><span class="pre">a</span></code> with size <code class="docutils literal notranslate"><span class="pre">[]</span></code> is augmented to the size <code class="docutils literal notranslate"><span class="pre">[1,1]</span></code> so
+that concatenation to a 2-by-3 matrix is possible:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">a</span> <span class="p">[];</span>
+<span class="o">&gt;&gt;</span> <span class="n">b</span><span class="o">=</span><span class="p">[</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">;</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">,</span><span class="n">a</span><span class="p">];</span>
+<span class="o">&gt;&gt;</span> <span class="n">size</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+<span class="n">ans</span> <span class="o">=</span>
+    <span class="mi">2</span>     <span class="mi">3</span>
+</pre></div>
+</div>
+<p>and in the following code, the vector variable <code class="docutils literal notranslate"><span class="pre">b</span></code> with size
+<code class="docutils literal notranslate"><span class="pre">[3]</span></code> is augmented to the size <code class="docutils literal notranslate"><span class="pre">[3,1]</span></code> so that
+concatenation to a 3-by-2 matrix is possible:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">b</span> <span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+<span class="o">&gt;&gt;</span> <span class="n">c</span><span class="o">=</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">b</span><span class="p">];</span>
+<span class="o">&gt;&gt;</span> <span class="n">size</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="n">ans</span> <span class="o">=</span>
+    <span class="mi">3</span>     <span class="mi">2</span>
+</pre></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="vertcat">
+<code class="sig-name descname">vertcat</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">B</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#vertcat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Concatenate tensors along the 1st dimension, which is equivalent to
+<code class="docutils literal notranslate"><span class="pre">cat(1,A,B,...)`</span> <span class="pre">and</span> <span class="pre">also</span> <span class="pre">to</span> <span class="pre">``[A;B;...]</span></code></p></td>
+<td><p>Similar syntax to MATLAB©, with the same caveats as <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="horzcat">
+<code class="sig-name descname">horzcat</code><span class="sig-paren">(</span><em class="sig-param">dim</em>, <em class="sig-param">A</em>, <em class="sig-param">B</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#horzcat" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Concatenate tensors along the 2nd dimension, which is equivalent to
+<code class="docutils literal notranslate"><span class="pre">cat(2,A,B,...)</span></code> and also to <code class="docutils literal notranslate"><span class="pre">[A,B,...]</span></code></p></td>
+<td><p>Similar syntax to MATLAB©, with the same caveats as <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Attention!</strong></p>
+<p>Unlike MATLAB©, TensCalc does allow for subscripted assignments, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="mi">5</span>
+</pre></div>
+</div>
+<p>This functionality needs to be achieved with the concatenation
+operations <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>, <a class="reference internal" href="#vertcat" title="vertcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">vertcat()</span></code></a>, <a class="reference internal" href="#horzcat" title="horzcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">horzcat()</span></code></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Basics</a><ul>
+<li><a class="reference internal" href="#what-are-tensors">What are Tensors?</a></li>
+<li><a class="reference internal" href="#building-tcalculus-symbolic-expressions">Building <code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code> symbolic expressions</a><ul>
+<li><a class="reference internal" href="#symbolic-variables">Symbolic variables</a></li>
+<li><a class="reference internal" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions">Using MATLAB© matrices in TensCalc symbolic expressions</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#accessing-information-about-the-size-of-symbolic-variables">Accessing information about the size of symbolic variables</a></li>
+<li><a class="reference internal" href="#indexing-and-resizing-symbolic-variables">Indexing and resizing symbolic variables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="operations.html"
+                        title="next chapter">Operations on symbolic expressions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/basics.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="operations.html" title="Operations on symbolic expressions"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright © 2020, Joao Pedro Hespanha.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>

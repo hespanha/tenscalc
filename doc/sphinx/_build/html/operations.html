@@ -1,0 +1,981 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Operations on symbolic expressions &#8212; Tenscalc Users&#39; Guide</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script src="_static/sidebar.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code generation for computations" href="computation.html" />
+    <link rel="prev" title="Basics" href="basics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="computation.html" title="Code generation for computations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="Basics"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="operations-on-symbolic-expressions">
+<h1>Operations on symbolic expressions<a class="headerlink" href="#operations-on-symbolic-expressions" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="arithmetic-operations">
+<h2>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc supports most of the basic arithmetic operations in
+MATLAB©, in most cases using the same or a very similar syntax.</p>
+<table class="colwidths-given docutils align-left" id="id1">
+<caption><span class="caption-text">Basic arithmetic operations</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 40%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X + Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="plus">
+<code class="sig-name descname">plus</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#plus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry addition of tensors of the same size or of a
+scalar with a tensor of arbitrary size.</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">plus()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X - Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="minus">
+<code class="sig-name descname">minus</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#minus" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry subtraction of tensors of the same size or
+of a scalar with a tensor of arbitrary size.</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">minus()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X .* Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="times">
+<code class="sig-name descname">times</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry multiplication of tensors of the same size or
+of a scalar with a tensor of arbitrary size.</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">times()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X * Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mtimes">
+<code class="sig-name descname">mtimes</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#mtimes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Matrix multiplication of tensors that adapts to the size of the
+operands as follows:</p>
+<ul class="simple">
+<li><p>regular matrix multiplication when <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code> are both
+matrices (tensors with 2 dimensions) with
+<code class="docutils literal notranslate"><span class="pre">size(X,2)==size(Y,1)</span></code></p></li>
+<li><p>matrix by column-vector multiplication when <code class="docutils literal notranslate"><span class="pre">X</span></code> is a matrix
+(tensor with 2 dimensions) and <code class="docutils literal notranslate"><span class="pre">Y</span></code> a vector (tensor with 1
+dimension) with <code class="docutils literal notranslate"><span class="pre">size(X,2)==size(Y,1)</span></code></p></li>
+<li><p>row vector by matrix multiplication when <code class="docutils literal notranslate"><span class="pre">X</span></code> is a vector
+(tensor with 1 dimension) and <code class="docutils literal notranslate"><span class="pre">Y</span></code> a matrix (tensors with 2
+dimensions) with <code class="docutils literal notranslate"><span class="pre">size(X,1)==size(Y,1)</span></code></p></li>
+<li><p>inner product when <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code> are both vectors (tensors
+with 1 dimension) with <code class="docutils literal notranslate"><span class="pre">size(X,1)==size(Y,1)</span></code></p></li>
+<li><p>entry-by-entry multiplication with either <code class="docutils literal notranslate"><span class="pre">X</span></code> or <code class="docutils literal notranslate"><span class="pre">Y</span></code>
+are scalars (tensor with 0 dimensions).</p></li>
+</ul>
+</td>
+<td><p>Depending on the sizes of the parameters, this operation may
+behave quite differently from MATLAB©’s matrix multiplication
+<code class="docutils literal notranslate"><span class="pre">mtimes()</span></code>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X ./ Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="rdivide">
+<code class="sig-name descname">rdivide</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#rdivide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry right division of tensors of the same size
+or of a scalar with a tensor of arbitrary size.</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">rdivide()</span></code>, expansion upon
+singleton dimensions is not performed automatically to match
+matrix sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X .\ Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ldivide">
+<code class="sig-name descname">ldivide</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#ldivide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry left division of tensors of the same size or
+of a scalar with a tensor of arbitrary size.</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">ldivide()</span></code>, expansion upon
+singleton dimensions is not performed automatically to match
+matrix sizes.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="sum">
+<code class="sig-name descname">sum</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">vecdim</em><span class="sig-paren">)</span><a class="headerlink" href="#sum" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">sum</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Sum of entries of the tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> along the directions
+specified by the vector <code class="docutils literal notranslate"><span class="pre">vecdim</span></code>, or over all
+dimensions. Resulting in a vector with the same size as <code class="docutils literal notranslate"><span class="pre">X</span></code>,
+but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="max">
+<code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">vecdim</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Maximum entry of the tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> along its 1st dimension (1st
+form), the dimensions specified in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> (2nd form), or
+along all dimensions (3rd form).</p></td>
+<td><p>Similar syntax to MATLAB©, with the exception that it does not
+return a second output with indices.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>For two tensors X and Y with the same size, returns a tensor M
+also with the same size, but with entries taken from X or Y,
+depending on which entry is largest. If X is a scalar, then M
+has the same size as Y and its entries are the largest of the
+corresponding entry of Y or the (only) entry of X. Similarly if
+Y is a scalar.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="min">
+<code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">vecdim</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Minimum entry of the tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> along its 1st dimension (1st
+form), the dimensions specified in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> (2nd form), or
+along all dimensions (3rd form).</p></td>
+<td><p>Similar syntax to MATLAB©, with the exception that it does not
+return a second output with indices.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>For two tensors X and Y with the same size, returns a tensor M
+also with the same size, but with entries taken from X or Y,
+depending on which entry is smallest. If X is a scalar, then M
+has the same size as Y and its entries are the smallest of the
+corresponding entry of Y or the (only) entry of X. Similarly if
+Y is a scalar.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="full">
+<code class="sig-name descname">full</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#full" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Converts sparse tensor to full in the sense that subsequent
+computations will not take advantage of the information that
+some entries are known to be zero.</p></td>
+<td><p>The main use of this function is to force the results of a
+computation to be returned in a linear memory structure with
+all the zeros filled in appropriately. This is generally
+required to return <code class="docutils literal notranslate"><span class="pre">n</span></code>-dimensional tensors to MATLAB© with
+<code class="docutils literal notranslate"><span class="pre">n&gt;2</span></code>, since MATLAB© does not support sparse arrays with
+more than 2 dimensions.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="tprod">
+<code class="sig-name descname">tprod</code><span class="sig-paren">(</span><em class="sig-param">A1</em>, <em class="sig-param">index1</em>, <em class="sig-param">A2</em>, <em class="sig-param">index2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#tprod" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Tensor product</p></td>
+<td><p>See <a class="reference internal" href="#tprod-section"><span class="std std-ref">Tensor product</span></a></p></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="tensor-product">
+<span id="tprod-section"></span><h3>Tensor product<a class="headerlink" href="#tensor-product" title="Permalink to this headline">¶</a></h3>
+<p>The function <a class="reference internal" href="#tprod" title="tprod"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">tprod()</span></code></a> provides a very general and flexible
+multiplication operation between tensors, which includes the usual
+matrix multiplication <code class="docutils literal notranslate"><span class="pre">*</span></code> as a special case, the summation over rows
+and/or columns <a class="reference internal" href="#sum" title="sum"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">sum()</span></code></a>, computing the trace of a matrix <a class="reference internal" href="#trace" title="trace"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">trace()</span></code></a>,
+extracting a matrix main diagonal <a class="reference internal" href="#diag" title="diag"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">diag()</span></code></a>, computing the Euclidean norm
+of a vectors <a class="reference internal" href="#norm" title="norm"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norm()</span></code></a>; as well as generalizations of all these
+operations to <code class="docutils literal notranslate"><span class="pre">n</span></code>-dimensional tensors:</p>
+<dl class="function">
+<dt>
+<code class="sig-name descname">tprod</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">a</em>, <em class="sig-param">B</em>, <em class="sig-param">b</em>, <em class="sig-param">C</em>, <em class="sig-param">c</em>, <em class="sig-param">...</em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>A</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 1st tensor</p></li>
+<li><p><strong>a</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">A</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(A)</span></code></p></li>
+<li><p><strong>B</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 2nd tensor</p></li>
+<li><p><strong>b</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">B</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(B)</span></code></p></li>
+<li><p><strong>C</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 3rd tensor</p></li>
+<li><p><strong>c</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">C</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(C)</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><a class="reference internal" href="#tprod" title="tprod"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">tprod()</span></code></a> returns a tensor <code class="docutils literal notranslate"><span class="pre">Y</span></code> obtained using a summation-product operation of the form</p>
+<div class="math notranslate nohighlight">
+\[Y(y_1, y_2, ...) = \sum_{s_1} \sum_{s_2} \cdots A(a_1,a_2,...) B(b_1,b_2,...) C(c_1,c_2,...) \cdots\]</div>
+<p>with the matching between the result tensor indices <span class="math notranslate nohighlight">\(y_1,
+y_2,...\)</span>, the summation indices <span class="math notranslate nohighlight">\(s_1, s_2,...\)</span>, and the input
+tensors indices <span class="math notranslate nohighlight">\(a_1, a_2,..., b_1,b_2,...,c_1,c_2,...\)</span> is
+determines as follows:</p>
+<ul>
+<li><p>A negative values of <code class="docutils literal notranslate"><span class="pre">-1</span></code> in one or several of the input tensor
+indices <span class="math notranslate nohighlight">\(a_1, a_2,..., b_1,b_2,...,c_1,c_2,...\)</span> means those
+particular indices should be summed under the 1st summation
+operation.</p></li>
+<li><p>A negative values of <code class="docutils literal notranslate"><span class="pre">-2</span></code> in one or several of the input tensor
+indices <span class="math notranslate nohighlight">\(a_1, a_2,..., b_1,b_2,...,c_1,c_2,...\)</span> means those
+particular indices should be summed under the 2nd summation
+operation.</p>
+<p>…</p>
+</li>
+<li><p>The absence of a negative index means that there are no summations.</p></li>
+<li><p>A positive value of <code class="docutils literal notranslate"><span class="pre">+1</span></code> in one or several of the input tensor
+indices means those indices should match the 1st index <span class="math notranslate nohighlight">\(y_1\)</span>
+of the result tensor <span class="math notranslate nohighlight">\(Y\)</span>.</p></li>
+<li><p>A positive value of <code class="docutils literal notranslate"><span class="pre">+2</span></code> in one or several of the input tensor
+indices means those indices should match the 2nd index <span class="math notranslate nohighlight">\(y_1\)</span>
+of the result tensor <span class="math notranslate nohighlight">\(Y\)</span>.</p>
+<p>…</p>
+</li>
+<li><p>The absence of a positive index means that the result has an empty
+size (i.e., it is a scalar).</p></li>
+</ul>
+<p>A few examples are helpful to clarify the syntax and highlight the
+flexibility of <a class="reference internal" href="#tprod" title="tprod"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">tprod()</span></code></a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tvariable</span> <span class="n">A</span> <span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="n">n</span><span class="p">];</span>
+<span class="n">Tvariable</span> <span class="n">x</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span>
+<span class="n">Tvariable</span> <span class="n">B</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">k</span><span class="p">]</span>
+
+<span class="n">tprod</span><span class="p">(</span><span class="n">A</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>    <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">matrix</span><span class="o">-</span><span class="n">vector</span> <span class="n">product</span> <span class="n">A</span><span class="o">*</span><span class="n">x</span>
+<span class="n">tprod</span><span class="p">(</span><span class="n">A</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">B</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]);</span>  <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">matrix</span><span class="o">-</span><span class="n">matrix</span> <span class="n">product</span> <span class="n">A</span><span class="o">*</span><span class="n">B</span>
+
+<span class="n">tprod</span><span class="p">(</span><span class="n">A</span><span class="p">,[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]);</span>            <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">transpose</span> <span class="n">A</span><span class="s1">&#39;</span>
+
+<span class="n">tprod</span><span class="p">(</span><span class="n">A</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">]);</span>           <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="nb">sum</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">tprod</span><span class="p">(</span><span class="n">x</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span><span class="n">x</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>       <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">square</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Euclidean</span> <span class="n">norm</span> <span class="n">x</span><span class="s1">&#39;*x</span>
+<span class="n">tprod</span><span class="p">(</span><span class="n">A</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span><span class="n">A</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span> <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">the</span> <span class="n">square</span> <span class="n">of</span> <span class="n">the</span> <span class="n">Frobenius</span> <span class="n">norm</span>
+
+<span class="n">Tvariable</span> <span class="n">C</span> <span class="p">[</span><span class="n">n</span><span class="p">,</span><span class="n">n</span><span class="p">]</span>
+<span class="n">tprod</span><span class="p">(</span><span class="n">C</span><span class="p">,[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>             <span class="o">%</span> <span class="n">vector</span> <span class="k">with</span> <span class="n">the</span> <span class="n">main</span> <span class="n">diagonal</span> <span class="n">of</span> <span class="n">A</span>
+<span class="n">tprod</span><span class="p">(</span><span class="n">C</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>           <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">trace</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="boolean-operation">
+<h2>Boolean operation<a class="headerlink" href="#boolean-operation" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc uses boolean operations mostly to specify optimization
+constraints.</p>
+<table class="colwidths-given docutils align-left" id="id2">
+<caption><span class="caption-text">Boolean operations</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 36%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X==Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="eq">
+<code class="sig-name descname">eq</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#eq" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry equality comparison of tensors of the same size
+or of a scalar with a tensor of arbitrary size</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">eq()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X&gt;=Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ge">
+<code class="sig-name descname">ge</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#ge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry greater than or equal to comparison of tensors
+of the same size or of a scalar with a tensor of arbitrary size</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">ge()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p>
+<p>From the perspective of a constrained optimization numerical
+solver, due to finite numerical precision, X&gt;=Y and X&gt;Y
+represent the same constraint.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X&gt;Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="gt">
+<code class="sig-name descname">gt</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#gt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry greater than comparison of tensors of the same
+size or of a scalar with a tensor of arbitrary size</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">gt()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X&lt;=Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="le">
+<code class="sig-name descname">le</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#le" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry smaller than or equal to comparison of tensors
+of the same size or of a scalar with a tensor of arbitrary size</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">le()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p>
+<p>From the perspective of a constrained optimization numerical
+solver, due to finite numerical precision, X&lt;=Y and X&lt;Y
+represent the same constraint.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X&lt;Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="lt">
+<code class="sig-name descname">lt</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#lt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Entry-by-entry smaller than comparison of tensors of the same
+size or of a scalar with a tensor of arbitrary size</p></td>
+<td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">lt()</span></code>, expansion upon singleton
+dimensions is not performed automatically to match the tensors’
+sizes.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="all">
+<code class="sig-name descname">all</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span><a class="headerlink" href="#all" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">all</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Checks if the entries of the tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> are nonzero and
+performs the Boolean operation <code class="docutils literal notranslate"><span class="pre">and</span></code> along the dimensions
+specified in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> (1st form) or along every dimension
+(2nd form), producing the logical value <code class="docutils literal notranslate"><span class="pre">true</span></code> if all entries
+are nonzero. The result is a tensor with the same size as X,
+but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="any">
+<code class="sig-name descname">any</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span><a class="headerlink" href="#any" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">any</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Checks if the entries of the tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> are nonzero and
+performs the Boolean operation <code class="docutils literal notranslate"><span class="pre">or</span></code> along the dimensions
+specified in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> (1st form) or along every dimension
+(2nd form), producing the logical value <code class="docutils literal notranslate"><span class="pre">true</span></code> if at least
+one entry is nonzero. The result is a tensor with the same size
+as X, but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="entry-wise-operations">
+<h2>Entry-wise operations<a class="headerlink" href="#entry-wise-operations" title="Permalink to this headline">¶</a></h2>
+<p>The following functions are applied to every entry of a tensor.</p>
+<table class="colwidths-given docutils align-left" id="id3">
+<caption><span class="caption-text">Entry-wise operations</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 36%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="exp">
+<code class="sig-name descname">exp</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#exp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Exponential of tensor entries.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="log">
+<code class="sig-name descname">log</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Natural logarithm of tensor entries.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="sin">
+<code class="sig-name descname">sin</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Sine of tensor entries in radians.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="cos">
+<code class="sig-name descname">cos</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#cos" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Cosine of tensor entries in radians.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="tan">
+<code class="sig-name descname">tan</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#tan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Tangent of tensor entries in radians.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="atan">
+<code class="sig-name descname">atan</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#atan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Inverse tangent in radians of tensor entries.</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="reciprocal">
+<code class="sig-name descname">reciprocal</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#reciprocal" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Reciprocal of tensor entries.</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">1./X</span></code></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="sqr">
+<code class="sig-name descname">sqr</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sqr" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Square of tensor entries</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^2</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code></p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="cube">
+<code class="sig-name descname">cube</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#cube" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Cube of tensor entries</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^3</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code></p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="sqrt">
+<code class="sig-name descname">sqrt</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sqrt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Square root of tensor entries</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="round">
+<code class="sig-name descname">round</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#round" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="ceil">
+<code class="sig-name descname">ceil</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ceil" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="floor">
+<code class="sig-name descname">floor</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#floor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="abs">
+<code class="sig-name descname">abs</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>Similar syntax to MATLAB©</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="relu">
+<code class="sig-name descname">relu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="srelu">
+<code class="sig-name descname">srelu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="heaviside">
+<code class="sig-name descname">heaviside</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#heaviside" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="normpdf">
+<code class="sig-name descname">normpdf</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#normpdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="linear-algebra">
+<h2>Linear algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-left" id="id4">
+<caption><span class="caption-text">Linear Algebra operations</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 36%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Usage</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">A \ B</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="mldivide">
+<code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">B</em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Left matrix division, which is the solution to the system of
+equations <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> where <code class="docutils literal notranslate"><span class="pre">A</span></code> must be a nonsingular square
+matrix (tensor with 2 dimensions) and <code class="docutils literal notranslate"><span class="pre">B</span></code> may either be a
+vector (tensor with 1 dimension) or a matrix (tensor with 2
+dimensions) with <code class="docutils literal notranslate"><span class="pre">size(A,1)==size(A,2)==size(B,1)</span></code>.</p>
+<p>ALSO TALK ABOUT FACTORIZATION</p>
+</td>
+<td><p>MATLAB© allows for non-square and possibly singular matrices
+<code class="docutils literal notranslate"><span class="pre">A</span></code>, in which case the least-squares solution to <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> is
+returned. Currently, TensCalc requires <code class="docutils literal notranslate"><span class="pre">A</span></code> to be square
+and nonsingular.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="diag">
+<code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="trace">
+<code class="sig-name descname">trace</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="transpose">
+<code class="sig-name descname">transpose</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="ctranspose">
+<code class="sig-name descname">ctranspose</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="inv">
+<code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="det">
+<code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="chol">
+<code class="sig-name descname">chol</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#chol" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="ldl">
+<code class="sig-name descname">ldl</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="ldl_l">
+<code class="sig-name descname">ldl_l</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="ldl_d">
+<code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="lu">
+<code class="sig-name descname">lu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="logdet">
+<code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="traceinv">
+<code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="norm">
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="norm1">
+<code class="sig-name descname">norm1</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="norm2">
+<code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="norminf">
+<code class="sig-name descname">norminf</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>INCOMPLETE</p></td>
+<td><p>INCOMPLETE</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="calculus-differentiation">
+<h2>Calculus - differentiation<a class="headerlink" href="#calculus-differentiation" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Operations on symbolic expressions</a><ul>
+<li><a class="reference internal" href="#arithmetic-operations">Arithmetic operations</a><ul>
+<li><a class="reference internal" href="#tensor-product">Tensor product</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#boolean-operation">Boolean operation</a></li>
+<li><a class="reference internal" href="#entry-wise-operations">Entry-wise operations</a></li>
+<li><a class="reference internal" href="#linear-algebra">Linear algebra</a></li>
+<li><a class="reference internal" href="#calculus-differentiation">Calculus - differentiation</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basics.html"
+                        title="previous chapter">Basics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="computation.html"
+                        title="next chapter">Code generation for computations</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/operations.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="computation.html" title="Code generation for computations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="Basics"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright © 2020, Joao Pedro Hespanha.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+    </div>
+  </body>
+</html>
