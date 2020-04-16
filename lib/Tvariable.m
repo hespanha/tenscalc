@@ -1,5 +1,5 @@
 function obj=Tvariable(name,osize,nowarningsamesize,nowarningever)
-% var = Tconstant(name,[n1,n2,...,na],nowarningsamesize,nowarningever)
+% var = Tvariable(name,[n1,n2,...,na],nowarningsamesize,nowarningever)
 %
 % Returns a Tcalculus tensor symbolic variable.  The integers
 % n1,n2,...,na specify the dimension of each index of the tensor.
@@ -62,6 +62,7 @@ function obj=Tvariable(name,osize,nowarningsamesize,nowarningever)
 
     obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize,nowarningever);
     
-    assignin('caller',name,obj);
+    if nargout==0
+        assignin('caller',name,obj);
+    end
 end
-

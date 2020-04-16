@@ -1,7 +1,9 @@
-function obj=Tones(varargin);
+function obj=Tones(varargin)
 % var = Tones([])
-%   or 
+%
 % var = Tones([n1,n2,...,na])
+%
+% var = Tones(n1,n2,...,na)
 %
 %   Returns a Tcalculus tensor with all entries equal to 1.
 %   The integers n1,n2,...,na specify the dimension of each index of the tensor.
@@ -22,7 +24,7 @@ function obj=Tones(varargin);
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
- 
+    
     if nargin==1
         osize=varargin{1};
     else

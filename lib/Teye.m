@@ -1,7 +1,9 @@
 function obj=Teye(varargin)
 % var = Teye([])
-%  or 
+%
 % var = Teye([n1,n2,...,na,n1,n2,...,na])
+%
+% var = Teye(n1,n2,...,na,n1,n2,...,na)
 %
 %   Returns a Tcalculus identity tensor.  The integers n1,n2,...,na
 %   specify the dimension of each index of the tensor.  Note that an

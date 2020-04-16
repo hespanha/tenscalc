@@ -38,7 +38,7 @@ function obj=Tconstant(value,osize)
         end
     end
 
-    % get dimensional at least 2
+    % get msize at least 2
     msize=osize;
     while length(msize)<2
         msize(end+1)=1;
