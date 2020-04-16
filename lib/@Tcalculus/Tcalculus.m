@@ -1,4 +1,6 @@
 classdef Tcalculus
+% Symbolic tensors class
+%
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.
@@ -72,7 +74,7 @@ classdef Tcalculus
     
     methods
         function obj=Tcalculus(type,osize,parameters,operands,op_parameters,file_line,nowarningsamesize,nowarningever)
-        %% Add entry to table TCsymbolicExpressions of symbolic expressions with fields:
+        % Add entry to table TCsymbolicExpressions of symbolic expressions with fields:
         % type       string
         % osize      row vector
         % parameters [] is no parameters
@@ -219,7 +221,8 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function disp(obj,tprod2mat,maxDepth)
-        % disp(x) displays the formula x
+        % disp - Display Tcalculus formula
+        %   disp(x) displays the formula x
             if nargin<2
                 tprod2mat=false;
             end
@@ -241,37 +244,12 @@ classdef Tcalculus
         %%%%                       Get properties                     %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        function varargout=size(obj,dim)
-        % m=size(x) returns the size of the tensor x as a vector.
-        %
-        % [m1,m2,...,mn]=size(x) returns the number of elements of
-        % x in each of its dimensions. An error results in x has
-        % less dimensions than the number of outputs.
-        %
-        % m=size(x,d) returns the number of elements of x in the
-        % dimension d
-        
-            if 0
-                global TCsymbolicExpressions
-                osize=TCsymbolicExpressions(obj.TCindex).osize;
-            else
-                osize=obj.osize;
-            end
-            if nargin>1
-                osize=osize(dim);
-            end
-            if nargout>1
-                if nargout>length(osize)
-                    error('too many output arguments for size = [%s]',index2str(osize));
-                else
-                    varargout=num2cell(osize);
-                end
-            else
-                varargout{1}=osize;
-            end
-        end
-        
         function type=type(obj)
+        % type - type of the (top) symbolic operation
+        %   
+        %   type(x), for a Tcalculus symbolic tensor, returns the type
+        %   of the (top) symbolic operation as a character string.
+            
             global TCsymbolicExpressions;
             type=TCsymbolicExpressions(obj.TCindex).type;
         end
@@ -282,6 +260,10 @@ classdef Tcalculus
         end
         
         function parameters=name(obj)
+        % name - name of a symbolic variable
+        %   
+        %   name(x), for a Tcalculus symbolic variable, returns the
+        %   name of the variable as a character string.
             global TCsymbolicExpressions;
             if ~strcmp(TCsymbolicExpressions(obj.TCindex).type,'variable')
                 disp(obj)
@@ -315,56 +297,22 @@ classdef Tcalculus
            TCsymbolicExpressions(obj.TCindex).derivatives_cache(end+1,:)=[var.TCindex,grad.TCindex];
         end
         
-        function bool=isempty(obj)
-        % b=isempty(x) returns true if x is a tensor with zero
-        % elements. 
-        %
-        % Note that a scalar (which has size = []) is not empty.
-            bool=any(size(obj)==0);
-        end
-        
-        function len=length(obj)
-        % length(x) returns the number of elements of x, i.e.,
-        % prod(size(x)). This is differs from the usual length()
-        % function in matlab, which returns max(size(x)). 
-        %
-        % Note that a scalar (which has size = []) has 1 element
-            len=prod(size(obj));
-        end
-
-        function len=numel(obj)
-        % length(x) returns the number of elements of x, i.e.,
-        % prod(size(x)).
-        %    
-        % Note that a scalar (which has size = []) has 1 element
-            len=prod(size(obj));
-        end
-
-        function msize=msize(obj,dim)
-        % matlab compatible size (i.e., always length >=2)
-            msize=size(obj);
-            while length(msize)<2
-                msize(end+1)=1;
-            end
-            if nargin==2
-                msize=msize(dim);
-            end
-        end
-        
-        function ind=end(obj,k,n)
-            osize=size(obj);
-            if n~=length(osize)
-                error('mismatch between object length (%d) and indexing length (%d)',length(osize),n);
-            end
-            ind=osize(k);
-        end
-            
         function [children,depth]=children(obj,maxDepth)
-        % [children,depth]=children(obj,maxDepth)     
-        %
-        % Determine children of an obj.  
-            global TCsymbolicExpressions;
+        % children - returns the children of a Tcalculus object
+        %   
+        %   [children,depth]=children(obj), returns all the children
+        %   (i.e. operands) of a Tcalculos symbolic object.
+            
+        %   [children,depth]=children(obj,maxDepth), returns the children of a
+        %   Tcalculos symbolic object up to a depth determine by
+        %   'maxDepth'.
 
+            global TCsymbolicExpressions;
+            
+            if nargin<2
+                maxDepth=inf;
+            end
+            
             depth=inf*ones(1,length(TCsymbolicExpressions));
             depth(obj.TCindex)=0;
             order=inf*ones(1,length(TCsymbolicExpressions));
@@ -399,13 +347,134 @@ classdef Tcalculus
             %[order,children]=sort(order);
             %depth=depth(children);
         end
-                    
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%                       Get sizes                          %%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        function varargout=size(obj,dim)
+        % size - Size of a tensor 
+        %   
+        %   m=size(X), for a tensor X with d dimensions, returns the
+        %   size of the tensor X as a row vector with d elements
+        %   
+        %   [m1,m2,...,mk]=size(X), for a tensor X with d dimensions,
+        %   returns the size of the tensor X in each dimension (up to
+        %   k<=d) as separate variables. An error results if X has
+        %   less dimensions than the number of outputs (d<k).
+        %   
+        %   m=size(X,dim), for a tensor X with d dimensions, returns
+        %   the number of elements of X in the dimensions specified by
+        %   dim. dim can be a scalar or a vector, in the later case, m
+        %   has the same size as d.
+        
+            if 0
+                global TCsymbolicExpressions
+                osize=TCsymbolicExpressions(obj.TCindex).osize;
+            else
+                osize=obj.osize;
+            end
+            if nargin>1
+                osize=osize(dim);
+            end
+            if nargout>1
+                if nargout>length(osize)
+                    error('too many output arguments for size = [%s]',index2str(osize));
+                else
+                    varargout=num2cell(osize);
+                end
+            else
+                varargout{1}=osize;
+            end
+        end
+        
+        function len=ndims(obj)
+        % ndims - Number of dimensions in a tensor
+        %   
+        %   ndims(X) returns the number of dimensiona in the tensor X,
+        %   defined to be length(size(X)).
+        %
+        % Note that a scalar (which has size = []) has 0 dimensions
+
+            len=max(size(obj));
+        end
+
+        function len=length(obj)
+        % length - Length of a tensor
+        %   
+        %   length(X) returns the length of the tensor x, defined to
+        %   be max(size(X)).
+        %
+        % Note that a scalar (which has size = []) has [] length
+
+            len=max(size(obj));
+        end
+
+        function len=numel(obj)
+        % numel - Number of elements in a tensor
+        %   
+        %   numel(X) returns the number of elements of X, i.e.,
+        %   prod(size(X)).
+        %    
+        % Note that a scalar (which has size = []) always has 1
+        % element
+            len=prod(size(obj));
+        end
+
+        function msize=msize(obj,dim)
+        % msize - Matlab-compatible size
+        %   
+        %   msize(obj,dim), similar to size(obj,dim), except that it
+        %   uses matlab's convention that that scalars and n-vectors
+        %   are really 1x1 or nx1 matrices.
+            msize=size(obj);
+            while length(msize)<2
+                msize(end+1)=1;
+            end
+            if nargin==2
+                msize=msize(dim);
+            end
+            if nargin>1
+                msize=msize(dim);
+            end
+            if nargout>1
+                if nargout>length(msize)
+                    error('too many output arguments for size = [%s]',index2str(msize));
+                else
+                    varargout=num2cell(msize);
+                end
+            else
+                varargout{1}=msize;
+            end
+        end
+        
+        function bool=isempty(obj)
+        % isempty - true for an empty tensor
+        %   
+        %   isempty(X) returns true if X is a tensor with zero
+        %   elements.
+        %   
+        % Note that a scalar (which has size = []) always has 1
+        % elements, so it is never empty.
+            bool=any(size(obj)==0);
+        end
+        
+        function ind=end(obj,k,n)
+        % see help end
+            osize=size(obj);
+            if n~=length(osize)
+                error('mismatch between object length (%d) and indexing length (%d)',length(osize),n);
+            end
+            ind=osize(k);
+        end
+            
             
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Referencing, rashaping                 %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function n=numArgumentsFromSubscript(obj,s,indexingContent)
+        % see help numArgumentsFromSubscript
             if isequal(s.type,'.') 
                 n=1;
             else
@@ -414,6 +483,21 @@ classdef Tcalculus
         end
 
         function obj=subsref(obj1,S)
+        % subsref - subcript reference
+        %   
+        %   X(i,j,k,...) returns a subtensor formed by the elements of
+        %   X with subscripts vectors i,j,k,... The resulting tensor
+        %   has the same number of dimensions as X, with lengths along
+        %   each dimension given by length(i), length(j), length(k),
+        %   etc.  A colon ":" can be used as a subscript to indicate
+        %   all subscripts on that particular dimensiuon.
+        %   
+        %   subsref(X,S) with a subscript reference structure S
+        %   behaves as in regular matlab.
+        %
+        % Attention: subcripts of the cell type {.} and of the field
+        % type .field are not valid for Tcalculus objects.
+            
             % very ineficient since this method is called for every obj.osize, obj.objs, etc.
             if length(S)==1 && isequal(S.type,'()') 
                 if ismember(obj1.type,{'plus','tprod','sum','compose','repmat'})
@@ -467,6 +551,16 @@ classdef Tcalculus
         end
         
         function obj=reshape(obj1,varargin)
+        % reshape - reshape tensor
+        %    
+        %   reshape(X,n1,n2,...,nd) or reshape(X,[n1,n2,...,nd])
+        %   returns a tensor with size [n1,n2,n3,...] whose elements
+        %   are taken from X. An error results in the number of
+        %   elements of X is not prod([n1,n2,n3,...]).
+        % 
+        % Attention: unlike matlab's regular reshape,
+        % Tcalculus/reshape does not support using [] as one of the
+        % dimensions.
             if nargin>2
                 osize=[varargin{:}];
             elseif nargin==2
@@ -502,16 +596,76 @@ classdef Tcalculus
             end
         end
 
+        function obj=repmat(obj1,varargin)
+        % repmat - repicate and tile a tensor
+        %   
+        %   B=repmat(A,n1,n2,...,nd) or B=repmat(A,[n1,n2,...,nd]),
+        %   given a tensor A with d dimensions, returns a large tensor
+        %   B obtained by tiling copies of A n1 times along the 1st
+        %   dimension, n2 times along the 2nd dimension, etc. The
+        %   resulting array B has the same number of dimensions as A,
+        %   but size 
+        %
+        %         [n1*size(A,1), n2*size(A,2), ... ]
+        %   
+
+            if nargin>2
+                sz=[varargin{:}];
+            elseif nargin==2
+                sz=varargin{1};
+            else
+                error('repmat must include size multiplier');
+            end
+            osize1=size(obj1);
+            % resolve 1-d objects: assume column vector
+            if length(osize1)==1 && length(sz)==2
+                osize1=[osize1,1];
+            end
+            if length(osize1)~=length(sz)
+                obj1,sz
+                error(['repmat''s 2nd argument must match size of object ' ...
+                       'length (%d~=%d)'],length(sz),length(osize1))
+            end
+            if strcmp(type(obj1),'zeros') 
+                obj=Tzeros(osize1.*sz);
+                updateFile2table(obj,1);
+                return
+            end
+            if strcmp(type(obj1),'ones') 
+                obj=Tones(osize1.*sz);
+                updateFile2table(obj,1);
+                return
+            end
+            if 0
+                obj=Tcalculus('repmat',osize1.*sz,sz,obj1.TCindex,{},1);
+            else
+                % convert repmat to subref
+                subs=cell(length(sz),1);
+                for i=1:length(sz)
+                    subs{i}=repmat(1:osize1(i),1,sz(i));
+                end
+                S=struct('type','()','subs',{subs});
+                obj=subsref(obj1,S);
+            end
+        end
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%               Unitary functions/operators                %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function obj=uplus(obj1)
-            obj=plus(obj1,nan,1,nan);
+        % + unary plus
+        %   
+        %   +X for tensors is just X
+            %obj=plus(obj1,nan,1,nan);
+            obj=obj1;
             updateFile2table(obj,1);
         end
         
         function obj=uminus(obj1)
+        % - unary minus
+        %   
+        %   -X returns the symmetric of X
             obj=plus(obj1,nan,-1,nan);
             updateFile2table(obj,1);
         end
@@ -561,7 +715,21 @@ classdef Tcalculus
         end
         
         function obj=full(obj1)
-            %obj1=toCalculus(obj1);
+        % full - convert sparse tensor to full
+        %   
+        %   Y=full(X) converts a sparse tensor X to a full tensor
+        %   Y. No entry of the tensor is changed, but subsequent
+        %   computations will not take advantage of the information
+        %   that some entries are know to be zero.
+        %   
+        %   The main use of this function is to force the results of a
+        %   computation to be returned in a linear memory structure
+        %   with all the zeros filled in appropriately. This is
+        %   generally required to return n-dimensional tensors to
+        %   matlab with n>2, since matlab does not support sparse
+        %   arrays with more than 2 dimensions.
+       
+
             if isequal(type(obj1),'full')
                 obj=obj1;
             else
@@ -570,18 +738,29 @@ classdef Tcalculus
         end
         
         function obj=sum(obj1,ind1,sum2tprod)
-        % y=sum(x,dim)
-        % 
-        % sum a tensor x along dimension dim, resulting is a tensor
-        % with the size of x, but with dimension dim, removed.
+        % sum - sum of tensor entries
+        %   
+        %   s=sum(X,vecdim) sums the entries of the tenasor X along
+        %   the dimensions specified in vecdim, resulting in a tensor
+        %   with the same size as X, but with the dimensions in vecdim
+        %   removed.
+        %   
+        %   s=sum(X,'all') sums the entries of X along all its
+        %   dimensions, resulting in a scalar. Performs similarly to
+        %   sum(X,1:ndims(X))
+
             if nargin<3
                 sum2tprod=true;
             end
-            if length(size(obj1))==1
-                ind1=1;
+            if nargin<2 
+                if length(size(obj1))==1
+                    ind1=1;
+                else
+                    error('Tcalculus.sum: must include dimension to sum');
+                end
             end
-            if nargin<2 && length(size(obj1))~=1
-                error('Tcalculus.sum: must include dimension to sum');
+            if myisequal(ind1,'all')
+                ind1=1:ndims(obj1);
             end
             if sum2tprod
                 ind=zeros(1,length(size(obj1)));
@@ -596,43 +775,6 @@ classdef Tcalculus
             end
         end
         
-        function obj=repmat(obj1,sz)
-            if nargin<2
-                error('Tcalculus.repmat: must include size multiplier');
-            end
-            osize1=size(obj1);
-            % resolve 1-d objects: assume column vector
-            if length(osize1)==1 && length(sz)==2
-                osize1=[osize1,1];
-            end
-            if length(osize1)~=length(sz)
-                obj1,sz
-                error(['repmat''s 2nd argument must match size of object ' ...
-                       'length (%d~=%d)'],length(sz),length(osize1))
-            end
-            if strcmp(type(obj1),'zeros') 
-                obj=Tzeros(osize1.*sz);
-                updateFile2table(obj,1);
-                return
-            end
-            if strcmp(type(obj1),'ones') 
-                obj=Tones(osize1.*sz);
-                updateFile2table(obj,1);
-                return
-            end
-            if 0
-                obj=Tcalculus('repmat',osize1.*sz,sz,obj1.TCindex,{},1);
-            else
-                % convert repmat to subref
-                subs=cell(length(sz),1);
-                for i=1:length(sz)
-                    subs{i}=repmat(1:osize1(i),1,sz(i));
-                end
-                S=struct('type','()','subs',{subs});
-                obj=subsref(obj1,S);
-            end
-        end
-
         function obj=reduce(obj1,dimension,type)
         % used by min,max,all,any
             osize=size(obj1);
@@ -659,6 +801,29 @@ classdef Tcalculus
         
             
         function obj=min(obj1,obj2,dimension)
+        % min - minimum elements of a tensor
+        %   
+        %   M=min(X), for a tensor X with d dimensions, returns a
+        %   tensor M with d-1 dimensions whose entries are the
+        %   smallest entries of X, taken along the 1st dimension.
+        %   
+        %   M=min(X,Y), for two tensors X and Y with the same size,
+        %   returns a tensor M also with the same size, but with
+        %   entries taken from X or Y, depending on which entry is
+        %   smallest. If X is a scalar, then M has the same size as Y
+        %   and its entries are the smallest of the corresponding
+        %   entry of Y or the (only) entry of X. Similarly if Y is a
+        %   scalar.
+        %   
+        %   M=min(X,[],vecdim) takes the minimum over all entries in
+        %   the dimensions specified by vecdim, resulting in a tensor
+        %   with the same size as X, but with the dimensions in vecdim
+        %   removed. The simplest form min(X) performs similarly to
+        %   min(X,[],1).
+        %   
+        %   M=min(X,[],'all') returns a scalar with the smallest entry
+        %   of X. Performs similarly to min(X,[],1:ndims(X))
+            
             if nargin==1 
                 obj=reduce(obj1,1,'min');
             elseif nargin==3 && isempty(obj2)
@@ -669,6 +834,28 @@ classdef Tcalculus
             end 
         end
         function obj=max(obj1,obj2,dimension)
+        % max - maximum elements of a tensor
+        %   
+        %   M=max(X), for a tensor X with d dimensions, returns a
+        %   tensor M with d-1 dimensions whose entries are the
+        %   largest entries of X, taken along the 1st dimension.
+        %   
+        %   M=max(X,Y), for two tensors X and Y with the same size,
+        %   returns a tensor M also with the same size, but with
+        %   entries taken from X or Y, depending on which entry is
+        %   largest. If X is a scalar, then M has the same size as Y
+        %   and its entries are the largest of the corresponding entry
+        %   of Y or the (only) entry of X. Similarly if Y is a scalar.
+        %   
+        %   M=max(X,[],vecdim) takes the maximum over all entries in
+        %   the dimensions specified by vecdim, resulting in a tensor
+        %   with the same size as X, but with the dimensions in vecdim
+        %   removed. The simplest form max(X) performs similarly to
+        %   max(X,[],1).
+        %   
+        %   M=max(X,[],'all') returns a scalar with the largest entry
+        %   of X. Performs similarly to max(X,[],1:ndims(X))
+            
             if nargin==1 
                 obj=reduce(obj1,1,'max');
             elseif nargin==3 && isempty(obj2)
@@ -680,9 +867,34 @@ classdef Tcalculus
         end
         
         function obj=all(obj1,dimension)
+        % all - Check if all tensor entries are nonzero
+        %   
+        %   b=all(X,vecdim) checks if the entries of the tensor X are
+        %   nonzero and performs the Boolean operation 'and' along the
+        %   dimensions specified in vecdim, producing the logical
+        %   value true if all entries are nonzero. The result is a
+        %   tensor with the same size as X, but with the dimensions in
+        %   vecdim removed.
+        %   
+        %   b=all(X,'all') operates over all entries of the tensor X,
+        %   resulting in a scalar that is equal to true if all entries
+        %   are nonzero. Performs similarly to all(X,1:ndims(X))
             obj=reduce(obj1,dimension,'all');
         end
         function obj=any(obj1,dimension)
+        % any - Check if any tensor entries are nonzero
+        %   
+        %   b=any(X,vecdim) checks if the entries of the tensor X are
+        %   nonzero and performs the Boolean operation 'or' along the
+        %   dimensions specified in vecdim, producing the logical
+        %   value true if at least one entry is nonzero. The result is
+        %   a tensor with the same size as X, but with the dimensions
+        %   in vecdim removed.
+        %   
+        %   b=any(X,'all') operates over all entries of the tensor X,
+        %   resulting in a scalar that is equal to true if at least
+        %   one entry is nonzero. Performs similarly to
+        %   any(X,1:ndims(X))
             obj=reduce(obj1,dimension,'any');
         end
             
@@ -700,7 +912,6 @@ classdef Tcalculus
                     % matrix->vector
                     obj=tprod(obj1,[1,1]);
                     updateFile2table(obj,1);
-                    warning('diag2prod(matrix->vector) not tested');
                 else
                     obj1
                     error('ambigous Tcalculus/diag()');
@@ -946,12 +1157,250 @@ classdef Tcalculus
             end
             obj=Tcalculus('inv',osize1,[],obj1.TCindex,{},1);
         end
-            
-        %function obj=abs(obj1)
-        %    obj=Tcalculus('abs',size(obj1),[],obj1.TCindex,{},1);
-        %end
 
+        function obj=componentwise(obj1,fun,cfun,varargin)
+        % y=componentwise(x,fun,cfun,derivative1,derivative2)
+        % 
+        % Returns a tensor with the same size of ''x'' that results
+        % from applying the function ''fun'' to each entry of ''x'':
+        %       y_{ijk} = fun(x_{ijk})
+        % ''fun'' should be a function handle.
+        % 
+        % The string ''cfun'' provides code that can be used to
+        % evaluate the function when '%s' is replaced the entry:
+        % 
+        % The optional argument ''derivative'' is a handle to a matlab
+        % function that returns a Tcalculus tensor with the 1st
+        % derivative. Typically, this handle includes a call to
+        % componentwise, as in the example
+        %   componentwise(x,@sin,'sin(%s)',...
+        %                         @(x)componentwise(x,@cos,'cos(%s)',...
+        %                                   @(x)-componentwise(x,@sin,'sin(%s)')));
+        % but it may not, as in the example
+        %   componentwise(x,@(x)2*x,'2*%s',@(x)2*Tones(size(x)),@(x)Tzeros(size(x)));
+            
+            if ~isa(fun,'function_handle')
+                error('componentwise 2nd argument must be a function handle, class ''%s'' instead\n',class(fun))
+            end
+                
+            if ~ischar(cfun)
+                error('componentwise 3rd argument must be a character string, class ''%s'' instead\n',class(cfun))
+            end
+
+            for i=1:length(varargin)
+                if ~isa(varargin{i},'function_handle')
+                    error('componentwise %dth argument must be a function handle, class ''%s'' instead\n',3+i,class(varargin{i}));
+                end
+            end
+            obj=Tcalculus('componentwise',size(obj1),{fun,cfun,varargin{:}},obj1.TCindex,{},1);
+        end            
+        
+        function obj=exp(obj1)
+        % Exponential of tensor entries.
+            obj=componentwise(obj1,@exp,'exp(%s)',@exp);
+            updateFile2table(obj,1);
+        end
+        function obj=log(obj1)
+        % Natural logarithm of tensor entries.
+            obj=componentwise(obj1,@log,'log(%s)',@reciprocal);
+            updateFile2table(obj,1);
+        end
+        function obj=sin(obj1)
+        % Sine of tensor entries in radians.
+            obj=componentwise(obj1,@sin,'sin(%s)',@cos);
+            updateFile2table(obj,1);
+        end
+        function obj=cos(obj1)
+        % Cosine of tensor entries in radians.
+            obj=componentwise(obj1,@cos,'cos(%s)',@(x)-sin(x));
+            updateFile2table(obj,1);
+        end
+        function obj=tan(obj1)
+        % Tangent of tensor entries in radians.
+            obj=componentwise(obj1,@tan,'tan(%s)',@sec2);
+            updateFile2table(obj,1);
+        end
+        function obj=sec2(obj1)
+            obj=componentwise(obj1,@(x)sec(x).^2,'1/(cos(%s)*cos(%s))',@(x)2*sec2(x).*tan(x));
+            updateFile2table(obj,1);
+        end
+        function obj=atan(obj1)
+        % Inverse tangent in radians of tensor entries.
+            obj=componentwise(obj1,@atan,'atan(%s)',@datan);
+            updateFile2table(obj,1);
+        end
+        function obj=datan(obj1)
+            obj=componentwise(obj1,@(x)1./(1+x.^2),'1/(1+%s*%s)',@ddatan);
+            updateFile2table(obj,1);
+        end
+        function obj=ddatan(obj1)
+            obj=componentwise(obj1,@(x)-2*x./(1+x.^2).^2,'-2*%s/((1+%s*%s)*(1+%s*%s))');
+            updateFile2table(obj,1);
+        end
+        function obj=reciprocal(obj1)
+        % reciprocal - Reciprocal of tensor entries.
+        %   
+        %    reciprocal(X) returns the element-wise reciprocal of X, which is
+        %    the same as 1./X
+            obj=componentwise(obj1,@(x)1./x,'1/%s',@minusreciprocal2);
+            updateFile2table(obj,1);
+        end        
+        function obj=minusreciprocal2(obj1)
+            obj=componentwise(obj1,@(x)-1./x.^2,'-1/(%s*%s)');
+            updateFile2table(obj,1);
+        end        
+        function obj=sqr(obj1)
+        % sqr - Square of tensor entries
+        %
+        %    sqr(X) returns the element-wise square of X, i.e., X.^2 or X.*X
+            obj=componentwise(obj1,@(x)x.^2,'%s*%s',@(x)2*x);
+            updateFile2table(obj,1);
+        end
+        function obj=cube(obj1)
+        % cube - Cube of tensor entries
+        %
+        %    cube(X) returns the element-wise cube of X, i.e., X.^3 or X.*X.*X
+            obj=componentwise(obj1,@(x)x.^3,'%s*%s*%s',@(x)3*x.*x);
+            updateFile2table(obj,1);
+        end
+        function obj=sqrt(obj1)
+        % cube - Square root of tensor entries
+            obj=componentwise(obj1,@sqrt,'sqrt(%s)',@dsqrt);
+            updateFile2table(obj,1);
+        end
+        function obj=dsqrt(obj1)
+            obj=componentwise(obj1,@(x).5./sqrt(x),'.5*pow(%s,-.5)',@ddsqrt);
+            updateFile2table(obj,1);
+        end
+        function obj=ddsqrt(obj1)
+            obj=componentwise(obj1,@(x)-.25./x.^1.5,'-.25*pow(%s,-1.5)');
+            updateFile2table(obj,1);
+        end
+        function obj=round(obj1)
+        % round - Rounds tensor entries to the nearest integer
+        %    
+        %    round(X) returns as tensor with the same size as X, with
+        %    every entry of X rounded to the nearest integer.
+        %
+        % Attention: unlike in regular matlab, this function does
+        % *not* support a second argument specifying a desired number
+        % of digits for rounding to a decimal.
+            obj=componentwise(obj1,@round,'round(%s)');
+            updateFile2table(obj,1);
+        end
+        function obj=ceil(obj1)
+        % ceil - Rounds tensor entries to the nearest integer towards +inf
+        %    
+        %    ceil(X) returns as tensor with the same size as X, with
+        %    every entry of X rounded to the nearest integer towards
+        %    +inf.
+            obj=componentwise(obj1,@ceil,'ceil(%s)');
+            updateFile2table(obj,1);
+        end
+        function obj=floor(obj1)
+        % floor - Rounds tensor entries to the nearest integer towards -inf
+        %    
+        %    floor(X) returns as tensor with the same size as X, with
+        %    every entry of X rounded to the nearest integer towards
+        %    -inf.
+            obj=componentwise(obj1,@floor,'floor(%s)');
+            updateFile2table(obj,1);
+        end
+        function obj=abs(obj1)
+        % abs - Absolute value of tensor entries
+            obj=componentwise(obj1,@abs,'fabs(%s)',@sign);
+            updateFile2table(obj,1);
+        end
+        function obj=sign(obj1)
+        % sign - Signum function.
+        %    
+        %    sign(X) returns as tensor with the same size as X, with
+        %    an entry equal to 1, 0, or -1, depending on whether the
+        %    corresponding entry of X is positive, zero, or negative,
+        %    respectively.
+            obj=componentwise(obj1,@sign,'(%s>0)?1:((%s<0)?-1:0)',@(x)Tzeros(x));
+            updateFile2table(obj,1);
+        end
+        function obj=heaviside(obj1)
+        % heaviside - Heaviside function applied to the tensor entries.
+        %    
+        %    heaviside(X) returns as tensor with the same size as X, with
+        %    an entry equal to 1, .5, or 0, depending on whether the
+        %    corresponding entry of X is positive, zero, or negative,
+        %    respectively.
+            obj=componentwise(obj1,@heaviside,'(%s>0)?1:((%s<0)?0:.5)',@(x)Tzeros(x));
+            updateFile2table(obj,1);
+        end        
+        function obj=relu(obj1)
+        % relu - Rectified linear unit activation function.
+        %    
+        %    relu(X) returns a tensor with the same size as X, with
+        %    each entry equal the the corresponding entry of X or 0,
+        %    depending on whether the entry is positive or not. Same
+        %    as max(X,0).
+            obj=componentwise(obj1,@(x)max(x,0),'(%s>0)?%s:0',@heaviside);
+            updateFile2table(obj,1);
+        end
+        function obj=srelu(obj1)
+        % srelu - Soft rectified linear unit activation function.
+        %    
+        %    srelu(X) returns a tensor with the same size as X, with
+        %    the "soft" rectified linear unit activation function of
+        %    the entries of X. Same as log(1+exp(x)) or
+        %    x+Log(1+exp(-x))
+            obj=componentwise(obj1,@(x)log(1+exp(x)),'log(1+exp(%s))',@sheaviside);
+            updateFile2table(obj,1);
+        end
+        function obj=sheaviside(obj1)
+        % sheaviside - Soft heaviside function.
+        %    
+        %    sheaviside(X) returns a tensor with the same size as X,
+        %    with the "soft" heaviside function of the entries of
+        %    X. Same as 1./(1+exp(-x))
+            obj=componentwise(obj1,@(x)1./(1+exp(-x)),'%s/(1+exp(-%s))',@dsheaviside);
+            updateFile2table(obj,1);
+        end
+        function obj=dsheaviside(obj1)
+        % dsheaviside - Derivative of the soft heaviside function.
+        %    
+        %    dsheaviside(X) returns a tensor with the same size as X,
+        %    with the derivative of the "soft" heaviside function of
+        %    the entries of X. Same as 1./(2+exp(x)+exp(-x))
+            obj=componentwise(obj1,@(x)1./(2+exp(x)+exp(-x)),'%s/(2+exp(%s)+exp(-%s))');
+            updateFile2table(obj,1);
+        end
+        function obj=normpdf(obj1)
+            obj=componentwise(obj1,@(x)exp(-x.^2/2)./sqrt(2*pi),'exp(-%s*%s/2)/sqrt(2*M_PI)',@(x)-x.*normpdf(x));
+            updateFile2table(obj,1);
+        end
+        function obj=lngamma(obj1)
+            obj=componentwise(obj1,@(x)log(gamma(x)),'lngamma(%s)',@digamma);
+            updateFile2table(obj,1);
+        end
+
+        
+        
         function obj=compose(obj1,varargin)
+        % y=compose(x,fun,fun1,fun2)
+        % 
+        % Returns a tensor that results from applying the function
+        % ''fun'' to each entry of ''obj'', e.g.,:
+        %       y_{ijk} = fun(x_{ijk})
+        % ''fun'' should be a function handle. When the result of ''fun''
+        % is itself a tensor, the dimensions of fun are appended to the
+        % end of the dimensions of x, e.g.,:
+        %       y_{ijklm} = fun(x_{ijk})_{lmn}
+        % 
+        % The optional argument ''fun1'' is a handle to a matlab
+        % function that returns a Tcalculus tensors with the 1st
+        % derivatives. 
+        %
+        % The optional argument ''fun2'' is a handle to a matlab
+        % function that returns a Tcalculus tensors with the 2nd
+        % derivatives. 
+        %
+        % Attention: compose can handle nonscalar functions, which
+        % componentwise cannot.
 
             for i=1:length(varargin)
                 if ~strcmp(class(varargin{i}),'function_handle')
@@ -967,91 +1416,98 @@ classdef Tcalculus
             obj=Tcalculus('compose',[size(obj1),fsize],varargin,obj1.TCindex,{},1);
         end
         
-        function obj=round(obj1)
-            obj=compose(obj1,@(x__)round(x__));
-            updateFile2table(obj,1);
-        end
+        % function obj=sqr(obj1)
+        %     obj=compose(obj1,@(x__)x__.^2,@(x__)2*x__,@(x__)2*ones(size(x__)));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=sqrt(obj1)
+        %     obj=compose(obj1,@(x__)sqrt(x__),@(x__).5./sqrt(x__),@(x__)-.25./x__.^1.5);
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=cos(obj1)
+        %     obj=compose(obj1,@(x__)cos(x__),@(x__)-sin(x__),@(x__)-cos(x__));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=sin(obj1)
+        %     obj=compose(obj1,@(x__)sin(x__),@(x__)cos(x__),@(x__)-sin(x__));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=tan(obj1)
+        %     obj=compose(obj1,@(x__)tan(x__),@(x__)sec(x__).^2,@(x__)2*sec(x__).^2.*tan(x__));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=atan(obj1)
+        %     obj=compose(obj1,@(x__)atan(x__),@(x__)1./(1+x__.^2),@(x__)-2*x__./(1+x__.^2).^2);
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=exp(obj1)
+        %     obj=compose(obj1,@(x__)exp(x__),@(x__)exp(x__),@(x__)exp(x__));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=log(obj1)
+        %     obj=compose(obj1,@(x__)log(x__),@(x__)1./x__,@(x__)-1./x__.^2);
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=reciprocal(obj1)
+        %     obj=compose(obj1,@(x__)1./x__,@(x__)-1./x__.^2,@(x__)2./x__.^3);
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=cube(obj1)
+        %     obj=compose(obj1,@(x__)x__.^3,@(x__)3*x__.^2,@(x__)6*x__);
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=normpdf(obj1)
+        %     obj=compose(obj1,@(x__)exp(-x__.^2/2)./sqrt(2*pi),...
+        %                       @(x__)-x__.*exp(-x__.^2/2)./sqrt(2*pi),...
+        %                       @(x__)(x__.^2-1).*exp(-x__.^2/2)./sqrt(2*pi));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=round(obj1)
+        %     obj=compose(obj1,@(x__)round(x__));
+        %     updateFile2table(obj,1);
+        % end
 
-        function obj=ceil(obj1)
-            obj=compose(obj1,@(x__)ceil(x__));
-            updateFile2table(obj,1);
-        end
+        % function obj=ceil(obj1)
+        %     obj=compose(obj1,@(x__)ceil(x__));
+        %     updateFile2table(obj,1);
+        % end
 
-        function obj=floor(obj1)
-            obj=compose(obj1,@(x__)floor(x__));
-            updateFile2table(obj,1);
-        end
-
-        function obj=abs(obj1)
-            obj=compose(obj1,@(x__)abs(x__),@(x__)sign(x__),@(x__)zeros(size(x__)));
-            updateFile2table(obj,1);
-        end
-
-        function obj=exp(obj1)
-            obj=compose(obj1,@(x__)exp(x__),@(x__)exp(x__),@(x__)exp(x__));
-            updateFile2table(obj,1);
-        end
-        function obj=log(obj1)
-            obj=compose(obj1,@(x__)log(x__),@(x__)1./x__,@(x__)-1./x__.^2);
-            updateFile2table(obj,1);
-        end
-        function obj=reciprocal(obj1)
-            obj=compose(obj1,@(x__)1./x__,@(x__)-1./x__.^2,@(x__)2./x__.^3);
-            updateFile2table(obj,1);
-        end
-        function obj=cube(obj1)
-            obj=compose(obj1,@(x__)x__.^3,@(x__)3*x__.^2,@(x__)6*x__);
-            updateFile2table(obj,1);
-        end
-        function obj=sqr(obj1)
-            obj=compose(obj1,@(x__)x__.^2,@(x__)2*x__,@(x__)2*ones(size(x__)));
-            updateFile2table(obj,1);
-        end
-        function obj=sqrt(obj1)
-            obj=compose(obj1,@(x__)sqrt(x__),@(x__).5./sqrt(x__),@(x__)-.25./x__.^1.5);
-            updateFile2table(obj,1);
-        end
-        function obj=cos(obj1)
-            obj=compose(obj1,@(x__)cos(x__),@(x__)-sin(x__),@(x__)-cos(x__));
-            updateFile2table(obj,1);
-        end
-        function obj=sin(obj1)
-            obj=compose(obj1,@(x__)sin(x__),@(x__)cos(x__),@(x__)-sin(x__));
-            updateFile2table(obj,1);
-        end
-        function obj=tan(obj1)
-            obj=compose(obj1,@(x__)tan(x__),@(x__)sec(x__).^2,@(x__)2*sec(x__).^2.*tan(x__));
-            updateFile2table(obj,1);
-        end
-        function obj=atan(obj1)
-            obj=compose(obj1,@(x__)atan(x__),@(x__)1./(1+x__.^2),@(x__)-2*x__./(1+x__.^2).^2);
-            updateFile2table(obj,1);
-        end
-        function obj=normpdf(obj1)
-            obj=compose(obj1,@(x__)exp(-x__.^2/2)./sqrt(2*pi),...
-                              @(x__)-x__.*exp(-x__.^2/2)./sqrt(2*pi),...
-                              @(x__)(x__.^2-1).*exp(-x__.^2/2)./sqrt(2*pi));
-            updateFile2table(obj,1);
-        end
-        function obj=relu(obj1)
-            obj=compose(obj1,@(x__)relu(x__),@(x__)heaviside(x__),@(x__)zeros(size(x__)));
-            updateFile2table(obj,1);
-        end
-        function obj=heaviside(obj1)
-            obj=compose(obj1,@(x__)heaviside(x__),@(x__)zeros(size(x__)),@(x__)zeros(size(x__)));
-            updateFile2table(obj,1);
-        end
-        function obj=srelu(obj1)
-            obj=compose(obj1,@(x__)log(1+exp(x__)),...
-                        @(x__)1./(1+exp(-x__)),@(x__)1./(2+exp(-x__)+exp(x__)));
-            updateFile2table(obj,1);
-        end
+        % function obj=floor(obj1)
+        %     obj=compose(obj1,@(x__)floor(x__));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=abs(obj1)
+        %     obj=compose(obj1,@(x__)abs(x__),@(x__)sign(x__),@(x__)zeros(size(x__)));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=relu(obj1)
+        %     obj=compose(obj1,@(x__)relu(x__),@(x__)heaviside(x__),@(x__)zeros(size(x__)));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=heaviside(obj1)
+        %     obj=compose(obj1,@(x__)heaviside(x__),@(x__)zeros(size(x__)),@(x__)zeros(size(x__)));
+        %     updateFile2table(obj,1);
+        % end
+        % function obj=srelu(obj1)
+        %     obj=compose(obj1,@(x__)log(1+exp(x__)),...
+        %                 @(x__)1./(1+exp(-x__)),@(x__)1./(2+exp(-x__)+exp(x__)));
+        %     updateFile2table(obj,1);
+        % end
             
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                 Binary operators                         %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function obj=plus(obj1,obj2,ind1,ind2)
+        % + Plus
+        %   
+        %   X+Y or plus(X,Y) add entry-by-entry tensors of the same
+        %   size or a scalar (tensor with 0 dimensions) with a tensor
+        %   of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular plus(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             
             global TCsymbolicExpressions;
 
@@ -1127,6 +1583,16 @@ classdef Tcalculus
         end
 
         function obj=minus(obj1,obj2)
+        % - Minus
+        %   
+        %   X-Y or minus(X,Y) subtract entry-by-entry tensors of the
+        %   same size or a scalar (tensor with 0 dimensions) with a
+        %   tensor of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular minus(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
+            
             obj=plus(obj1,obj2,1,-1);
             updateFile2table(obj,1);
         end
@@ -1139,22 +1605,83 @@ classdef Tcalculus
         end
             
         function obj=eq(obj1,obj2)
+        % == Equal
+        %   
+        %   X==Y performs an entry-by-entry equality comparison of
+        %   tensors of the same size or a scalar (tensor with 0
+        %   dimensions) with a tensor of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular eq(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             obj=relational(obj1,obj2,'iszero');  
         end
 
         function obj=ge(obj1,obj2)
+        % >= Greater than or equal to
+        %   
+        %   X<=Y performs an entry-by-entry greater than or equal to
+        %   comparison of tensors of the same size or a scalar (tensor
+        %   with 0 dimensions) with a tensor of arbitrary size.
+        %   
+        %   From the perspective of a constrained optimization
+        %   numerical solver, due to finite numerical precision, X>=Y
+        %   and X>Y represent the same constraint.
+        %   
+        % Attention: unlike matlab's regular ge(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             obj=relational(obj1,obj2,'ispositive');  
         end
 
         function obj=gt(obj1,obj2)
+        % > Greater than
+        %   
+        %   X<=Y performs an entry-by-entry greater than comparison of
+        %   tensors of the same size or a scalar (tensor with 0
+        %   dimensions) with a tensor of arbitrary size.
+        %   
+        %   From the perspective of a constrained optimization
+        %   numerical solver, due to finite numerical precision, X>=Y
+        %   and X>Y represent the same constraint.
+        % 
+        % Attention: unlike matlab's regular gt(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             obj=relational(obj1,obj2,'ispositive');  
         end
 
         function obj=le(obj2,obj1)
+        % <= Smaller than or equal to
+        %   
+        %   X<=Y performs an entry-by-entry smaller than or equal to
+        %   comparison of tensors of the same size or a scalar (tensor
+        %   with 0 dimensions) with a tensor of arbitrary size.
+        %   
+        %   From the perspective of a constrained optimization
+        %   numerical solver, due to finite numerical precision, X<=Y
+        %   and X<Y represent the same constraint.
+        % 
+        % Attention: unlike matlab's regular le(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             obj=relational(obj1,obj2,'ispositive');  
         end
 
         function obj=lt(obj2,obj1)
+        % < Smaller than
+        %   
+        %   X<=Y performs an entry-by-entry smaller than comparison of
+        %   tensors of the same size or a scalar (tensor with 0
+        %   dimensions) with a tensor of arbitrary size.
+        %   
+        %   From the perspective of a constrained optimization
+        %   numerical solver, due to finite numerical precision, X<=Y
+        %   and X<Y represent the same constraint.
+        % 
+        % Attention: unlike matlab's regular lt(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
             obj=relational(obj1,obj2,'ispositive');  
         end
 
@@ -1167,6 +1694,15 @@ classdef Tcalculus
         end
             
         function obj=times(obj1,obj2,times2tprod)
+        % .* Tensor multiply
+        %   
+        %   X.*Y or times(X,Y) multiply entry-by-entry tensors of the
+        %   same size or a scalar (tensor with 0 dimensions) with a
+        %   tensor of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular times(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
 
             if nargin<3
                 times2tprod=true;
@@ -1198,45 +1734,6 @@ classdef Tcalculus
             end
         end
 
-        function obj=rdivide(obj1,obj2)
-
-            [obj1,obj2]=toCalculus(obj1,obj2);
-            osize1=size(obj1);
-            osize2=size(obj2);
-
-            % following not okay because it changes the size of the result
-            % if prod(osize1)==1 && prod(osize2)==1
-            %     % singleton / singleton
-            %     obj1=reshape(obj1,[]);
-            %     osize1=[];
-            %     obj2=reshape(obj2,[]);
-            %     osize2=[];
-            % end
-
-            if  ~myisequal(osize1,osize2) && ~isempty(osize1) && ~isempty(osize2)
-                obj1,obj2
-                error('can only element-wise divide objects of the same size, divide by scalar, or divide scalar: [%s] ~= [%s]\n',...
-                      index2str(osize1),index2str(osize2))
-            end
-            
-            if strcmp(type(obj1),'zeros') 
-                obj=obj1;
-            else
-                if isempty(osize1)
-                    obj=Tcalculus('rdivide',osize2,[],[obj1.TCindex;obj2.TCindex],{},1);
-                elseif isempty(osize2)
-                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
-                else
-                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
-                end
-            end
-        end
-
-        function obj=ldivide(obj1,obj2)
-            obj=rdivide(obj2,obj1);
-            updateFile2table(obj,1);
-        end
-        
         function obj=mtimes(obj1,obj2,mtimes2tprod)
 
             if nargin<3
@@ -1339,8 +1836,66 @@ classdef Tcalculus
             updateFile2table(obj,1);
         end
 
-        function obj=mrdivide(obj1,obj2)
+        function obj=rdivide(obj1,obj2)
+        % ./ Right tensor divide
+        %   
+        %   X./Y or rdividde(X,Y) right-divide entry-by-entry tensors
+        %   of the same size or a scalar (tensor with 0 dimensions)
+        %   with a tensor of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular times(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
 
+            [obj1,obj2]=toCalculus(obj1,obj2);
+            osize1=size(obj1);
+            osize2=size(obj2);
+
+            % following not okay because it changes the size of the result
+            % if prod(osize1)==1 && prod(osize2)==1
+            %     % singleton / singleton
+            %     obj1=reshape(obj1,[]);
+            %     osize1=[];
+            %     obj2=reshape(obj2,[]);
+            %     osize2=[];
+            % end
+
+            if  ~myisequal(osize1,osize2) && ~isempty(osize1) && ~isempty(osize2)
+                obj1,obj2
+                error('can only element-wise divide objects of the same size, divide by scalar, or divide scalar: [%s] ~= [%s]\n',...
+                      index2str(osize1),index2str(osize2))
+            end
+            
+            if strcmp(type(obj1),'zeros') 
+                obj=obj1;
+            else
+                if isempty(osize1)
+                    obj=Tcalculus('rdivide',osize2,[],[obj1.TCindex;obj2.TCindex],{},1);
+                elseif isempty(osize2)
+                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
+                else
+                    obj=Tcalculus('rdivide',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
+                end
+            end
+        end
+
+        function obj=ldivide(obj1,obj2)
+        % .\ Left tensor divide
+        %   
+        %   X.\Y or ldividde(X,Y) left-divide entry-by-entry tensors
+        %   of the same size or a scalar (tensor with 0 dimensions)
+        %   with a tensor of arbitrary size.
+        % 
+        % Attention: unlike matlab's regular times(), expansion upon
+        % singleton dimensions is not performed automatically to match
+        % the tensors' sizes.
+
+            obj=rdivide(obj2,obj1);
+            updateFile2table(obj,1);
+        end
+        
+        function obj=mrdivide(obj1,obj2)
+        % Code generation not (yet) implemented
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
@@ -1374,7 +1929,10 @@ classdef Tcalculus
         end
 
         function obj=mldivide(obj1,obj2)
-
+        % \ Left matrix divide.
+        %   
+        %   A\B is the matrix division of A into B, which is rougly
+        %   the same as inv(A)*B
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
@@ -1429,6 +1987,121 @@ classdef Tcalculus
         %%%%                 Multi-ary operators                      %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+        % function obj=tprod(varargin) -- in separate file
+
+        function obj=tprod_matlab(varargin)
+            [tprod_size,sums_size]=checkTprodSizes(varargin{:});
+
+            if any(sums_size==0)
+                obj=Tzeros(tprod_size);
+                return
+            end
+            
+            %% Compile operands in 'objs' and 'inds' cells
+            objs={};
+            inds={};
+            for i=1:2:nargin
+                obji=toCalculus(varargin{i});
+                indi=varargin{i+1};
+                objs{end+1,1}=obji;
+                inds{end+1,1}=indi;
+            end              
+            ops=cellfun(@(x)x.TCindex,objs);
+            obj=Tcalculus('tprod_matlab',tprod_size,sums_size,ops,inds,1);
+        end
+
+        function obj=vertcat(varargin)
+            obj=cat(1,varargin{:});
+            updateFile2table(obj,1);
+        end
+        
+        function obj=horzcat(varargin)
+            obj=cat(2,varargin{:});
+            updateFile2table(obj,1);
+        end
+        
+        function obj=cat(dim,varargin)
+        % cat - Concatenate tensors.
+        %   
+        %   Y=cat(dim,A,B,C,...) concatenates the tensors
+        %   A,B,C,... along the dimension dim. All the input tensors
+        %   A,B,C,... should have similar sizes, except for the
+        %   dimension dim along which concatenation will take
+        %   place. The resulting tensor Y will also have a similar
+        %   size, except for the dimension dim, for which we will have
+        %        size(Y,dim)=size(A,dim)+size(B,dim)+...
+            
+            [varargin{:}]=toCalculus(varargin{:});
+            k=cellfun(@(x)prod(x.msize)==0,varargin);
+            varargin(k)=[];
+            if length(varargin)==0
+                % empty cat
+                obj=Tconstant([],0);
+                updateFile2table(obj,1);
+            elseif length(varargin)==1
+                % single input cat
+                obj=varargin{1};
+                updateFile2table(obj,1);
+            else        
+                isZeros=true;
+                isOnes=true;
+                k=[];
+                % find number of dimensions
+                nd=dim;
+                for i=1:length(varargin)
+                    obji=varargin{i};
+                    sizei=size(obji);
+                    if length(sizei)>nd
+                        nd=length(sizei);
+                    end
+                end
+                for i=1:length(varargin)
+                    obji=varargin{i};
+                    typei=type(obji);
+                    sizei=size(obji);
+                    isZeros=isZeros && isequal(typei,'zeros');
+                    isOnes=isOnes && isequal(typei,'ones');
+                    % add singleton dimensions to reach desired size
+                    if length(sizei)<nd
+                        sizei=[sizei,ones(1,nd-length(sizei))];
+                        obji=reshape(obji,sizei);
+                        updateFile2table(obji,1);
+                        varargin{i}=obji;
+                    end
+                    if i==1
+                        osize=sizei;
+                        if sizei(dim)>0
+                            % only concatenate non-empty arguments
+                            k=[k,i];
+                        end
+                    else
+                        if ~myisequal(osize([1:dim-1,dim+1:end]),...
+                                      sizei([1:dim-1,dim+1:end]))
+                            varargin{:}
+                            osize
+                            sizei
+                            error('incompatible size for concatenation along dimension %d\n',dim);
+                        end
+                        if sizei(dim)>0
+                            % only concatenate non-empty arguments
+                            osize(dim)=osize(dim)+sizei(dim);
+                            k=[k,i];
+                        end
+                    end
+                end % i=1:length(varargin)
+                if isZeros
+                    obj=Tzeros(osize);
+                    updateFile2table(obj,1);
+                elseif isOnes
+                    obj=Tones(osize);
+                    updateFile2table(obj,1);
+                else
+                    ops=cellfun(@(x)x.TCindex,varargin(k)');
+                    obj=Tcalculus('cat',osize,dim,ops,{},1);
+                end
+            end
+        end
+
         function obj=interpolate(obj1,obj2,obj3,obj4,method,convert)
             warning('interpolate not tested');
         
@@ -1606,111 +2279,6 @@ classdef Tcalculus
         end
             
             
-        % function obj=tprod(varargin) -- in separate file
-
-        function obj=tprod_matlab(varargin)
-            [tprod_size,sums_size]=checkTprodSizes(varargin{:});
-
-            if any(sums_size==0)
-                obj=Tzeros(tprod_size);
-                return
-            end
-            
-            %% Compile operands in 'objs' and 'inds' cells
-            objs={};
-            inds={};
-            for i=1:2:nargin
-                obji=toCalculus(varargin{i});
-                indi=varargin{i+1};
-                objs{end+1,1}=obji;
-                inds{end+1,1}=indi;
-            end              
-            ops=cellfun(@(x)x.TCindex,objs);
-            obj=Tcalculus('tprod_matlab',tprod_size,sums_size,ops,inds,1);
-        end
-
-        function obj=vertcat(varargin)
-            obj=cat(1,varargin{:});
-            updateFile2table(obj,1);
-        end
-        
-        function obj=horzcat(varargin)
-            obj=cat(2,varargin{:});
-            updateFile2table(obj,1);
-        end
-        
-        function obj=cat(dim,varargin)
-            [varargin{:}]=toCalculus(varargin{:});
-            k=cellfun(@(x)prod(x.msize)==0,varargin);
-            varargin(k)=[];
-            if length(varargin)==0
-                % empty cat
-                obj=Tconstant([],0);
-                updateFile2table(obj,1);
-            elseif length(varargin)==1
-                % single input cat
-                obj=varargin{1};
-                updateFile2table(obj,1);
-            else        
-                isZeros=true;
-                isOnes=true;
-                k=[];
-                % find number of dimensions
-                nd=dim;
-                for i=1:length(varargin)
-                    obji=varargin{i};
-                    sizei=size(obji);
-                    if length(sizei)>nd
-                        nd=length(sizei);
-                    end
-                end
-                for i=1:length(varargin)
-                    obji=varargin{i};
-                    typei=type(obji);
-                    sizei=size(obji);
-                    isZeros=isZeros && isequal(typei,'zeros');
-                    isOnes=isOnes && isequal(typei,'ones');
-                    % add singleton dimensions to reach desired size
-                    if length(sizei)<nd
-                        sizei=[sizei,ones(1,nd-length(sizei))];
-                        obji=reshape(obji,sizei);
-                        updateFile2table(obji,1);
-                        varargin{i}=obji;
-                    end
-                    if i==1
-                        osize=sizei;
-                        if sizei(dim)>0
-                            % only concatenate non-empty arguments
-                            k=[k,i];
-                        end
-                    else
-                        if ~myisequal(osize([1:dim-1,dim+1:end]),...
-                                      sizei([1:dim-1,dim+1:end]))
-                            varargin{:}
-                            osize
-                            sizei
-                            error('incompatible size for concatenation along dimension %d\n',dim);
-                        end
-                        if sizei(dim)>0
-                            % only concatenate non-empty arguments
-                            osize(dim)=osize(dim)+sizei(dim);
-                            k=[k,i];
-                        end
-                    end
-                end % i=1:length(varargin)
-                if isZeros
-                    obj=Tzeros(osize);
-                    updateFile2table(obj,1);
-                elseif isOnes
-                    obj=Tones(osize);
-                    updateFile2table(obj,1);
-                else
-                    ops=cellfun(@(x)x.TCindex,varargin(k)');
-                    obj=Tcalculus('cat',osize,dim,ops,{},1);
-                end
-            end
-        end
-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Derivatives                            %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
