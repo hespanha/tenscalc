@@ -1,12 +1,12 @@
 classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy method
 % Class that implements a table-like structure optimized for speed of
-% . appending rows
-% . finding rows
-% Each variable can be
-% . (protected) categorical array
-% . row vector of constant length
-% . cell string
+%  . appending rows
+%  . finding rows
 %
+% Each variable can be
+%  . (protected) categorical array
+%  . row vector of constant length
+%  . cell string
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -71,18 +71,23 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
 
         function obj=fasttable(varargin)
         % obj=fasttable('var name1',type1,'variable name 2',type2,...)
+        %
         %    Creates an table with the given variable names and
         %    types. The types can be:
         %      {cell-string}  = variable will be a categorical array
         %                     with the given categories
         %                     (data stored as a numeric 1-based index)
+        %      
         %      'fixed-vector' = variable is a row vector always with the same size
         %                     (data stored as numeric matrix)
+        %      
         %      'string'     = variable is a string
         %                     (data stored as a string array)
+        %      
         %      'matrix'     = variable is a matrix (different rows may
         %                     have different sizes)
         %                     (packed/unpacked using getByteStreamFromArray/getArrayFromByteStream)
+        %      
         %      'general'    = variable can be of any type (stored as cell array)
         %                     (packed/unpacked using getByteStreamFromArray/getArrayFromByteStream)
             obj.args=varargin;
@@ -185,6 +190,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         
         function rc=isempty(obj)
         % rc=isempty(obj)
+        %   
         %   Returns true if the table has no rows.
             rc=(obj.nRows==0);
         end
@@ -195,6 +201,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         
         function value=getOne(obj,variable,row)
         % value=getOne(obj,variable,rows)
+        %
         %   Returns the value of a given variable for a given row
 
             % if length(row) ~= 1
@@ -218,6 +225,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                 
         function value=getMulti(obj,variable,rows)
         % value=getMulti(obj,variable,rows)
+        %   
         %   Returns the value of a given variable for a set of rows
         %   (a little slower than getOne() for a single row)
             
@@ -262,6 +270,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         
         function set(obj,variable,row,value)
         % set(obj,variable,row,value)
+        %   
         %   Sets value of a given variable,, for a given row
             
             i=find(strcmp(variable,obj.variableNames));
@@ -285,6 +294,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
             
         function row=appendRow(obj,varargin)
         % row=appendRow(obj,value1,value2,...)  
+        %   
         %   Appends a row at the end of the table with the given values
         %   for the variables. Returns the index of the row created.
             
@@ -332,19 +342,23 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
             
         function row=appendRowUnique(obj,varargin)
         % row=appendRowUnique(obj,value1,match1,value2,match2,...)  
+        %   
         %   Searches for a row that matches the given variables.
         %   When found, returns the row index, otherwise
         %   creates a row with the given variables
+        %
         % Inputs:
         %   value1,value2,... - desired values for the variables
+        %
         %   match1,match2,... - when true, equality of the variable is
         %                       needed for a match; when false the
         %                       value of the variable is only used if
         %                       a new row is created.
+        %
         % Output:
         %   row - index of the row created/updated
             
-        % search for a match
+            % search for a match
             % handle 1st element separately to go faster
             if varargin{2}
                 value=varargin{1};
