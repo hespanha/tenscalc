@@ -1,6 +1,6 @@
 function analyzeHess(Hess,Grad,vars,constr,threshold,u,G,F,nu,lambda,mu)
     
-    if nargin<4
+    if nargin<5
         threshold=.1;
     end
 
@@ -98,7 +98,7 @@ function analyzeHess(Hess,Grad,vars,constr,threshold,u,G,F,nu,lambda,mu)
         end
     end
 
-    disp([u,dN(1:length(u))])
+    %disp([u,dN(1:length(u))])
 
 
 end
