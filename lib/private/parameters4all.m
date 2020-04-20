@@ -14,107 +14,6 @@ function localVariables_=parameters4all(localVariables_)
                       });
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Interior-point solver parameters
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
-    % declareParameter(...
-    %     'VariableName','method',...
-    %     'DefaultValue','primalDual',...
-    %     'AdmissibleValues',{'primalDual'},...
-    %     'Description',{
-    %         'Variable that specifies which method should be used:'
-    %         '* |primalDual| - interior point primal-dual method'
-    %         '* |barrier|    - interior point barrier method'
-    %         '                   (not yet implemented)'
-    %                   });
-
-    declareParameter(...
-        'VariableName','skipAffine',...
-        'DefaultValue',true,...
-        'AdmissibleValues',{false,true},...
-        'Description',{;
-            'When |false| the barrier parameter |mu| is updated based on how much';
-            'progress can be achieved in the search direction obtained with |mu=0|.';
-            'This is known as the ''affine search direction step''.';
-            'This step (obtained by setting to |skipAffine|=|false|) can significantly'
-            'speed up convergence by rapidly decreasing the barrier parameter.'
-            'However, it can be fragile for tough non-convex problems.'     
-                      });
-
-    declareParameter(...
-        'VariableName','delta',...
-        'DefaultValue',3,...
-        'AdmissibleValues',{2,3},...
-        'Description',{
-            'Delta parameter used to determine mu based on the affine search direction step:'
-            'Set |Delta=3| for well behaved problems (for an aggressive convergence)'
-            'and |Delta=2| in poorly conditioned problems (for a more robust behavior).'
-            'This parameter is only used when |skipAffine=false|.'
-                      });
-
-    declareParameter(...
-        'VariableName','alphaMin',...
-        'DefaultValue',1e-7,...
-        'Description',{
-            'Minimum value for the scalar gain in Newton''s method line search,'
-            'below which a search direction is declared to have failed.'
-                      });
-    
-    declareParameter(...
-        'VariableName','alphaMax',...
-        'DefaultValue',1,...
-        'Description',{
-            'Maximum value for the scalar gain in Newton''s method line search.'
-            'Should only be set lower to 1 for very poorly scaled problems.'
-                      });
-    
-    declareParameter(...
-        'VariableName','coupledAlphas',...
-        'DefaultValue',true,...
-        'AdmissibleValues',{false,true},...
-        'Description',{
-            'When |true| the same scalar gain is used for the primal and dual variables'
-            'in Newton''s method line search.';
-            ' '
-            'Setting to |false| speeds up convergence in some problems, but appears';
-            'to be somewhat fragile, so it should be set to |false| with caution.'
-                      });
-
-    declareParameter(...
-        'VariableName','smallerNewtonMatrix',...
-        'DefaultValue',false,...
-        'AdmissibleValues',{false,true},...
-        'Description',{
-            'When |true| the matrix that needs to be inverted to compute a Newton step'
-            'is reduced by first eliminating the dual variables associated with inequality'
-            'constrainst.'
-            'However, often the smaller matrix is not as sparse so the computation'
-            'may actually increase.'
-                      });
-    
-    declareParameter(...
-        'VariableName','muFactorAggressive',...
-        'DefaultValue',1/3,...
-        'Description',{
-            'Multiplicative factor used to update the barrier parameter |mu|'
-            '(must be smaller than 1).'
-            'This value is used when there is good progress along the'
-            'Newton direction.'
-            'Nice convex problems can take as low as 1/100, but '
-            'poorly conditioned problems may require as high as 1/3.'
-            'This parameter is only used when |skipAffine=true|.'
-                      });
-    declareParameter(...
-        'VariableName','muFactorConservative',...
-        'DefaultValue',.75,...
-        'Description',{
-            'Multiplicative factor used to update the barrier parameter |mu|'
-            '(must be smaller than 1).'
-            'This value is used when there is poor or no progress along the'
-            'Newton direction. A value not much smaller than one is preferable.'
-                      });
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point solver stopping criteria parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -151,6 +50,107 @@ function localVariables_=parameters4all(localVariables_)
             'Maximum number of Newton iterations.'
                       });
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Interior-point solver parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    % declareParameter(...
+    %     'VariableName','method',...
+    %     'DefaultValue','primalDual',...
+    %     'AdmissibleValues',{'primalDual'},...
+    %     'Description',{
+    %         'Variable that specifies which method should be used:'
+    %         '* |primalDual| - interior point primal-dual method'
+    %         '* |barrier|    - interior point barrier method'
+    %         '                   (not yet implemented)'
+    %                   });
+
+    declareParameter(...
+        'VariableName','muFactorAggressive',...
+        'DefaultValue',1/3,...
+        'Description',{
+            'Multiplicative factor used to update the barrier parameter |mu|'
+            '(must be smaller than 1).'
+            'This value is used when there is good progress along the'
+            'Newton direction.'
+            'Nice convex problems can take as low as 1/100, but '
+            'poorly conditioned problems may require as high as 1/3.'
+            'This parameter is only used when |skipAffine=true|.'
+                      });
+    declareParameter(...
+        'VariableName','muFactorConservative',...
+        'DefaultValue',.75,...
+        'Description',{
+            'Multiplicative factor used to update the barrier parameter |mu|'
+            '(must be smaller than 1).'
+            'This value is used when there is poor or no progress along the'
+            'Newton direction. A value not much smaller than one is preferable.'
+                      });
+
+    declareParameter(...
+        'VariableName','skipAffine',...
+        'DefaultValue',true,...
+        'AdmissibleValues',{false,true},...
+        'Description',{;
+            'When |false| the barrier parameter |mu| is updated based on how much';
+            'progress can be achieved in the search direction obtained with |mu=0|.';
+            'This is known as the ''affine search direction step''.';
+            'This step (obtained by setting to |skipAffine|=|false|) can significantly'
+            'speed up convergence by rapidly decreasing the barrier parameter.'
+            'However, it can be fragile for tough non-convex problems.'     
+                      });
+
+    declareParameter(...
+        'VariableName','delta',...
+        'DefaultValue',3,...
+        'AdmissibleValues',{2,3},...
+        'Description',{
+            'Delta parameter used to determine mu based on the affine search direction step:'
+            'Set |delta=3| for well behaved problems (for an aggressive convergence)'
+            'and |delta=2| in poorly conditioned problems (for a more robust behavior).'
+            'This parameter is only used when |skipAffine=false|.'
+                      });
+
+    declareParameter(...
+        'VariableName','alphaMin',...
+        'DefaultValue',1e-7,...
+        'Description',{
+            'Minimum value for the scalar gain in Newton''s method line search,'
+            'below which a search direction is declared to have failed.'
+                      });
+    
+    declareParameter(...
+        'VariableName','alphaMax',...
+        'DefaultValue',1,...
+        'Description',{
+            'Maximum value for the scalar gain in Newton''s method line search.'
+            'Should only be set lower than 1 for very poorly scaled problems.'
+                      });
+    
+    declareParameter(...
+        'VariableName','coupledAlphas',...
+        'DefaultValue',true,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the same scalar gain is used for the primal and dual variables'
+            'in Newton''s method line search.';
+            ' '
+            'Setting to |false| speeds up convergence in some problems, but appears';
+            'to be somewhat fragile, so it should be set to |false| with caution.'
+                      });
+
+    declareParameter(...
+        'VariableName','smallerNewtonMatrix',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the matrix that needs to be inverted to compute a Newton step'
+            'is reduced by first eliminating the dual variables associated with inequality'
+            'constraints.'
+            'However, often the smaller matrix is not as sparse so the computation'
+            'may actually increase.'
+                      });
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debugging parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -231,7 +231,7 @@ function localVariables_=parameters4all(localVariables_)
             'The class will have the following methods:';
             '   * |obj=classname()| - creates class and loads the dynamic library';
             '                         containing the C code';
-            '   * |delete(obj)|     - deletes the class and unload the dynamic library';
+            '   * |delete(obj)|     - deletes the class and unloads the dynamic library';
             '   * |setP_{parameter}(obj,value)|'
             '                   - sets the value of one of the parameters'
             '   * |setV_{variable}(obj,value)|'
@@ -281,6 +281,15 @@ function localVariables_=parameters4all(localVariables_)
                       });
 
     declareParameter(...
+        'VariableName','folder',...
+        'DefaultValue','.',...
+        'Description', {
+            'Path to the folder where the class and cmex files will be created.';
+            'The folder will be created if it does not exist and it will be added';
+            'to the begining of the path if not there already.'
+                       });
+    
+    declareParameter(...
         'VariableName','simulinkLibrary',...
         'DefaultValue','',...
         'Description', {
@@ -291,15 +300,6 @@ function localVariables_=parameters4all(localVariables_)
                        });
 
 
-    declareParameter(...
-        'VariableName','folder',...
-        'DefaultValue','.',...
-        'Description', {
-            'Path to the folder where the class and cmex files will be created.';
-            'The folder will be created if it does not exist and it will be added';
-            'to the begining of the path if not there already.'
-                       });
-    
     if 0
         declareParameter(...
             'VariableName','codeType',...
