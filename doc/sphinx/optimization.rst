@@ -402,7 +402,7 @@ can be using in ``outputExpressions``:
 :``lambda_``: vector stacked with all dual inequality variables at the
               (last) Newton step.
 
-.. comment:: .. warning:: INCOMPLETE - MISSING SENSITIVITY VARIABLES (perhaps not needed if using |Tvars2optimizeCS|)
+.. comment .. warning:: INCOMPLETE - MISSING SENSITIVITY VARIABLES (perhaps not needed if using |Tvars2optimizeCS|)
 
 .. warning::
    
@@ -535,8 +535,6 @@ from within |matlab| has the following methods:
    :returns iter: number of iterations
    :returns time: solver's compute time (in secs).
 
-.. _`pedigrees`:
-
 Pedigrees
 ---------
 
@@ -552,7 +550,7 @@ outputs are also saved. In case the function produces output files
 (e.g., |C| or |matlab| code), the files are stored with unique names
 for possible subsequent reuse. When the function is called again, it
 checks whether it has been previously called with *the same exact
-input*s:
+inputs*:
 
 * If it has, then the previously saved outputs can be retrieved from
   the appropriate files and the function does not need to be

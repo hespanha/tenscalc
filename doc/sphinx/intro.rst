@@ -38,7 +38,7 @@ For ease of use within |matlab|, both the |C| and |matlab| code are
 encapsulated into |matlab| classes that appear indistinguishable to
 the |matlab| user, aside from the speed of execution. Within the class
 wrapper, the |C| code is called from |matlab| using the `cmex`
-interface and dynamic libraries. **Typically, |C| code is 10-100 times
+interface and dynamic libraries. **Typically, C code is 10-100 times
 faster.**
 
 Which optimizations is |tenscalc| best at?

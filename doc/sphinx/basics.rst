@@ -337,7 +337,7 @@ Indexing and resizing symbolic variables
      - Description
      - Notes
 
-   * - .. mat:function:: reshape(X,size)
+   * - .. function:: reshape(X,size)
        .. function:: reshape(X,n1,...,nd)
      - Reshape array 
      - Similar syntax to |matlab|, except that it does not support using

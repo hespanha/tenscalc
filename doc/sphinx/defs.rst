@@ -13,61 +13,61 @@
 
 .. Classes		 
 
-.. |tcalculus| replace:: :mat:class:`Tcalculus`
-.. |csparse| replace:: :mat:class:`csparse`
+.. |tcalculus| replace:: :class:`Tcalculus`
+.. |csparse| replace:: :class:`csparse`
 
 .. Functions
 
 .. |tvariable-section| replace:: :ref:`Tvariable <Tvariable-section>`
-.. |tvariable| replace:: :mat:func:`Tvariable`
-.. |tzeros| replace:: :mat:func:`Tzeros`
-.. |tones| replace:: :mat:func:`Tones`
-.. |teye| replace:: :mat:func:`Teye`
-.. |tconstant| replace:: :mat:func:`Tconstant`
+.. |tvariable| replace:: :func:`Tvariable`
+.. |tzeros| replace:: :func:`Tzeros`
+.. |tones| replace:: :func:`Tones`
+.. |teye| replace:: :func:`Teye`
+.. |tconstant| replace:: :func:`Tconstant`
 
-.. |size| replace:: :mat:func:`size`
+.. |size| replace:: :func:`size`
 
-.. |reshape| replace:: :mat:func:`reshape`
-.. |repmat| replace:: :mat:func:`repmat`
-.. |full| replace:: :mat:func:`full`
-.. |cat| replace:: :mat:func:`cat`
-.. |vertcat| replace:: :mat:func:`vertcat`
-.. |horzcat| replace:: :mat:func:`horzcat`
-.. |vec2tensor| replace:: :mat:func:`vec2tensor`
+.. |reshape| replace:: :func:`reshape`
+.. |repmat| replace:: :func:`repmat`
+.. |full| replace:: :func:`full`
+.. |cat| replace:: :func:`cat`
+.. |vertcat| replace:: :func:`vertcat`
+.. |horzcat| replace:: :func:`horzcat`
+.. |vec2tensor| replace:: :func:`vec2tensor`
 		      
-.. |sqrt| replace:: :mat:func:`sqrt`
-.. |abs| replace:: :mat:func:`abs`
-.. |max| replace:: :mat:func:`max`
-.. |tprod| replace:: :mat:func:`tprod`
-.. |norm| replace:: :mat:func:`norm`
-.. |norm1| replace:: :mat:func:`norm1`
-.. |norminf| replace:: :mat:func:`norminf`
-.. |sum| replace:: :mat:func:`sum`
-.. |diag| replace:: :mat:func:`diag`
-.. |trace| replace:: :mat:func:`trace`
-.. |det| replace:: :mat:func:`det`
-.. |logdet| replace:: :mat:func:`logdet`
-.. |inv| replace:: :mat:func:`inv`
-.. |traceinv| replace:: :mat:func:`traceinv`
-.. |lu| replace:: :mat:func:`lu`
-.. |ldl| replace:: :mat:func:`ldl`
-.. |lu_d| replace:: :mat:func:`lu_d`
-.. |ldl_d| replace:: :mat:func:`ldl_d`
-.. |*| replace:: :mat:func:`*`
-.. |+| replace:: :mat:func:`+`
-.. |mldivide| replace:: :mat:func:`mldivide`
+.. |sqrt| replace:: :func:`sqrt`
+.. |abs| replace:: :func:`abs`
+.. |max| replace:: :func:`max`
+.. |tprod| replace:: :func:`tprod`
+.. |norm| replace:: :func:`norm`
+.. |norm1| replace:: :func:`norm1`
+.. |norminf| replace:: :func:`norminf`
+.. |sum| replace:: :func:`sum`
+.. |diag| replace:: :func:`diag`
+.. |trace| replace:: :func:`trace`
+.. |det| replace:: :func:`det`
+.. |logdet| replace:: :func:`logdet`
+.. |inv| replace:: :func:`inv`
+.. |traceinv| replace:: :func:`traceinv`
+.. |lu| replace:: :func:`lu`
+.. |ldl| replace:: :func:`ldl`
+.. |lu_d| replace:: :func:`lu_d`
+.. |ldl_d| replace:: :func:`ldl_d`
+.. |*| replace:: :func:`*`
+.. |+| replace:: :func:`+`
+.. |mldivide| replace:: :func:`mldivide`
 
-.. |gradient| replace:: :mat:func:`gradient`
+.. |gradient| replace:: :func:`gradient`
 
-.. |cmex2optimizeCS| replace:: :mat:func:`cmex2optimizeCS`
-.. |class2optimizeCS| replace:: :mat:func:`class2optimizeCS`
+.. |cmex2optimizeCS| replace:: :func:`cmex2optimizeCS`
+.. |class2optimizeCS| replace:: :func:`class2optimizeCS`
 
-.. |cmex2equilibriumLatentCS| replace:: :mat:func:`cmex2equilibriumLatentCS`
-.. |class2equilibriumLatentCS| replace:: :mat:func:`class2equilibriumLatentCS`
+.. |cmex2equilibriumLatentCS| replace:: :func:`cmex2equilibriumLatentCS`
+.. |class2equilibriumLatentCS| replace:: :func:`class2equilibriumLatentCS`
 
-.. |cmex2compute| replace:: :mat:func:`cmex2compute`
-.. |class2compute| replace:: :mat:func:`class2compute`
+.. |cmex2compute| replace:: :func:`cmex2compute`
+.. |class2compute| replace:: :func:`class2compute`
 
-.. |Tvars2optimizeCS| replace:: :mat:func:`Tvars2optimizeCS`
+.. |Tvars2optimizeCS| replace:: :func:`Tvars2optimizeCS`
 			     
 
