@@ -52,7 +52,7 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
     instrX=instrLDL(k);
     
     % keep subsX in the natural order
-    [subsX,k]=sort(subsX');
+    [subsX,k]=sortrows(subsX');
     subsX=subsX';
     instrX=instrX(k);
     

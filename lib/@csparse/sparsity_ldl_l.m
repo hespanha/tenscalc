@@ -48,11 +48,11 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
 
     % Compute instructions
     k=find(subsLDL(1,:)>subsLDL(2,:)); % find below diagonal
-    subsX=[subsLDL(1,k),subsLDL(2,k)];
+    subsX=[subsLDL(1,k);subsLDL(2,k)];
     instrX=instrLDL(k);
     
     % keep subsX in the natural order
-    [subsX,k]=sort(subsX');
+    [subsX,k]=sortrows(subsX');
     subsX=subsX';
     instrX=instrX(k);
     

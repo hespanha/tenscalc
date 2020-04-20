@@ -221,12 +221,12 @@ classdef csparse < handle
             obj.vectorizedOperations=fasttable(...
                 'type',{...      % type of operation
                     'variable','zeros','constant','eye','ones',...
-                    'subsref','cat','reshape','repmat','full',...
+                    'subsref','cat','reshape','vec2tensor','repmat','full',...
                     'plus','tprod','norm2','norm1','norminf','all','any','min','max','min2','max2',...
                     'abs','clp','compose','componentwise',...
-                    'lu','lu_sym','ldl','ldl_l','ldl_d','chol',...
-                    'inv_ldl','logdet_ldl','traceinv_ldl',...
-                    'inv_lu','logdet_lu','traceinv_lu',...
+                    'lu','lu_sym','lu_d','ldl','ldl_l','ldl_d','chol',...
+                    'inv_ldl','det_ldl','logdet_ldl','traceinv_ldl',...
+                    'inv_lu','det_lu','logdet_lu','traceinv_lu',...
                     'mldivide','mldivide_l1','mldivide_u','mldivide_u1','mldivide_d',...
                     'rdivide','mtimes','ctranspose','times','sum','diag','tprod_matlab'...
                        },...
@@ -759,6 +759,11 @@ classdef csparse < handle
                 nameMatch=false;
                 pars=osize;
                 parametersMatch=true;
+              case {'vec2tensor'}
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                pars=parameters(TCobj);
+                parametersMatch=true;                
               case {'clp','subsref','min','max',...
                     'all','any','cat','sum','repmat','abs',...
                     'times','mtimes','norm2','norm1','norminf',...
@@ -790,7 +795,7 @@ classdef csparse < handle
                                     % truncated by gradient)
                 parametersMatch=true;
                 
-              case {'logdet','traceinv'}
+              case {'det','logdet','traceinv'}
                 pars=[];
                 parametersMatch=false;
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
@@ -801,7 +806,7 @@ classdef csparse < handle
                   case {'lu','lu_sym'}
                     typ=[typ,'_lu'];
                   otherwise;
-                    error('unexpected operand for logdet ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl'', ''lu'', or ''lu_sym''\n',optype);
+                    error('unexpected operand for %s ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl'', ''lu'', or ''lu_sym''\n',typ,optype);
                 end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
@@ -948,6 +953,17 @@ classdef csparse < handle
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'ldl')
                     error('unexpected operand for ldl_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
+                end                    
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false;
+                pars=parameters(TCobj);
+                pars=[];
+                  
+              case 'lu_d'
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                if ~strcmp(optype,'lu')
+                    error('unexpected operand for lu_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
                 end                    
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
@@ -1335,11 +1351,31 @@ classdef csparse < handle
             sets=[];
             set_names={};
             for k=1:length(obj.sets)
-                sets=[sets;obj.sets(k).destination];
+                dest=obj.sets(k).destination;
+                typ=getOne(obj.vectorizedOperations,'type',dest);
+                if strcmp(typ,'subsref') 
+                    %% perhaps a subsref to a variable? Dangerous but possible
+                    ops=getOne(obj.vectorizedOperations,'operands',dest);
+                    typ1=getOne(obj.vectorizedOperations,'type',ops(1));
+                    if strcmp(typ1,'variable') 
+                        dest=ops(1);
+                    end
+                end                
+                sets=[sets;dest];
                 set_names{end+1,1}=obj.sets(k).functionName;
             end
             for k=1:length(obj.copies)
-                sets=[sets;obj.copies(k).destination];
+                dest=obj.copies(k).destination;
+                typ=getOne(obj.vectorizedOperations,'type',dest);
+                if strcmp(typ,'subsref') 
+                    %% perhaps a subsref to a variable? Dangerous but possible
+                    ops=getOne(obj.vectorizedOperations,'operands',dest);
+                    typ1=getOne(obj.vectorizedOperations,'type',ops(1));
+                    if strcmp(typ1,'variable') 
+                        dest=ops(1);
+                    end
+                end                
+                sets=[sets;dest];
                 set_names{end+1,1}=obj.copies(k).functionName;
             end
             sets=unique(sets);

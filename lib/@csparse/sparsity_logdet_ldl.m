@@ -34,7 +34,7 @@ function [subsY,instrY]=sparsity_logdet_ldl(obj,thisExp)
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
     if length(osizeLDL)~=2 || osizeLDL(1)~=osizeLDL(2)
         osizeLDL
-        error('sparsity_!logdet_ldl: in logdet_ldl(LDL), LDL must be a square (2D) matrix\n');
+        error('sparsity_logdet_ldl: in logdet_ldl(LDL), LDL must be a square (2D) matrix\n');
     else
         n=double(osizeLDL(1));
     end

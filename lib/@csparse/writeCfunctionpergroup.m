@@ -595,7 +595,7 @@ for i=1:length(obj.gets)
     for j=1:nSources
         subscripts=getOne(obj.vectorizedOperations,'subscripts',obj.gets(i).source(j));
         osize=getOne(obj.vectorizedOperations,'osize',obj.gets(i).source(j));
-        isSparse(j)=length(osize)==2 & size(subscripts,2)~=prod(osize);
+        isSparse(j)=length(osize)<=2 & size(subscripts,2)~=prod(osize);
         if isSparse(j)
             obj.template(obj.gets(i).templateNdx).outputs(j).type='sparse';
         end
@@ -673,19 +673,26 @@ for i=1:length(obj.gets)
         instructions=getOne(obj.vectorizedOperations,'instructions',obj.gets(i).source(j));
         instructions=obj.memoryLocations(instructions)';
         osize=getOne(obj.vectorizedOperations,'osize',obj.gets(i).source(j));
-        
-        if length(osize)==2 & size(subscripts,2)~=prod(osize)
+
+        if length(osize)<=2 & size(subscripts,2)~=prod(osize)
+            msize=osize;
+            msubscripts=subscripts;
+            while length(msize)<2
+                msize(end+1)=1;
+                msubscripts(end+1,:)=ones(1,size(msubscripts,2));
+            end
+            
             %% sparse matrices returned in compressed-column form
 
             % compute sparse arrays
-            %[subscripts',instructions]
-            [ji,k]=sortrows(subscripts(end:-1:1,:)');
+            %[msubscripts',instructions]
+            [ji,k]=sortrows(msubscripts(end:-1:1,:)');
             % http://www.mathworks.com/help/matlab/apiref/mxsetir.html
             ir=ji(:,2)-1; 
             % http://www.mathworks.com/help/matlab/apiref/mxsetjc.html
-            jc=zeros(osize(2)+1,1);
+            jc=zeros(msize(2)+1,1);
             this=0;
-            for l=1:osize(2)
+            for l=1:msize(2)
                 this=this+sum(ji(:,1)==l);
                 jc(l+1)=this;
             end
