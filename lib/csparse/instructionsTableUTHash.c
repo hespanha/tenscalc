@@ -820,6 +820,7 @@ EXPORT int writeCinstructionsC(/* inputs */
   int64_t odiv;
   int nSums,op;
 
+  // P_nsum, P_nprod, etc. defined in instructionTypes.m
 #define countFlops_nsum     countFlops[P_nsum-1]
 #define countFlops_nprod    countFlops[P_nprod-1]
 #define countFlops_ndiv     countFlops[P_ndiv-1]
@@ -866,7 +867,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 #define NEXT_OPERAND(i) if (deltaOperands[i]==1) fprintf(fid,",op%d++",i); else if (deltaOperands[i]==-1) fprintf(fid,",op%d--",i); else if (deltaOperands[i]!=0) fprintf(fid,",op%d+=(%"PRId64")",i,deltaOperands[i])
 
 #if P_nCountFlops != 17
-#error "update outputs field of writeCinstructionsC() (line 102)"
+#error "update outputs field of writeCinstructionsC() (line 103) of instructionsTableUTHash.c"
 #endif
  
   FILE *fid=fopen("tmp_toremove.c","w");
