@@ -1,8 +1,20 @@
 function grad=gradient(obj,var)
-% grad=gardient(obj,var)
-% 
-% Computes the gradient of the expression 'obj', with respect to the 
-% variable 'var'.
+% gradient - Gradient of a tensor-values symbolic expression with
+%            respect to a tensor-valued symbolic variable
+%  
+%    g=gradient(f,x), returns a tensor with the partial derivatives of
+%    the entries of f with respect to the entries of the variable x
+%
+%    When f is a tensor with size 
+%      [n1,n2,...,nN] 
+%    and x a tensor-valued variable (created with Tvariable) with size
+%      [m1,m2,...,mM]
+%    then
+%      g=gradient(f,x) 
+%    results in a tensor g with size
+%      [n1,n2,...,nN,m1,m2,...,mM]
+%    with
+%      g(i1,i2,...,iN,j1,j2,...,jM)=d f(i1,i2,...,iN) / d x(j1,j2,...,jM)
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -57,7 +69,7 @@ function grad=gradient(obj,var)
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
         updateFile2table(objs{i},1);
-        if ismember(obj_type,{'logdet','traceinv','inv'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
+        if ismember(obj_type,{'det','logdet','traceinv','inv'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
             grads{i}=gradient(Tcalculus(operands(objs{i})),var);
         else
             grads{i}=gradient(objs{i},var);
@@ -94,6 +106,11 @@ function grad=gradient(obj,var)
         osize1=size(objs{1});
         osize=[obj_size,gsize1(length(osize1)+1:end)];
         grad=reshape(grads{1},osize);
+        
+      case 'vec2tensor'
+        % subscripts are stores in the transposed form, which is more
+        % compatible with tenscalc's internal representation
+        grad=vec2tensor(grads{1},pars{2},pars{3}',pars{1});
         
       case 'full'
         grad=full(grads{1});
@@ -191,6 +208,12 @@ function grad=gradient(obj,var)
       case 'logdet'
         osize1=size(objs{1});
         grad=tprod(inv(objs{1}),[-2,-1],...
+                   grads{1},[-1,-2,1:length(var_size)]);
+        
+      case 'det'
+        osize1=size(objs{1});
+        grad=tprod(det(objs{1}),[],...
+                   inv(objs{1}),[-2,-1],...
                    grads{1},[-1,-2,1:length(var_size)]);
         
       case 'traceinv'
