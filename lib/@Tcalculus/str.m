@@ -74,7 +74,14 @@ function s=str(obj,tprod2mat,maxDepth)
                     error('unkown parameter type %s',class(parameters));
                 end
               case 'cell'
-                s=horzcat(s,char(parameters{1}),',');
+                for i=1:min(length(parameters),2)
+                    switch class(parameters{1})
+                      case 'double'
+                        s=horzcat(s,'[',index2str(parameters{i}),'],');
+                      otherwise
+                        s=horzcat(s,char(parameters{i}),',');
+                    end
+                end
               otherwise
                 error('unkown parameter type %s',class(parameters));
             end
