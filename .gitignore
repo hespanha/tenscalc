@@ -47,7 +47,6 @@ old/
 
 ## other files to be fixed
 /test-asm/
-/test/
 /lib/tools/
 /doc/instructionscheduling.*
 
