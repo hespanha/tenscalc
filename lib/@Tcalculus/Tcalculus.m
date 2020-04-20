@@ -49,7 +49,7 @@ classdef Tcalculus
         function [ops,inds]=tprod_sort_operands(objs,inds)
         % sort: 1st eye, 2nd ones, 3rd constanst, ... , last variables & by TCindex
         % order seems to make a difference in terms of code size (?)
-            
+             
             ops=cellfun(@(x)x.TCindex,objs);
             p=[zeros(length(objs),1),ops];
             for i=1:length(objs)
@@ -82,6 +82,7 @@ classdef Tcalculus
         %            value    for type='constant'
         %            dim      for type='cat'
         %            cell array of fun for type='compose'
+        %            cell array with {dim,sz,subscripts} for type=vec2tensor
         %            sum_size for type='tprod'
         %            sizes    for type='repmat'
         %            method   for type='Xinterpolate'
@@ -365,7 +366,7 @@ classdef Tcalculus
         %   
         %   m=size(X,dim), for a tensor X with d dimensions, returns
         %   the number of elements of X in the dimensions specified by
-        %   dim. dim can be a scalar or a vector, in the later case, m
+        %   dim. dim can be a scalar or a vector, in the latter case, m
         %   has the same size as d.
         
             if 0
@@ -396,7 +397,7 @@ classdef Tcalculus
         %
         % Note that a scalar (which has size = []) has 0 dimensions
 
-            len=max(size(obj));
+            len=length(size(obj));
         end
 
         function len=length(obj)
@@ -508,7 +509,7 @@ classdef Tcalculus
                     S.subs
                     osize
                     error(['subsref: mismatch between object length (%d) and ' ...
-                           'indexing length (%d)'],length(osize),length(S.subs));
+                           'subscript length (%d)'],length(osize),length(S.subs));
                 end
                 trivial=true;
                 for i=1:length(S.subs)
@@ -519,16 +520,16 @@ classdef Tcalculus
                             if length(S.subs{i})==osize(i)
                                 S.subs{i}=find(S.subs{i});
                             else
-                                error('subsref: index in dimension %d using logical array with length %d that does not match tensor size %d\n',i,length(S.subs{i}),osize(i))
+                                error('subsref: subscript in dimension %d using logical array with length %d that does not match tensor size %d\n',i,length(S.subs{i}),osize(i))
                             end
                         end
                         if any(S.subs{i}<1)
                             S.subs{i}
-                            error('subsref: index in dimension %d smaller than 1\n',i)
+                            error('subsref: subscript in dimension %d smaller than 1\n',i)
                         end
                         if any(S.subs{i}>osize(i))
                             S.subs{i}
-                            error('subsref: index in dimension %d exceeds tensor dimension (%d)\n',osize(i))
+                            error('subsref: subscript in dimension %d exceeds tensor dimension (%d)\n',i,osize(i))
                         end
                         if ~myisequal(S.subs{i}(:)',1:osize(i))
                             trivial=false;
@@ -649,6 +650,73 @@ classdef Tcalculus
             end
         end
 
+        function obj=vec2tensor(obj1,sz,subs,dim)
+        % vec2tensor - Expands a vector to a sparse tensor
+        %   
+        %   vec2tensor(X,sz,subs), given 
+        %     * Tcalculus n-vector X (tensor with size [n]) a
+        %     * vector sz with d integers
+        %     * nxd matrix subs of subscripts
+        %   returns 
+        %     * Tcalculus tensor Y with size sz, with the nonzero
+        %       entries taken from X, with
+        %          Y(subs(i,:))=X(i) for i=1:n
+        %
+        %   vec2tensor(X,sz,subs,dim), given 
+        %     * Tcalculus tensor X with size(X,dim)=n
+        %     * vector sz with d integers
+        %     * nxd matrix subs of subscripts
+        %   returns 
+        %     * Tcalculus tensor Y with size similar to that of X, but
+        %       the dim dimension expanded to the sizes in sz, and the nonzero
+        %       entries taken from X, with
+        %          Y(...,subs(i,:),...)=X(...,i,...) for i=1:n
+        %       where the ... denote indices of the dimensions before and
+        %       after dim
+            if nargin<4
+                dim=1;
+            end
+            
+            if ndims(obj1)<1
+                error('vec2tensor can only be used for tensors with 1 or more dimensions')
+            end
+            
+            if length(dim)~=1
+                disp(dim)
+                error('vec2tensorc''s 3rd argument must be a scalar')
+            end
+            
+            if dim>ndims(obj1)
+                error('vec2tensor''s 3rd argument subs (%d) must be no larger than number of tensor dimensions [%s]\n',...
+                      dim,index2str(size(obj1)))
+            end
+            
+            if length(sz)~=size(subs,2)
+                error('vec2tensor: length of 2nd argument sz (%d) must match number of columns of 3rd argument subs ([%s])',...
+                      length(sz),index2str(subs));
+            end
+            
+            osize1=size(obj1);
+            if size(subs,1)~=osize1(dim)
+                error('vec2tensor: number of rows of 3rd argument subs (size(subs)=[%s]) must match size(X[%s],dim=%d)',...
+                      index2str(size(subs)),index2str(osize1),dim);
+            end
+
+            for i=1:length(sz)
+                if any(subs(:,i)<1)
+                    error('subsref: subscript in dimension %d smaller than 1\n',i);
+                end
+                if any(subs(:,i)>sz(i))
+                    error('vec2tensor: subscript in dimension %d exceeds tensor dimension (%d)\n',i,sz(i))
+                end
+            end
+            
+            osize=[osize1(1:dim-1),sz(:)',osize1(dim+1:end)];
+            % subscripts are stores in the transposed form, which is more
+            % compatible with tenscalc's internal representation
+            obj=Tcalculus('vec2tensor',osize,{dim,sz,subs'},obj1.TCindex,{},1);
+        end
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%               Unitary functions/operators                %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -670,23 +738,139 @@ classdef Tcalculus
             updateFile2table(obj,1);
         end
         
+        function obj=norm(obj1,p)
+        % norm - Vector, matrix, or tensor norm
+        % 
+        %    norm(x) or norm(x,2) returns the 2-norm of the vector x
+        %   
+        %    norm(x,1) returns the 1-norm of the vector or matrix x
+        %   
+        %    norm(x,inf) returns the infinity norm of the vector or matrix x
+        %   
+        %    norm(x,'fro') returns the Frobenius norm of the tensor x
+        %    
+        % Attention:   
+        % 
+        % The 1-norm should be avoided in optimization criteria
+        % because it is not differentiable at points where the optimum
+        % often lies. This can be done by introducing slack variables
+        % and constraints. For example, a minimization of the form
+        %      min { norm(x,1) : x in R^n , F(x)>= 0 \}
+        % can be reformulates as
+        %      min { sum(v) : v,x in R^n , -v <=x<= v, F(x)>= 0 \}
+        % 
+        % The infinity norm should also be avoided in optimization
+        % criteria for similar reasons. This can be done by
+        % introducing slack variables and constraints. For example, a
+        % minimization of the form
+        %      min { norm(x,inf) : x in R^n , F(x)>= 0 \}
+        % can be reformulates as
+        %      min { v : v in R ,x in R^n , -v <=x<= v, F(x)>= 0 \}
+            
+            if nargin<2
+                p=2;
+            end
+            
+            if strcmp(type(obj1),'zeros')
+                obj=Tzeros([]);
+                updateFile2table(obj,1);
+            end
+            
+            switch p
+              case 2
+                switch ndims(obj1)
+                  case 0
+                    obj=abs(obj1);
+                  case 1
+                    obj=sqrt(norm2(obj1));
+                    %obj=Tcalculus('normEuclidean',[],[],obj1.TCindex,{},1);                    
+                  otherwise
+                    error('2-norm only available for Tcalculus vectors, not [%s]-tensors',index2str(size(obj1)));
+                end
+              case 1
+                switch ndims(obj1)
+                  case 0;
+                    obj=abs(obj1);
+                  case 1
+                    obj=sum(abs(obj1),1);
+                    %obj=Tcalculus('norm1',[],[],obj1.TCindex,{},1);
+                  case 2
+                    obj=max(sum(abs(obj1),1),[],1);
+                  otherwise
+                    error('1-norm only available for Tcalculus vectors and matrices, not [%s]-tensors',index2str(size(obj1)));
+                end
+              case inf
+                switch ndims(obj1)
+                  case 0;
+                    obj=abs(obj1);
+                  case 1
+                    obj=max(abs(obj1));
+                    %obj=Tcalculus('norminf',[],[],obj1.TCindex,{},1);
+                  case 2
+                    obj=max(sum(abs(obj1),2),[],1);
+                  otherwise
+                    error('inf-norm only available for Tcalculus vectors and matrices, not [%s]-tensors',index2str(size(obj1)));
+                end
+              case 'fro'
+                obj=sqrt(norm2(obj1));
+              otherwise
+                if isnumeric(p) && length(p)==1
+                    if ndims(obj1)==1
+                        obj=power(sum(abs(obj1).^p,1),1/p);
+                    else
+                        error('p-norm only available for Tcalculus vectors, not [%s]-tensors',index2str(size(obj1)));
+                    end
+                else
+                    error('second argument for norm(.) must be 1,2,inf,''fro'',or a scalar');
+                end
+            end
+            
+        end
+                
         function obj=norm1(obj1)
+        % norm1 - Sum of absolute values of tensor entries
+        %   
+        %   norm1(x) returns the sum of the absolute value of all
+        %   entries of the tensor x, which for vectors corresponds to
+        %   the 1-norm of x.
+        %
+        %   norm1(x) is similar to sum(abs(x),'all'), but the former
+        %   computes derivatives more efficiently.
+        %
+        % Attention:   
+        % 
+        % norm1 should be avoided in optimization criteria because
+        % it is not differentiable at points where the optimum often
+        % lies. This can be done by introducing slack variables and
+        % constraints. For example, a minimization of the form
+        %      min { norm1(x) : x in R^n , F(x)>= 0 \}
+        % can be reformulates as
+        %      min { sum(v,'all') : v,x in R^n , -v <=x<= v, F(x)>= 0 \}
+            
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
             else
-                obj=Tcalculus('norm1',[],[],obj1.TCindex,{},1);
+                obj=sum(abs(obj1),'all');
+                %obj=Tcalculus('norm1',[],[],obj1.TCindex,{},1);
             end
         end
-        
+
         function obj=norm2(obj1,S)
-        % y=norm2(x) returns the sum of the square of all entries opf
-        % x, which for matrices corresponds to the square of the
-        % Frobenius norm of x.
+        % norm2 - Squared quadratic norm 
+        %   
+        %   norm2(x) returns the sum of the square of all entries of
+        %   the tensor x, which for matrices corresponds to the square
+        %   of the Frobenius norm of x.
+        %   
+        %   norm2(x) is similar to sum(x.^2,'all'), but the former
+        %   computes derivatives more efficiently.
         %
-        % y=norm2(x,S) returns the value of the quadratic form
-        % <x,Sx>. This form is only applicable when x is a vector
-        % (1d-tensor) and S a square matrix (2d-tensor).
+        %   norm2(x,S) returns the value of the quadratic form
+        %   <x,Sx>. This form is only applicable when x is a vector
+        %   (tensor with 1 dimension) and S a square matrix
+        %   (tensor with 2 dimensions).
+
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
@@ -706,6 +890,24 @@ classdef Tcalculus
         end
         
         function obj=norminf(obj1)
+        % norminf - Maximum absolute value of tensor entries
+        %   
+        %   norminf(x) returns the largest absolute value of all
+        %   entries of the tensor x, which for vectors corresponds to
+        %   the infinity-norm of x.
+        %
+        %   norminf(x) is similar to max(abs(x),[],'all'), but the former
+        %   computes derivatives more efficiently.
+        %
+        % Attention:   
+        % 
+        % norminf() should be avoided in optimization criteria because
+        % it is not differentiable at points where the optimum often
+        % lies. This can be done by introducing slack variables and
+        % constraints. For example, a minimization of the form
+        %      min { norminf(x) : x in R^n , F(x)>= 0 \}
+        % can be reformulates as
+        %      min { v : v in R,x in R^n , -v <=x<= v, F(x)>= 0 \}
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
@@ -737,7 +939,7 @@ classdef Tcalculus
             end
         end
         
-        function obj=sum(obj1,ind1,sum2tprod)
+        function obj=sum(obj1,dimension,sum2tprod)
         % sum - sum of tensor entries
         %   
         %   s=sum(X,vecdim) sums the entries of the tenasor X along
@@ -754,29 +956,32 @@ classdef Tcalculus
             end
             if nargin<2 
                 if length(size(obj1))==1
-                    ind1=1;
+                    dimension=1;
                 else
                     error('Tcalculus.sum: must include dimension to sum');
                 end
             end
-            if myisequal(ind1,'all')
-                ind1=1:ndims(obj1);
+            if myisequal(dimension,'all')
+                dimension=1:ndims(obj1);
             end
             if sum2tprod
                 ind=zeros(1,length(size(obj1)));
-                ind(ind1)=-1:-1:-length(ind1);
-                ind(ind==0)=1:length(size(obj1))-length(ind1);
+                ind(dimension)=-1:-1:-length(dimension);
+                ind(ind==0)=1:length(size(obj1))-length(dimension);
                 obj=tprod(obj1,ind);
                 updateFile2table(obj,1);
             else
                 ssize=size(obj1);
-                ssize(ind1)=[];
-                obj=Tcalculus('sum',ssize,ind1,obj1.TCindex,{},1);
+                ssize(dimension)=[];
+                obj=Tcalculus('sum',ssize,dimension,obj1.TCindex,{},1);
             end
         end
         
         function obj=reduce(obj1,dimension,type)
         % used by min,max,all,any
+            if myisequal(dimension,'all')
+                dimension=1:ndims(obj1);
+            end
             osize=size(obj1);
             osize(dimension)=[];
             obj=Tcalculus(type,osize,dimension,obj1.TCindex,{},2);
@@ -898,39 +1103,58 @@ classdef Tcalculus
             obj=reduce(obj1,dimension,'any');
         end
             
-        function obj=diag(obj1,diag2tprod)
+        function obj=diag(obj1,k)
+        % diag - Diagonal matrices and diagonals of a matrix.
+        %   
+        %   diag(v,k) when v is an n-vector, returns a square matrix
+        %   with n+abs(k) rows/columns, with the k-th diagonal equal
+        %   to v. k=0 corresponds to the main diagonal, k>0 above the
+        %   main diagonal and k<0 below. 
+        %   
+        %   diag(v) when v is an n-vector, returns the same as
+        %   diag(v,0) and puts v in the main diagonal
+        %   
+        %   diag(A) when A is an n-by-n a matrix, returns an n`-vector
+        %   with the main diagonal of A.
+        %   
+        % Attention: diag(A) with A a matrix doe *not* support a
+        % second argument specifying a diagonal other than the main
+        % diagonal.
             if nargin<2
-                diag2tprod=true;
+                k=0;
             end
             osize1=size(obj1);
-            if diag2tprod
-                if length(osize1)==1
-                    % vector->matrix
-                    obj=tprod(obj1,1,Teye([osize1,osize1]),[1,2]);
-                    updateFile2table(obj,1);
-                elseif length(osize1)==2 && osize1(1)==osize1(2)
-                    % matrix->vector
-                    obj=tprod(obj1,[1,1]);
-                    updateFile2table(obj,1);
+            if length(osize1)==1
+                % vector->matrix
+                %obj=tprod(obj1,1,Teye([osize1,osize1]),[1,2]); % only for k=0
+                
+                % in principle more efficient since it will never require
+                % multiplications, but tprod is also pretty good at
+                % handling multiplication by Teye;
+                if k>=0
+                    obj=vec2tensor(obj1,[osize1+k,osize1+k],[1:osize1;k+1:k+osize1]'); 
                 else
-                    obj1
-                    error('ambigous Tcalculus/diag()');
+                    obj=vec2tensor(obj1,[osize1-k,osize1-k],[1-k:osize1-k;1:osize1]'); 
                 end
+                updateFile2table(obj,1);
+            elseif length(osize1)==2 && osize1(1)==osize1(2)
+                if nargin>1
+                    error('diag(x) can only take 2nd argument when x is a vector')
+                end
+                % matrix->vector
+                obj=tprod(obj1,[1,1]);
+                updateFile2table(obj,1);
             else
-                if length(osize1)==1
-                    % vector->matrix
-                    obj=Tcalculus('diag',[osize1,osize1],[],obj1.TCindex,{},1);
-                elseif length(osize1)==2 && osize1(1)==osize1(2)
-                    % matrix->vector
-                    obj=Tcalculus('diag',osize1(1),[],obj1.TCindex,{},1);
-                else
-                    obj1
-                    error('ambigous Tcalculus/diag()');
-                end
+                obj1
+                error('ambigous Tcalculus/diag()');
             end
         end
         
         function obj=trace(obj1)
+        % trace - Sum of diagonal elements.
+        %   
+        %  trace(A) is the sum of the diagonal elements of A, which is
+        %  also the sum of the eigenvalues of A.
             osize1=size(obj1);
             if length(osize1)==2 && osize1(1)==osize1(2)
                 obj=tprod(obj1,[-1,-1]);
@@ -941,11 +1165,21 @@ classdef Tcalculus
         end
         
         function obj=transpose(obj1)
+        % .' or transpose - transpose of a real-values tensor
+        %  
+        % Attention: TensCalc does not support complex-valued
+        % variables and therefore transpose() and ctranspose() return
+        % the same values.
             obj=ctranspose(obj1);
             updateFile2table(obj,1);
         end
         
         function obj=ctranspose(obj1)
+        % ' or ctranspose - transpose of a real-values tensor
+        %  
+        % Attention: TensCalc does not support complex-valued
+        % variables and therefore transpose() and ctranspose() return
+        % the same values.
             %obj1=toCalculus(obj1);
             % if length(size(obj1))==1 % convert vectors to matrices
             %     size(obj1)=[size(obj1),1];
@@ -1000,31 +1234,132 @@ classdef Tcalculus
             obj=factor(obj1,'chol',varargin{:});
         end
         function obj=ldl(obj1,varargin)
-        % LDL=ldl(A) - returns the LDL factorization of a symmetric matrix
+        % ldl - LDL factorization of a symmetric matrix
+        %    
+        %    ldl(A) computes the LDL factorization of a symmetric
+        %    matrix (n-by-n tensor).
+        %    
+        %    ldL(A) actually uses "pychologically lower/upper
+        %    triangular matrices", i.e., matrices that are triangular
+        %    up to a permutation, with permutations selected to
+        %    minimize the fill-in for sparse matrices and reduce
+        %    computation time (see documentation for lu with sparse
+        %    matrices).
+        %    
+        %    The LDL factorization used requires all elements of the
+        %    main diagonal to be nonzero, if this is not the case the
+        %    lu() factorization should be used.
+        %
+        %    All entries of ``A`` above the main diagonal are ignored
+        %    and assumed to be equal to the one below the main diagonal,
+        %    *without performing any test regarding of whether or not
+        %    this is true*.
+        %    
+        % Attention: The output of this function includes the whole
+        % factorization as a single entity, in a format that can be
+        % passed to functions that require factorizations (such as
+        % mldivide, inv, det, logdet, traceinv), but should *not* be
+        % used bu functions that are not expecting a factorized matrix
+        % as an input.
             obj=factor(obj1,'ldl',varargin{:});
         end
-        function obj=ldl_l(obj1)
-        % L=ldl_l(LDL(A)) - returns the L matrix of the LDL factorization of a symmetric matrix
-            if ~strcmp(type(obj1),'ldl')
-                error('%d can only be called for ldl factorizations (not ''%s'')',type(obj1))
-            end
-            osize1=size(obj1);
-            obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
-        end
+        
+        % function obj=ldl_l(obj1)
+        % % L=ldl_l(LDL(A)) - returns the L matrix of the LDL factorization of a symmetric matrix
+        % % NOT VERY USEFUL SINCE ONLY UP TO A PERMUTATION
+        %     if ~strcmp(type(obj1),'ldl')
+        %         error('ldl_l can only be called for LDL factorizations (not ''%s'')',type(obj1))
+        %     end
+        %     osize1=size(obj1);
+        %     obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
+        % end
+        
         function obj=ldl_d(obj1)
-        % L=ldl_d(ldl(A)) - returns the D matrix of the LDL factorization of a symmetric matrix
+        % ldl_d - Diagonal matrix of an LDL factorization
+        %      
+        %   ldl_d(ldl(A)) return the main diagonal of the diagonal
+        %   matrix in an LDL factorization
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized with ldl(). 
+        %   
+        %   The ldl() factorization should only be used for symmetric
+        %   matrices with nonzero elements in the main diagonal.
+        %
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
+            
             if ~strcmp(type(obj1),'ldl')
-                error('%d can only be called for ldl factorizations (not ''%s'')',type(obj1))
+                error('ldl_d can only be called for LDL factorizations (not ''%s'')',type(obj1))
             end
             osize1=size(obj1,1);
             obj=Tcalculus('ldl_d',osize1,[],obj1.TCindex,{},1);
         end
+
+        function obj=lu_d(obj1)
+        % lu_d - Diagonal matrix of the U matrix in an LU factorization
+        %      
+        %   lu_d(lu(A)) return the main diagonal of the U matrix in an
+        %   LU factorization. The main diagonal of the L matrix is
+        %   equal to 1.
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized with lu(). 
+            
+            if ~strcmp(type(obj1),'lu')
+                error('lu_d can only be called for LU factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1,1);
+            obj=Tcalculus('lu_d',osize1,[],obj1.TCindex,{},1);
+        end
+        
         function obj=lu(obj1,varargin)
-        % LU=lu(A) - returns the LU factorization of a general matrix
+        % lu - LU factorization
+        %    
+        %    lu(A) computes the LU factorization of a matrix (tensor
+        %    with 2 dimensions).
+        %    
+        %    lu(A) actually uses "pychologically lower triangular
+        %    matrices", i.e., matrices that are triangular up to a
+        %    permutation, with permutations selected to minimize the
+        %    fill-in for sparse matrices and reduce computation time
+        %    (see documentation for lu with sparse matrices).
+        %    
+        % Attention: The output of this function includes the whole
+        % factorization as a single entity, in a format that can be
+        % passed to functions that require factorizations (such as
+        % mldivide, inv, det, logdet, traceinv), but should *not* be
+        % used by functions that are not expecting a factorized matrix
+        % as an input.
             obj=factor(obj1,'lu',varargin{:});
         end
         function obj=lu_sym(obj1,varargin)
-        % LU=lu_sym(A) - returns the LU factorization of a symmetric matrix
+        % lu - LU factorization of a symmetric matrix
+        %    
+        %    lu(A) computes the LU factorization of a symmetric matrix
+        %    (tensor with 2 dimensions).
+        %    
+        %    lu(A) actually uses "pychologically lower triangular
+        %    matrices", i.e., matrices that are triangular up to a
+        %    permutation, with permutations selected to minimize the
+        %    fill-in for sparse matrices and reduce computation time
+        %    (see documentation for lu with sparse matrices).
+        %    
+        %    All entries of ``A`` above the main diagonal are ignored
+        %    and assumed to be equal to the one below the main diagonal,
+        %    *without performing any test regarding of whether or not
+        %    this is true*.
+        %    
+        % Attention: The output of this function includes the whole
+        % factorization as a single entity, in a format that can be
+        % passed to functions that require factorizations (such as
+        % mldivide, inv, det, logdet, traceinv), but should *not* be
+        % used by functions that are not expecting a factorized matrix
+        % as an input.
+            
             obj=factor(obj1,'lu_sym',varargin{:});
         end
         
@@ -1048,72 +1383,123 @@ classdef Tcalculus
             obj=Tcalculus('pptrs',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
         end
         
+        % function obj=det(obj1)
+        %     %obj1=toCalculus(obj1);
+        %     osize1=size(obj1);
+        %     if length(osize1)~=2
+        %         error('det is only defined for 2D matrices');
+        %     end
+        %     if osize1(1)~=osize1(2)
+        %         error('det is only defined for square matrices');
+        %     end
+        %     if osize1(1)==1
+        %         obj=reshape(obj1,[]);
+        %     elseif osize1(1)==2
+        %         a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
+        %         a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
+        %         a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
+        %         a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
+        %         obj=reshape(a11*a22-a12*a21,[]);
+        %         updateFile2table(obj,1);
+        %     elseif osize1(1)==3
+        %         a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
+        %         a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
+        %         a13=subsref(obj1,struct('type','()','subs',{{1,3}}));
+        %         a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
+        %         a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
+        %         a23=subsref(obj1,struct('type','()','subs',{{2,3}}));
+        %         a31=subsref(obj1,struct('type','()','subs',{{3,1}}));
+        %         a32=subsref(obj1,struct('type','()','subs',{{3,2}}));
+        %         a33=subsref(obj1,struct('type','()','subs',{{3,3}}));
+        %         obj=reshape(a11*a22*a33-a11*a23*a32-a12*a21*a33...
+        %                     +a12*a23*a31+a13*a21*a32-a13*a22*a31,[]);
+        %         updateFile2table(obj,1);
+        %     elseif osize1(1)==4
+        %         a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
+        %         a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
+        %         a13=subsref(obj1,struct('type','()','subs',{{1,3}}));
+        %         a14=subsref(obj1,struct('type','()','subs',{{1,4}}));
+        %         a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
+        %         a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
+        %         a23=subsref(obj1,struct('type','()','subs',{{2,3}}));
+        %         a24=subsref(obj1,struct('type','()','subs',{{2,4}}));
+        %         a31=subsref(obj1,struct('type','()','subs',{{3,1}}));
+        %         a32=subsref(obj1,struct('type','()','subs',{{3,2}}));
+        %         a33=subsref(obj1,struct('type','()','subs',{{3,3}}));
+        %         a34=subsref(obj1,struct('type','()','subs',{{3,4}}));
+        %         a41=subsref(obj1,struct('type','()','subs',{{4,1}}));
+        %         a42=subsref(obj1,struct('type','()','subs',{{4,2}}));
+        %         a43=subsref(obj1,struct('type','()','subs',{{4,3}}));
+        %         a44=subsref(obj1,struct('type','()','subs',{{4,4}}));
+        %         obj=reshape(a14*a23*a32*a41-a13*a24*a32*a41-a14*a22*a33*a41...
+        %                     +a12*a24*a33*a41+a13*a22*a34*a41-a12*a23*a34*a41...
+        %                     -a14*a23*a31*a42+a13*a24*a31*a42+a14*a21*a33*a42...
+        %                     -a11*a24*a33*a42-a13*a21*a34*a42+a11*a23*a34*a42...
+        %                     +a14*a22*a31*a43-a12*a24*a31*a43-a14*a21*a32*a43...
+        %                     +a11*a24*a32*a43+a12*a21*a34*a43-a11*a22*a34*a43...
+        %                     -a13*a22*a31*a44+a12*a23*a31*a44+a13*a21*a32*a44...
+        %                     -a11*a23*a32*a44-a12*a21*a33*a44+a11*a22*a33*a44,[]);
+        %         updateFile2table(obj,1);
+        %     else
+        %         obj=Tcalculus('det',[],[],obj1.TCindex,{},1);
+        %     end
+        % end
+            
         function obj=det(obj1)
-            %obj1=toCalculus(obj1);
+        % det - Determinant of a factorized matrix
+        %      
+        %   det(lu(A)) or det(ldl(A)) return the determinant of the
+        %   square matrix A.
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized by lu() or ldl(). 
+        %   
+        %   The ldl() factorization should only be used for symmetric
+        %   matrices with nonzero elements in the main diagonal.
+        %
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
+            if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
+                error('det can only be called for LDL/LU factorizations (not ''%s'')',type(obj1))
+            end
+            obj1=toCalculus(obj1);
             osize1=size(obj1);
             if length(osize1)~=2
-                error('det is only defined for 2D matrices');
+                error('logdet is only defined for 2D matrices');
             end
             if osize1(1)~=osize1(2)
-                error('det is only defined for square matrices');
+                error('logdet is only defined for square matrices');
             end
-            if osize1(1)==1
-                obj=reshape(obj1,[]);
-            elseif osize1(1)==2
-                a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
-                a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
-                a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
-                a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
-                obj=reshape(a11*a22-a12*a21,[]);
-                updateFile2table(obj,1);
-            elseif osize1(1)==3
-                a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
-                a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
-                a13=subsref(obj1,struct('type','()','subs',{{1,3}}));
-                a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
-                a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
-                a23=subsref(obj1,struct('type','()','subs',{{2,3}}));
-                a31=subsref(obj1,struct('type','()','subs',{{3,1}}));
-                a32=subsref(obj1,struct('type','()','subs',{{3,2}}));
-                a33=subsref(obj1,struct('type','()','subs',{{3,3}}));
-                obj=reshape(a11*a22*a33-a11*a23*a32-a12*a21*a33...
-                            +a12*a23*a31+a13*a21*a32-a13*a22*a31,[]);
-                updateFile2table(obj,1);
-            elseif osize1(1)==4
-                a11=subsref(obj1,struct('type','()','subs',{{1,1}}));
-                a12=subsref(obj1,struct('type','()','subs',{{1,2}}));
-                a13=subsref(obj1,struct('type','()','subs',{{1,3}}));
-                a14=subsref(obj1,struct('type','()','subs',{{1,4}}));
-                a21=subsref(obj1,struct('type','()','subs',{{2,1}}));
-                a22=subsref(obj1,struct('type','()','subs',{{2,2}}));
-                a23=subsref(obj1,struct('type','()','subs',{{2,3}}));
-                a24=subsref(obj1,struct('type','()','subs',{{2,4}}));
-                a31=subsref(obj1,struct('type','()','subs',{{3,1}}));
-                a32=subsref(obj1,struct('type','()','subs',{{3,2}}));
-                a33=subsref(obj1,struct('type','()','subs',{{3,3}}));
-                a34=subsref(obj1,struct('type','()','subs',{{3,4}}));
-                a41=subsref(obj1,struct('type','()','subs',{{4,1}}));
-                a42=subsref(obj1,struct('type','()','subs',{{4,2}}));
-                a43=subsref(obj1,struct('type','()','subs',{{4,3}}));
-                a44=subsref(obj1,struct('type','()','subs',{{4,4}}));
-                obj=reshape(a14*a23*a32*a41-a13*a24*a32*a41-a14*a22*a33*a41...
-                            +a12*a24*a33*a41+a13*a22*a34*a41-a12*a23*a34*a41...
-                            -a14*a23*a31*a42+a13*a24*a31*a42+a14*a21*a33*a42...
-                            -a11*a24*a33*a42-a13*a21*a34*a42+a11*a23*a34*a42...
-                            +a14*a22*a31*a43-a12*a24*a31*a43-a14*a21*a32*a43...
-                            +a11*a24*a32*a43+a12*a21*a34*a43-a11*a22*a34*a43...
-                            -a13*a22*a31*a44+a12*a23*a31*a44+a13*a21*a32*a44...
-                            -a11*a23*a32*a44-a12*a21*a33*a44+a11*a22*a33*a44,[]);
-                updateFile2table(obj,1);
-            else
-                obj=Tcalculus('det',[],[],obj1.TCindex,{},1);
-            end
+            obj=Tcalculus('det',[],[],obj1.TCindex,{},1);
         end
             
         function obj=logdet(obj1)
-        % logdet(A) - return the log of the determinant of a matrix
+        % logdet - Natural logarithm of the determinant of a factorized matrix
+        %      
+        %   logdet(lu(A)) or logdet(ldl(A)) return the natural
+        %   logarithm of the determinant of the square matrix A.
+        %   
+        %   This function results in the same value as log(det(A)),
+        %   but in the context of optimizations, it is more efficient
+        %   to use ``logdet(A)`` because the latter simplifies the
+        %   computation derivatives.
+        %   
+        %   logdet() can only be applied to a matrix that has been
+        %   factorized by lu() or ldl().
+        %   
+        %   The ldl() factorization should only be used for symmetric
+        %   matrices with nonzero elements in the main diagonal.
+        %
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
             if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
-                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+                error('logdet can only be called for LDL/LU factorizations (not ''%s'')',type(obj1))
             end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
@@ -1127,9 +1513,29 @@ classdef Tcalculus
         end
             
         function obj=traceinv(obj1)
-        % traceinv(A) - return the trace of the inverse of a matrix
+        % traceinv - Trace of the inverse of a factorized matrix
+        %      
+        %   traceinv(lu(A)) or traceinv(ldl(A)) return the natural
+        %   logarithm of the determinant of the square matrix A.
+        %   
+        %   This function results in the same value as trace(inv(A)),
+        %   but in the context of optimizations, it is more efficient
+        %   to use ``traceinv(A)`` because the latter simplifies the
+        %   computation of derivatives.
+        %   
+        %   traceinv() can only be applied to a matrix that has been
+        %   factorized by lu() or ldl().
+        %   
+        %   The ldl() factorization should only be used for symmetric
+        %   matrices with nonzero elements in the main diagonal.
+        %
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
             if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
-                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+                error('traceinv can only be called for LDL/LU factorizations (not ''%s'')',type(obj1))
             end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
@@ -1143,9 +1549,23 @@ classdef Tcalculus
         end
             
         function obj=inv(obj1)
-        % inv(A) - return the inverse of a matrix
+        % inv - Inverse of a factorized matrix
+        %      
+        %   inv(lu(A)) or inv(ldl(A)) return the inverse of the square matrix A.
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized by lu() or ldl(). 
+        %   
+        %   The ldl() factorization should only be used for symmetric
+        %   matrices with nonzero elements in the main diagonal.
+        %
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
             if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
-                error('%d can only be called for ldl/lu factorizations (not ''%s'')',type(obj1))
+                error('inv can only be called for LDL/LU factorizations (not ''%s'')',type(obj1))
             end
             obj1=toCalculus(obj1);
             osize1=size(obj1);
@@ -1202,7 +1622,7 @@ classdef Tcalculus
         end
         function obj=log(obj1)
         % Natural logarithm of tensor entries.
-            obj=componentwise(obj1,@log,'log(%s)',@reciprocal);
+            obj=componentwise(obj1,@log,'log(%s)',@(x)1./x);
             updateFile2table(obj,1);
         end
         function obj=sin(obj1)
@@ -1237,18 +1657,6 @@ classdef Tcalculus
             obj=componentwise(obj1,@(x)-2*x./(1+x.^2).^2,'-2*%s/((1+%s*%s)*(1+%s*%s))');
             updateFile2table(obj,1);
         end
-        function obj=reciprocal(obj1)
-        % reciprocal - Reciprocal of tensor entries.
-        %   
-        %    reciprocal(X) returns the element-wise reciprocal of X, which is
-        %    the same as 1./X
-            obj=componentwise(obj1,@(x)1./x,'1/%s',@minusreciprocal2);
-            updateFile2table(obj,1);
-        end        
-        function obj=minusreciprocal2(obj1)
-            obj=componentwise(obj1,@(x)-1./x.^2,'-1/(%s*%s)');
-            updateFile2table(obj,1);
-        end        
         function obj=sqr(obj1)
         % sqr - Square of tensor entries
         %
@@ -1263,9 +1671,38 @@ classdef Tcalculus
             obj=componentwise(obj1,@(x)x.^3,'%s*%s*%s',@(x)3*x.*x);
             updateFile2table(obj,1);
         end
+        function obj=power(obj1,p)
+        % power - Power of tensor entries
+        %    
+        %    X.^Y or power(x,y) returns the element-wise X raised to
+        %    the power Y. 
+        %    
+        %    The power Y must be a regular numeric scalar, *not* a
+        %    Tcalculus symbolic expression
+        %    
+        % Attention: unlike in matlab's regular power(), the power Y must
+        % be a scalar.
+        %
+            if length(p)>1
+                error('Tcalculus/power only supports scalar exponents');
+            end
+            if ~isnumeric(p)
+                error('Tcalculus/power only supports constant exponents');
+            end
+            if p==1
+                obj=obj1;
+            else
+                obj=componentwise(obj1,eval(sprintf('@(x)x.^%.16g',p)),...
+                                  sprintf('pow(%%s,%.16g)',p),...
+                                  eval(sprintf('@(x)%.16g*power(x,%.16g)',p,p-1)));
+                updateFile2table(obj,1);
+            end
+        end
         function obj=sqrt(obj1)
         % cube - Square root of tensor entries
-            obj=componentwise(obj1,@sqrt,'sqrt(%s)',@dsqrt);
+            obj=componentwise(obj1,@sqrt,'sqrt(%s)',@(x).5./sqrt(x)); % reuses sqrt computation
+            %obj=componentwise(obj1,@sqrt,'sqrt(%s)',@(x).5*power(x,-.5));
+            %obj=componentwise(obj1,@sqrt,'sqrt(%s)',@dsqrt);
             updateFile2table(obj,1);
         end
         function obj=dsqrt(obj1)
@@ -1285,7 +1722,7 @@ classdef Tcalculus
         % Attention: unlike in regular matlab, this function does
         % *not* support a second argument specifying a desired number
         % of digits for rounding to a decimal.
-            obj=componentwise(obj1,@round,'round(%s)');
+            obj=componentwise(obj1,@round,'round(%s)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
         end
         function obj=ceil(obj1)
@@ -1294,7 +1731,7 @@ classdef Tcalculus
         %    ceil(X) returns as tensor with the same size as X, with
         %    every entry of X rounded to the nearest integer towards
         %    +inf.
-            obj=componentwise(obj1,@ceil,'ceil(%s)');
+            obj=componentwise(obj1,@ceil,'ceil(%s)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
         end
         function obj=floor(obj1)
@@ -1303,7 +1740,7 @@ classdef Tcalculus
         %    floor(X) returns as tensor with the same size as X, with
         %    every entry of X rounded to the nearest integer towards
         %    -inf.
-            obj=componentwise(obj1,@floor,'floor(%s)');
+            obj=componentwise(obj1,@floor,'floor(%s)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
         end
         function obj=abs(obj1)
@@ -1318,17 +1755,17 @@ classdef Tcalculus
         %    an entry equal to 1, 0, or -1, depending on whether the
         %    corresponding entry of X is positive, zero, or negative,
         %    respectively.
-            obj=componentwise(obj1,@sign,'(%s>0)?1:((%s<0)?-1:0)',@(x)Tzeros(x));
+            obj=componentwise(obj1,@sign,'(%s>0)?1:((%s<0)?-1:0)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
         end
         function obj=heaviside(obj1)
-        % heaviside - Heaviside function applied to the tensor entries.
+        % heaviside - Step or heaviside function applied to the tensor entries.
         %    
         %    heaviside(X) returns as tensor with the same size as X, with
         %    an entry equal to 1, .5, or 0, depending on whether the
         %    corresponding entry of X is positive, zero, or negative,
         %    respectively.
-            obj=componentwise(obj1,@heaviside,'(%s>0)?1:((%s<0)?0:.5)',@(x)Tzeros(x));
+            obj=componentwise(obj1,@heaviside,'(%s>0)?1:((%s<0)?0:.5)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
         end        
         function obj=relu(obj1)
@@ -1347,7 +1784,7 @@ classdef Tcalculus
         %    srelu(X) returns a tensor with the same size as X, with
         %    the "soft" rectified linear unit activation function of
         %    the entries of X. Same as log(1+exp(x)) or
-        %    x+Log(1+exp(-x))
+        %    x+log(1+exp(-x))
             obj=componentwise(obj1,@(x)log(1+exp(x)),'log(1+exp(%s))',@sheaviside);
             updateFile2table(obj,1);
         end
@@ -1357,7 +1794,7 @@ classdef Tcalculus
         %    sheaviside(X) returns a tensor with the same size as X,
         %    with the "soft" heaviside function of the entries of
         %    X. Same as 1./(1+exp(-x))
-            obj=componentwise(obj1,@(x)1./(1+exp(-x)),'%s/(1+exp(-%s))',@dsheaviside);
+            obj=componentwise(obj1,@(x)1./(1+exp(-x)),'1/(1+exp(-%s))',@dsheaviside);
             updateFile2table(obj,1);
         end
         function obj=dsheaviside(obj1)
@@ -1366,19 +1803,26 @@ classdef Tcalculus
         %    dsheaviside(X) returns a tensor with the same size as X,
         %    with the derivative of the "soft" heaviside function of
         %    the entries of X. Same as 1./(2+exp(x)+exp(-x))
-            obj=componentwise(obj1,@(x)1./(2+exp(x)+exp(-x)),'%s/(2+exp(%s)+exp(-%s))');
+            obj=componentwise(obj1,@(x)1./(2+exp(x)+exp(-x)),'1/(2+exp(%s)+exp(-%s))');
             updateFile2table(obj,1);
         end
         function obj=normpdf(obj1)
-            obj=componentwise(obj1,@(x)exp(-x.^2/2)./sqrt(2*pi),'exp(-%s*%s/2)/sqrt(2*M_PI)',@(x)-x.*normpdf(x));
+        % normpdf - Normal probability density function (pdf).
+        %    
+        %    normpdf(X) returns the pdf of the standard normal
+        %    distribution evaluated at the values in X.
+        %    
+        % Attention: unlike in ragular matlab, this function does
+        % *not* support second and third arguments specifying a mean
+        % and standard deviation different than 0 and 1,
+        % respectively.
+            obj=componentwise(obj1,@normpdf,'exp(-%s*%s/2)/sqrt(2*M_PI)',@(x)-x.*normpdf(x));
             updateFile2table(obj,1);
         end
         function obj=lngamma(obj1)
             obj=componentwise(obj1,@(x)log(gamma(x)),'lngamma(%s)',@digamma);
             updateFile2table(obj,1);
         end
-
-        
         
         function obj=compose(obj1,varargin)
         % y=compose(x,fun,fun1,fun2)
@@ -1499,7 +1943,7 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function obj=plus(obj1,obj2,ind1,ind2)
-        % + Plus
+        % + or plus
         %   
         %   X+Y or plus(X,Y) add entry-by-entry tensors of the same
         %   size or a scalar (tensor with 0 dimensions) with a tensor
@@ -1583,7 +2027,7 @@ classdef Tcalculus
         end
 
         function obj=minus(obj1,obj2)
-        % - Minus
+        % - or minus - Minus
         %   
         %   X-Y or minus(X,Y) subtract entry-by-entry tensors of the
         %   same size or a scalar (tensor with 0 dimensions) with a
@@ -1605,7 +2049,7 @@ classdef Tcalculus
         end
             
         function obj=eq(obj1,obj2)
-        % == Equal
+        % == or eq -  Equal
         %   
         %   X==Y performs an entry-by-entry equality comparison of
         %   tensors of the same size or a scalar (tensor with 0
@@ -1618,7 +2062,7 @@ classdef Tcalculus
         end
 
         function obj=ge(obj1,obj2)
-        % >= Greater than or equal to
+        % >= or ge - Greater than or equal to
         %   
         %   X<=Y performs an entry-by-entry greater than or equal to
         %   comparison of tensors of the same size or a scalar (tensor
@@ -1635,7 +2079,7 @@ classdef Tcalculus
         end
 
         function obj=gt(obj1,obj2)
-        % > Greater than
+        % > or gt - Greater than
         %   
         %   X<=Y performs an entry-by-entry greater than comparison of
         %   tensors of the same size or a scalar (tensor with 0
@@ -1652,7 +2096,7 @@ classdef Tcalculus
         end
 
         function obj=le(obj2,obj1)
-        % <= Smaller than or equal to
+        % <= or le - Smaller than or equal to
         %   
         %   X<=Y performs an entry-by-entry smaller than or equal to
         %   comparison of tensors of the same size or a scalar (tensor
@@ -1669,7 +2113,7 @@ classdef Tcalculus
         end
 
         function obj=lt(obj2,obj1)
-        % < Smaller than
+        % < or lt - Smaller than
         %   
         %   X<=Y performs an entry-by-entry smaller than comparison of
         %   tensors of the same size or a scalar (tensor with 0
@@ -1694,7 +2138,7 @@ classdef Tcalculus
         end
             
         function obj=times(obj1,obj2,times2tprod)
-        % .* Tensor multiply
+        % .* or times - Element-wise tensor multiply
         %   
         %   X.*Y or times(X,Y) multiply entry-by-entry tensors of the
         %   same size or a scalar (tensor with 0 dimensions) with a
@@ -1735,6 +2179,27 @@ classdef Tcalculus
         end
 
         function obj=mtimes(obj1,obj2,mtimes2tprod)
+        % * or mtimes - Matrix multiply
+        %   
+        %   X*Y is the matrix product of X and Y, which adapts to the
+        %   size of the operands as follows:
+        %   * regular matrix multiplication when X and Y are both
+        %     matrices (tensors with 2 dimensions) with
+        %     size(X,2)==size(Y,1)
+        %   * matrix by column-vector multiplication when X is a matrix
+        %     (tensor with 2 dimensions) and Y a vector (tensor with 1
+        %     dimension) with size(X,2)==size(Y,1)
+        %   * row vector by matrix multiplication when X is a vector
+        %     (tensor with 1 dimension) and Y a matrix (tensors with 2
+        %     dimensions) with size(X,1)==size(Y,1)
+        %   * inner product when X and Y are both vectors (tensors
+        %     with 1 dimension) with size(X,1)==size(Y,1)
+        %   * entry-by-entry multiplication with either X or Y are
+        %     scalars (tensor with 0 dimensions).
+        %     
+        % Attention: Depending on the sizes of the parameters, this
+        % operation may behave quite differently from MATLAB©’s matrix
+        % multiplication mtimes().
 
             if nargin<3
                 mtimes2tprod=true;
@@ -1837,7 +2302,7 @@ classdef Tcalculus
         end
 
         function obj=rdivide(obj1,obj2)
-        % ./ Right tensor divide
+        % ./ or rdivide - Right tensor divide
         %   
         %   X./Y or rdividde(X,Y) right-divide entry-by-entry tensors
         %   of the same size or a scalar (tensor with 0 dimensions)
@@ -1880,7 +2345,7 @@ classdef Tcalculus
         end
 
         function obj=ldivide(obj1,obj2)
-        % .\ Left tensor divide
+        % .\ or ldivide - Left tensor divide
         %   
         %   X.\Y or ldividde(X,Y) left-divide entry-by-entry tensors
         %   of the same size or a scalar (tensor with 0 dimensions)
@@ -1929,7 +2394,7 @@ classdef Tcalculus
         end
 
         function obj=mldivide(obj1,obj2)
-        % \ Left matrix divide.
+        % \ or mldivide - Left matrix divide.
         %   
         %   A\B is the matrix division of A into B, which is rougly
         %   the same as inv(A)*B
@@ -1987,7 +2452,7 @@ classdef Tcalculus
         %%%%                 Multi-ary operators                      %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % function obj=tprod(varargin) -- in separate file
+        % function obj=tprod(varargin) - in separate file
 
         function obj=tprod_matlab(varargin)
             [tprod_size,sums_size]=checkTprodSizes(varargin{:});
@@ -2286,13 +2751,49 @@ classdef Tcalculus
         % function grad=gradient(obj,var) - in separate file
         
         function [hess,grad]=hessian(obj,var1,var2)
-        % [hess,grad]=hessian(obj,var1,var2)
-        % 
-        % Computes the gradient of the expression 'obj', with respect to the 
-        % variabe 'var1', and also the hessian of the expression 'obj', with
-        % respect to the variables 'var1' and 'var2'.
-        % When 'var2' is ommitted, it is assumed equal to 'var1'.
-
+        % hessian - Hessian of a tensor-values symbolic expression with
+        %          respect to a pair of tensor-valued symbolic variables
+        %    
+        %    [h,g]=hessian(f,x), returns a tensor g with the partial
+        %    derivatives of the entries of f with respect to the
+        %    entries of the variable x, and a tensor h with the
+        %    partial second derivatives of the entries of f with
+        %    respect to the entries of the variable x
+        %
+        %      When f is a tensor with size 
+        %        [n1,n2,...,nN] 
+        %      and x a tensor-valued variable (created with Tvariable) with size
+        %        [m1,m2,...,mM]
+        %      then
+        %        h=hessian(f,x) 
+        %      results in a tensor h with size
+        %        [n1,n2,...,nN,m1,m2,...,mM,m1,m2,...,mM]
+        %      with
+        %        h(i1,i2,...,iN,j1,j2,...,jM,k1,k2,....,kM)
+        %             =d2 f(i1,i2,...,iN) / d x(j1,j2,...,jM)d x(k1,k2,...,kM)
+        %    
+        %    [h,g]=hessian(f,x,y), returns a tensor g with the partial
+        %    derivatives of the entries of f with respect to the
+        %    entries of the variable x, and a tensor with the partial
+        %    second derivatives of the entries of f with respect to
+        %    the entries of the variables x and y
+        %
+        %      When f is a tensor with size 
+        %        [n1,n2,...,nN] 
+        %      and x a tensor-valued variable (created with Tvariable) with size
+        %        [m1,m2,...,mM]
+        %      and x a tensor-valued variable (created with Tvariable) with size
+        %        [l1,l2,...,lL]
+        %      then
+        %        h=hessian(f,x,y) 
+        %      results in a tensor y with size
+        %        [n1,n2,...,nN,m1,m2,...,mM,l1,l2,...,lL]
+        %      with
+        %        y(i1,i2,...,iN,j1,j2,...,jM,k1,k2,....,kL)
+        %             =d2 f(i1,i2,...,iN) / d x(j1,j2,...,jM) d y(k1,k2,...,kL)
+        %
+        % Copyright 2012-2017 Joao Hespanha
+            
             if nargin<3
                 var2=var1;
             end
