@@ -143,7 +143,7 @@ htmlhelp_basename = 'tenscalcDoc'
 latex_elements = {
     'papersize': 'letterpaper',
 	'pointsize': '11pt',
-	'preamble': '\\usepackage{jphmacros2e}',
+    #'preamble': '\\usepackage{jphmacros2e}',
     }
 
 # Grouping the document tree into LaTeX files. List of tuples
