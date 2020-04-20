@@ -144,12 +144,12 @@ for jj=1:length(ks)
                 subsb=getOne(obj.vectorizedOperations,'subscripts',operands(2));
                 instrb=getOne(obj.vectorizedOperations,'instructions',operands(2));
                 if size(subsb,1)~=1
-                    error('atomic mldivide(LU,b) only implemented for 1-d vector b, not %d-d',size(subsb,1));
+                    error('atomic mldivide(LU,b) only implemented for 1-d vector b, not size(subsb)=[%s]',index2str(size(subsb)));
                 end
                 if length(instrb)~=getOne(obj.vectorizedOperations,'osize',operands(2));
                     error('atomic mldivide(LU,b) only implemented for full b vector');
                 end
-                [subsb,k]=sort(subsb);
+                [subsb,k]=sort(subsb); % no need for sort rows since b has a single dimension
                 instrb=instrb(k);
 
                 subscripts=subsb;
@@ -254,6 +254,23 @@ for jj=1:length(ks)
                 % no change in the instructions
                 instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));
                 
+              case 'vec2tensor'
+                subscripts=getOne(obj.vectorizedOperations,'subscripts',operands(1));
+                pars=getOne(obj.vectorizedOperations,'parameters',thisExp);
+                dim=pars{1};
+                sz=pars{2};
+                subs=pars{3};
+                subscripts=[subscripts(1:dim-1,:);
+                            subs(:,subscripts(dim,:));
+                            subscripts(dim+1:end,:)];
+                % no change in the instructions
+                instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));                
+
+                % keep subscripts in the "natural" order (sorted by row and then col)
+                [subscripts,k]=sortrows(subscripts',size(subscripts,1):-1:1);
+                subscripts=subscripts';
+                instructions=instructions(k);
+                
               case 'subsref'
                 [subscripts,instructions]=sparsity_subsref(obj,thisExp);
                 
@@ -335,11 +352,23 @@ for jj=1:length(ks)
               case 'ldl_d'
                 [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
                 
+              case 'lu_d'
+                [subscripts,instructions]=sparsity_lu_d(obj,thisExp);
+                
+              case 'ldl_l'
+                [subscripts,instructions]=sparsity_ldl_l(obj,thisExp);
+                
               case 'logdet_ldl'
                 [subscripts,instructions]=sparsity_logdet_ldl(obj,thisExp);
                 
               case 'logdet_lu'
                 [subscripts,instructions]=sparsity_logdet_lu(obj,thisExp);
+                
+              case 'det_ldl'
+                [subscripts,instructions]=sparsity_det_ldl(obj,thisExp);
+                
+              case 'det_lu'
+                [subscripts,instructions]=sparsity_det_lu(obj,thisExp);
                 
               case 'componentwise'
                 funs=getOne(obj.vectorizedOperations,'parameters',thisExp);
@@ -415,11 +444,11 @@ for jj=1:length(ks)
     end % atomic
         
     if ~isequal(size(subscripts,2),length(instructions)) && ... % tensor of non-trivial size
-       ~(isempty(subscripts)&&length(instructions)==1)          % scalar
-       obj
-       subscripts
-       instructions
-       error('addTCExpression: internal error object (%s) size of subscripts [%s] does not match size of instructions [%s]\n',type,index2str(size(subscripts)),index2str(size(instructions)));
+            ~(isempty(subscripts)&&length(instructions)==1)          % scalar
+        % disp(obj)
+        subscripts
+        instructions
+        error('addTCExpression: internal error object (%s) size of subscripts [%s] does not match size of instructions [%s]\n',type,index2str(size(subscripts)),index2str(size(instructions)));
     end
 
     if any(isnan(instructions)) 
