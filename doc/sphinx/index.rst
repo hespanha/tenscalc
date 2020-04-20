@@ -7,14 +7,15 @@
 
 .. toctree::
    :maxdepth: 2
+   :numbered:
    :caption: Contents:
       
    intro
    install
    basics
    operations
-   computation
    optimization
+   computation
 
 Indices and tables
 ==================

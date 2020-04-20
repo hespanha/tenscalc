@@ -34,7 +34,8 @@ extensions = [
               'sphinx.ext.autodoc',
               'sphinxcontrib.matlab',
               'sphinx.ext.autosectionlabel', 
-              'sphinx.ext.napoleon' ]
+              'sphinx.ext.napoleon',
+              ]
 matlab_src_dir = os.path.abspath(os.path.join('..', '..'))
 primary_domain = 'mat'
 

@@ -46,13 +46,15 @@ dimension. The following table shows common tensors and their sizes:
      - ``[n1,n2,...,nd]``
      - :math:`\mathbb{R^{n_1\times n_2\times \cdots\times n_d}}`
 
-**Attention!**
+.. warning::
        
-It is common (at least within |matlab|) to make no distinction between
-a scalar, a 1-vector, and a 1-by-1 matrix. In |matlab| it is also
-common not to distinguish between an :math:`n`-vector and an :math:`n`-by-1 matrix. However, |tenscalc| does make a distinction between all
-these and does not allow, e.g., adding a 2-vector with a 2-by-1
-matrix, without an explicit |reshape| operation.
+   It is common (at least within |matlab|) to make no distinction
+   between a scalar, a 1-vector, and a 1-by-1 matrix. In |matlab| it
+   is also common not to distinguish between an :math:`n`-vector and
+   an :math:`n`-by-1 matrix. However, |tenscalc| does make a
+   distinction between all these and does not allow, e.g., adding a
+   2-vector with a 2-by-1 matrix, without an explicit |reshape|
+   operation.
 
 |tenscalc| is slightly more permissive with operations between scalars
 and tensors of larger sizes in that it does allow summations between a
@@ -76,6 +78,27 @@ symbolic expressions are built like regular |matlab| expressions using
 many of the usual |matlab| operators and functions, which have been
 overloaded to operate on |tenscalc| symbolic expressions.
 
+.. warning:: To speed up operations, the class |tcalculus| keeps some
+   information in a few auxiliary global variables. Before defining a
+   new computation or optimization it is a good idea to clear these
+   variables with
+
+     clear all
+
+   If this is not possible, one can use the following method to just
+   clear |tcalculus|'s auxiliary global variables
+     
+   .. method:: Tcalculus.clear
+
+   However, after using this method, any instances of the |tcalculus|
+   class that remains in memory becomes invalid and will lead to
+   errors if used in a subsequent computations or optimizations
+   **without necessarily resulting in a syntax error**. It is thus
+   strongly advised to use ``clear all`` rather than
+   ``Tcalculus.clear``.
+   
+
+	       
 .. _Tvariable-section:
 
 Symbolic variables
@@ -230,13 +253,13 @@ is more efficient to directly create the symbolic tensor.
        rules in :ref:`size-conversion-table`.
      
        
-**Attention:**
+.. warning::
 
-When called with a single argument |tzeros|, |tones|, and |teye|
-differ from their |matlab| counterparts: |tzeros| and |tones| return
-vectors (i.e., tensors with 1 dimension), rather than square matrices,
-and |teye| generates an error since it has no counter-part for
-vectors.
+   When called with a single argument |tzeros|, |tones|, and |teye|
+   differ from their |matlab| counterparts: |tzeros| and |tones|
+   return vectors (i.e., tensors with 1 dimension), rather than square
+   matrices, and |teye| generates an error since it has no
+   counter-part for vectors.
      
      
 Accessing information about the size of symbolic variables
@@ -330,9 +353,12 @@ Indexing and resizing symbolic variables
        desired effect. For example to replicate twice a 3-vector ``X``
        to create a 3-by-2 matrix by placing the copies of ``X`` side
        by side, one needs::
-         Y=repmat(reshape(X,3,1),1,2);
+	 
+	 Y=repmat(reshape(X,3,1),1,2);
+
        or, to create a 2-by-3 matrix by placing the copies of ``X``
        one on top of the other, one needs::
+	 
          Y=repmat(reshape(X,1,3),2,1);
 
    * - .. function:: cat(dim,A,B,...)
@@ -370,12 +396,73 @@ Indexing and resizing symbolic variables
      - Concatenate tensors along the 2nd dimension, which is equivalent to
        ``cat(2,A,B,...)`` and also to ``[A,B,...]``
      - Similar syntax to |matlab|, with the same caveats as |cat|.
-       
-**Attention!**
-       
-Unlike |matlab|, |tenscalc| does allow for subscripted assignments, such as::
 
-  A(1,2)=5
 
-This functionality needs to be achieved with the concatenation
-operations |cat|, |vertcat|, |horzcat|.
+   * - .. function:: vec2tensor(X,sz,subs)
+       .. function:: vec2tensor(X,sz,subs,dim)
+     - Expands a vector to a sparse tensor
+     - In the 1st form
+         :param X: |tcalculus| ``n``-vector (tensor with size ``[n]``)
+	 :param sz: vector with ``d`` integers
+	 :param subs: ``n``-by-``d`` matrix of subscripts
+
+       and returns a |tcalculus| tensor ``Y`` with size ``sz``, with
+       the nonzero entries taken from ``X``, with
+       ``Y(subs(i,:))=X(i)`` for ``i=1:n``
+
+       In the 2nd form
+         :param X: |tcalculus| tensor ``X`` with ``size(X,dim)=n``
+	 :param sz: vector with ``d`` integers
+	 :param subs: ``n``-by-``d`` matrix subscripts
+
+       and returns a |tcalculus| tensor ``Y`` with size similar to
+       that of ``X``, but the ``dim`` dimension expanded to the sizes
+       in ``sz``, and the nonzero entries taken from ``X``, with
+       ``Y(...,subs(i,:),...)=X(...,i,...)`` for ``i=1:n``, where the
+       ``...`` denote indices of the dimensions before and after
+       ``dim``
+
+       This function is typically used to create sparse tensors from
+       the entries of a (typically full) vector. See :ref:`structured-matrices`
+     
+.. warning::
+       
+   Unlike |matlab|, |tenscalc| does *not* allow for subscripted assignments, such as
+
+     ``A(1,2)=5``
+
+   This functionality needs to be achieved with the concatenation
+   operations |cat|, |vertcat|, |horzcat|.
+
+.. _structured-matrices:
+
+Creating structured matrices
+----------------------------
+
+The function |vec2tensor| is very useful to create structured matrices from vectors, to be used as optimization variables
+
+* Diagonal matrix::
+
+    % Creates an NxN diagonal matrix
+    Tvariable v [N];
+    A=vec2tensor(v,[N,N],[1:N;1:N]');
+
+* Lower triangular matrix::
+  
+    % Creates an NxN lower triangular matrix
+    [i,j]=find(ones(N));
+    k=find(i>=j);
+    Tvariable v length(k);
+    A=vec2tensor(v,[N,N],[i(k),j(k)]);
+
+* Symmetric matrix::
+
+    % Creates an NxN lower triangular matrix
+    [i,j]=find(ones(N));
+    kl=find(i>j);
+    k0=find(i==j);
+    Tvariable v length(k0)+length(kl);
+    A=vec2tensor([v;v(1:length(kl))],[N,N],[i(kl),j(kl);i(k0),j(k0);j(kl),i(kl)]);
+
+In all these examples, one would set ``v`` to be an optimization
+variable, that implicitly represents the structured matrix.
