@@ -110,22 +110,21 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             'and can be using in outputExpressions';
             '* |P1lambda1_|,|P1lambda2_|,... |P2lambda1_|,|P2lambda2_|,...'
             '      - Lagrangian multipliers associated with the inequalities constraints';
-            '        for P1 and P2 (in the order that they appear and with the same size';
+            '        for player 1 and 2 (in the order that they appear and with the same size';
             '        as the corresponding constraints).';
             '* |P1nu1_|,|P1nu2_|,... ,|P2nu1_|,|P2nu2_|,...'
             '* |P1xnu1_|,|P1xnu2_|,... ,|P2xnu1_|,|P2xnu2_|,...'    
             '      - Lagrangian multipliers associated with the equality constraints';
-            '        for P1 and P2 (in the order that they appear and with the same size'
+            '        for player 1 and 2 (in the order that they appear and with the same size'
             '        as the corresponding constraints). The P1x and P2x variables correspond';
             '        to the latentConstraints.'
-            '* |Hess_| - Hessian matrix used by the (last) newton step to update';
+            '* |Hess_| - Hessian matrix used by the (last) Newton step to update';
             '            the primal variables (not including |addEye2Hessian|).'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
-            '           they will have to be created outside this function'
-            '           *with the appropriate sizes*.'
+            '           they have to be previously created outside *with the appropriate sizes*.'
             '           Eventually, their values will be overridden by the solver'
-            '           to reflect the values above.'
+            '           to reflect the values listted above.'
                       });
 
     localVariables_=parameters4all(localVariables_);

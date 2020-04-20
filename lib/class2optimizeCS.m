@@ -78,24 +78,23 @@ function varargout=class2optimizeCS(varargin)
             '                         the equality constraints';
             '                         (in the order that they appear and with';
             '                          the same size as the corresponding constraints)';
-            '* |Hess_| - Hessian matrix used by the (last) newton step to update';
+            '* |Hess_| - Hessian matrix used by the (last) Newton step to update';
             '            the primal variables (not including |addEye2Hessian|).'
             '* |dHess_| - D factor in the LDL factorization of the Hessian matrix'
-            '             used by the (last) newton step to update the primal variables'
+            '             used by the (last) Newton step to update the primal variables'
             '             (including |addEye2Hessian|, unlike Hess_).'
-            '* |Grad_| - Gradient of Lagrangian at the (last) newton step.'
-            '* |mu_|   - barrier parameter at the (last) newton step.'
-            '* |u_|    - vector of primal variables at the (last) newton step.'
-            '* |F_|    - vector of equalities at the (last) newton step.'
-            '* |G_|    - vector of inequalities at the (last) newton step.'
-            '* |nu_|   - vector of dual equality variables at the (last) newton step.'
-            '* |lambda_|   - vector of dual inequality variables at the (last) newton step.'
+            '* |Grad_| - gradient of Lagrangian at the (last) Newton step.'
+            '* |mu_|   - barrier parameter at the (last) Newton step.'
+            '* |u_|    - vector of primal variables at the (last) Newton step.'
+            '* |F_|    - vector of equalities at the (last) Newton step.'
+            '* |G_|    - vector of inequalities at the (last) Newton step.'
+            '* |nu_|   - vector of dual equality variables at the (last) Newton step.'
+            '* |lambda_|   - vector of dual inequality variables at the (last) Newton step.'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
-            '           they will have to be created outside this function'
-            '           *with the appropriate sizes*.'
+            '           they have to be previously created outside *with the appropriate sizes*.'
             '           Eventually, their values will be overridden by the solver'
-            '           to reflect the values above.'
+            '           to reflect the values listted above.'
                       });
 
     localVariables_=parameters4all(localVariables_);
@@ -104,7 +103,18 @@ function varargout=class2optimizeCS(varargin)
         'VariableName','addEye2Hessian',...
         'DefaultValue',1e-9,...
         'Description',{
-            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.'
+            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.';
+            'A larger value for |addEye2Hessian| has two main effects:'
+            '1) Improves the numerical conditioning of the system of equations that'
+            '   finds the Newton search direction.';
+            '2) Moves the search direction towards the gradient descent of';
+            '   the Lagragian (and away from the Newton direction).';
+            'Both effects improve the robustness of the solver, but this is typically';
+            'achieved at the expense of slower convergence.'
+            'For convex problems, one typically chooses |addEye2Hessian| equal to the';
+            'square root of the machine precision.'
+            'For non-convex problems, one can try to increase this parameter when';
+            'the Newton direction actually causes an increase of the Lagragian.'
                       });
     
     declareParameter(...
@@ -113,7 +123,7 @@ function varargout=class2optimizeCS(varargin)
         'AdmissibleValues',{false,true},...
         'Description',{
             'When |true| the search directions are computed using an'
-            'LDL instead of an LU factorization.'
+            'LDL instead of an LU factorization.';
                       });
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
