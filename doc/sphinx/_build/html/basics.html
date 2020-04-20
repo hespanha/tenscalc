@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Basics &#8212; Tenscalc Users&#39; Guide</title>
+    <title>3. Basics &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -19,8 +19,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Operations on symbolic expressions" href="operations.html" />
-    <link rel="prev" title="Installation" href="install.html" /> 
+    <link rel="next" title="4. Operations on symbolic expressions" href="operations.html" />
+    <link rel="prev" title="2. Installation" href="install.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +29,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="operations.html" title="Operations on symbolic expressions"
+          <a href="operations.html" title="4. Operations on symbolic expressions"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="Installation"
+          <a href="install.html" title="2. Installation"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>
@@ -44,12 +44,12 @@
           <div class="body" role="main">
             
   <div class="section" id="basics">
-<h1>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">3. </span>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
 <p>TensCalc computations and optimizations are defined using symbolic
 expressions supported by the class <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>, named after <em>tensor
 calculus</em>.</p>
 <div class="section" id="what-are-tensors">
-<span id="tensors-section"></span><h2>What are Tensors?<a class="headerlink" href="#what-are-tensors" title="Permalink to this headline">¶</a></h2>
+<span id="tensors-section"></span><h2><span class="section-number">3.1. </span>What are Tensors?<a class="headerlink" href="#what-are-tensors" title="Permalink to this headline">¶</a></h2>
 <p>In TensCalc, tensors are multi-dimensional real-valued arrays over
 which one performs numerical operations. The <a class="reference internal" href="#size" title="size"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">size()</span></code></a> of a tensor is a
 vector that specifies how many entries the tensor has in each
@@ -92,12 +92,16 @@ dimension. The following table shows common tensors and their sizes:</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Attention!</strong></p>
-<p>It is common (at least within MATLAB©) to make no distinction between
-a scalar, a 1-vector, and a 1-by-1 matrix. In MATLAB© it is also
-common not to distinguish between an <span class="math notranslate nohighlight">\(n\)</span>-vector and an <span class="math notranslate nohighlight">\(n\)</span>-by-1 matrix. However, TensCalc does make a distinction between all
-these and does not allow, e.g., adding a 2-vector with a 2-by-1
-matrix, without an explicit <a class="reference internal" href="#reshape" title="reshape"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">reshape()</span></code></a> operation.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It is common (at least within MATLAB©) to make no distinction
+between a scalar, a 1-vector, and a 1-by-1 matrix. In MATLAB© it
+is also common not to distinguish between an <span class="math notranslate nohighlight">\(n\)</span>-vector and
+an <span class="math notranslate nohighlight">\(n\)</span>-by-1 matrix. However, TensCalc does make a
+distinction between all these and does not allow, e.g., adding a
+2-vector with a 2-by-1 matrix, without an explicit <a class="reference internal" href="#reshape" title="reshape"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">reshape()</span></code></a>
+operation.</p>
+</div>
 <p>TensCalc is slightly more permissive with operations between scalars
 and tensors of larger sizes in that it does allow summations between a
 scalar and a tensor of any size, with the understanding that the
@@ -107,7 +111,7 @@ with MATLAB©’s syntax.</p>
 conversion of sizes between MATLAB© matrices and TensCalc tensors.</p>
 </div>
 <div class="section" id="building-tcalculus-symbolic-expressions">
-<h2>Building <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expressions<a class="headerlink" href="#building-tcalculus-symbolic-expressions" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.2. </span>Building <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expressions<a class="headerlink" href="#building-tcalculus-symbolic-expressions" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc symbolic expressions are supported by the class</p>
 <dl class="class">
 <dt id="Tcalculus">
@@ -118,8 +122,31 @@ conversion of sizes between MATLAB© matrices and TensCalc tensors.</p>
 symbolic expressions are built like regular MATLAB© expressions using
 many of the usual MATLAB© operators and functions, which have been
 overloaded to operate on TensCalc symbolic expressions.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To speed up operations, the class <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> keeps some
+information in a few auxiliary global variables. Before defining a
+new computation or optimization it is a good idea to clear these
+variables with</p>
+<blockquote>
+<div><p>clear all</p>
+</div></blockquote>
+<p>If this is not possible, one can use the following method to just
+clear <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>’s auxiliary global variables</p>
+<dl class="method">
+<dt id="Tcalculus.clear">
+<code class="sig-prename descclassname">Tcalculus.</code><code class="sig-name descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tcalculus.clear" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<p>However, after using this method, any instances of the <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>
+class that remains in memory becomes invalid and will lead to
+errors if used in a subsequent computations or optimizations
+<strong>without necessarily resulting in a syntax error</strong>. It is thus
+strongly advised to use <code class="docutils literal notranslate"><span class="pre">clear</span> <span class="pre">all</span></code> rather than
+<code class="docutils literal notranslate"><span class="pre">Tcalculus.clear</span></code>.</p>
+</div>
 <div class="section" id="symbolic-variables">
-<span id="tvariable-section"></span><h3>Symbolic variables<a class="headerlink" href="#symbolic-variables" title="Permalink to this headline">¶</a></h3>
+<span id="tvariable-section"></span><h3><span class="section-number">3.2.1. </span>Symbolic variables<a class="headerlink" href="#symbolic-variables" title="Permalink to this headline">¶</a></h3>
 <p>Most symbolic expressions start with symbolic variables that represent
 tensors that will only be assigned numeric values at code-execution
 time. Symbolic variables are created using</p>
@@ -174,7 +201,7 @@ to store it in:</p>
 </div>
 </div>
 <div class="section" id="using-matlab-matrices-in-tenscalc-symbolic-expressions">
-<span id="size-conversion-section"></span><h3>Using MATLAB© matrices in TensCalc symbolic expressions<a class="headerlink" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions" title="Permalink to this headline">¶</a></h3>
+<span id="size-conversion-section"></span><h3><span class="section-number">3.2.2. </span>Using MATLAB© matrices in TensCalc symbolic expressions<a class="headerlink" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions" title="Permalink to this headline">¶</a></h3>
 <p>Often symbolic expressions involve regular MATLAB© matrices, as in adding a symbolic variable created with <a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> with a regular MATLAB© matrix:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">a</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
 <span class="o">&gt;&gt;</span> <span class="n">b</span><span class="o">=</span><span class="n">a</span><span class="o">+</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">;</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
@@ -313,16 +340,18 @@ rules in <a class="reference internal" href="#size-conversion-table"><span class
 </tr>
 </tbody>
 </table>
-<p><strong>Attention:</strong></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>When called with a single argument <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a>, <a class="reference internal" href="#Tones" title="Tones"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tones()</span></code></a>, and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a>
-differ from their MATLAB© counterparts: <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a> and <a class="reference internal" href="#Tones" title="Tones"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tones()</span></code></a> return
-vectors (i.e., tensors with 1 dimension), rather than square matrices,
-and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a> generates an error since it has no counter-part for
-vectors.</p>
+differ from their MATLAB© counterparts: <a class="reference internal" href="#Tzeros" title="Tzeros"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tzeros()</span></code></a> and <a class="reference internal" href="#Tones" title="Tones"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tones()</span></code></a>
+return vectors (i.e., tensors with 1 dimension), rather than square
+matrices, and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a> generates an error since it has no
+counter-part for vectors.</p>
+</div>
 </div>
 </div>
 <div class="section" id="accessing-information-about-the-size-of-symbolic-variables">
-<h2>Accessing information about the size of symbolic variables<a class="headerlink" href="#accessing-information-about-the-size-of-symbolic-variables" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.3. </span>Accessing information about the size of symbolic variables<a class="headerlink" href="#accessing-information-about-the-size-of-symbolic-variables" title="Permalink to this headline">¶</a></h2>
 <table class="colwidths-given docutils align-left" id="id4">
 <caption><span class="caption-text">Functions to access information about symbolic expressions</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -400,7 +429,7 @@ vectors.</p>
 </table>
 </div>
 <div class="section" id="indexing-and-resizing-symbolic-variables">
-<h2>Indexing and resizing symbolic variables<a class="headerlink" href="#indexing-and-resizing-symbolic-variables" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">3.4. </span>Indexing and resizing symbolic variables<a class="headerlink" href="#indexing-and-resizing-symbolic-variables" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc uses the same syntax as MATLAB© to index tensors:</p>
 <ul>
 <li><p><code class="docutils literal notranslate"><span class="pre">X(i,j,k,...)</span></code> returns a subtensor formed by the elements of <code class="docutils literal notranslate"><span class="pre">X</span></code>
@@ -530,15 +559,104 @@ concatenation to a 3-by-2 matrix is possible:</p>
 <code class="docutils literal notranslate"><span class="pre">cat(2,A,B,...)</span></code> and also to <code class="docutils literal notranslate"><span class="pre">[A,B,...]</span></code></p></td>
 <td><p>Similar syntax to MATLAB©, with the same caveats as <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>.</p></td>
 </tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="vec2tensor">
+<code class="sig-name descname">vec2tensor</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">sz</em>, <em class="sig-param">subs</em><span class="sig-paren">)</span><a class="headerlink" href="#vec2tensor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">vec2tensor</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">sz</em>, <em class="sig-param">subs</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Expands a vector to a sparse tensor</p></td>
+<td><dl class="simple">
+<dt>In the 1st form</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param X</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> <code class="docutils literal notranslate"><span class="pre">n</span></code>-vector (tensor with size <code class="docutils literal notranslate"><span class="pre">[n]</span></code>)</p>
+</dd>
+<dt class="field-even">param sz</dt>
+<dd class="field-even"><p>vector with <code class="docutils literal notranslate"><span class="pre">d</span></code> integers</p>
+</dd>
+<dt class="field-odd">param subs</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">n</span></code>-by-<code class="docutils literal notranslate"><span class="pre">d</span></code> matrix of subscripts</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>and returns a <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor <code class="docutils literal notranslate"><span class="pre">Y</span></code> with size <code class="docutils literal notranslate"><span class="pre">sz</span></code>, with
+the nonzero entries taken from <code class="docutils literal notranslate"><span class="pre">X</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">Y(subs(i,:))=X(i)</span></code> for <code class="docutils literal notranslate"><span class="pre">i=1:n</span></code></p>
+<dl class="simple">
+<dt>In the 2nd form</dt><dd><dl class="field-list simple">
+<dt class="field-odd">param X</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor <code class="docutils literal notranslate"><span class="pre">X</span></code> with <code class="docutils literal notranslate"><span class="pre">size(X,dim)=n</span></code></p>
+</dd>
+<dt class="field-even">param sz</dt>
+<dd class="field-even"><p>vector with <code class="docutils literal notranslate"><span class="pre">d</span></code> integers</p>
+</dd>
+<dt class="field-odd">param subs</dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">n</span></code>-by-<code class="docutils literal notranslate"><span class="pre">d</span></code> matrix subscripts</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>and returns a <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor <code class="docutils literal notranslate"><span class="pre">Y</span></code> with size similar to
+that of <code class="docutils literal notranslate"><span class="pre">X</span></code>, but the <code class="docutils literal notranslate"><span class="pre">dim</span></code> dimension expanded to the sizes
+in <code class="docutils literal notranslate"><span class="pre">sz</span></code>, and the nonzero entries taken from <code class="docutils literal notranslate"><span class="pre">X</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">Y(...,subs(i,:),...)=X(...,i,...)</span></code> for <code class="docutils literal notranslate"><span class="pre">i=1:n</span></code>, where the
+<code class="docutils literal notranslate"><span class="pre">...</span></code> denote indices of the dimensions before and after
+<code class="docutils literal notranslate"><span class="pre">dim</span></code></p>
+<p>This function is typically used to create sparse tensors from
+the entries of a (typically full) vector. See <a class="reference internal" href="#structured-matrices"><span class="std std-ref">Creating structured matrices</span></a></p>
+</td>
+</tr>
 </tbody>
 </table>
-<p><strong>Attention!</strong></p>
-<p>Unlike MATLAB©, TensCalc does allow for subscripted assignments, such as:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">A</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span><span class="o">=</span><span class="mi">5</span>
-</pre></div>
-</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Unlike MATLAB©, TensCalc does <em>not</em> allow for subscripted assignments, such as</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">A(1,2)=5</span></code></p>
+</div></blockquote>
 <p>This functionality needs to be achieved with the concatenation
 operations <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>, <a class="reference internal" href="#vertcat" title="vertcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">vertcat()</span></code></a>, <a class="reference internal" href="#horzcat" title="horzcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">horzcat()</span></code></a>.</p>
+</div>
+<div class="section" id="creating-structured-matrices">
+<span id="structured-matrices"></span><h3><span class="section-number">3.4.1. </span>Creating structured matrices<a class="headerlink" href="#creating-structured-matrices" title="Permalink to this headline">¶</a></h3>
+<p>The function <a class="reference internal" href="#vec2tensor" title="vec2tensor"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">vec2tensor()</span></code></a> is very useful to create structured matrices from vectors, to be used as optimization variables</p>
+<ul>
+<li><p>Diagonal matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">Creates</span> <span class="n">an</span> <span class="n">NxN</span> <span class="n">diagonal</span> <span class="n">matrix</span>
+<span class="n">Tvariable</span> <span class="n">v</span> <span class="p">[</span><span class="n">N</span><span class="p">];</span>
+<span class="n">A</span><span class="o">=</span><span class="n">vec2tensor</span><span class="p">(</span><span class="n">v</span><span class="p">,[</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">],[</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="p">;</span><span class="mi">1</span><span class="p">:</span><span class="n">N</span><span class="p">]</span><span class="s1">&#39;);</span>
+</pre></div>
+</div>
+</li>
+<li><p>Lower triangular matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">Creates</span> <span class="n">an</span> <span class="n">NxN</span> <span class="n">lower</span> <span class="n">triangular</span> <span class="n">matrix</span>
+<span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">));</span>
+<span class="n">k</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">i</span><span class="o">&gt;=</span><span class="n">j</span><span class="p">);</span>
+<span class="n">Tvariable</span> <span class="n">v</span> <span class="n">length</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+<span class="n">A</span><span class="o">=</span><span class="n">vec2tensor</span><span class="p">(</span><span class="n">v</span><span class="p">,[</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">],[</span><span class="n">i</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="n">j</span><span class="p">(</span><span class="n">k</span><span class="p">)]);</span>
+</pre></div>
+</div>
+</li>
+<li><p>Symmetric matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">%</span> <span class="n">Creates</span> <span class="n">an</span> <span class="n">NxN</span> <span class="n">lower</span> <span class="n">triangular</span> <span class="n">matrix</span>
+<span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">));</span>
+<span class="n">kl</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">i</span><span class="o">&gt;</span><span class="n">j</span><span class="p">);</span>
+<span class="n">k0</span><span class="o">=</span><span class="n">find</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">j</span><span class="p">);</span>
+<span class="n">Tvariable</span> <span class="n">v</span> <span class="n">length</span><span class="p">(</span><span class="n">k0</span><span class="p">)</span><span class="o">+</span><span class="n">length</span><span class="p">(</span><span class="n">kl</span><span class="p">);</span>
+<span class="n">A</span><span class="o">=</span><span class="n">vec2tensor</span><span class="p">([</span><span class="n">v</span><span class="p">;</span><span class="n">v</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">length</span><span class="p">(</span><span class="n">kl</span><span class="p">))],[</span><span class="n">N</span><span class="p">,</span><span class="n">N</span><span class="p">],[</span><span class="n">i</span><span class="p">(</span><span class="n">kl</span><span class="p">),</span><span class="n">j</span><span class="p">(</span><span class="n">kl</span><span class="p">);</span><span class="n">i</span><span class="p">(</span><span class="n">k0</span><span class="p">),</span><span class="n">j</span><span class="p">(</span><span class="n">k0</span><span class="p">);</span><span class="n">j</span><span class="p">(</span><span class="n">kl</span><span class="p">),</span><span class="n">i</span><span class="p">(</span><span class="n">kl</span><span class="p">)]);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>In all these examples, one would set <code class="docutils literal notranslate"><span class="pre">v</span></code> to be an optimization
+variable, that implicitly represents the structured matrix.</p>
+</div>
 </div>
 </div>
 
@@ -550,25 +668,28 @@ operations <a class="reference internal" href="#cat" title="cat"><code class="xr
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Basics</a><ul>
-<li><a class="reference internal" href="#what-are-tensors">What are Tensors?</a></li>
-<li><a class="reference internal" href="#building-tcalculus-symbolic-expressions">Building <code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code> symbolic expressions</a><ul>
-<li><a class="reference internal" href="#symbolic-variables">Symbolic variables</a></li>
-<li><a class="reference internal" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions">Using MATLAB© matrices in TensCalc symbolic expressions</a></li>
+<li><a class="reference internal" href="#">3. Basics</a><ul>
+<li><a class="reference internal" href="#what-are-tensors">3.1. What are Tensors?</a></li>
+<li><a class="reference internal" href="#building-tcalculus-symbolic-expressions">3.2. Building <code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code> symbolic expressions</a><ul>
+<li><a class="reference internal" href="#symbolic-variables">3.2.1. Symbolic variables</a></li>
+<li><a class="reference internal" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions">3.2.2. Using MATLAB© matrices in TensCalc symbolic expressions</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#accessing-information-about-the-size-of-symbolic-variables">Accessing information about the size of symbolic variables</a></li>
-<li><a class="reference internal" href="#indexing-and-resizing-symbolic-variables">Indexing and resizing symbolic variables</a></li>
+<li><a class="reference internal" href="#accessing-information-about-the-size-of-symbolic-variables">3.3. Accessing information about the size of symbolic variables</a></li>
+<li><a class="reference internal" href="#indexing-and-resizing-symbolic-variables">3.4. Indexing and resizing symbolic variables</a><ul>
+<li><a class="reference internal" href="#creating-structured-matrices">3.4.1. Creating structured matrices</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="install.html"
-                        title="previous chapter">Installation</a></p>
+                        title="previous chapter"><span class="section-number">2. </span>Installation</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="operations.html"
-                        title="next chapter">Operations on symbolic expressions</a></p>
+                        title="next chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -597,10 +718,10 @@ operations <a class="reference internal" href="#cat" title="cat"><code class="xr
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="operations.html" title="Operations on symbolic expressions"
+          <a href="operations.html" title="4. Operations on symbolic expressions"
              >next</a> |</li>
         <li class="right" >
-          <a href="install.html" title="Installation"
+          <a href="install.html" title="2. Installation"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>

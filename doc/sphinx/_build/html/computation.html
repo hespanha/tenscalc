@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Code generation for computations &#8212; Tenscalc Users&#39; Guide</title>
+    <title>6. Code generation for computations &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -19,8 +19,7 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Constrained optimization" href="optimization.html" />
-    <link rel="prev" title="Operations on symbolic expressions" href="operations.html" /> 
+    <link rel="prev" title="5. Constrained optimization" href="optimization.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +28,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="optimization.html" title="Constrained optimization"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="operations.html" title="Operations on symbolic expressions"
+          <a href="optimization.html" title="5. Constrained optimization"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>
@@ -44,12 +40,110 @@
           <div class="body" role="main">
             
   <div class="section" id="code-generation-for-computations">
-<h1>Code generation for computations<a class="headerlink" href="#code-generation-for-computations" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">6. </span>Code generation for computations<a class="headerlink" href="#code-generation-for-computations" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This section of the documentation is still <strong>incomplete</strong>.</p>
+</div>
+<p><strong>Computation trees</strong></p>
+<blockquote>
+<div><p>Sets of computations organized as dependency graphs, with multiple
+roots (input variables) and leaves (output expressions).</p>
+</div></blockquote>
 <div class="section" id="defining-a-computation">
-<h2>Defining a computation<a class="headerlink" href="#defining-a-computation" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.1. </span>Defining a computation<a class="headerlink" href="#defining-a-computation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="csparse">
+<em class="property">class </em><code class="sig-name descname">csparse</code><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt>
+<code class="sig-name descname">cs=csparse()</code></dt>
+<dd><p>Creates an empty computation tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>empty <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="declareSet">
+<code class="sig-name descname">declareSet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destination</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an input variable to the tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
+<li><p><strong>destination</strong> – <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variable created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></li>
+<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="declareGet">
+<code class="sig-name descname">declareGet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds output expressions to the tree</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
+<li><p><strong>sources</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-valued expressions</p></li>
+<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="declareCopy">
+<code class="sig-name descname">declareCopy</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destinations</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value of input variables, based on the value of output
+expressions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
+<li><p><strong>sources</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-valued expressions</p></li>
+<li><p><strong>destinations</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></li>
+<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 <div class="section" id="code-generation">
-<h2>Code generation<a class="headerlink" href="#code-generation" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">6.2. </span>Code generation<a class="headerlink" href="#code-generation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cmex2compute">
+<code class="sig-name descname">cmex2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="class2compute">
+<code class="sig-name descname">class2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate code to set values of input variables, get values of
+output expressions, and copy output expressions to input variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set, …</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>name of the MATLAB© class created</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 </div>
 
@@ -61,19 +155,16 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Code generation for computations</a><ul>
-<li><a class="reference internal" href="#defining-a-computation">Defining a computation</a></li>
-<li><a class="reference internal" href="#code-generation">Code generation</a></li>
+<li><a class="reference internal" href="#">6. Code generation for computations</a><ul>
+<li><a class="reference internal" href="#defining-a-computation">6.1. Defining a computation</a></li>
+<li><a class="reference internal" href="#code-generation">6.2. Code generation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="operations.html"
-                        title="previous chapter">Operations on symbolic expressions</a></p>
-  <h4>Next topic</h4>
   <p class="topless"><a href="optimization.html"
-                        title="next chapter">Constrained optimization</a></p>
+                        title="previous chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -102,10 +193,7 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="optimization.html" title="Constrained optimization"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="operations.html" title="Operations on symbolic expressions"
+          <a href="optimization.html" title="5. Constrained optimization"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>

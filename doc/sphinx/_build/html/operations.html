@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Operations on symbolic expressions &#8212; Tenscalc Users&#39; Guide</title>
+    <title>4. Operations on symbolic expressions &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -19,8 +19,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Code generation for computations" href="computation.html" />
-    <link rel="prev" title="Basics" href="basics.html" /> 
+    <link rel="next" title="5. Constrained optimization" href="optimization.html" />
+    <link rel="prev" title="3. Basics" href="basics.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -29,10 +29,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="computation.html" title="Code generation for computations"
+          <a href="optimization.html" title="5. Constrained optimization"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="basics.html" title="Basics"
+          <a href="basics.html" title="3. Basics"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>
@@ -44,9 +44,9 @@
           <div class="body" role="main">
             
   <div class="section" id="operations-on-symbolic-expressions">
-<h1>Operations on symbolic expressions<a class="headerlink" href="#operations-on-symbolic-expressions" title="Permalink to this headline">¶</a></h1>
+<h1><span class="section-number">4. </span>Operations on symbolic expressions<a class="headerlink" href="#operations-on-symbolic-expressions" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="arithmetic-operations">
-<h2>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.1. </span>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc supports most of the basic arithmetic operations in
 MATLAB©, in most cases using the same or a very similar syntax.</p>
 <table class="colwidths-given docutils align-left" id="id1">
@@ -298,7 +298,7 @@ more than 2 dimensions.</p></td>
 </tbody>
 </table>
 <div class="section" id="tensor-product">
-<span id="tprod-section"></span><h3>Tensor product<a class="headerlink" href="#tensor-product" title="Permalink to this headline">¶</a></h3>
+<span id="tprod-section"></span><h3><span class="section-number">4.1.1. </span>Tensor product<a class="headerlink" href="#tensor-product" title="Permalink to this headline">¶</a></h3>
 <p>The function <a class="reference internal" href="#tprod" title="tprod"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">tprod()</span></code></a> provides a very general and flexible
 multiplication operation between tensors, which includes the usual
 matrix multiplication <code class="docutils literal notranslate"><span class="pre">*</span></code> as a special case, the summation over rows
@@ -376,12 +376,12 @@ flexibility of <a class="reference internal" href="#tprod" title="tprod"><code c
 </div>
 </div>
 </div>
-<div class="section" id="boolean-operation">
-<h2>Boolean operation<a class="headerlink" href="#boolean-operation" title="Permalink to this headline">¶</a></h2>
-<p>TensCalc uses boolean operations mostly to specify optimization
-constraints.</p>
+<div class="section" id="logical-valued-operations">
+<h2><span class="section-number">4.2. </span>Logical-valued operations<a class="headerlink" href="#logical-valued-operations" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc uses logical-valued operations mostly to specify
+optimization constraints.</p>
 <table class="colwidths-given docutils align-left" id="id2">
-<caption><span class="caption-text">Boolean operations</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
+<caption><span class="caption-text">Logical-valued operations</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col style="width: 27%" />
 <col style="width: 36%" />
@@ -406,7 +406,7 @@ constraints.</p>
 
 </th>
 <td><p>Entry-by-entry equality comparison of tensors of the same size
-or of a scalar with a tensor of arbitrary size</p></td>
+or of a scalar with a tensor of arbitrary size.</p></td>
 <td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">eq()</span></code>, expansion upon singleton
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
@@ -423,7 +423,7 @@ sizes.</p></td>
 
 </th>
 <td><p>Entry-by-entry greater than or equal to comparison of tensors
-of the same size or of a scalar with a tensor of arbitrary size</p></td>
+of the same size or of a scalar with a tensor of arbitrary size.</p></td>
 <td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">ge()</span></code>, expansion upon singleton
 dimensions is not performed automatically to match the tensors’
 sizes.</p>
@@ -444,7 +444,7 @@ represent the same constraint.</p>
 
 </th>
 <td><p>Entry-by-entry greater than comparison of tensors of the same
-size or of a scalar with a tensor of arbitrary size</p></td>
+size or of a scalar with a tensor of arbitrary size.</p></td>
 <td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">gt()</span></code>, expansion upon singleton
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
@@ -461,7 +461,7 @@ sizes.</p></td>
 
 </th>
 <td><p>Entry-by-entry smaller than or equal to comparison of tensors
-of the same size or of a scalar with a tensor of arbitrary size</p></td>
+of the same size or of a scalar with a tensor of arbitrary size.</p></td>
 <td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">le()</span></code>, expansion upon singleton
 dimensions is not performed automatically to match the tensors’
 sizes.</p>
@@ -482,7 +482,7 @@ represent the same constraint.</p>
 
 </th>
 <td><p>Entry-by-entry smaller than comparison of tensors of the same
-size or of a scalar with a tensor of arbitrary size</p></td>
+size or of a scalar with a tensor of arbitrary size.</p></td>
 <td><p>Unlike MATLAB©’s regular <code class="docutils literal notranslate"><span class="pre">lt()</span></code>, expansion upon singleton
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
@@ -504,7 +504,7 @@ specified in <code class="docutils literal notranslate"><span class="pre">vecdim
 (2nd form), producing the logical value <code class="docutils literal notranslate"><span class="pre">true</span></code> if all entries
 are nonzero. The result is a tensor with the same size as X,
 but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="any">
@@ -523,13 +523,13 @@ specified in <code class="docutils literal notranslate"><span class="pre">vecdim
 (2nd form), producing the logical value <code class="docutils literal notranslate"><span class="pre">true</span></code> if at least
 one entry is nonzero. The result is a tensor with the same size
 as X, but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="entry-wise-operations">
-<h2>Entry-wise operations<a class="headerlink" href="#entry-wise-operations" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.3. </span>Entry-wise operations<a class="headerlink" href="#entry-wise-operations" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are applied to every entry of a tensor.</p>
 <table class="colwidths-given docutils align-left" id="id3">
 <caption><span class="caption-text">Entry-wise operations</span><a class="headerlink" href="#id3" title="Permalink to this table">¶</a></caption>
@@ -552,7 +552,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Exponential of tensor entries.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="log">
@@ -561,7 +561,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Natural logarithm of tensor entries.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="sin">
@@ -570,7 +570,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Sine of tensor entries in radians.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="cos">
@@ -579,7 +579,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Cosine of tensor entries in radians.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="tan">
@@ -588,7 +588,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Tangent of tensor entries in radians.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="atan">
@@ -597,34 +597,41 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 
 </th>
 <td><p>Inverse tangent in radians of tensor entries.</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
-<dt id="reciprocal">
-<code class="sig-name descname">reciprocal</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#reciprocal" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>Reciprocal of tensor entries.</p></td>
-<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">1./X</span></code></p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="sqr">
 <code class="sig-name descname">sqr</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sqr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>Square of tensor entries</p></td>
-<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^2</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code></p></td>
+<td><p>Square of tensor entries.</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^2</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="cube">
 <code class="sig-name descname">cube</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#cube" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>Cube of tensor entries</p></td>
-<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^3</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code></p></td>
+<td><p>Cube of tensor entries.</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^3</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">X.^Y</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="power">
+<code class="sig-name descname">power</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#power" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Element-wise <code class="docutils literal notranslate"><span class="pre">X</span></code> raised to the power <code class="docutils literal notranslate"><span class="pre">Y</span></code>.</p></td>
+<td><p>Similar syntax to MATLAB©, but TensCalc requires the power
+<code class="docutils literal notranslate"><span class="pre">Y</span></code> to be a regular numeric scalar, <em>not</em> a matrix/vector nor
+Tcalculus symbolic expression.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="sqrt">
@@ -632,8 +639,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <dd></dd></dl>
 
 </th>
-<td><p>Square root of tensor entries</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Square root of tensor entries.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="round">
@@ -641,8 +648,10 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Round to nearest integer</p></td>
+<td><p>Similar syntax to MATLAB©, except that it does <strong>not</strong> support
+a second argument specifying a desired number of digits for
+rounding to a decimal.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="ceil">
@@ -650,8 +659,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Round to nearest integer towards +infinity.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="floor">
@@ -659,35 +668,19 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
+<td><p>Round to nearest integer towards -infinity.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="abs">
-<code class="sig-name descname">abs</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
+<dt id="sign">
+<code class="sig-name descname">sign</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sign" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>Similar syntax to MATLAB©</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><dl class="function">
-<dt id="relu">
-<code class="sig-name descname">relu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="srelu">
-<code class="sig-name descname">srelu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Signum function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>, equal to 1, 0, or
+-1, depending on whether the corresponding extry of <code class="docutils literal notranslate"><span class="pre">X</span></code> is
+positive, zero, or negative.</p></td>
+<td><p>Similar syntax to MATLAB©,</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="heaviside">
@@ -695,23 +688,129 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Step or heaviside function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>, equal
+to 1, 0.5, or 0, depending on whether the corresponding entry
+of <code class="docutils literal notranslate"><span class="pre">X</span></code> is positive, zero, or negative.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="abs">
+<code class="sig-name descname">abs</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Absolute value of tensor entries.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="relu">
+<code class="sig-name descname">relu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Rectified linear unit activation function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">max(X,0)</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="srelu">
+<code class="sig-name descname">srelu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Smooth rectified linear unit activation function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></td>
+<td><p>Similar to <code class="docutils literal notranslate"><span class="pre">log(1+exp(X))</span></code> or <code class="docutils literal notranslate"><span class="pre">x+log(1+exp(-x))</span></code>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
 <dt id="normpdf">
 <code class="sig-name descname">normpdf</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#normpdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>normpdf(X) returns the pdf of the standard normal distribution
+evaluated at the entries of <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></td>
+<td><p>Similar syntax to MATLAB©, except that it does <strong>not</strong> support
+second and third arguments specifying mean and standard
+deviation different than 0 and 1, respectively.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="section" id="linear-algebra">
-<h2>Linear algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.4. </span>Linear algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc supports several basic linear algebra operations, but for
+operations that require some form of factorization to be performed
+efficiently, such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">det</span><span class="p">()</span>     <span class="n">logdet</span><span class="p">()</span>     <span class="n">inv</span><span class="p">()</span>     <span class="n">mldivide</span><span class="p">()</span>     \     <span class="n">traceinv</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>TensCalc requires the user to explicitly select the factorization
+desired:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ldl</span><span class="p">()</span>     <span class="n">lu</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is accomplished by passing to the function the factorized matrix,
+as in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">det</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>            <span class="n">det</span><span class="p">(</span><span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="n">logdet</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>         <span class="n">logdet</span><span class="p">(</span><span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="n">inv</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>            <span class="n">inv</span><span class="p">(</span><span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="n">traceinv</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>       <span class="n">traceinv</span><span class="p">(</span><span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">))</span>
+<span class="n">mldivide</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="n">Y</span><span class="p">)</span>     <span class="n">mldivide</span><span class="p">(</span><span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">),</span><span class="n">Y</span><span class="p">)</span>
+<span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>\<span class="n">B</span>               <span class="n">ldl</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>\<span class="n">B</span>
+</pre></div>
+</div>
+<p>This syntax works because in TensCalc the factorization functions
+<a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a> and <a class="reference internal" href="#ldl" title="ldl"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">ldl()</span></code></a> return the <em>whole factorization as a single
+entity</em>, which can then be passed to any function that take a
+factorization as input (such as the functions listed above). This
+behavior is distinct from regular MATLAB© for which <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a> and
+<a class="reference internal" href="#ldl" title="ldl"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">ldl()</span></code></a> return factorizations through multiple outputs.</p>
+<p>TensCalc’s code generation makes sure that redundant computations
+are not executed, therefore the following two snippets of code result
+in the same computation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tvariable</span> <span class="n">A</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">Tvariable</span> <span class="n">b</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">facA</span><span class="o">=</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">);</span>
+<span class="n">y</span><span class="o">=</span><span class="n">det</span><span class="p">(</span><span class="n">facA</span><span class="p">);</span>
+<span class="n">x</span><span class="o">=</span><span class="n">facA</span>\<span class="n">b</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Tvariable</span> <span class="n">A</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">Tvariable</span> <span class="n">b</span> <span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+<span class="n">y</span><span class="o">=</span><span class="n">det</span><span class="p">(</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">));</span>
+<span class="n">x</span><span class="o">=</span><span class="n">lu</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>\<span class="n">b</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Specifically note that, even though <code class="docutils literal notranslate"><span class="pre">lu(A)</span></code> appears twice in the
+bottom snippet, the matrix <code class="docutils literal notranslate"><span class="pre">A</span></code> is only factored once.</p>
+<div class="section" id="which-factorization-to-use">
+<h3><span class="section-number">4.4.1. </span>Which factorization to use?<a class="headerlink" href="#which-factorization-to-use" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>The LDL factorization is faster and requires less
+memory. However, it has some limitations:</p>
+<ul>
+<li><p>LDL should only be used for symmetric matrices. When used on a
+matrix that is not symmetric, all the entries above the main
+diagonal are ignored.</p></li>
+<li><p>TensCalc’s LDL factorization only works for matrices that do not
+have zeros in the main diagonal. Structural zeros in the main
+diagonal will result in an error at code generation
+time. Non-structural zeros (i.e., zeros that cannot be determined
+at code generation time) will lead to divisions by zero at run
+time.</p></li>
+</ul>
+</li>
+<li><p>The LU factorization is a little slower and requires twice as
+much memory to store both the L and U factors. However, it can be
+applied to non-symmetric matrices and matrices with zeros in the main
+diagonal.</p></li>
+</ul>
+<p>Both the LU and the LDL factorizations, use “pychologically
+lower/upper triangular matrices”, i.e., matrices that are triangular
+up to a permutation, with permutations selected to minimize the
+fill-in for sparse matrices and reduce computation time (see
+MATLAB©’s documentation for <code class="docutils literal notranslate"><span class="pre">lu()</span></code> and <code class="docutils literal notranslate"><span class="pre">ldl()</span></code> with sparse
+matrices).</p>
 <table class="colwidths-given docutils align-left" id="id4">
 <caption><span class="caption-text">Linear Algebra operations</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
 <colgroup>
@@ -727,13 +826,126 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="function">
+<dt id="diag">
+<code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">v</em>, <em class="sig-param">k</em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt>
-<code class="sig-name descname">A \ B</code></dt>
+<code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">v</span></code> is an <code class="docutils literal notranslate"><span class="pre">n</span></code>-vector, returns a square matrix
+with <code class="docutils literal notranslate"><span class="pre">n+abs(k)</span></code> rows/columns, with the <code class="docutils literal notranslate"><span class="pre">k</span></code>-th diagonal equal
+to <code class="docutils literal notranslate"><span class="pre">v</span></code>. <code class="docutils literal notranslate"><span class="pre">k=0</span></code> corresponds to the main diagonal, <code class="docutils literal notranslate"><span class="pre">k&gt;0</span></code> above the
+main diagonal and <code class="docutils literal notranslate"><span class="pre">k&lt;0</span></code> below.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">k</span></code> ommited, it is assumed equal to (main diagonal).</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">A</span></code> is an <code class="docutils literal notranslate"><span class="pre">n</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n</span></code> a matrix, returns an
+<code class="docutils literal notranslate"><span class="pre">n</span></code>-vector with the main diagonal of <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p>
+</td>
+<td><p>Similar syntax to MATLAB©, except that it does <strong>not</strong> support
+a second argument specifying a diagonal other than the main
+diagonal, when <code class="docutils literal notranslate"><span class="pre">A</span></code> is a matrix.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="trace">
+<code class="sig-name descname">trace</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Trace of a matrix, i.e., sum of the diagonal elements of <code class="docutils literal notranslate"><span class="pre">A</span></code>,
+which is also the sum of the eigenvalues of <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></td>
+<td><p>Similar syntax to MATLAB©.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">A.'</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">A'</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="transpose">
+<code class="sig-name descname">transpose</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="ctranspose">
+<code class="sig-name descname">ctranspose</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Transpose of a real-valued matrix.</p></td>
+<td><p>Similar syntax to MATLAB©, except that TensCalc does not
+support complex-valued variables and therefore <code class="docutils literal notranslate"><span class="pre">transpose</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ctranspose</span></code> return the same values.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="lu">
+<code class="sig-name descname">lu</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>LU factorization using “pychologically lower/upper triangular
+matrices”, i.e., matrices that are triangular up to a
+permutation, with permutations selected to minimize the fill-in
+for sparse matrices and reduce computation time (see MATLAB©’s
+documentation for lu with sparse matrices).</p></td>
+<td><p>The output of this function includes the whole factorization as
+a single entity, in a format that can be passed to functions
+that require factorizations (such as mldivide, inv, det,
+logdet, traceinv), but should <em>not</em> be used by functions that
+are not expecting a factorized matrix as an input.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="ldl">
+<code class="sig-name descname">ldl</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>LDL factorization using “pychologically lower triangular
+matrices”, i.e., matrices that are triangular up to a
+permutation, with permutations selected to minimize the fill-in
+for sparse matrices and reduce computation time (see MATLAB©’s
+documentation for lu with sparse matrices).</p>
+<p>All entries of <code class="docutils literal notranslate"><span class="pre">A</span></code> above the main diagonal are ignored and
+assumed to be equal to the one below the main diagonal,
+<em>without performing any test regarding of whether or not this
+is true</em>.</p>
+</td>
+<td><p>The output of this function includes the whole factorization as
+a single entity, in a format that can be passed to functions
+that require factorizations (such as mldivide, inv, det,
+logdet, traceinv), but should <em>not</em> be used by functions that
+are not expecting a factorized matrix as an input.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt>
+<code class="sig-name descname">lu(A) \ B</code></dt>
 <dd></dd></dl>
 
 <dl class="function">
 <dt id="mldivide">
-<code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">B</em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em>, <em class="sig-param">B</em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">ldl(A) \ B</code></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em>, <em class="sig-param">B</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -741,172 +953,357 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 equations <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> where <code class="docutils literal notranslate"><span class="pre">A</span></code> must be a nonsingular square
 matrix (tensor with 2 dimensions) and <code class="docutils literal notranslate"><span class="pre">B</span></code> may either be a
 vector (tensor with 1 dimension) or a matrix (tensor with 2
-dimensions) with <code class="docutils literal notranslate"><span class="pre">size(A,1)==size(A,2)==size(B,1)</span></code>.</p>
-<p>ALSO TALK ABOUT FACTORIZATION</p>
-</td>
+dimensions) with <code class="docutils literal notranslate"><span class="pre">size(A,1)==size(A,2)==size(B,1)</span></code>.</p></td>
 <td><p>MATLAB© allows for non-square and possibly singular matrices
 <code class="docutils literal notranslate"><span class="pre">A</span></code>, in which case the least-squares solution to <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> is
 returned. Currently, TensCalc requires <code class="docutils literal notranslate"><span class="pre">A</span></code> to be square
-and nonsingular.</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="diag">
-<code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+and nonsingular.</p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
-<dt id="trace">
-<code class="sig-name descname">trace</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="transpose">
-<code class="sig-name descname">transpose</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><dl class="function">
-<dt id="ctranspose">
-<code class="sig-name descname">ctranspose</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="inv">
-<code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Inverse of a square matrix.</p></td>
+<td><p>Similar syntax to MATLAB©.</p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="det">
-<code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="chol">
-<code class="sig-name descname">chol</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#chol" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><dl class="function">
-<dt id="ldl">
-<code class="sig-name descname">ldl</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="ldl_l">
-<code class="sig-name descname">ldl_l</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-even"><th class="stub"><dl class="function">
-<dt id="ldl_d">
-<code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
-</tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="lu">
-<code class="sig-name descname">lu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Determinant of a square matrix.</p></td>
+<td><p>Similar syntax to MATLAB©.</p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="logdet">
-<code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Natural logarithm of the determinant of a square matrix.</p></td>
+<td><p>Results in the same value <code class="docutils literal notranslate"><span class="pre">log(det(A))</span></code>, but in the
+context of optimizations, it is <em>more efficient to use
+``logdet(A)`` because the latter simplifies the computation of
+the derivative.</em></p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="traceinv">
-<code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>Natural logarithm of the determinant of a square matrix.</p></td>
+<td><p>It results in the same value <code class="docutils literal notranslate"><span class="pre">trace(inv(A))</span></code>, but in the
+context of optimizations, it is <em>more efficient to use
+``traceinv(A)`` because the latter simplifies the computation of
+the derivative.</em></p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="ldl_d">
+<code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns the diagonal matrix in the LDL factorization.</p></td>
+<td><p>All entries of <code class="docutils literal notranslate"><span class="pre">A</span></code> above the main diagonal are ignored and
+assumed to be equal to the one below the main diagonal,
+<em>without performing any test regarding of whether or not this
+is true</em>.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="lu_d">
+<code class="sig-name descname">lu_d</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_d" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>return the main diagonal of the U matrix in an LU
+factorization. The main diagonal of the L matrix is equal to 1.</p></td>
+<td><p>All entries of <code class="docutils literal notranslate"><span class="pre">A</span></code> above the main diagonal are ignored and
+assumed to be equal to the one below the main diagonal,
+<em>without performing any test regarding of whether or not this
+is true</em>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="norm">
-<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">2</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>2-norm of a scalar or a vector</p></td>
+<td><p>Similar syntax to MATLAB©, but restricted to vectors.</p>
+<p>The 2-norm should be avoided in optimization criteria because
+it is not differentiable at the origin. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a>
+on how to overcome this issue.</p>
+</td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
-<dt id="norm1">
-<code class="sig-name descname">norm1</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">1</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>1-norm of a scalar, a vector, or matrix</p></td>
+<td><p>The 1-norm should be avoided in optimization criteria because
+it is not differentiable at points where the optimum often
+lies.  See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
-<dt id="norm2">
-<code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">inf</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>infinity norm of a scalar, a vector, or matrix</p></td>
+<td><p>The infinity norm should be avoided in optimization criteria
+because it is not differentiable at points where the optimum
+often lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this
+issue.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="norm2">
+<code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">S</em><span class="sig-paren">)</span></dt>
+<dd></dd></dl>
+
+</th>
+<td><p><code class="docutils literal notranslate"><span class="pre">norm2(x)</span></code> returns the sum of the square of all entries of the
+tensor <code class="docutils literal notranslate"><span class="pre">x</span></code>, which for vectors and matrices corresponds to the square of the
+Euclidean and Frobenius norm of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">norm2(x,S)</span></code> returns the value of the quadratic form <code class="docutils literal notranslate"><span class="pre">&lt;x,Sx&gt;</span></code>. This
+form is only applicable when <code class="docutils literal notranslate"><span class="pre">x</span></code> is a vector (tensor with 1
+dimension) and <code class="docutils literal notranslate"><span class="pre">S</span></code> a square matrix (tensor with 2 dimensions).</p>
+</td>
+<td><p><code class="docutils literal notranslate"><span class="pre">norm2(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">norm(x,2)^2</span></code> and also to
+<code class="docutils literal notranslate"><span class="pre">sum(x.^2,'all')</span></code>, but computes derivatives more efficiently.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="norm1">
+<code class="sig-name descname">norm1</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>returns the sum of the absolute value of all entries of the
+tensor <code class="docutils literal notranslate"><span class="pre">x</span></code>, which for vectors corresponds to the 1-norm of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">norm1(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">sum(abs(x),'all')</span></code>, but the former
+computes derivatives more efficiently.</p>
+<p><a class="reference internal" href="#norm1" title="norm1"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norm1()</span></code></a> should be avoided in optimization criteria because it
+is not differentiable at points where the optimum often
+lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p>
+</td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="norminf">
-<code class="sig-name descname">norminf</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">norminf</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>INCOMPLETE</p></td>
-<td><p>INCOMPLETE</p></td>
+<td><p>returns the largest absolute value of all entries of the tensor
+<code class="docutils literal notranslate"><span class="pre">x</span></code>, which for vectors corresponds to the infinity-norm of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></td>
+<td><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">norminf(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">max(abs(x),[],'all')</span></code>, but the</dt><dd><p>former computes derivatives more efficiently.</p>
+</dd>
+</dl>
+<p><a class="reference internal" href="#norminf" title="norminf"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norminf()</span></code></a> should be avoided in optimization criteria because it
+is not differentiable at points where the optimum often
+lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p>
+</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Calling <cite>\</cite>, <a class="reference internal" href="#mldivide" title="mldivide"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">mldivide()</span></code></a>, <a class="reference internal" href="#inv" title="inv"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">inv()</span></code></a>, <a class="reference internal" href="#det" title="det"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">det()</span></code></a>, <a class="reference internal" href="#logdet" title="logdet"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">logdet()</span></code></a>, <a class="reference internal" href="#traceinv" title="traceinv"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">traceinv()</span></code></a>,
+<a class="reference internal" href="#ldl_d" title="ldl_d"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">ldl_d()</span></code></a>, or <a class="reference internal" href="#lu_d" title="lu_d"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu_d()</span></code></a> with a matrix that has not been factorize will
+lead to syntax errors, often not easy to directly relate to the
+missing factorization.</p>
+</div>
+</div>
+<div class="section" id="avoiding-lack-of-smoothness">
+<span id="smoothness"></span><h3><span class="section-number">4.4.2. </span>Avoiding lack of smoothness<a class="headerlink" href="#avoiding-lack-of-smoothness" title="Permalink to this headline">¶</a></h3>
+<p>In general norm are not smooth:</p>
+<ul class="simple">
+<li><p>The 2-norm is not smooth at the origin because of the <a class="reference internal" href="#sqrt" title="sqrt"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">sqrt()</span></code></a></p></li>
+<li><p>The 1-norm is not smooth at any point where one coordinate is equal to zero because of the <a class="reference internal" href="#abs" title="abs"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">abs()</span></code></a></p></li>
+<li><p>The infinity-norm is not smooth at any point where two or more
+entries have the equal largest absolute values because of the <a class="reference internal" href="#max" title="max"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">max()</span></code></a></p></li>
+</ul>
+<p>For optimizations, this is particular problematic if the optimum
+occurs precisely at points where the norm is not differentiable, <em>which
+is almost always the case for the 1-norm and the infinity norm.</em></p>
+<p>However, it is generally possible to avoid this problem by introducing
+auxiliary slack variables and constraints that make the optimization
+smooth, without losing convexity.</p>
+<ul>
+<li><p>A minimization involving a 2-norm of the form:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\min\Big\{ \text{norm}(x,2)+f(x) : x\in\mathbb{R}^n, F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+<p>can be reformulated as</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\min\Big\{ v+f(x) : v\in\mathbb{R}, x\in\mathbb{R}^n, v&gt;0, v^2 \ge \text{norm2}(x), F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+</li>
+<li><p>A minimization involving a 1-norm of the form:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\min\Big\{ \text{norm}(x,1)+f(x) : x\in\mathbb{R}^n, F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+<p>can be reformulated as</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\min\Big\{ \text{sum}(v)+f(x) : x,v\in\mathbb{R}^n, -v\le x \le v, F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+</li>
+<li><p>A minimization involving an infinity-norm of the form:</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\small\min\Big\{ \text{norm}(x,\text{inf})+f(x) : x\in\mathbb{R}^n, F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+<p>can be reformulated as</p>
+<blockquote>
+<div><p><span class="math notranslate nohighlight">\(\small\min\Big\{ v+f(x) : v\in\mathbb{R},\; x\in\mathbb{R}^n, -v\le x \le v, F(x)\ge 0, G(x)= 0 \Big\}\)</span></p>
+</div></blockquote>
+</li>
+</ul>
+</div>
 </div>
 <div class="section" id="calculus-differentiation">
-<h2>Calculus - differentiation<a class="headerlink" href="#calculus-differentiation" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">4.5. </span>Calculus - differentiation<a class="headerlink" href="#calculus-differentiation" title="Permalink to this headline">¶</a></h2>
+<p>The following function computes the partial derivatives of a symbolic
+expression with respect to the entries of a tensor-valued symbolic
+variable:</p>
+<dl class="function">
+<dt id="gradient">
+<code class="sig-name descname">gradient</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#gradient" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – tensor-valued expression to be differentiated</p></li>
+<li><p><strong>x</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-values symbolic variable) – variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with respect to which
+the derivatives will be taken</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>When</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">f</span></code> is a tensor with size <code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nN]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> is a tensor-valued variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with size
+<code class="docutils literal notranslate"><span class="pre">[m1,m2,...,mM]</span></code></p></li>
+</ul>
+<p>then <code class="docutils literal notranslate"><span class="pre">g=gradient(f,x)</span></code> results in a tensor with size
+<code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nN,m1,m2,...,mM]</span></code> with</p>
+<div class="math notranslate nohighlight">
+\[g(i1,i2,...,iN,j1,j2,...,jM)=\frac{d\,f(i1,i2,...,iN)}{d x(j1,j2,...,jM)}\]</div>
+<p>For example, if <code class="docutils literal notranslate"><span class="pre">f</span></code> is a scalar (with size <code class="docutils literal notranslate"><span class="pre">[]</span></code>) and <code class="docutils literal notranslate"><span class="pre">x</span></code> an
+<code class="docutils literal notranslate"><span class="pre">n</span></code>-vector (with size <code class="docutils literal notranslate"><span class="pre">[n]</span></code>), then <code class="docutils literal notranslate"><span class="pre">g=gradient(f,x)</span></code> results in
+an <code class="docutils literal notranslate"><span class="pre">n</span></code>-vector (with size <code class="docutils literal notranslate"><span class="pre">[n]</span></code>) with the usual gradient:</p>
+<div class="math notranslate nohighlight">
+\[g(i)=\frac{d\,f}{d x(i)}\]</div>
+<p>If we then compute <code class="docutils literal notranslate"><span class="pre">h=gradient(g,x)</span></code>, we obtain an <code class="docutils literal notranslate"><span class="pre">n</span></code>-by-<code class="docutils literal notranslate"><span class="pre">n</span></code>
+matrix (with size <code class="docutils literal notranslate"><span class="pre">[n,n]</span></code>) with the Hessian matrix:</p>
+<div class="math notranslate nohighlight">
+\[h(i,j)=\frac{d\,g(i)}{d x(j)} = \frac{d^2\,f}{d x(i)\,d x(j)}\]</div>
+<p>The computation of first and second derivatives can be
+streamlined using the following function:</p>
+<dl class="function">
+<dt id="hessian">
+<code class="sig-name descname">hessian</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">x</em><span class="optional">[</span>, <em class="sig-param">y</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hessian" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – tensor-valued expression to be differentiated</p></li>
+<li><p><strong>x</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-values symbolic variable) – variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with respect to which
+the 1st derivatives will be taken</p></li>
+<li><p><strong>y</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-values symbolic variable) – variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with respect to which
+the 2nd derivatives will be taken (optinal, when omitted
+the 2nd derivatives will also be taken with respect to x)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p>When</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">f</span></code> is a tensor with size <code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nN]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code> a tensor-valued variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with size
+<code class="docutils literal notranslate"><span class="pre">[m1,m2,...,mM]</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code> a tensor-valued variable (created with <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a>) with size
+<code class="docutils literal notranslate"><span class="pre">[l1,l2,...,lL]</span></code></p></li>
+</ul>
+<p>then <code class="docutils literal notranslate"><span class="pre">[h,g]=hessian(f,x,y)</span></code> results in</p>
+<ul>
+<li><p>a tensor <code class="docutils literal notranslate"><span class="pre">g</span></code> with size
+<code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nN,m1,m2,...,mM]</span></code> with</p>
+<div class="math notranslate nohighlight">
+\[g(i1,i2,...,iN,j1,j2,...,jM)=\frac{d\,f(i1,i2,...,iN)}{d x(j1,j2,...,jM)}\]</div>
+</li>
+<li><p>a tensor <code class="docutils literal notranslate"><span class="pre">h</span></code> with size
+<code class="docutils literal notranslate"><span class="pre">[n1,n2,...,nN,m1,m2,...,mM,l1,l2,...,lL]</span></code> with</p>
+<div class="math notranslate nohighlight">
+\[h(i1,i2,...,iN,j1,j2,...,jM,k1,k2,...,kL)=\frac{d\,f(i1,i2,...,iN)}{d x(j1,j2,...,jM)d y(j1,j2,...,jM)}\]</div>
+</li>
+</ul>
+<p>In practice, <code class="docutils literal notranslate"><span class="pre">[h,g]=hessian(f,x,y)</span></code> is equivalent to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">g</span><span class="o">=</span><span class="n">gradient</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">x</span><span class="p">);</span>
+<span class="n">h</span><span class="o">=</span><span class="n">gradient</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">y</span><span class="p">);</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -918,25 +1315,29 @@ and nonsingular.</p></td>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Operations on symbolic expressions</a><ul>
-<li><a class="reference internal" href="#arithmetic-operations">Arithmetic operations</a><ul>
-<li><a class="reference internal" href="#tensor-product">Tensor product</a></li>
+<li><a class="reference internal" href="#">4. Operations on symbolic expressions</a><ul>
+<li><a class="reference internal" href="#arithmetic-operations">4.1. Arithmetic operations</a><ul>
+<li><a class="reference internal" href="#tensor-product">4.1.1. Tensor product</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#boolean-operation">Boolean operation</a></li>
-<li><a class="reference internal" href="#entry-wise-operations">Entry-wise operations</a></li>
-<li><a class="reference internal" href="#linear-algebra">Linear algebra</a></li>
-<li><a class="reference internal" href="#calculus-differentiation">Calculus - differentiation</a></li>
+<li><a class="reference internal" href="#logical-valued-operations">4.2. Logical-valued operations</a></li>
+<li><a class="reference internal" href="#entry-wise-operations">4.3. Entry-wise operations</a></li>
+<li><a class="reference internal" href="#linear-algebra">4.4. Linear algebra</a><ul>
+<li><a class="reference internal" href="#which-factorization-to-use">4.4.1. Which factorization to use?</a></li>
+<li><a class="reference internal" href="#avoiding-lack-of-smoothness">4.4.2. Avoiding lack of smoothness</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#calculus-differentiation">4.5. Calculus - differentiation</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="basics.html"
-                        title="previous chapter">Basics</a></p>
+                        title="previous chapter"><span class="section-number">3. </span>Basics</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="computation.html"
-                        title="next chapter">Code generation for computations</a></p>
+  <p class="topless"><a href="optimization.html"
+                        title="next chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -965,10 +1366,10 @@ and nonsingular.</p></td>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="computation.html" title="Code generation for computations"
+          <a href="optimization.html" title="5. Constrained optimization"
              >next</a> |</li>
         <li class="right" >
-          <a href="basics.html" title="Basics"
+          <a href="basics.html" title="3. Basics"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>

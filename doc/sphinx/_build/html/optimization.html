@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Constrained optimization &#8212; Tenscalc Users&#39; Guide</title>
+    <title>5. Constrained optimization &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
@@ -19,7 +19,8 @@
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Code generation for computations" href="computation.html" /> 
+    <link rel="next" title="6. Code generation for computations" href="computation.html" />
+    <link rel="prev" title="4. Operations on symbolic expressions" href="operations.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,7 +29,10 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="computation.html" title="Code generation for computations"
+          <a href="computation.html" title="6. Code generation for computations"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="operations.html" title="4. Operations on symbolic expressions"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>
@@ -40,13 +44,839 @@
           <div class="body" role="main">
             
   <div class="section" id="constrained-optimization">
-<h1>Constrained optimization<a class="headerlink" href="#constrained-optimization" title="Permalink to this headline">¶</a></h1>
-<p>NOTE: For constraint satisfaction, there is no difference between <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> or between <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>.</p>
+<h1><span class="section-number">5. </span>Constrained optimization<a class="headerlink" href="#constrained-optimization" title="Permalink to this headline">¶</a></h1>
+<p>TensCalc can be used to generate code to solve optimizations or Nash
+equilibria. All solvers use a primal-dual interior-point method and
+share several common parameters.</p>
+<div class="section" id="types-of-code">
+<h2><span class="section-number">5.1. </span>Types of code<a class="headerlink" href="#types-of-code" title="Permalink to this headline">¶</a></h2>
+<p>C code</p>
+<blockquote>
+<div><p>C code is self-contained and library free (aside from the C
+standard library). The C code is encapsulated into a dynamic library
+that can be linked to MATLAB© or used independently.</p>
+<p>This type of code is extremely efficient and fast for small to
+medium-size problems; typically up to a few thousands of variables
+and constraints. In this domain C code is typically <strong>10-100 times
+faster.</strong></p>
+<p>In addition to the C code, a MATLAB© class is also generated to
+set parameter values and call the solver from within MATLAB©.</p>
+<p>The scripts that generate C code start with the prefix <code class="docutils literal notranslate"><span class="pre">cmex2</span></code>.</p>
+</div></blockquote>
+<p>MATLAB©</p>
+<blockquote>
+<div><p>MATLAB© code is integrated into a MATLAB© class that is used to set
+parameter values and call the solver.</p>
+<p>The scripts that generate MATLAB© code start with the prefix <code class="docutils literal notranslate"><span class="pre">class2</span></code>.</p>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The MATLAB© classes that call the C and the MATLAB© solvers
+appear indistinguishable to the user, aside from the speed of
+execution.</p>
+</div>
+</div>
 <div class="section" id="minimization">
-<h2>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.2. </span>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc can generate optimized code to solve constrained
+optimizations of the form</p>
+<div class="math notranslate nohighlight">
+\[x^* \in \arg\min_x\Big\{ f(x) : F(x)\ge 0, G(x)=0 \Big\}\]</div>
+<p>where the variable <code class="docutils literal notranslate"><span class="pre">x</span></code> can include multiple tensors and the equality
+and inequality constraints can be expressed by equalities and
+inequalities involving multiple tensors.</p>
+<p>The following two scripts are used to generate code to solve this type
+of constrained minimization</p>
+<dl class="function">
+<dt id="cmex2optimizeCS">
+<code class="sig-name descname">cmex2optimizeCS</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="class2optimizeCS">
+<code class="sig-name descname">class2optimizeCS</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#class2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
+<li><p><strong>value1</strong> (<em>type depends on the parameter</em>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set</p></li>
+<li><p><strong>value2</strong> (<em>type depends on the parameter</em>) – parameter to set, …</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>name of the MATLAB© class created</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>Both scripts take several parameters (many of them optional) in the
+form of pairs, consisting of a parameter name and its value, like in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">classname</span><span class="o">=</span><span class="n">cmex2optimizeCS</span><span class="p">(</span><span class="s1">&#39;classname&#39;</span><span class="p">,</span><span class="s1">&#39;myoptimization&#39;</span><span class="p">,</span> <span class="o">...</span>
+                          <span class="s1">&#39;objective&#39;</span><span class="p">,</span><span class="n">norm2</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span><span class="p">),</span> <span class="o">...</span>
+                          <span class="s1">&#39;optimizationVariables&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="p">},</span> <span class="o">...</span>
+                          <span class="s1">&#39;constraints&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="o">&gt;=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;=</span><span class="mi">10</span> <span class="p">},</span> <span class="o">...</span>
+                          <span class="s1">&#39;outputExpressions&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="p">});</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This type of parameter passing and validation is enabled by
+the FunParTools toolbox, which also enables several other
+advanced features. See <a class="reference internal" href="#pedigrees"><span class="std std-ref">Pedigrees</span></a>.</p>
+</div>
+<p>The function <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> generates C code, whereas
+<a class="reference internal" href="#class2optimizeCS" title="class2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">class2optimizeCS()</span></code></a> generates MATLAB© code, but both functions take
+the same set of parameters and generate MATLAB© classes that are
+indistinguishable to the user.</p>
+<table class="colwidths-given docutils align-left" id="id6">
+<caption><span class="caption-text">Selected parameters for <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> and
+             <a class="reference internal" href="#class2optimizeCS" title="class2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">class2optimizeCS()</span></code></a>. For the full set of parameters use
+             <code class="docutils literal notranslate"><span class="pre">cmex2optimizeCS</span> <span class="pre">help</span></code> or <code class="docutils literal notranslate"><span class="pre">class2optimizeCS</span> <span class="pre">help</span></code></span><a class="headerlink" href="#id6" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Parameter</p></th>
+<th class="head"><p>Allowed values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>‘optimizationVariables’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Variables to be optimized.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘objective’</p></th>
+<td><p>scalar <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor</p></td>
+<td><p>Criterion to optimize.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘constraints’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors, each involving one of the
+following operations <code class="docutils literal notranslate"><span class="pre">==</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;</span></code>.</p></td>
+<td><p>Optimization constraints.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For constraint satisfaction, there is no difference between
+<code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> or between <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘outputExpressions’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors</p></td>
+<td><p>Expressions (typically involving the optimization variables)
+that the solver should return upon termination.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>MATLAB© does not support sparse arrays with more than 2
+dimensions, therefore to include in <code class="docutils literal notranslate"><span class="pre">outputExpressions</span></code>
+tensors with more than 2 dimensions one must make them <a class="reference internal" href="operations.html#full" title="full"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">full()</span></code></a>, as in:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cmex2optimizeCS</span><span class="p">(</span><span class="s1">&#39;classname&#39;</span><span class="p">,</span><span class="s1">&#39;myoptimization&#39;</span><span class="p">,</span> <span class="o">...</span>
+                <span class="s1">&#39;objective&#39;</span><span class="p">,</span><span class="n">norm2</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">x0</span><span class="p">),</span> <span class="o">...</span>
+                <span class="s1">&#39;optimizationVariables&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span> <span class="p">},</span> <span class="o">...</span>
+                <span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="p">{</span><span class="n">x0</span><span class="p">,</span> <span class="o">...</span>
+                <span class="s1">&#39;constraints&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="o">&gt;=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">&lt;=</span><span class="mi">1</span> <span class="p">},</span> <span class="o">...</span>
+                <span class="s1">&#39;outputExpressions&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">full</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<p>See <a class="reference internal" href="#special-variables-optimization"><span class="std std-ref">Special variables to include in 'outputExpressions'</span></a>.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘parameters’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Parameters that the optimization criterion and constraints may
+depends upon; to be provided to the solver, but not optimized.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘sensitivityVariables’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Optimization variables with respect to which we want to compute cost
+sensitivity.</p>
+<p>See <a class="reference internal" href="#sensitivity-variables"><span class="std std-ref">Sensitivity variables</span></a>.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘classname’</p></th>
+<td><p>string</p></td>
+<td><p>Name of the class to be created.  A MATLAB© class will be
+created with this name plus a <code class="docutils literal notranslate"><span class="pre">.m</span></code> extension.</p>
+<p>See <a class="reference internal" href="#solver-class"><span class="std std-ref">Solver Class</span></a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This parameter should not be used with pedigrees
+are enabled using <code class="docutils literal notranslate"><span class="pre">'pedigreeClass'</span></code>.  See
+<a class="reference internal" href="#pedigrees"><span class="std std-ref">Pedigrees</span></a></p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘folder’</p></th>
+<td><p>string</p></td>
+<td><p>Path to the folder where the class and cmex files will be
+created.  The folder will be created if it does not exist and
+it will be added to the begining of the path if not there
+already.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘simulinkLibrary’</p></th>
+<td><p>string</p></td>
+<td><p>Name of a simulink library to be created with Simulink blocks that can be used
+to call the different solver functions.
+The blocks are created with direct feedthrough.</p>
+<p>No library and no simulink blocks are created if simulinkLibrary is an empty string.</p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘gradTolerance’</p></th>
+<td><p>positive number, default 1e-4</p></td>
+<td><p>Maximum norm for the gradient below which the first order
+optimality conditions assumed to by met.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘equalTolerance’</p></th>
+<td><p>positive number, default 1e-4</p></td>
+<td><p>Maximum norm for the vector of equality constraints below which
+the equalities are assumed to hold.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘desiredDualityGap’</p></th>
+<td><p>positive number, default 1e-5</p></td>
+<td><p>Value for the duality gap that triggers the end of the
+constrained optimization. The overall optimization terminates
+at the end of the first Newton step for which the duality gap
+becomes smaller than this value.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘solverVerboseLevel’</p></th>
+<td><p>integer</p></td>
+<td><p>Level of verbose for the solver outputs:</p>
+<ul class="simple">
+<li><p>0 - the solver does not produce any output and does not report timing information</p></li>
+<li><p>1 - the solver does not produce any output but reports timing information</p></li>
+<li><p>2 - the solver only report a summary of the solution status when the optimization terminates</p></li>
+<li><p>3 - the solver reports a summary of the solution status at each iteration</p></li>
+<li><p>&gt;3 - the solver produces several (somewhat unreadable) outputs at each iteration step</p></li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘addEye2Hessian’</p></th>
+<td><p>nonnegative real, default 1e-9</p></td>
+<td><p>Add to the Hessian matrix appropriate identity matrices scaled by this constant.</p>
+<p>A larger value for addEye2Hessian has two main effects:</p>
+<ol class="arabic simple">
+<li><p>Improves the numerical conditioning of the system of equations that
+finds the Newton search direction.</p></li>
+<li><p>Moves the search direction towards the gradient descent of
+the Lagragian (and away from the Newton direction).</p></li>
+</ol>
+<p>Both effects improve the robustness of the solver, but this is typically
+achieved at the expense of slower convergence.</p>
+<p>For convex problems, one typically chooses addEye2Hessian equal to the
+square root of the machine precision.</p>
+<p>For non-convex problems, one can try to increase this parameter when
+the Newton direction actually causes and increase of the Lagragian.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘muFactorAggressive’</p></th>
+<td><p>real in the interval (0,1), default .3333</p></td>
+<td><p>Multiplicative factor used to update the barrier parameter mu.
+This value is used when there is good progress along the Newton
+direction.  Nice convex problems can take as low as 1/100, but
+poorly conditioned problems may require as high as 1/3.  This
+parameter is only used when <code class="docutils literal notranslate"><span class="pre">skipAffine=true</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘muFactorConservative’</p></th>
+<td><p>real in the interval (0,1), default .75</p></td>
+<td><p>Multiplicative factor used to update the barrier parameter mu
+(must be smaller than 1).  This value is used when there is
+poor or no progress along the Newton direction. A value not
+much smaller than one is preferable.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘skipAffine’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>], default <code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>When false the barrier parameter <code class="docutils literal notranslate"><span class="pre">mu</span></code> is updated based on how
+much progress can be achieved in the search direction obtained
+with <code class="docutils literal notranslate"><span class="pre">mu=0</span></code>.  This is known as the ‘affine search direction
+step’.  This step (obtained by setting to <code class="docutils literal notranslate"><span class="pre">skipAffine=false</span></code>)
+can significantly speed up convergence by rapidly decreasing
+the barrier parameter.  However, it can be fragile for tough
+non-convex problems.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘delta’</p></th>
+<td><p>[2,3], default 3</p></td>
+<td><p>Delta parameter used to determine mu based on the affine search
+direction step: Set <code class="docutils literal notranslate"><span class="pre">delta=3</span></code> for well behaved problems (for
+an aggressive convergence) and <code class="docutils literal notranslate"><span class="pre">delta=2</span></code> in poorly
+conditioned problems (for a more robust behavior).  This
+parameter is only used when <code class="docutils literal notranslate"><span class="pre">skipAffine=false</span></code>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘alphaMin’</p></th>
+<td><p>real in the interval (0,1], default 1e-7</p></td>
+<td><p>Minimum value for the scalar gain in Newton’s method line
+search, below which a search direction is declared to have
+failed.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘alphaMax’</p></th>
+<td><p>real in the interval (0,1], default 1</p></td>
+<td><p>Maximum value for the scalar gain in Newton’s method line
+search.  Should only be set lower than 1 for very poorly scaled
+problems.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘useLDL’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>], default <code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">true</span></code> the search directions are computed using an
+LDL instead of an LU factorization.</p>
+<p>In general, the LDL factorization leads to faster code.
+However, the current implementation is restricted to a pure
+diagonal matrix (no 2x2 blocks in the D factor) so it may fail
+with the message ‘ldl needs pivoting’. If this happens either
+set <code class="docutils literal notranslate"><span class="pre">useLDL=false</span></code> or use a nonzero value for
+<code class="docutils literal notranslate"><span class="pre">addEye2Hessian</span></code>.</p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘smallerNewtonMatrix’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>], default <code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">true</span></code> the matrix that needs to be inverted to compute a
+Newton step is reduced by first eliminating the dual variables
+associated with inequality constraints.  However, often the
+smaller matrix is not as sparse so the computation may actually
+increase.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘compilerOptimization’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">'-O0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'-O1'</span></code>, <code class="docutils literal notranslate"><span class="pre">'-O2'</span></code>, <code class="docutils literal notranslate"><span class="pre">'-O3'</span></code>, <code class="docutils literal notranslate"><span class="pre">'-Ofast</span></code>’ ], default <code class="docutils literal notranslate"><span class="pre">'-O0'</span></code></p></td>
+<td><p>Optimization parameters passed to the C compiler.</p>
+<dl class="field-list simple">
+<dt class="field-odd">-O1</dt>
+<dd class="field-odd"><p>often generates the fastest code, whereas</p>
+</dd>
+<dt class="field-even">-O0</dt>
+<dd class="field-even"><p>compiles the fastest</p>
+</dd>
+</dl>
+<p>This parameter is only used for C-code solvers.</p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘minInstructions4loop’</p></th>
+<td><p>integer, default 50</p></td>
+<td><p>Minimum number of similar instruction that will be execute as
+part of a <code class="docutils literal notranslate"><span class="pre">for(;;)</span></code> loop, rather than being executed as
+independent C commands.  When equal to <code class="docutils literal notranslate"><span class="pre">inf</span></code>,
+instructions will never be grouped into foor loops.</p>
+<p>This parameter is only used for C-code solvers.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘maxInstructionsPerFunction’</p></th>
+<td><p>integer, default 100</p></td>
+<td><p>Maximum number of instructions to be included into a single
+function.  When equal to <code class="docutils literal notranslate"><span class="pre">inf</span></code>, there is no limit on the size
+of a single function.</p>
+<p>Large values of <code class="docutils literal notranslate"><span class="pre">maxInstructionsPerFunction</span></code> and therefore
+large functions give more opportunities for compiler
+optimization, but can resul in very slow compilation
+(especially with compiler optimization turned on).</p>
+<p>This parameter is only used for C-code solvers.</p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘absolutePath’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>], default <code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">true</span></code> the the cmex functions use an absolute path to
+open the dynamic library, which means that the dynamic library
+cannot be moved away from the folder where it was created.</p>
+<p>When <code class="docutils literal notranslate"><span class="pre">false</span></code> no path information about the dynamic library is
+included in the cmex function, which must then rely on the
+OS-specific method used to find dynamic libraries. See
+documentation of ‘dlopen’ for linux and OSX or ‘LoadLibrary’
+for Microsoft Windows.</p>
+<p>This parameter is only used for C-code solvers.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘pedigreeClass’</p></th>
+<td><p>string</p></td>
+<td><p>When nonempty, the function outputs are saved to a set of files.
+All files in the set will be characterized by a ‘pedigree’,
+which decribes all the input parameters that were used in the script.
+This variable contains the name of the file class and may include a path.</p>
+<p>This is supported by the FunParTools toolbox. See <code class="docutils literal notranslate"><span class="pre">help</span>
+<span class="pre">createPedigree</span></code>.</p>
+<p>See <a class="reference internal" href="#pedigrees"><span class="std std-ref">Pedigrees</span></a></p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘executeScript’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">'yes'</span></code>, <code class="docutils literal notranslate"><span class="pre">'no'</span></code>, <code class="docutils literal notranslate"><span class="pre">'asneeded'</span></code>], default <code class="docutils literal notranslate"><span class="pre">'yes'</span></code></p></td>
+<td><p>Determines whether or not the body of the function should be executed:</p>
+<dl class="field-list simple">
+<dt class="field-odd">yes</dt>
+<dd class="field-odd"><p>the function body should always be executed.</p>
+</dd>
+<dt class="field-even">no</dt>
+<dd class="field-even"><p>the function body should never be executed and therefore
+the function returns after processing all the input
+parameters.</p>
+</dd>
+<dt class="field-odd">asneeded</dt>
+<dd class="field-odd"><p>if a pedigree file exists that match all the input
+parameters (as well as all the parameters of all
+‘upstream’ functions) the function body is not
+executed, otherwise it is execute.</p>
+</dd>
+</dl>
+<p>See <a class="reference internal" href="#pedigrees"><span class="std std-ref">Pedigrees</span></a>.</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> and <a class="reference internal" href="#class2optimizeCS" title="class2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">class2optimizeCS()</span></code></a> only solve for first-order
+optimality conditions so they may produce either a minimium or a
+maximum (or a saddle-point). It is up to the user to restrict the
+search domain to make sure that the desired optimum was found, or
+test if that was the case after the fact. The <code class="docutils literal notranslate"><span class="pre">Hess_</span></code> output can
+help in that regard.</p>
+</div>
+<div class="section" id="special-variables-to-include-in-outputexpressions">
+<span id="special-variables-optimization"></span><h3><span class="section-number">5.2.1. </span>Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code><a class="headerlink" href="#special-variables-to-include-in-outputexpressions" title="Permalink to this headline">¶</a></h3>
+<p>The following <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> variables are assigned special values and
+can be using in <code class="docutils literal notranslate"><span class="pre">outputExpressions</span></code>:</p>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">lambda1_</span></code>, <code class="docutils literal notranslate"><span class="pre">lambda2_</span></code>, …</dt>
+<dd class="field-odd"><p>Lagrangian multipliers associated
+with the inequalities constraints
+(in the order that they appear and
+with the same size as the
+corresponding constraints)</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">nu1_</span></code>, <code class="docutils literal notranslate"><span class="pre">nu2_</span></code>, …</dt>
+<dd class="field-even"><p>Lagrangian multipliers associated with the
+equality constraints (in the order that they
+appear and with the same size as the
+corresponding constraints)</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">Hess_</span></code></dt>
+<dd class="field-odd"><p>Hessian matrix used by the (last) Newton step to update
+the primal variables (not including addEye2Hessian).</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">dHess_</span></code></dt>
+<dd class="field-even"><p>D factor in the LDL factorization of the Hessian matrix
+used by the (last) Newton step to update the primal
+variables (including addEye2Hessian, unlike <code class="docutils literal notranslate"><span class="pre">Hess_</span></code>).</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">Grad_</span></code></dt>
+<dd class="field-odd"><p>gradient of Lagrangian at the (last) Newton step.</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">mu_</span></code></dt>
+<dd class="field-even"><p>barrier parameter at the (last) Newton step.</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">u_</span></code></dt>
+<dd class="field-odd"><p>vector stacked with all primal variables at the (last) Newton step.</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">F_</span></code></dt>
+<dd class="field-even"><p>vector stacked with all equalities at the (last) Newton step.</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">G_</span></code></dt>
+<dd class="field-odd"><p>vector stacked with all inequalities at the (last) Newton step.</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">nu_</span></code></dt>
+<dd class="field-even"><p>vector stacked with all dual equality variables at the (last) Newton step.</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">lambda_</span></code></dt>
+<dd class="field-odd"><p>vector stacked with all dual inequality variables at the
+(last) Newton step.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To be able to include these variables as input parameters, they
+have to be previously created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> <em>with the
+appropriate sizes</em>.  Eventually, their values will be overridden by
+the solver to reflect the values listed above.</p>
+</div>
+</div>
+<div class="section" id="sensitivity-variables">
+<span id="id1"></span><h3><span class="section-number">5.2.2. </span>Sensitivity variables<a class="headerlink" href="#sensitivity-variables" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This section of the documentation is still <strong>incomplete</strong>.</p>
+</div>
+<dl class="function">
+<dt id="Tvars2optimizeCS">
+<code class="sig-name descname">Tvars2optimizeCS</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#Tvars2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<table class="colwidths-given docutils align-left" id="id7">
+<caption><span class="caption-text">Selected parameters for <a class="reference internal" href="#Tvars2optimizeCS" title="Tvars2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvars2optimizeCS()</span></code></a>. For the
+             full set of parameters use <code class="docutils literal notranslate"><span class="pre">Tvars2optimizeCS</span> <span class="pre">help</span></code></span><a class="headerlink" href="#id7" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Parameter</p></th>
+<th class="head"><p>Allowed values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>‘optimizationVariables’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Variables to be optimized.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘sensitivityVariables’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Optimization variables with respect to which we want to compute cost
+sensitivity.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘objective’</p></th>
+<td><p>scalar <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor</p></td>
+<td><p>Criterion to optimize.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘constraints’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors, each involving one of the
+following operations <code class="docutils literal notranslate"><span class="pre">==</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;</span></code></p></td>
+<td><p>Optimization constraints.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘addEye2Hessian’</p></th>
+<td><p>nonnegative real, default 1e-9</p></td>
+<td><p>Add to the Hessian matrix appropriate identity matrices scaled by this constant.</p>
+<p>A larger value for addEye2Hessian has two main effects:</p>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘smallerNewtonMatrix’</p></th>
+<td><p>[<code class="docutils literal notranslate"><span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">true</span></code>], default <code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">true</span></code> the matrix that needs to be inverted to compute a
+Newton step is reduced by first eliminating the dual variables
+associated with inequality constraints.  However, often the
+smaller matrix is not as sparse so the computation may actually
+increase.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="solver-class">
+<span id="id2"></span><h3><span class="section-number">5.2.3. </span>Solver Class<a class="headerlink" href="#solver-class" title="Permalink to this headline">¶</a></h3>
+<p>The MATLAB© class created to set parameter values and call the solver
+from within MATLAB© has the following methods:</p>
+<dl class="function">
+<dt>
+<code class="sig-name descname">obj=classname()</code></dt>
+<dd><p>creates class and, for C code, loads the dynamic library containing the C code</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="delete">
+<code class="sig-name descname">delete</code><span class="sig-paren">(</span><em class="sig-param">obj</em><span class="sig-paren">)</span><a class="headerlink" href="#delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>deletes the class and, for C code, unloads the dynamic library</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">setP_{parameter}(obj,value)</code></dt>
+<dd><p>sets the value of one of the parameters</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">setV_{variable}(obj,value)</code></dt>
+<dd><p>sets the value of one of the optimization variables</p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">[y1,y2, ...]=getOutputs(obj)</code></dt>
+<dd><p>gets the values of the <code class="docutils literal notranslate"><span class="pre">outputExpressions</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt>
+<code class="sig-name descname">[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter))</code></dt>
+<dd><dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu0</strong> – initial value for the barrier variable</p></li>
+<li><p><strong>maxIter</strong> – maximum number of Newton iterations</p></li>
+<li><p><strong>saveIter</strong> – <p>iteration # when to save the “hessian” matrix (for
+subsequent pivoting/permutations/scaling
+optimization) only saves when allowSave is true.</p>
+<ul>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">saveIter=0</span></code>, the hessian matrix is saved at
+the last iteration; and</p></li>
+<li><p>When <code class="docutils literal notranslate"><span class="pre">saveIter&lt;0</span></code>, the hessian matrix is not saved.</p></li>
+</ul>
+<p>The “hessian” matrix will be saved regardless of
+the value of <code class="docutils literal notranslate"><span class="pre">saveIter</span></code>, when the solver exists with
+<code class="docutils literal notranslate"><span class="pre">status=4</span></code>.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns status</dt>
+<dd class="field-even"><p>solver exist status</p>
+<ul>
+<li><p>0  = success</p></li>
+<li><p>&gt;0 = solver terminated unexpectedly</p></li>
+<li><p>nonzero status indicates the reason for termination
+in a binary format:</p>
+<ul class="simple">
+<li><p>bit  0 = 1 - (primal) variables violate constraints</p></li>
+<li><p>bit  1 = 1 - dual variables are negative</p></li>
+<li><p>bit  2 = 1 - failed to invert hessian</p></li>
+<li><p>bit  3 = 1 - maximum # of iterations reached</p></li>
+</ul>
+<p>when the solver exists because the maximum # of iterations
+was reached (bit 3 = 1), the remaining bits provide
+information about the solution returned</p>
+<ul class="simple">
+<li><p>bit  4 = 1 - gradient larger then <code class="docutils literal notranslate"><span class="pre">gradTolerance</span></code></p></li>
+<li><p>bit  5 = 1 - equality constraints violate <code class="docutils literal notranslate"><span class="pre">equalTolerance</span></code></p></li>
+<li><p>bit  6 = 1 - duality gap larger than <code class="docutils literal notranslate"><span class="pre">desiredDualityGap</span></code></p></li>
+<li><p>bit  7 = 1 - barrier variable larger than minimum value</p></li>
+<li><p>bit  8 = 1 - scalar gain alpha in Newton direction smaller than <code class="docutils literal notranslate"><span class="pre">alphaMin</span></code></p></li>
+<li><p>bit  9 = 1 - scalar gain alpha in Newton direction smaller than .1</p></li>
+<li><p>bit 10 = 1 - scalar gain alpha in Newton direction smaller than .5</p></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt class="field-odd">Returns iter</dt>
+<dd class="field-odd"><p>number of iterations</p>
+</dd>
+<dt class="field-even">Returns time</dt>
+<dd class="field-even"><p>solver’s compute time (in secs).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="pedigrees">
+<span id="id3"></span><h3><span class="section-number">5.2.4. </span>Pedigrees<a class="headerlink" href="#pedigrees" title="Permalink to this headline">¶</a></h3>
+<p>Pedigrees can save a lot of time for functions that take some time to
+execute, like the TensCalc’s functions that generate code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">|</span><span class="n">cmex2optimizeCS</span><span class="o">|</span>      <span class="o">|</span><span class="n">cmex2equilibriumLatentCS</span><span class="o">|</span>      <span class="o">|</span><span class="n">cmex2compute</span><span class="o">|</span>
+<span class="o">|</span><span class="n">class2optimizeCS</span><span class="o">|</span>     <span class="o">|</span><span class="n">class2equilibriumLatentCS</span><span class="o">|</span>     <span class="o">|</span><span class="n">class2compute</span><span class="o">|</span>
+</pre></div>
+</div>
+<p>Essentially, every time a function is executed with pedigrees enables,
+all its inputs are saved in a <em>pedigree</em> file and the function’s
+outputs are also saved. In case the function produces output files
+(e.g., C or MATLAB© code), the files are stored with unique names
+for possible subsequent reuse. When the function is called again, it
+checks whether it has been previously called with <a href="#id4"><span class="problematic" id="id5">*</span></a>the same exact
+input*s:</p>
+<ul class="simple">
+<li><p>If it has, then the previously saved outputs can be retrieved from
+the appropriate files and the function does not need to be
+recomputed.</p></li>
+<li><p>Otherwise, the function is executed and an additional pedigree and
+the associated outputs are saved for potential subsequent use.</p></li>
+</ul>
+<p>Pedigrees are enables by specifying the input parameter
+<code class="docutils literal notranslate"><span class="pre">'pedigreeClass'</span></code>, which is the common prefix used for the names of
+all the files used to save the pedigree and outputs of the
+function. Each time the function is called, this prefix is augmented
+with a unique suffix that reflects the date and time the function was
+called. To be precise, the <em>first</em> date/time the function was called
+with that particular set of inputs. Any subsequent calls with the same
+exact inputs reuse the previously saved pedigree.</p>
+<p>The following call to <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> enables the used of pedigrees:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">classname</span><span class="o">=</span><span class="n">cmex2optimizeCS</span><span class="p">(</span><span class="s1">&#39;pedigreeClass&#39;</span><span class="p">,</span><span class="s1">&#39;tmp_myopt&#39;</span><span class="p">,</span> <span class="o">...</span>
+                          <span class="s1">&#39;executeScript&#39;</span><span class="p">,</span><span class="s1">&#39;asneeded&#39;</span><span class="p">,</span><span class="o">...</span>
+                          <span class="s1">&#39;objective&#39;</span><span class="p">,</span><span class="n">norm2</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">y</span><span class="p">),</span> <span class="o">...</span>
+                          <span class="s1">&#39;optimizationVariables&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="p">},</span> <span class="o">...</span>
+                          <span class="s1">&#39;constraints&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="o">&gt;=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">&lt;=</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">&gt;=</span><span class="mi">10</span> <span class="p">},</span> <span class="o">...</span>
+                          <span class="s1">&#39;outputExpressions&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>and an instance of the solver generated by this call to
+<a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> can be created using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="o">=</span><span class="n">feval</span><span class="p">(</span><span class="n">classname</span><span class="p">);</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>In the call to <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a>, the parameter pair:</dt><dd><p><code class="docutils literal notranslate"><span class="pre">'pedigreeClass','tmp_myopt'</span></code></p>
+</dd>
+</dl>
+<p>specifies that pedigrees should be enabled and that all pedigree files
+should start with the prefix <code class="docutils literal notranslate"><span class="pre">tmp_myopt</span></code>. The <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a>
+parameter pair:</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'executeScript','asneeded'</span></code></p>
+</div></blockquote>
+<p>further specifies that the <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> function should only be
+executed if “it is needed”. Specifically, if <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> has
+previously been called with the same exact set of inputs, then
+<a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> should <em>not</em> be executed and, instead, the
+previously generated code should be reused. Alternatively,</p>
+<blockquote>
+<div><p><code class="docutils literal notranslate"><span class="pre">'executeScript','yes'</span></code></p>
+</div></blockquote>
+<p>would specify that the code should be regenerated again <em>even it</em>
+<a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> <em>has been called before with the same exact inputs.</em></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When pedigrees are enabled through <code class="docutils literal notranslate"><span class="pre">'pedigreeClass'</span></code> one should
+<strong>not</strong> specify the class name using the parameter <code class="docutils literal notranslate"><span class="pre">'classname'</span></code>.</p>
+<p>The actual classname will be chosen so that it is unique for a
+specific set of inputs and returned to the user as the output. In
+this way, regenerating code with a new set of inputs will not
+overwrite existing code.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Every time a function that uses pedigrees is called with a
+different set of inputs, a new pedigree is created for potential
+subsequent reuse. Because of this, one can easily get 100s of
+pedigree files. The good news is that pedigree files can be safely
+removed, because they are simply used to save time.</p>
+<p>It is a good practice to name all your pedigree files with a unique
+prefix that marks the file as “safe-to-remove”. In all TensCalc
+examples, we use the prefix <code class="docutils literal notranslate"><span class="pre">'tmp'</span></code> to mark these files, which
+means that all files started with the 3 letters <code class="docutils literal notranslate"><span class="pre">'tmp'</span></code> are safe
+to remove.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pedigrees are stored both as a <code class="docutils literal notranslate"><span class="pre">.mat</span></code> file (for fast retrieval)
+as well as a human-readable <code class="docutils literal notranslate"><span class="pre">.html</span></code> file. In general, there is
+little reason to dig into pedigree files, but all the inputs are
+there in case one is curious about previous calls to
+code-generation functions.</p>
+<p>Pedigrees are enabled by the FunParTools toolbox and are
+available to any function that uses this toolbox to process input
+and output parameters.</p>
+</div>
+</div>
 </div>
 <div class="section" id="nash-equilibrium">
-<h2>Nash equilibrium<a class="headerlink" href="#nash-equilibrium" title="Permalink to this headline">¶</a></h2>
+<h2><span class="section-number">5.3. </span>Nash equilibrium<a class="headerlink" href="#nash-equilibrium" title="Permalink to this headline">¶</a></h2>
+<p>TensCalc can generate optimized code to compute Nash equilibrium</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}u^*\in\arg \min_u\Big\{ f(u,d^*,x) : F(u,d^*,x)\ge 0, G(u,d^*,x)=0 \Big\}\\d^*\in\arg \min_d\Big\{ g(u^*,d,x) : F(u^*,d,x)\ge 0, G(u^*,d,x)=0 \Big\}\end{aligned}\end{align} \]</div>
+<p>where the variables <code class="docutils literal notranslate"><span class="pre">u</span></code>, <code class="docutils literal notranslate"><span class="pre">d</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code> can include multiple tensors
+and the equality and inequality constraints can be expressed by
+equalities and inequalities involving multiple tensors.</p>
+<p>The <em>latent</em> variable <code class="docutils literal notranslate"><span class="pre">x</span></code> that appears in both minimizations, must
+be fully determined by the equality constraints and is thus not really
+a free optimization variable.</p>
+<p>The following two scripts are used to generate code to compute this
+type of Nash equilibrium</p>
+<dl class="function">
+<dt id="cmex2equilibriumLatentCS">
+<code class="sig-name descname">cmex2equilibriumLatentCS</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="class2equilibriumLatentCS">
+<code class="sig-name descname">class2equilibriumLatentCS</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#class2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
+<li><p><strong>value1</strong> (<em>type depends on the parameter</em>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set</p></li>
+<li><p><strong>value2</strong> (<em>type depends on the parameter</em>) – parameter to set, …</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>name of the MATLAB© class created</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>string</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p>The function <a class="reference internal" href="#cmex2optimizeCS" title="cmex2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cmex2optimizeCS()</span></code></a> generates C code, whereas
+<a class="reference internal" href="#class2optimizeCS" title="class2optimizeCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">class2optimizeCS()</span></code></a> generates MATLAB© code, but both functions take
+the same set of parameters and generate MATLAB© classes that are
+indistinguishable to the user.</p>
+<table class="colwidths-given docutils align-left" id="id8">
+<caption><span class="caption-text">Selected parameters for C and
+             <a class="reference internal" href="#class2equilibriumLatentCS" title="class2equilibriumLatentCS"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">class2equilibriumLatentCS()</span></code></a>. For the full set of
+             parameters use <code class="docutils literal notranslate"><span class="pre">class2equilibriumLatentCS</span> <span class="pre">help</span></code> or
+             <code class="docutils literal notranslate"><span class="pre">class2equilibriumLatentCS</span> <span class="pre">help</span></code></span><a class="headerlink" href="#id8" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 38%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head stub"><p>Parameter</p></th>
+<th class="head"><p>Allowed values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><th class="stub"><p>‘P1optimizationVariables’</p>
+<p>‘P2optimizationVariables’</p>
+</th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Variables to be optimized by player 1 and player 2</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘P1objective’</p>
+<p>‘P2objective’</p>
+</th>
+<td><p>scalar <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor</p></td>
+<td><p>Criteria to optimize for player 1 and player 2</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘P1constraints’</p>
+<p>‘P2constraints’</p>
+</th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors, each involving one of the
+following operations <code class="docutils literal notranslate"><span class="pre">==</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;</span></code></p></td>
+<td><p>Optimization constraints for player 1 and player 2</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>For constraint satisfaction, there is no difference between
+<code class="docutils literal notranslate"><span class="pre">&lt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&lt;</span></code> or between <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code> and <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>.</p>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘latentVariables’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></td>
+<td><p>Latent optimization variables common to both players</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><p>‘latentConstraints’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors, each involving one of the
+following operations <code class="docutils literal notranslate"><span class="pre">==</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;=</span></code>, <code class="docutils literal notranslate"><span class="pre">&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;</span></code></p></td>
+<td><p>Optimizations constraints common to both players that
+implicitely define the latext variables.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><p>‘outputExpressions’</p></th>
+<td><p>cell-array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensors</p></td>
+<td><p>Expressions (typically involving the optimization variables)
+that the solver should return upon termination.</p>
+<p>See <a class="reference internal" href="#special-variables-nash"><span class="std std-ref">Special variables to include in 'outputExpressions' for Nash solver</span></a>:</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="special-variables-to-include-in-outputexpressions-for-nash-solver">
+<span id="special-variables-nash"></span><h3><span class="section-number">5.3.1. </span>Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code> for Nash solver<a class="headerlink" href="#special-variables-to-include-in-outputexpressions-for-nash-solver" title="Permalink to this headline">¶</a></h3>
+<p>The following <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> variables are assigned special values and
+can be using in <code class="docutils literal notranslate"><span class="pre">outputExpressions:</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">P1lambda1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P1lambda2_</span></code>, … , <code class="docutils literal notranslate"><span class="pre">P2lambda1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P2lambda2_</span></code>, …</dt>
+<dd class="field-odd"><p>Lagrangian multipliers associated with the inequalities constraints
+for player 1 and 2 (in the order that they appear and with
+the same size as the corresponding constraints)</p>
+</dd>
+<dt class="field-even"><code class="docutils literal notranslate"><span class="pre">P1nu1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P1nu2_</span></code>, … , <code class="docutils literal notranslate"><span class="pre">P2nu1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P2nu2_</span></code>, … <code class="docutils literal notranslate"><span class="pre">P1xnu1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P1xnu2_</span></code>, … , <code class="docutils literal notranslate"><span class="pre">P2xnu1_</span></code>, <code class="docutils literal notranslate"><span class="pre">P2xnu2_</span></code>, …</dt>
+<dd class="field-even"><p>Lagrangian multipliers associated with the equality constraints
+player 1 and 2 (in the order that they appear and with the same
+size as the corresponding constraints). The <code class="docutils literal notranslate"><span class="pre">P1x</span></code> and <code class="docutils literal notranslate"><span class="pre">P2x</span></code>
+variables correspond to the <code class="docutils literal notranslate"><span class="pre">latentConstraints</span></code>.</p>
+</dd>
+<dt class="field-odd"><code class="docutils literal notranslate"><span class="pre">Hess_</span></code></dt>
+<dd class="field-odd"><p>Hessian matrix used by the (last) Newton step to update
+the primal variables (not including addEye2Hessian).</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To be able to include these variables as input parameters, they
+have to be previously created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> <em>with the
+appropriate sizes</em>.  Eventually, their values will be overridden by
+the solver to reflect the values listed above.</p>
+</div>
+</div>
 </div>
 </div>
 
@@ -58,16 +888,29 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Constrained optimization</a><ul>
-<li><a class="reference internal" href="#minimization">Minimization</a></li>
-<li><a class="reference internal" href="#nash-equilibrium">Nash equilibrium</a></li>
+<li><a class="reference internal" href="#">5. Constrained optimization</a><ul>
+<li><a class="reference internal" href="#types-of-code">5.1. Types of code</a></li>
+<li><a class="reference internal" href="#minimization">5.2. Minimization</a><ul>
+<li><a class="reference internal" href="#special-variables-to-include-in-outputexpressions">5.2.1. Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code></a></li>
+<li><a class="reference internal" href="#sensitivity-variables">5.2.2. Sensitivity variables</a></li>
+<li><a class="reference internal" href="#solver-class">5.2.3. Solver Class</a></li>
+<li><a class="reference internal" href="#pedigrees">5.2.4. Pedigrees</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#nash-equilibrium">5.3. Nash equilibrium</a><ul>
+<li><a class="reference internal" href="#special-variables-to-include-in-outputexpressions-for-nash-solver">5.3.1. Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code> for Nash solver</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
+  <p class="topless"><a href="operations.html"
+                        title="previous chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
+  <h4>Next topic</h4>
   <p class="topless"><a href="computation.html"
-                        title="previous chapter">Code generation for computations</a></p>
+                        title="next chapter"><span class="section-number">6. </span>Code generation for computations</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -96,7 +939,10 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="computation.html" title="Code generation for computations"
+          <a href="computation.html" title="6. Code generation for computations"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="operations.html" title="4. Operations on symbolic expressions"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
       </ul>
