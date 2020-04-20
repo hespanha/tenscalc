@@ -1,7 +1,9 @@
-# .readthedocs.yml
+# readthedocs.yaml
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
+#
+# Project at https://readthedocs.org/projects/tenscalc/
+$
 # Required
 version: 2
 

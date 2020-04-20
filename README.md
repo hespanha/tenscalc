@@ -30,6 +30,8 @@ milliseconds. The C code can be used from inside *Matlab* using an
 (automatically generated) cmex interface or in standalone
 applications. No libraries are required for the standalone code.
 
+*TensCalc*'s user guide can be found online at https://tenscalc.readthedocs.io
+
 A technical description of the algorithms behind *TensCalc* can be found at
 	https://www.ece.ucsb.edu/~hespanha/published/tenscalc_imp-20170630.pdf	
 
@@ -121,6 +123,10 @@ To install
 
 
 ## Usage
+
+*TensCalc*'s user guide can be found online at
+https://tenscalc.readthedocs.io, but here goes very quick overview.
+
 
 ### What are tensors?
 
