@@ -26,7 +26,7 @@ version = '0.1'
 release = '0.1a'
 
 # -- General configuration ---------------------------------------------------
-https://docs.readthedocs.io/en/stable/config-file/v2.html
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
