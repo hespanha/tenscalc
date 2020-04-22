@@ -990,7 +990,7 @@ classdef csparse < handle
               case 'ldl'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
-                parametersMatch=false; % since matrix may already have been defined
+                parametersMatch=false; % since matrix may already have p defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
                   
