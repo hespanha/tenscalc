@@ -7,6 +7,7 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
 % ldl_l(LDL):
 % 1) computes L by 
 %    . extracting the lower diagonal entries of LDL
+%    . adding ones in the main diagonal
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -32,6 +33,8 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
+    q=getOne(obj.vectorizedOperations,'parameters',operands(1));
+    q=q{1}; % column (and row) permutation
     if length(osizeLDL)~=2 || osizeLDL(1)~=osizeLDL(2)
         osizeLDL
         error('ldl_d: in ldl_l(LDL), LDL must be a square (2D) matrix\n');
@@ -51,6 +54,14 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
     subsX=[subsLDL(1,k);subsLDL(2,k)];
     instrX=instrLDL(k);
     
+    % add ones to diagonal
+    subsX=[subsX,[1:osizeLDL(1);1:osizeLDL(1)]];
+    instrX=[instrX;repmat(newInstructions(obj,obj.Itypes.I_load,...
+                                          {1},{[]},thisExp),osizeLDL(1),1)];
+    
+    % apply q permutation to rows
+    subsX(1,:)=q(subsX(1,:));
+        
     % keep subsX in the natural order
     [subsX,k]=sortrows(subsX');
     subsX=subsX';

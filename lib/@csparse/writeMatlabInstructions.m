@@ -251,16 +251,16 @@ function writeMatlabInstructions(obj,fid,ks)
             %% LU factorization, et al.
             % WW=randn(6,6);WW=sparse(WW);b=randn(6,1);
             % dxl=WW\b
-            % [L,U,p,q,r]=lu(WW,'vector');s=inv(r);  %% I_Mlu
+            % [L,U,p,q,d]=lu(WW,'vector');s=inv(d);  %% I_Mlu
             % m=s*b;m=L\m(p,:);               %% I_Mmldivide_l1
             % m=U\m;m(q,:)=m                  %% I_Mmldivide_u
             
           case obj.Itypes.I_Mlu
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
-            fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.U,obj.m%d.p,obj.m%d.q,obj.m%d.r]=lu(sparse(obj.m%d),''vector'');\n',...
+            fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.U,obj.m%d.p,obj.m%d.q,obj.m%d.d]=lu(sparse(obj.m%d),''vector'');\n',...
                     obj.memoryLocations(k),obj.memoryLocations(k),...
                     obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),operands);
-            fprintf(fid,'\t\tobj.m%d.s=inv(obj.m%d.r); %% op %d: [%s]\n',...
+            fprintf(fid,'\t\tobj.m%d.s=inv(obj.m%d.d); %% op %d: [%s]\n',...
                     obj.memoryLocations(k),obj.memoryLocations(k),k,index2str(osize));
             
           case obj.Itypes.I_Mmldivide_l1
@@ -274,6 +274,22 @@ function writeMatlabInstructions(obj,fid,ks)
                     obj.memoryLocations(k),operands(1),operands(2));
             fprintf(fid,'\t\tobj.m%d(obj.m%d.q,:)=obj.m%d; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),obj.memoryLocations(k),k,index2str(osize));
+            
+            %% LU factorization
+            % A = D*P'*L*U*Q' 
+          case obj.Itypes.I_Mlu_u
+            fprintf(fid,'\t\tobj.m%d(:,obj.m%d.q)=obj.m%d.U; %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));
+            
+          case obj.Itypes.I_Mlu_l
+            fprintf(fid,'\t\tobj.m%d(obj.m%d.p,:)=obj.m%d.L; %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));
+            fprintf(fid,'\t\tobj.m%d=obj.m%d.d*obj.m%d; %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),obj.memoryLocations(k),k,index2str(osize));
+
+          case obj.Itypes.I_Mlu_d
+            fprintf(fid,'\t\tobj.m%d=diag(obj.m%d.U); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),k,index2str(osize));
             
             %% LDL factorization, et al.
             % WW=randn(6,6);WW=sparse(WW+WW');b=randn(6,1);
@@ -301,22 +317,24 @@ function writeMatlabInstructions(obj,fid,ks)
                     obj.memoryLocations(k),operands(1),operands(2),k,index2str(osize));
                   
             %% LDL factorization
-            % A(p,p) = L*D*L'
+            % A = inv(s)*P*L*D*L'*P'*inv(s)
           case obj.Itypes.I_Mldl_d
             fprintf(fid,'\t\tobj.m%d=diag(obj.m%d.D); %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),k,index2str(osize));
             
           case obj.Itypes.I_Mldl_l
-            fprintf(fid,'\t\tobj.m%d=obj.m%d.L; %% op %d: [%s]\n',...
-                    obj.memoryLocations(k),operands(1),k,index2str(osize));
+            fprintf(fid,'\t\tobj.m%d(obj.m%d.p,:)=obj.m%d.L; %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));
+            fprintf(fid,'\t\tobj.m%d=inv(obj.m%d.s)*obj.m%d; %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),obj.memoryLocations(k),k,index2str(osize));
 
             %% det/logdet
             % [L,D,p,s]=ldl(A,'vector');                  %% I_Mldl
             % log(det(A))=log(det(D)/det(s)^2);           %% I_logdet_ldl
             
-            % [L,U,p,q,r]=lu(A,'vector');s=inv(r);        %% I_Mlu
+            % [L,U,p,q,d]=lu(A,'vector');s=inv(d);        %% I_Mlu
             % P(p,p)=eye(size(A));Q(q,q)=eye(size(A));
-            % log(det(A))=log(prod(diag(U))*prod(diag(r)))*det(P)*det(Q);  %% I_logdet_lu
+            % log(det(A))=log(prod(diag(U))*prod(diag(d)))*det(P)*det(Q);  %% I_logdet_lu
 
           case obj.Itypes.I_Mlogdet_ldl
             fprintf(fid,'\t\tobj.m%d=log(det(obj.m%d.D)/det(obj.m%d.s)^2); %% op %d: [%s]\n',...

@@ -6,8 +6,9 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
 %
 % lu_d(LDL):
 % 1) computes D by 
-%    . extracting the main diagonal entries of LDL
-%
+%    . extracting the main diagonal entries of LU
+%    . adjust sign to account for permutations
+    
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.

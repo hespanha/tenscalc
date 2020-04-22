@@ -177,6 +177,8 @@ instructionTypes={
     'I_Mrepmat'         
     'I_Mcat'         
     'I_Mlu'
+    'I_Mlu_l'
+    'I_Mlu_u'
     'I_Mlu_d'
     'I_Mldl'
     'I_Mldl_d'

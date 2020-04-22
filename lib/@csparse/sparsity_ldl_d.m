@@ -32,6 +32,8 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
+    q=getOne(obj.vectorizedOperations,'parameters',operands(1));
+    q=q{1}; % column (and row) permutation
     if length(osizeLDL)~=2 || osizeLDL(1)~=osizeLDL(2)
         osizeLDL
         error('ldl_d: in ldl_l(LDL), LDL must be a square (2D) matrix\n');

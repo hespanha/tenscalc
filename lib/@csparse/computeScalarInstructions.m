@@ -349,11 +349,17 @@ for jj=1:length(ks)
               case 'mldivide_d'
                 [subscripts,instructions]=sparsity_mldivide_d(obj,thisExp);
                 
-              case 'ldl_d'
-                [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
-                
               case 'lu_d'
                 [subscripts,instructions]=sparsity_lu_d(obj,thisExp);
+                
+              case 'lu_l'
+                [subscripts,instructions]=sparsity_lu_l(obj,thisExp);
+                
+              case 'lu_u'
+                [subscripts,instructions]=sparsity_lu_u(obj,thisExp);
+                
+              case 'ldl_d'
+                [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
                 
               case 'ldl_l'
                 [subscripts,instructions]=sparsity_ldl_l(obj,thisExp);

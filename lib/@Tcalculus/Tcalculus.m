@@ -701,6 +701,11 @@ classdef Tcalculus
                 error('vec2tensor: number of rows of 3rd argument subs (size(subs)=[%s]) must match size(X[%s],dim=%d)',...
                       index2str(size(subs)),index2str(osize1),dim);
             end
+            
+            if size(subs,1)~=size(unique(subs,'rows'),1)
+                error('vec2tensor: the number of rows of subs must be unique (%d rows, but only %d unique\n',...
+                      size(subs,1),size(unique(subs,'rows'),1));
+            end
 
             for i=1:length(sz)
                 if any(subs(:,i)<1)
@@ -1236,43 +1241,32 @@ classdef Tcalculus
         function obj=ldl(obj1,varargin)
         % ldl - LDL factorization of a symmetric matrix
         %    
-        %    ldl(A) computes the LDL factorization of a symmetric
-        %    matrix (n-by-n tensor).
-        %    
-        %    ldL(A) actually uses "pychologically lower/upper
-        %    triangular matrices", i.e., matrices that are triangular
-        %    up to a permutation, with permutations selected to
-        %    minimize the fill-in for sparse matrices and reduce
-        %    computation time (see documentation for lu with sparse
-        %    matrices).
-        %    
-        %    The LDL factorization used requires all elements of the
-        %    main diagonal to be nonzero, if this is not the case the
-        %    lu() factorization should be used.
+        %   ldl(A) computes the LDL factorization of a symmetric
+        %   matrix (n-by-n tensor).
+        %   
+        %   ldl(A) actually uses "pychologically lower triangular
+        %   matrices", i.e., matrices that are diagonal/triangular up
+        %   to a permutation, with permutations selected to minimize
+        %   the fill-in for sparse matrices and reduce computation
+        %   time (see documentation for lu with sparse matrices).
+        %   
+        %   The LDL factorization used requires all elements of the
+        %   main diagonal to be nonzero, if this is not the case the
+        %   lu() factorization should be used.
         %
-        %    All entries of ``A`` above the main diagonal are ignored
-        %    and assumed to be equal to the one below the main diagonal,
-        %    *without performing any test regarding of whether or not
-        %    this is true*.
+        %   All entries of ``A`` above the main diagonal are ignored
+        %   and assumed to be equal to the one below the main diagonal,
+        %   *without performing any test regarding of whether or not
+        %   this is true*.
         %    
         % Attention: The output of this function includes the whole
         % factorization as a single entity, in a format that can be
         % passed to functions that require factorizations (such as
         % mldivide, inv, det, logdet, traceinv), but should *not* be
-        % used bu functions that are not expecting a factorized matrix
-        % as an input.
+        % used by functions that are not expecting a factorized matrix
+        % as an input. See ldl_l() and ldl_d() to get the factors.
             obj=factor(obj1,'ldl',varargin{:});
         end
-        
-        % function obj=ldl_l(obj1)
-        % % L=ldl_l(LDL(A)) - returns the L matrix of the LDL factorization of a symmetric matrix
-        % % NOT VERY USEFUL SINCE ONLY UP TO A PERMUTATION
-        %     if ~strcmp(type(obj1),'ldl')
-        %         error('ldl_l can only be called for LDL factorizations (not ''%s'')',type(obj1))
-        %     end
-        %     osize1=size(obj1);
-        %     obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
-        % end
         
         function obj=ldl_d(obj1)
         % ldl_d - Diagonal matrix of an LDL factorization
@@ -1283,9 +1277,16 @@ classdef Tcalculus
         %   This function can only be applied to a matrix that has
         %   been factorized with ldl(). 
         %   
-        %   The ldl() factorization should only be used for symmetric
-        %   matrices with nonzero elements in the main diagonal.
-        %
+        %   ldl(A) actually uses "pychologically lower triangular
+        %   matrices", i.e., matrices that are diagonal/triangular up
+        %   to a permutation, with permutations selected to minimize
+        %   the fill-in for sparse matrices and reduce computation
+        %   time (see documentation for lu with sparse matrices).
+        %    
+        %   The LDL factorization used requires all elements of the
+        %   main diagonal to be nonzero, if this is not the case the
+        %   lu() factorization should be used.
+            
         %   When an the LDL factorization is used, all entries of A
         %   above the main diagonal are ignored and assumed to be
         %   equal to the one below the main diagonal, without
@@ -1299,12 +1300,106 @@ classdef Tcalculus
             obj=Tcalculus('ldl_d',osize1,[],obj1.TCindex,{},1);
         end
 
+        function obj=ldl_l(obj1)
+        % ldl_l - Lower-trangular matrix of an LDL factorization
+        %   
+        %   ldl_l(ldl(A)) return the lower-triangiular matrix in an
+        %   LDL factorization
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized with ldl(). 
+        %   
+        %   ldl(A) actually uses "pychologically lower triangular
+        %   matrices", i.e., matrices that are diagonal/triangular up
+        %   to a permutation, with permutations selected to minimize
+        %   the fill-in for sparse matrices and reduce computation
+        %   time (see documentation for lu with sparse matrices).
+        %    
+        %   The LDL factorization used requires all elements of the
+        %   main diagonal to be nonzero, if this is not the case the
+        %   lu() factorization should be used.
+            
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
+            if ~strcmp(type(obj1),'ldl')
+                error('ldl_l can only be called for LDL factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1);
+            obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
+        end
+        
+        function obj=lu_l(obj1)
+        % lu_l - Lower-trangular matrix of an LU factorization
+        %      
+        %   lu_l(lu(A)) return the lower-triangular matrix in an LU
+        %   factorization (which is guaranteed to be nonsingular)
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized with lu(). 
+        %   
+        %   lu(A) actually uses "pychologically upper/lower triangular
+        %   matrices", i.e., matrices that are diagonal/triangular up
+        %   to a permutation, with permutations selected to minimize
+        %   the fill-in for sparse matrices and reduce computation
+        %   time (see documentation for lu with sparse matrices).
+        %    
+        %   The LU factorization used requires all elements of the
+        %   main diagonal to be nonzero, if this is not the case the
+        %   lu() factorization should be used.
+            
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
+            
+            if ~strcmp(type(obj1),'lu')
+                error('lu_l can only be called for LU factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1);
+            obj=Tcalculus('lu_l',osize1,[],obj1.TCindex,{},1);
+        end
+
+        function obj=lu_u(obj1)
+        % lu_u - Upper-trangular matrix of an LU factorization
+        %   
+        %   lu_u(lu(A)) return the upper-triangiular matrix in an LU
+        %   factorization
+        %   
+        %   This function can only be applied to a matrix that has
+        %   been factorized with lu(). 
+        %   
+        %   lu(A) actually uses "pychologically upper/lower triangular
+        %   matrices", i.e., matrices that are diagonal/triangular up
+        %   to a permutation, with permutations selected to minimize
+        %   the fill-in for sparse matrices and reduce computation
+        %   time (see documentation for lu with sparse matrices).
+        %    
+        %   The LDL factorization used requires all elements of the
+        %   main diagonal to be nonzero, if this is not the case the
+        %   lu() factorization should be used.
+            
+        %   When an the LDL factorization is used, all entries of A
+        %   above the main diagonal are ignored and assumed to be
+        %   equal to the one below the main diagonal, without
+        %   performing any test regarding of whether or not this is
+        %   true.
+            if ~strcmp(type(obj1),'lu')
+                error('lu_u can only be called for LU factorizations (not ''%s'')',type(obj1))
+            end
+            osize1=size(obj1);
+            obj=Tcalculus('lu_u',osize1,[],obj1.TCindex,{},1);
+        end
+        
         function obj=lu_d(obj1)
         % lu_d - Diagonal matrix of the U matrix in an LU factorization
         %      
-        %   lu_d(lu(A)) return the main diagonal of the U matrix in an
-        %   LU factorization. The main diagonal of the L matrix is
-        %   equal to 1.
+        %   lu_d(lu(A)) return the main diagonal of the
+        %   upper-triangular matrix in an LU factorization. The main
+        %   diagonal of the L matrix is equal to 1.
         %   
         %   This function can only be applied to a matrix that has
         %   been factorized with lu(). 
@@ -1322,18 +1417,19 @@ classdef Tcalculus
         %    lu(A) computes the LU factorization of a matrix (tensor
         %    with 2 dimensions).
         %    
-        %    lu(A) actually uses "pychologically lower triangular
-        %    matrices", i.e., matrices that are triangular up to a
-        %    permutation, with permutations selected to minimize the
-        %    fill-in for sparse matrices and reduce computation time
-        %    (see documentation for lu with sparse matrices).
+        %    lu(A) actually uses "pychologically upper/lower
+        %    triangular matrices", i.e., matrices that are triangular
+        %    up to a permutation, with permutations selected to
+        %    minimize the fill-in for sparse matrices and reduce
+        %    computation time (see documentation for lu with sparse
+        %    matrices).
         %    
         % Attention: The output of this function includes the whole
         % factorization as a single entity, in a format that can be
         % passed to functions that require factorizations (such as
         % mldivide, inv, det, logdet, traceinv), but should *not* be
         % used by functions that are not expecting a factorized matrix
-        % as an input.
+        % as an input.  See lu_l(), lu_u(), and lu_d() to get the factors.
             obj=factor(obj1,'lu',varargin{:});
         end
         function obj=lu_sym(obj1,varargin)

@@ -224,7 +224,7 @@ classdef csparse < handle
                     'subsref','cat','reshape','vec2tensor','repmat','full',...
                     'plus','tprod','norm2','norm1','norminf','all','any','min','max','min2','max2',...
                     'abs','clp','compose','componentwise',...
-                    'lu','lu_sym','lu_d','ldl','ldl_l','ldl_d','chol',...
+                    'lu','lu_sym','lu_l','lu_u','lu_d','ldl','ldl_l','ldl_d','chol',...
                     'inv_ldl','det_ldl','logdet_ldl','traceinv_ldl',...
                     'inv_lu','det_lu','logdet_lu','traceinv_lu',...
                     'mldivide','mldivide_l1','mldivide_u','mldivide_u1','mldivide_d',...
@@ -361,9 +361,17 @@ classdef csparse < handle
         %    
         %    Declares a 'get' operation to be compiled.  Each 'get'
         %    operation retrives data from a compiled sparse
-        %    variables. TCsource may be a cell array for multiple
-        %    simultaneous gets.
+        %    variables. TCsource may be a cell array (with one
+        %    Tcalculus expression per entry) or a structure (with one
+        %    Tcalculus extry per field) for multiple simultaneous
+        %    gets.
 
+            if isstruct(TCsource)
+                names=fields(TCsource);
+                TCsource=struct2cell(TCsource);
+            else
+                names=[];
+            end
             if ~iscell(TCsource) 
                 TCsource={TCsource};
             end
@@ -396,10 +404,14 @@ classdef csparse < handle
             end            
             for i=1:length(TCsource)
                 obj.template(end,1).outputs(i).type=obj.scratchbookType;
-                if strcmp(type(TCsource{i}),'variable')
-                    obj.template(end,1).outputs(i).name=name(TCsource{i});
+                if isempty(names)
+                    if strcmp(type(TCsource{i}),'variable')
+                        obj.template(end,1).outputs(i).name=name(TCsource{i});
+                    else
+                        obj.template(end,1).outputs(i).name=sprintf('output%d',i);
+                    end
                 else
-                    obj.template(end,1).outputs(i).name=sprintf('output%d',i);
+                    obj.template(end,1).outputs(i).name=names{i};
                 end
                 obj.template(end,1).outputs(i).sizes=TCsource{i}.osize;
             end
@@ -942,17 +954,10 @@ classdef csparse < handle
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
                   
-              case 'ldl'
-                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
-                nameMatch=false;
-                parametersMatch=false; % since matrix may already have p defined
-                pars=parameters(TCobj);
-                pars={[],[],pars.typical_subscripts,pars.typical_values};
-                  
-              case 'ldl_d'
+              case 'lu_d'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
-                if ~strcmp(optype,'ldl')
-                    error('unexpected operand for ldl_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
+                if ~strcmp(optype,'lu')
+                    error('unexpected operand for lu_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
                 end                    
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
@@ -960,10 +965,39 @@ classdef csparse < handle
                 pars=parameters(TCobj);
                 pars=[];
                   
-              case 'lu_d'
+              case 'lu_l'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'lu')
-                    error('unexpected operand for lu_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
+                    error('unexpected operand for lu_l ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
+                end                    
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false;
+                pars=parameters(TCobj);
+                pars=[];
+                  
+              case 'lu_u'
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                if ~strcmp(optype,'lu')
+                    error('unexpected operand for lu_u ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
+                end                    
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false;
+                pars=parameters(TCobj);
+                pars=[];
+                  
+              case 'ldl'
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                parametersMatch=false; % since matrix may already have been defined
+                pars=parameters(TCobj);
+                pars={[],[],pars.typical_subscripts,pars.typical_values};
+                  
+              case 'ldl_d'
+                optype=getOne(obj.vectorizedOperations,'type',ops(1));
+                if ~strcmp(optype,'ldl')
+                    error('unexpected operand for ldl_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
                 end                    
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;

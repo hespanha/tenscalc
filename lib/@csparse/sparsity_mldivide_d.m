@@ -63,7 +63,7 @@ function [subsX,instrX]=sparsity_mldivide_d(obj,thisExp)
                 ['[',index2str(osizeB),']'],length(instrB));
     end
 
-    % Reconstruct instructions of U
+    % Reconstruct instructions of D
     k=find(subsLDL(1,:)==subsLDL(2,:));
     instrD=sparse(double(subsLDL(1,k)),double(subsLDL(2,k)),double(instrLDL(k)),n,n);
     
