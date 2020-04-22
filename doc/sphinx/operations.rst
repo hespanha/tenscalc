@@ -495,7 +495,7 @@ Which factorization to use?
   diagonal.
 
 Both the LU and the LDL factorizations, use "pychologically
-lower/upper triangular matrices", i.e., matrices that are triangular
+lower/upper-triangular matrices", i.e., matrices that are triangular
 up to a permutation, with permutations selected to minimize the
 fill-in for sparse matrices and reduce computation time (see
 |matlab|'s documentation for ``lu()`` and ``ldl()`` with sparse
@@ -542,7 +542,7 @@ matrices).
        and ``ctranspose`` return the same values.
 
    * - .. function:: lu(A)
-     - LU factorization using "pychologically lower/upper triangular
+     - LU factorization using "pychologically lower/upper-triangular
        matrices", i.e., matrices that are triangular up to a
        permutation, with permutations selected to minimize the fill-in
        for sparse matrices and reduce computation time (see |matlab|'s
@@ -555,7 +555,7 @@ matrices).
        are not expecting a factorized matrix as an input.
        
    * - .. function:: ldl(A)
-     - LDL factorization using "pychologically lower triangular
+     - LDL factorization using "pychologically lower-triangular
        matrices", i.e., matrices that are triangular up to a
        permutation, with permutations selected to minimize the fill-in
        for sparse matrices and reduce computation time (see |matlab|'s
@@ -639,20 +639,12 @@ matrices).
        the one below the main diagonal, *without performing any test
        regarding of whether or not this is true*.
 
-   * - .. function:: ldl_d(ldl(A))
-     - Returns the diagonal matrix in an LDL factorization.
-     - This function can only be applied to a matrix that has been
-       factorized with |ldl|.
-
-       When an the LDL factorization is used, all entries of ``A``
-       above the main diagonal are ignored and assumed to be equal to
-       the one below the main diagonal, *without performing any test
-       regarding of whether or not this is true*.
-
    * - .. function:: ldl_l(ldl(A))
-     - Returns the lower triangular matrix in an LDL factorization.
+       .. function:: ldl_d(ldl(A))
+     - Returns the lower-triangular matrix or the diagonal matrix in
+       an LDL factorization.
        
-       The LDL factorization uses "pychologically lower triangular
+       The LDL factorization uses "pychologically lower-triangular
        matrices", i.e., matrices that are triangular up to a
        permutation, with permutations selected to minimize the fill-in
        for sparse matrices and reduce computation time (see |matlab|'s
@@ -667,37 +659,23 @@ matrices).
        regarding of whether or not this is true*.
        
    * - .. function:: lu_l(A)
-     - Returns the lower triangular matrix in an LU factorization
-       (which is guaranteed to be nonsingular).
+       .. function:: lu_u(A)
+       .. function:: lu_d(A)
+     - Returns the lower-triangular matrix in an LU factorization
+       (which is guaranteed to be nonsingular), the upper-triangular
+       matrix, or just the main diagonal of the upper-triangular
+       matrix (as a vector).
        
-       The LU factorization uses "pychologically upper/lower
-       triangular matrices", i.e., matrices that are triangular up to
-       a permutation, with permutations selected to minimize the
-       fill-in for sparse matrices and reduce computation time (see
-       |matlab|'s documentation for lu with sparse matrices).
+       The LU factorization uses "pychologically
+       upper/lower-triangular matrices", i.e., matrices that are
+       triangular up to a permutation, with permutations selected to
+       minimize the fill-in for sparse matrices and reduce computation
+       time (see |matlab|'s documentation for lu with sparse
+       matrices).
 
-     - This function can only be applied to a matrix that has been
+     - These functions can only be applied to a matrix that has been
        factorized with |lu|.
        
-   * - .. function:: lu_u(A)
-     - Returns the upper triangular matrix in an LU factorization.
-       
-       The LU factorization uses "pychologically upper/lower
-       triangular matrices", i.e., matrices that are triangular up to
-       a permutation, with permutations selected to minimize the
-       fill-in for sparse matrices and reduce computation time (see
-       |matlab|'s documentation for lu with sparse matrices).
-
-     - This function can only be applied to a matrix that has been
-       factorized with |lu|.
-       
-   * - .. function:: lu_d(A)
-     - Return the main diagonal of the U matrix in an LU
-       factorization. 
-
-     - This function can only be applied to a matrix that has been
-       factorized with |lu|.
-
    * - .. function:: norm(x)
        .. function:: norm(x,2)
      - 2-norm of a scalar or a vector
