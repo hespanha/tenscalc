@@ -184,17 +184,18 @@ if verboseLevel>0
 end
 for i=1:length(obj.gets)
     nSources=length(obj.gets(i).source);
+    tmpl=obj.template(obj.gets(i).templateNdx);
     % write function header
-    sep='[';
     if verboseLevel>0
         fprintf('    function ');
     end
     fprintf(fid,'    function ');
+    sep='[';
     for j=1:nSources
         if verboseLevel>0
-            fprintf('%coutput%d',sep,j);
+            fprintf('%c%s',sep,tmpl.outputs(j).name);
         end
-        fprintf(fid,'%coutput%d',sep,j);
+        fprintf(fid,'%c%s',sep,tmpl.outputs(j).name);
         sep=',';
     end
     if length(obj.gets(i).functionName)>namelengthmax
@@ -217,9 +218,23 @@ for i=1:length(obj.gets)
     
     for j=1:nSources
         instructions=getOne(obj.vectorizedOperations,'instructions',obj.gets(i).source(j));
-        fprintf(fid,'      output%d=obj.m%d;\n',j,obj.memoryLocations(instructions));
+        fprintf(fid,'      %s=obj.m%d;\n',tmpl.outputs(j).name,obj.memoryLocations(instructions));
     end
     fprintf(fid,'    end\n');
+    if nSources>0
+        % output as structure
+        if length(obj.gets(i).functionName)+7>namelengthmax
+            error('function name is too long "%s"',obj.gets(i).functionName);
+        end
+        fprintf(fid,'    function y=%s_struct(obj)\n      ',obj.gets(i).functionName);
+        sep='[';
+        for j=1:nSources
+            fprintf(fid,'%cy.%s',sep,tmpl.outputs(j).name);
+            sep=',';
+        end
+        fprintf(fid,']=%s(obj);\n',obj.gets(i).functionName);
+        fprintf(fid,'    end\n');
+    end
 end
 
 %% Create functions for copies
