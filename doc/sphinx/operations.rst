@@ -695,6 +695,9 @@ matrices).
      - Return the main diagonal of the U matrix in an LU
        factorization. 
 
+     - This function can only be applied to a matrix that has been
+       factorized with |lu|.
+
    * - .. function:: norm(x)
        .. function:: norm(x,2)
      - 2-norm of a scalar or a vector

@@ -1048,30 +1048,85 @@ regarding of whether or not this is true</em>.</p>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="function">
 <dt id="ldl_d">
-<code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>Returns the diagonal matrix in the LDL factorization.</p></td>
-<td><p>All entries of <code class="docutils literal notranslate"><span class="pre">A</span></code> above the main diagonal are ignored and
-assumed to be equal to the one below the main diagonal,
-<em>without performing any test regarding of whether or not this
-is true</em>.</p></td>
+<td><p>Returns the diagonal matrix in an LDL factorization.</p></td>
+<td><p>This function can only be applied to a matrix that has been
+factorized with <a class="reference internal" href="#ldl" title="ldl"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">ldl()</span></code></a>.</p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="ldl_l">
+<code class="sig-name descname">ldl_l</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns the lower triangular matrix in an LDL factorization.</p>
+<p>The LDL factorization uses “pychologically lower triangular
+matrices”, i.e., matrices that are triangular up to a
+permutation, with permutations selected to minimize the fill-in
+for sparse matrices and reduce computation time (see MATLAB©’s
+documentation for lu with sparse matrices).</p>
+</td>
+<td><p>This function can only be applied to a matrix that has been
+factorized with <a class="reference internal" href="#ldl" title="ldl"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">ldl()</span></code></a>.</p>
+<p>When an the LDL factorization is used, all entries of <code class="docutils literal notranslate"><span class="pre">A</span></code>
+above the main diagonal are ignored and assumed to be equal to
+the one below the main diagonal, <em>without performing any test
+regarding of whether or not this is true</em>.</p>
+</td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
+<dt id="lu_l">
+<code class="sig-name descname">lu_l</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_l" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns the lower triangular matrix in an LU factorization
+(which is guaranteed to be nonsingular).</p>
+<p>The LU factorization uses “pychologically upper/lower
+triangular matrices”, i.e., matrices that are triangular up to
+a permutation, with permutations selected to minimize the
+fill-in for sparse matrices and reduce computation time (see
+MATLAB©’s documentation for lu with sparse matrices).</p>
+</td>
+<td><p>This function can only be applied to a matrix that has been
+factorized with <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><th class="stub"><dl class="function">
+<dt id="lu_u">
+<code class="sig-name descname">lu_u</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_u" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</th>
+<td><p>Returns the upper triangular matrix in an LU factorization.</p>
+<p>The LU factorization uses “pychologically upper/lower
+triangular matrices”, i.e., matrices that are triangular up to
+a permutation, with permutations selected to minimize the
+fill-in for sparse matrices and reduce computation time (see
+MATLAB©’s documentation for lu with sparse matrices).</p>
+</td>
+<td><p>This function can only be applied to a matrix that has been
+factorized with <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><th class="stub"><dl class="function">
 <dt id="lu_d">
 <code class="sig-name descname">lu_d</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>return the main diagonal of the U matrix in an LU
-factorization. The main diagonal of the L matrix is equal to 1.</p></td>
-<td><p>All entries of <code class="docutils literal notranslate"><span class="pre">A</span></code> above the main diagonal are ignored and
-assumed to be equal to the one below the main diagonal,
-<em>without performing any test regarding of whether or not this
-is true</em>.</p></td>
+<td><p>Return the main diagonal of the U matrix in an LU
+factorization.</p></td>
+<td><p>This function can only be applied to a matrix that has been
+factorized with <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="norm">
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1089,7 +1144,7 @@ it is not differentiable at the origin. See <a class="reference internal" href="
 on how to overcome this issue.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="function">
 <dt>
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">1</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1100,7 +1155,7 @@ on how to overcome this issue.</p>
 it is not differentiable at points where the optimum often
 lies.  See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="function">
 <dt>
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">inf</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1112,7 +1167,7 @@ because it is not differentiable at points where the optimum
 often lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this
 issue.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="function">
 <dt id="norm2">
 <code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1133,7 +1188,7 @@ dimension) and <code class="docutils literal notranslate"><span class="pre">S</s
 <td><p><code class="docutils literal notranslate"><span class="pre">norm2(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">norm(x,2)^2</span></code> and also to
 <code class="docutils literal notranslate"><span class="pre">sum(x.^2,'all')</span></code>, but computes derivatives more efficiently.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="function">
 <dt id="norm1">
 <code class="sig-name descname">norm1</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1148,7 +1203,7 @@ is not differentiable at points where the optimum often
 lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="function">
 <dt id="norminf">
 <code class="sig-name descname">norminf</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
