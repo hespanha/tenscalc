@@ -68,13 +68,14 @@ master_doc = 'index'
 #html_theme = 'cloud'
 html_theme = 'classic'
 
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = { 
-	"rightsidebar" : "false",
-    "stickysidebar" : "true",
-    "collapsiblesidebar" : "true",
+	#"rightsidebar" : False,
+    #"stickysidebar" : True,
+    #"collapsiblesidebar" : True,
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
