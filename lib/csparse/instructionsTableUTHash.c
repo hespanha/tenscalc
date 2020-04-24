@@ -1575,9 +1575,11 @@ fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"
       fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"PRId64"],Ax[%"PRId64"],&Symbolic[%"PRId64"],null,null);\n",
 	      (uint64_t)parameters[1],(uint64_t)parameters[1],
 	      (uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1);
+      //fprintf(fid,"\tprintf(\"umfpack_dl_symbolic rc=%%d (OK=%%d)\\n\",rc,UMFPACK_OK);\n");
       fprintf(fid,"\t(void)umfpack_dl_numeric(Ap[%"PRId64"],Ai[%"PRId64"],Ax[%"PRId64"],Symbolic[%"PRId64"],&Numeric[%"PRId64"],null,null);\n",
 	      (uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1,
 	      (uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1);
+      //fprintf(fid,"\tprintf(\"umfpack_dl_numeric rc=%%d (OK=%%d)\\n\",rc,UMFPACK_OK);\n");
       fprintf(fid,"\tumfpack_dl_free_symbolic(&Symbolic[%"PRId64"]);\n",(uint64_t)parameters[0]-1);
       fprintf(fid,"\tm[%"PRId64"]=%"PRId64";\n",memoryLocations[indices[0]-1]-1,(uint64_t)parameters[0]-1);
       break;  
