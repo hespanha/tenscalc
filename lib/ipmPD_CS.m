@@ -324,12 +324,15 @@ function [Hess_,dHess_,Lf_u,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,
         D2fDu1__=WW([isSensitivity;false(nF+nG,1)],[isSensitivity;false(nF+nG,1)]);        
         if any(~isSensitivity)
             Hess1=WW([~isSensitivity;true(nG+nF,1)],[~isSensitivity;true(nG+nF,1)]);
-            factor_Hess1=factor(Hess1);
             B1=-WW([~isSensitivity;true(nG+nF,1)],[isSensitivity;false(nG+nF,1)]);
             if atomicFactorization
-                factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,nowarningsamesize,nowarningever);
+                %factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,nowarningsamesize,nowarningever);
+                % atomic mldivide(LU,b) only implemented for 1-d vector
+                Du1__=Tzeros(size(B1));
+            else
+                factor_Hess1=factor(Hess1);
+                Du1__=factor_Hess1\B1;
             end
-            Du1__=factor_Hess1\B1;
             D2fDu1__=D2fDu1__+WW([isSensitivity;false(nF+nG,1)],[~isSensitivity;true(nG+nF,1)])*Du1__;        
         else
             Du1__=Tconstant([]);
