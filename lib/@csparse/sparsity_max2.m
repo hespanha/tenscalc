@@ -49,6 +49,10 @@ nTerms=sum(instrXs~=0,2);
 [instrXs,k]=sort(instrXs,2,'ascend'); % sort terms by instructions
 
 %% Compute instructions
+k=find(nTerms==1);
+if ~isempty(k)
+    instrY(k)=max(instrXs(k,:),[],2); % get the onky nonzero instruction
+end
 for n=2:max(nTerms)
     k=find(nTerms==n);
     if ~isempty(k)
@@ -69,5 +73,8 @@ if verboseLevel>0
         fprintf('size=%-10s, nnz=%4d; ',['[',index2str(osize),']'],nnzX{i});
     end
     fprintf(')\n');
+end
+
+
 end
 
