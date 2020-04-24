@@ -703,9 +703,9 @@ for i=1:length(obj.gets)
             fprintf(fid,'  mwIndex *ir=mxGetIr(y%d);\n',j);
             fprintf(fid,'  mwIndex *jc=mxGetJc(y%d);\n',j);
             %fprintf(fid,'  printf("pr=%%p, ir=%%p, jc=%%p, \\n",pr,ir,jc);\n');
-            fprintf(fid,'  mxSetNzmax(y%d,%d);\n',j,length(ir));
-            fprintf(fid,'  mxSetPr(y%d, mxRealloc(pr, %d*sizeof(double)));\n',j,length(ir));
-            fprintf(fid,'  mxSetIr(y%d, mxRealloc(ir, %d*sizeof(mwIndex)));\n',j,length(ir));
+            fprintf(fid,'  mxSetNzmax(y%d,%d);\n',j,max(length(ir),1)); % make sure at least 1 byte is allocated to prevent malloc errors
+            fprintf(fid,'  mxSetPr(y%d, mxRealloc(pr, %d*sizeof(double)));\n',j,max(length(ir),1));
+            fprintf(fid,'  mxSetIr(y%d, mxRealloc(ir, %d*sizeof(mwIndex)));\n',j,max(length(ir),1));
             fprintf(fid,'           pr=mxGetPr(y%d);\n',j);
             fprintf(fid,'           ir=mxGetIr(y%d);\n',j);
             %fprintf(fid,'           jc=mxGetJc(y%d);\n',j); % redundant since jc does not change
