@@ -265,16 +265,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         error('latent constraints parameter must be a cell array\n');
     end
 
-    if ~iscell(outputExpressions)
-        outputExpressions
-        error('outputExpressions must be a cell array of Tcalculus variables');
-    end
-    for i=1:length(outputExpressions)
-        if ~isequal(class(outputExpressions{i}),'Tcalculus')
-            outputExpressions{i}
-            error('outputExpression{%d} is not a Tcalculus variable',i);
-        end 
-    end
+    [outputExpressions,outputNames]=checkOutputExpressions(outputExpressions);
 
     fprintf('cmex2equilibriumLatentCS: ...');
     t_cmexCS=clock();
@@ -559,9 +550,9 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     template(end).outputs=struct('type',{},'name',{},'sizes',{});
     for i=1:length(outputExpressions)
         template(end).outputs(i).type='double';
-        template(end).outputs(i).name=sprintf('y%d',i);
-        template(end).outputs(i).sizes=size(outputExpressions{i});
-        classhelp{end}=sprintf('%sy%d,',classhelp{end},i);
+        template(end).outputs(i).name=outputNames{i};
+        template(end).outputs(i).sizes=size(outputExpressions{i});% will be overwriten after compile2C
+        classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
     declareGet(code,outputExpressions,template(end).MEXfunction);

@@ -119,9 +119,9 @@ function varargout=Tvars2optimizeCS(varargin)
     outputExpressions={};
     skipAffine=true;
     useLDL=true;
-    umfpack=false;
     allowSave=false;
     debugConvergence=false;
+    umfpack=false;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters

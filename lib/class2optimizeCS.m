@@ -208,16 +208,7 @@ function varargout=class2optimizeCS(varargin)
         error('Constraints parameter must be a cell array\n');
     end
 
-    if ~iscell(outputExpressions)
-        outputExpressions
-        error('outputExpressions must be a cell array of Tcalculus variables');
-    end
-    for i=1:length(outputExpressions)
-        if ~isequal(class(outputExpressions{i}),'Tcalculus')
-            outputExpressions{i}
-            error('outputExpression{%d} is not a Tcalculus variable',i);
-        end 
-    end
+    [outputExpressions,outputNames]=checkOutputExpressions(outputExpressions);
 
     fprintf('class2optimizeCS:... ');
     t_classCS=clock();
@@ -383,10 +374,11 @@ function varargout=class2optimizeCS(varargin)
     classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
     for i=1:length(outputExpressions)
-        classhelp{end}=sprintf('%sy%d,',classhelp{end},i);
+        classhelp{end}=[classhelp{end},outputNames{i}];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    declareGet(code,outputExpressions,'getOutputs');
+    
+    declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 
     code.statistics.time.csparse=etime(clock,t_csparse);
     code.statistics.defines=defines;
