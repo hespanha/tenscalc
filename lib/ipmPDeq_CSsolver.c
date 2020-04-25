@@ -41,6 +41,8 @@ extern void initPrimalDual__();
 extern void initDualEq__();
 extern void initDualIneq__();
 extern void updatePrimalDual__();
+extern void scaleIneq__();
+extern void scaleCost__();
 extern void setAlphaPrimal__(const double *alpha);
 extern void setAlphaDualEq__(const double *alpha);
 extern void setAlphaDualIneq__(const double *alpha);
@@ -58,7 +60,7 @@ extern void saveWW__(char *filename);
 extern void savedx_s__(char *filename);
 extern void saveb_s__(char *filename);
 
-#if debugConvergence==1
+#if debugConvergence!=0
 extern void getZNL__(double *z,double *nu,double *lambda);
 extern void getFG__(double *F,double *G);
 extern void getDnu_s__(double *dNu_s);
@@ -187,7 +189,14 @@ EXPORT void ipmPDeq_CSsolver(
   //initPrimalDual__();
   initPrimal__();
 
+#if scaleCost>0
+  scaleCost__();
+#endif
+
 #if nF>0
+#if scaleInequalities!=0
+  scaleIneq__();
+#endif
   //getGap__(&gap);
   //if (mu < gap/nF/10) mu = gap/nF/10;
   setMu__(&mu);
@@ -213,7 +222,7 @@ EXPORT void ipmPDeq_CSsolver(
       (*status) = 8;
       break; }
 
-#if debugConvergence==1
+#if debugConvergence!=0
     // get "old" state
     getZNL__(z,nu,lambda);
     z+=nZ;
@@ -238,7 +247,7 @@ EXPORT void ipmPDeq_CSsolver(
     if (isnan(norminf_grad)) {
 	printf2("  -> failed to invert hessian\n");
 	(*status) = 4;
-#if allowSave==1
+#if allowSave!=0
 	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4 (grad)\n");
 	saveWW__(saveNamePrefix "_WW.values");
 	printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4 (grad)\n");
@@ -304,7 +313,7 @@ EXPORT void ipmPDeq_CSsolver(
     printf3(" -alphaA-  -sigma- ");
     printf3("%10.2e                   ",alphaMax_);
 
-#if allowSave==1
+#if allowSave!=0
     if ((*iter)==(*saveIter)) {
       mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
@@ -322,7 +331,7 @@ EXPORT void ipmPDeq_CSsolver(
     /******  WITH INEQUALITY CONSTRAINTS ******/
     /******************************************/
 
-#if skipAffine==1
+#if skipAffine!=0
     printf3(" -alphaA-  -sigma-");
 #else
     /*******************************************************************/
@@ -389,13 +398,13 @@ EXPORT void ipmPDeq_CSsolver(
     } else {
       printf3("  -sigma- ");
     }
-#endif  // skipAffine==1
+#endif  // skipAffine!=0
 
     /*******************************************************************/
     /** Combined search direction                                     **/
     /*******************************************************************/
 
-#if debugConvergence==1
+#if debugConvergence!=0
     // get combined search direction
     getDz_s__(dZ_s);
     dZ_s+=nZ;
@@ -405,12 +414,12 @@ EXPORT void ipmPDeq_CSsolver(
     dLambda_s+=nF;
 #endif
     
-#if debugConvergence==1
+#if debugConvergence!=0
     *(alphaPrimal_s++)=alphaPrimal;
     *(alphaDualIneq_s++)=alphaDualIneq;
 #endif
     
-#if allowSave==1
+#if allowSave!=0
     if ((*iter)==(*saveIter)) {
       printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
@@ -423,7 +432,7 @@ EXPORT void ipmPDeq_CSsolver(
 
     getMaxAlphas_s__(&alphaPrimal,&alphaDualIneq);
 
-#if coupledAlphas==1
+#if coupledAlphas!=0
     if (alphaDualIneq<alphaPrimal)
       alphaPrimal=alphaDualIneq;
 #endif
@@ -441,7 +450,7 @@ EXPORT void ipmPDeq_CSsolver(
       if (isnan(ineq)) {
 	  printf2("  -> failed to invert hessian\n");
 	  (*status) = 4;
-#if allowSave==1
+#if allowSave!=0
 	  {
 	    /* #define  NWW 357 */
 	    /* double buffer[NWW*NWW]; */
@@ -494,7 +503,7 @@ EXPORT void ipmPDeq_CSsolver(
       setAlphaPrimal__(&alphaPrimal);
     }
 
-#if coupledAlphas==1
+#if coupledAlphas!=0
     alphaDualEq=alphaPrimal;
     alphaDualIneq=alphaPrimal;
 #else
@@ -515,7 +524,7 @@ EXPORT void ipmPDeq_CSsolver(
     printf3("%10.2e %10.2e   -eq-    ",alphaPrimal,alphaDualIneq);
 #endif
 
-#if skipAffine==1
+#if skipAffine!=0
     // More aggressive if
     // 1) "long" newton steps in the affine direction
     // 2) small gradient
@@ -572,7 +581,7 @@ EXPORT void ipmPDeq_CSsolver(
 
   } // while(1)
 
-#if allowSave==1
+#if allowSave!=0
   if ((*saveIter)==0 && (*status)==0) {
       printf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
       saveWW__(saveNamePrefix "_WW.values");
@@ -583,7 +592,7 @@ EXPORT void ipmPDeq_CSsolver(
     }
 #endif
 
-#if debugConvergence==1
+#if debugConvergence!=0
   // get final state 
   getZNL__(z,nu,lambda);
   z+=nZ;

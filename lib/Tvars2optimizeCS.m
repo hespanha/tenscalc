@@ -122,6 +122,9 @@ function varargout=Tvars2optimizeCS(varargin)
     allowSave=false;
     debugConvergence=false;
     umfpack=false;
+    scaleInequalities=false;
+    scaleCost=false;
+    scaleEqualities=false;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
@@ -221,16 +224,41 @@ function varargout=Tvars2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
-                                                     smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                                                     useLDL,umfpack,...
-                                                     classname,allowSave,debugConvergence);
+    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]...
+        =ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+                  smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                  scaleInequalities,scaleCost,scaleEqualities,...
+                  useLDL,umfpack,...
+                  classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
-    Tout.optimizationVariables=optimizationVariables;
-    Tout.constraints=constraints;
+    for i=1:length(optimizationVariables)
+        fld=name(optimizationVariables{i});
+        Tout.(fld)=optimizationVariables{i};
+    end
+    for i=1:length(constraints)
+        switch type(constraints{i})
+          case 'ispositive'
+            fld=sprintf('ispositive%d',i);
+            Tout.(fld)=Tcalculus(operands(constraints{i}));
+          case 'iszero'
+            fld=sprintf('iszero%d',i);
+            Tout.(fld)=Tcalculus(operands(constraints{i}));
+          otherwise
+            Tout.(fld)=constraints{i};
+        end
+    end
+    %Tout.constraints=constraints;
+    for i=1:length(lambdas)
+        fld=name(lambdas{i});
+        Tout.(fld)=lambdas{i};
+    end
+    for i=1:length(nus)
+        fld=name(nus{i});
+        Tout.(fld)=nus{i};
+    end
     Tout.Hess=Tvariable('Hess_',size(Hess__));
     Tout.dHess=Tvariable('dHess_',size(dHess__));
     Tout.Grad=Tvariable('Grad_',size(Grad__));
@@ -243,8 +271,6 @@ function varargout=Tvars2optimizeCS(varargin)
     Tout.Du1=Tvariable('Du1_',size(Du1__));
     Tout.DfDu1=Tvariable('DfDu1_',size(DfDu1__));
     Tout.D2fDu1=Tvariable('D2fDu1_',size(D2fDu1__));
-    Tout.lambdas=lambdas;
-    Tout.nus=nus;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs

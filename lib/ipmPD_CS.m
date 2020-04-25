@@ -1,5 +1,6 @@
 function [Hess_,dHess_,Lf_u,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
                                                       smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                                                      scaleInequalities,scaleCost,scaleEqualities,...
                                                       useLDL,atomicFactorization,...
                                                       cmexfunction,allowSave,debugConvergence)
 % See ../doc/ipm.tex for an explanation of the formulas used here
@@ -40,6 +41,19 @@ function [Hess_,dHess_,Lf_u,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,f,u,lambda,
     nG=length(G);
     nF=length(F);
     fprintf('    # primal vars = %d, # equal constr = %d, # inequal constr = %d...\n',nU,nG,nF);
+    
+    
+    %% Scaling
+    if nF>0 && scaleInequalities
+        scale4Ineq=Tvariable('scale4Ineq__',size(F));
+        declareCopy(code,scale4Ineq,abs(1./F),'scaleIneq__');
+        F=scale4Ineq.*F;
+    end
+    if scaleCost>0
+        scale4Cost=Tvariable('scale4Cost__',[]);
+        declareCopy(code,scale4Cost,abs(scaleCost/f),'scaleCost__');
+        f=scale4Cost*f;
+    end
     
     fprintf('    getJ()...');
     t2=clock();

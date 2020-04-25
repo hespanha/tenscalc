@@ -51,6 +51,30 @@ function localVariables_=parameters4all(localVariables_)
                       });
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Interior-point Scaling parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    declareParameter(...
+        'VariableName','scaleInequalities',...
+        'AdmissibleValues',{false,true},...
+        'DefaultValue',false,...
+        'Description',{
+            'When true, all inequalities are multiplied by appropriate'
+            'constants so that at the first iteration they start as ''1>=0''.'
+                      });
+
+    declareParameter(...
+        'VariableName','scaleCost',...
+        'DefaultValue',0,...
+        'Description',{
+            'When nonzero, the cost is multiplied by an appropriate constant'
+            'so that at the first iteration it starts at ''scaleCost''.';
+            'A run-time error will occur if the cost starts at zero.'
+                      });
+
+    evalin('caller','scaleEqualities=false;');
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point solver parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     

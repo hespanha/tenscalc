@@ -167,23 +167,7 @@ function varargout=cmex2optimizeCS(varargin)
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if ~iscell(parameters)
-        parameters
-        error('parameters must be a cell array of Tcalculus variables');
-    end
-
-    for i=1:length(parameters)
-        if ~isequal(class(parameters{i}),'Tcalculus')
-            parameters{i}
-            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
-                  i,class(parameters{i}));
-        end
-        if ~isequal(type(parameters{i}),'variable')
-            parameters{i}
-            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
-                  i,type(parameters{i}));
-        end
-    end
+    parameters=checkParameters(parameters);
 
     if ~iscell(optimizationVariables)
         optimizationVariables
@@ -341,10 +325,12 @@ function varargout=cmex2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
-                                                     smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                                                     useLDL,umfpack,...
-                                                     classname,allowSave,debugConvergence);
+    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]...
+        =ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+                  smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                  scaleInequalities,scaleCost,scaleEqualities,...
+                  useLDL,umfpack,...
+                  classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     
     % Replace solver variables into output expression
@@ -407,6 +393,9 @@ function varargout=cmex2optimizeCS(varargin)
     defines.gradTolerance=sprintf('%e',gradTolerance); % to make double
     defines.equalTolerance=sprintf('%e',equalTolerance); % to make double
     defines.desiredDualityGap=sprintf('%e',desiredDualityGap); % to make double
+    defines.scaleCost=double(scaleCost);
+    defines.scaleInequalities=double(scaleInequalities);
+    defines.scaleEqualities=double(scaleEqualities);
     defines.alphaMin=sprintf('%e',alphaMin); % to make double
     defines.alphaMax=sprintf('%e',alphaMax); % to make double
     defines.coupledAlphas=double(coupledAlphas);

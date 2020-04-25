@@ -55,7 +55,14 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
     %initPrimalDual__(obj);
     initPrimal__(obj);
     
+    if obj.scaleCost
+        scaleCost__(obj);
+    end
+    
     if obj.nF>0
+        if obj.scaleInequalities
+            scaleIneq__(obj);
+        end
         setMu__(obj,mu);
     end
     

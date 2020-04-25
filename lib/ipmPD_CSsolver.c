@@ -41,6 +41,8 @@ extern void initPrimalDual__();
 extern void initDualEq__();
 extern void initDualIneq__();
 extern void updatePrimalDual__();
+extern void scaleIneq__();
+extern void scaleCost__();
 extern void setAlphaPrimal__(const double *alpha);
 extern void setAlphaDualEq__(const double *alpha);
 extern void setAlphaDualIneq__(const double *alpha);
@@ -170,7 +172,14 @@ EXPORT void ipmPD_CSsolver(
   //initPrimalDual__();
   initPrimal__();
 
+#if scaleCost>0
+  scaleCost__();
+#endif
+
 #if nF>0
+#if scaleInequalities!=0
+  scaleIneq__();
+#endif
   //getGap__(&gap);
   //if (mu < gap/nF/10) mu = gap/nF/10;
   setMu__(&mu);
@@ -210,7 +219,7 @@ EXPORT void ipmPD_CSsolver(
     if (isnan(norminf_grad)) {
 	printf2("  -> failed to invert hessian\n");
 	(*status) = 4;
-#if allowSave==1
+#if allowSave!=0
 	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	saveWW__(saveNamePrefix "_WW.values");
 #endif
@@ -270,7 +279,7 @@ EXPORT void ipmPD_CSsolver(
     printf3(" -alphaA-  -sigma- ");
     printf3("%10.2e                   ",alphaMax_);
 
-#if allowSave==1
+#if allowSave!=0
     if ((*iter)==(*saveIter)) {
       printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
@@ -284,7 +293,7 @@ EXPORT void ipmPD_CSsolver(
     /******  WITH INEQUALITY CONSTRAINTS ******/
     /******************************************/
 
-#if skipAffine==1
+#if skipAffine!=0
     printf3(" -alphaA-  -sigma-");
 #else
     /*******************************************************************/
@@ -351,7 +360,7 @@ EXPORT void ipmPD_CSsolver(
     } else {
       printf3("  -sigma- ");
     }
-#endif  // skipAffine==1
+#endif  // skipAffine!=0
 
     /*******************************************************************/
     /** Combined search direction                                     **/
@@ -373,7 +382,7 @@ EXPORT void ipmPD_CSsolver(
     printMatrix("dx",buffer,nU+nG+nF,1);
 #endif
     
-#if allowSave==1
+#if allowSave!=0
     if ((*iter)==(*saveIter)) {
       printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
@@ -382,7 +391,7 @@ EXPORT void ipmPD_CSsolver(
 
     getMaxAlphas_s__(&alphaPrimal,&alphaDualIneq);
 
-#if coupledAlphas==1
+#if coupledAlphas!=0
     if (alphaDualIneq<alphaPrimal)
       alphaPrimal=alphaDualIneq;
 #endif
@@ -400,7 +409,7 @@ EXPORT void ipmPD_CSsolver(
       if (isnan(ineq)) {
 	  printf2("  -> failed to invert hessian\n");
 	  (*status) = 4;
-#if allowSave==1
+#if allowSave!=0
 	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	  saveWW__(saveNamePrefix "_WW.values");
 #endif
@@ -442,7 +451,7 @@ EXPORT void ipmPD_CSsolver(
       setAlphaPrimal__(&alphaPrimal);
     }
 
-#if coupledAlphas==1
+#if coupledAlphas!=0
     alphaDualEq=alphaPrimal;
     alphaDualIneq=alphaPrimal;
 #else
@@ -463,7 +472,7 @@ EXPORT void ipmPD_CSsolver(
     printf3("%10.2e %10.2e   -eq-    ",alphaPrimal,alphaDualIneq);
 #endif
 
-#if skipAffine==1
+#if skipAffine!=0
     // More aggressive if
     // 1) "long" newton steps in the affine direction
     // 2) small gradient
@@ -524,7 +533,7 @@ EXPORT void ipmPD_CSsolver(
 
   } // while(1)
 
-#if allowSave==1
+#if allowSave!=0
   if ((*saveIter)==0 && (*status)==0) {
       printf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
       saveWW__(saveNamePrefix "_WW.values");

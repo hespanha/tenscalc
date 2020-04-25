@@ -168,23 +168,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if ~iscell(parameters)
-        parameters
-        error('parameters must be a cell array of Tcalculus variables');
-    end
-
-    for i=1:length(parameters)
-        if ~isequal(class(parameters{i}),'Tcalculus')
-            parameters{i}
-            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
-                  i,class(parameters{i}));
-        end
-        if ~isequal(type(parameters{i}),'variable')
-            parameters{i}
-            error('all parameters must be of the type ''variable'' (%dth is of type ''%s'')\n',...
-                  i,type(parameters{i}));
-        end
-    end
+    parameters=checkParameters(parameters);
 
     if ~iscell(P1optimizationVariables)
         P1optimizationVariables
@@ -453,6 +437,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     Hess__=ipmPDeqlat_CS(code,P1objective,P2objective,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
                          Fu,Gu,Fd,Gd,H,...
                          smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                         scaleInequalities,scaleCost,scaleEqualities,...
                          false,...
                          classname,allowSave,debugConvergence,profiling);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
@@ -472,6 +457,9 @@ function varargout=class2equilibriumLatentCS(varargin)
     defines.gradTolerance=gradTolerance;
     defines.equalTolerance=equalTolerance;
     defines.desiredDualityGap=desiredDualityGap;
+    defines.scaleCost=double(scaleCost);
+    defines.scaleInequalities=double(scaleInequalities);
+    defines.scaleEqualities=double(scaleEqualities);
     defines.alphaMin=alphaMin;
     defines.alphaMax=alphaMax;
     defines.coupledAlphas=double(coupledAlphas);

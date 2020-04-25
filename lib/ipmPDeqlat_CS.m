@@ -1,6 +1,7 @@
 function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
                                Fu,Gu,Fd,Gd,H,...
                                smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                               scaleInequalities,scaleCost,scaleEqualities,...
                                atomicFactorization,...
                                cmexfunction,allowSave,debugConvergence,profiling)
 % Copyright 2012-2017 Joao Hespanha
@@ -53,6 +54,29 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     nF=nFu+nFd;
     fprintf('    # primal vars = %d, # equal constr = %d, # inequal constr = %d...\n',nZ,nG,nF);
     
+    %% Scaling
+    if scaleInequalities
+        src={};
+        dst={};
+        if nFu>0
+            src{end+1}=abs(1./Fu);
+            dst{end+1}=Tvariable('scale4IneqU__',size(Fu));
+            Fu=dst{end}.*Fu;
+        end
+        if nFd>0
+            src{end+1}=abs(1./Fd);
+            dst{end+1}=Tvariable('scale4IneqD__',size(Fd));
+            Fd=dst{end}.*Fd;
+        end
+        declareCopy(code,dst,src,'scaleIneq__');
+    end
+    if scaleCost>0
+        scale4Cost=Tvariable('scale4Cost__',[]);
+        declareCopy(code,scale4Cost,abs(scaleCost/f),'scaleCost__');
+        f=scale4Cost*f;
+        g=scale4Cost*g;
+    end
+
     fprintf('    getfg()...');
     t2=clock();
     declareGet(code,{f,g},'getfg__');
