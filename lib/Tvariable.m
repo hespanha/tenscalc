@@ -35,10 +35,21 @@ function obj=Tvariable(name,osize,nowarningsamesize,nowarningever)
     if ~ischar(name)
         error('Tvariable: 1st parameter must be a string (variable name)')
     end
-    if ~isvarname(name)
-        error('Tvariable: 1st parameter a valid variable name')
+
+    if nargin==1
+        % variable name together with size
+        s=regexp(name,'(\w+)(\[[^\]]*\])','tokens');
+        if length(s)==1 && length(s{1})==2
+            osize=s{1}{2};
+            name=s{1}{1};
+        end
     end
-    if nargin<2
+    
+    if ~isvarname(name)
+        error('Tvariable: 1st parameter must be a valid variable name (not ''%s'')',name)
+    end
+        
+    if ~exist('osize','var')
         osize=[];
     end
     
