@@ -457,7 +457,7 @@ The function |vec2tensor| is very useful to create structured matrices from vect
 
 * Symmetric matrix::
 
-    % Creates an NxN lower triangular matrix
+    % Creates an NxN symmetric matrix
     [i,j]=find(ones(N));
     kl=find(i>j);
     k0=find(i==j);
