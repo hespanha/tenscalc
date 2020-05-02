@@ -72,13 +72,22 @@ of constrained minimization
    :rtype: string
 		       
 Both scripts take several parameters (many of them optional) in the
-form of pairs, consisting of a parameter name and its value, like in::
+form of pairs, consisting of a parameter name and its value, as in::
 
   classname=cmex2optimizeCS('classname','myoptimization', ...
                             'objective',norm2(x-y), ...
                             'optimizationVariables', { x, y }, ...
 			    'constraints', { x>=-1, x<=1, y>=10 }, ...
 			    'outputExpressions', { x, y });
+
+Alternative, parameters to the scripts can be passed using a structure, as in::
+
+   opt.classname='myoptimization';
+   opt.objective=norm2(x-y);
+   opt.optimizationVariables={ x, y };
+   opt.constraints={ x>=-1, x<=1, y>=10 };
+   opt.outputExpressions={ x, y };
+   classname=cmex2optimizeCS(opt);
 
 .. note:: This type of parameter passing and validation is enabled by
    the |funpartools| toolbox, which also enables several other
@@ -88,6 +97,15 @@ The function |cmex2optimizeCS| generates |C| code, whereas
 |class2optimizeCS| generates |matlab| code, but both functions take
 the same set of parameters and generate |matlab| classes that are
 indistinguishable to the user.
+
+The following table list the most commonly used parameters for
+|cmex2optimizeCS| and |class2optimizeCS|. For the full set of
+parameters, use::
+
+   cmex2optimizeCS help
+   class2optimizeCS help
+
+
 
 .. list-table:: Selected parameters for |cmex2optimizeCS| and
                 |class2optimizeCS|. For the full set of parameters use
