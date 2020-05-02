@@ -206,7 +206,7 @@ function varargout=class2optimizeCS(varargin)
     tprod2matlab=true;
     scratchbookType='double';
     code=csparse(scratchbookType,debug,tprod2matlab); % using instructionsTable.c
-    classhelp={'% Create object';
+    classhelp={'Create object';
                sprintf('obj=%s();',classname)};
 
     %% Declare 'sets' for initializing parameters
@@ -221,7 +221,7 @@ function varargout=class2optimizeCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='% Initialize primal variables';
+    classhelp{end+1}='Initialize primal variables';
     for i=1:length(optimizationVariables)
         declareSet(code,optimizationVariables{i},...
                    sprintf('setV_%s',name(optimizationVariables{i})));
@@ -330,7 +330,7 @@ function varargout=class2optimizeCS(varargin)
                                  Tvariable('D2fDu1_',size(D2fDu1__),true),D2fDu1__);
 
     %% Declare ipm solver 
-    classhelp{end+1}='% Solve optimization';
+    classhelp{end+1}='Solve optimization';
     classhelp{end+1}=...
         sprintf('[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));');
 
@@ -363,7 +363,7 @@ function varargout=class2optimizeCS(varargin)
     classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
     for i=1:length(outputExpressions)
-        classhelp{end}=[classhelp{end},outputNames{i}];
+        classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
     

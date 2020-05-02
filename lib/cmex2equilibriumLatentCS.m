@@ -274,7 +274,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
-        classhelp{end+1}='% Set parameters';
+        classhelp{end+1}='Set parameters';
     end
     for i=1:length(parameters)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(parameters{i}));
@@ -290,7 +290,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='% Initialize primal variables';
+    classhelp{end+1}='Initialize primal variables';
     % Player 1
     for i=1:length(P1optimizationVariables)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',...
@@ -468,7 +468,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     nF=size(Fu,1)+size(Fd,1);
     nNu=size(Gu,1)+size(Gd,1)+2*size(H,1);
 
-    classhelp{end+1}='% Solve optimization';
+    classhelp{end+1}='Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
     template(end).Cfunction='ipmPDeq_CSsolver';
@@ -530,7 +530,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
                     defines,template(end).inputs,template(end).outputs,template(end).method);
     
     %% Declare 'gets' for output expressions
-    classhelp{end+1}='% Get outputs';
+    classhelp{end+1}='Get outputs';
     classhelp{end+1}='';
     template(end+1,1).MEXfunction=sprintf('%s_getOutputs',classname);
     template(end).Cfunction=sprintf('%s_getOutputs',classname);
@@ -543,6 +543,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs_struct(obj);');
     declareGet(code,outputExpressions,template(end).MEXfunction);
 
     code.statistics.time.csparse=etime(clock,t_csparse);
@@ -586,7 +587,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
-    classhelp{end+1}='% Delete object';
+    classhelp{end+1}='Delete object';
     classhelp{end+1}='clear obj';
 
     t_createGateway=clock();

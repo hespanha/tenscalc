@@ -217,14 +217,14 @@ function varargout=cmex2optimizeCS(varargin)
     %code=csparse1(scratchbookType,debug);  % using fastTable.m, string I_ instruction types
     %code=csparse2(scratchbookType,debug);  % using fastTable.m, integer instruction types
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
-    classhelp={'% Create object';
+    classhelp={'Create object';
                sprintf('obj=%s();',classname)};
     
     % template for createGateway
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
-        classhelp{end+1}='% Set parameters';
+        classhelp{end+1}='Set parameters';
     end
     for i=1:length(parameters)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(parameters{i}));
@@ -243,7 +243,7 @@ function varargout=cmex2optimizeCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='% Initialize primal variables';
+    classhelp{end+1}='Initialize primal variables';
     for i=1:length(optimizationVariables)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',...
                                             classname,name(optimizationVariables{i}));
@@ -364,7 +364,7 @@ function varargout=cmex2optimizeCS(varargin)
     
     
     %% Declare ipm solver 
-    classhelp{end+1}='% Solve optimization';
+    classhelp{end+1}='Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
     if ~isempty(simulinkLibrary)
@@ -414,7 +414,7 @@ function varargout=cmex2optimizeCS(varargin)
                     defines,template(end).inputs,template(end).outputs,template(end).method);
 
     %% Declare 'gets' for output expressions
-    classhelp{end+1}='% Get outputs';
+    classhelp{end+1}='Get outputs';
     classhelp{end+1}='';
     template(end+1,1).MEXfunction=sprintf('%s_getOutputs',classname);
     if ~isempty(simulinkLibrary)
@@ -430,7 +430,7 @@ function varargout=cmex2optimizeCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);');
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs_struct(obj);');
     declareGet(code,outputExpressions,template(end).Cfunction);
 
     code.statistics.time.csparse=etime(clock,t_csparse);
@@ -474,7 +474,7 @@ function varargout=cmex2optimizeCS(varargin)
     
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
-    classhelp{end+1}='% Delete object';
+    classhelp{end+1}='Delete object';
     classhelp{end+1}='clear obj';
 
     t_createGateway=clock();

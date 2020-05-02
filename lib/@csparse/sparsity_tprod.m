@@ -225,7 +225,7 @@ for i=1:length(ia)
     end
     k=find(ic==i);
     if size(instrYS,1)==1 && length(k)==1
-        % no need to any sum_prod
+        % no need for any sum_prod
         instrY(i)=instrYS(1,k);
     else
         %fprintf('sumprod %d prods, %d sums\n',size(instrYS,1),length(k));
