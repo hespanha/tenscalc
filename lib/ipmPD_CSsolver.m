@@ -1,4 +1,4 @@
-function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
+function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.
@@ -18,6 +18,19 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
 
     FUNCTION__='ipmPD_CSsolver';
     
+    if nargin<2
+        mu0=1;
+    end    
+    if nargin<3
+        maxIter=200;
+    end
+    if nargin<4
+        saveIter=-1;
+    end    
+    if nargin<5
+        addEye2Hessian=1e-9;
+    end
+    
     function printf2(varargin)
         if obj.verboseLevel>=2
             fprintf(varargin{:});
@@ -32,13 +45,15 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
     
     iter=0;
     
+    setAddEye2Hessian__(obj,addEye2Hessian);
+
     if obj.nF>0
         mu=mu0;
         alphaPrimal=0;alphaDualEq=0;alphaDualIneq=0;
         muMin=obj.desiredDualityGap/obj.nF/2;
     end 
     
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.nU,obj.nG,obj.nF);
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%.1e): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,addEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         headers='Iter   cost      |grad|     |eq|     inequal     dual      gap       mu    alphaA    sigma      alphaP     alphaDI    alphaDE       time\n';
         fprintf(headers);
@@ -118,50 +133,91 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             fprintf('%11.3e',full(J));
         end
 
+        norminf_grad=getNorminf_Grad__(obj);
+        printf3('%10.2e',full(norminf_grad));
+        
         if obj.debugConvergence 
+            Lf=getLf__(obj);
+            fprintf(' Lf = %9.2e ',Lf);
+
+            %% J large
             J=getJ__(obj);
             if J>obj.debugConvergenceThreshold
                 printf2('\n%3d: ATTENTION: cost > %10.2e - cost is probably too large\n',...
                             iter,obj.debugConvergenceThreshold);
             end
-        end
-
-        if obj.debugConvergence 
-            Lf_=getLf__(obj);
-            fprintf(' Lf = %9.2e ',Lf_);
-            tol=1e-7;
-            Lfuu_=getLfuu__(obj);
-            [vv,egLfuu]=eig(full(Lfuu_),'vector');
-            kk=egLfuu<=tol;
-            if any(kk)
-                fprintf('\nATTENTION: Lf not strictly convex, Lfuu eigenvalues: %4d positive, %4d zero, %4d negative (>=%8e) \n',...
-                        sum(egLfuu>tol),...
-                        sum(egLfuu<=tol & egLfuu>-tol),...
-                        sum(egLfuu<=-tol),...
-                        min(egLfuu));
-                if obj.verboseLevel>=5
-                    fprintf('       Lfuu negative semidefinite subspace:\n');
-                    disp(vv(:,kk));
+            %% Hessian Large
+            Hess=getHess__(obj);
+            tol=1e6;
+            [i1,i2]=find(Hess>tol);
+            if ~isempty(i1)
+                fprintf('\nATTENTION: Hessian has %d very large entries\n',length(i1));
+                for j=1:length(i1)
+                    fprintf('\tHess(%4d,%4d)=%8.1e\n',i1(j),i2(j),full(Hess(i1(j),i2(j))));
                 end
-                fprintf('              ');
             end
-            Hess_=getHess__(obj);
-            [vv,eg]=eig(full(Hess_),'vector');
-            kk=(eg<=tol & eg>-tol);
-            if any(kk)
-                fprintf('\nATTENTION: Hessian is singular, eigenvalues: %4d positive, %4d negative, %4d zero\n',...
-                        sum(eg>tol),sum(eg<=-tol),sum(kk));
+            
+            %% Hessian singular
+            tol=1e-7;
+            [vv,eg]=eig(full(Hess),'vector');
+            k0=(eg<tol & eg>-tol);
+            if any(k0)
+                kp=eg>tol;
+                km=eg<=-tol;
+                fprintf('\nATTENTION: Hessian is singular, with eigenvalues: %4d positive ([%8.1e,%8.1e]), %4d zero ([%8.1e,%8.1e]), %4d negative  ([%8.1e,%8.1e]), expected %d,%d,%d: increase addEye2Hessian\n',...
+                        sum(kp),min(eg(kp)),max(eg(kp)),...
+                        sum(k0),min(eg(k0)),max(eg(k0)),...
+                        sum(km),min(eg(km)),max(eg(km)),...
+                        obj.nU,0,obj.nF+obj.nG...
+                        );
                 if obj.verboseLevel>=5
                     fprintf('       Hessian kernel:\n');
                     disp(vv(:,kk));
                 end
                 fprintf('              ');
             end
+            %% Hessian with wrong trace
+            dHess=getdHess__(obj);
+            kp=dHess>tol;
+            km=dHess<=-tol;
+            k0=~kp & ~ km;
+            if sum(kp)~=obj.nU || sum(km)~=obj.nF+obj.nG
+                fprintf('\nATTENTION: ldl_d(Hessian) has %4d positive entries ([%8.1e,%8.1e]), %4d zero ([%8.1e,%8.1e]), %4d negative  ([%8.1e,%8.1e]), expected %d,%d,%d: increase addEye2Hessian\n',...
+                        sum(kp),min(dHess(kp)),max(dHess(kp)),...
+                        sum(k0),min(dHess(k0)),max(dHess(k0)),...
+                        sum(km),min(dHess(km)),max(dHess(km)),...
+                        obj.nU,0,obj.nF+obj.nG...
+                        );
+                fprintf('              ');
+            end
+            %% Lf not positive definite
+            tol=1e-2;
+            Lfuu=getLfuu__(obj);
+            [vv,egLfuu]=eig(full(Lfuu),'vector');
+            km=egLfuu<=-tol;
+            if any(km)
+                kp=egLfuu>tol;
+                k0=~kp & ~km;
+                fprintf('\nATTENTION: Lf not strictly convex, Lfuu eigenvalues: %4d positive ([%8.1e,%8.1e]), %4d zero ([%8.1e,%8.1e]), %4d negative  ([%8.1e,%8.1e])\n',...
+                        sum(kp),min(egLfuu(kp)),max(egLfuu(kp)),...
+                        sum(k0),min(egLfuu(k0)),max(egLfuu(k0)),...
+                        sum(km),min(egLfuu(km)),max(egLfuu(km)));
+                if obj.verboseLevel>=5
+                    fprintf('       Lfuu negative semidefinite subspace:\n');
+                    disp(vv(:,km));
+                end
+                fprintf('              ');
+            end
+            % H1=Hess(1:obj.nU,1:obj.nU);
+            % H2=Hess(obj.nU+1:end,obj.nU+1:end);
+            % H12=Hess(1:obj.nU,obj.nU+1:end);
+            % format shorte
+            % sort(eig(full(H1))'),;
+            % sort(eig(full(H2))'),;
+            % sort(eig(full(Hess))'),;
+            % format short 
         end
 
-        norminf_grad=getNorminf_Grad__(obj);
-        printf3('%10.2e',full(norminf_grad));
-        
         if obj.debugConvergence 
             if norminf_grad>obj.debugConvergenceThreshold
                 grad_=getGrad__(obj);
@@ -435,15 +491,19 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                 % 2) small gradient
                 % 3) equality constraints fairly well satisfied
                 % (2+3 mean close to the central path)
-                th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+                %th_grad            =norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+                %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+                th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
+                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
-                    mu = max(mu*obj.muFactorAggressive,muMin);
+                    %mu = max(mu*obj.muFactorAggressive,muMin);
+                    mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu); 
                     printf3(' * ');
                 else 
                     if alphaPrimal<.1
-                        mu=min(1e2,1.25*mu);
+                        %mu=min(1e2,1.25*mu);
+                        mu=min(mu0,1.25*mu);
                         setMu__(obj,mu); 
                         initDualIneq__(obj);
                         printf3('^');
@@ -567,7 +627,34 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
                     end
                 end
             end
-        end        
+        end
+        
+        %%%%%%%%%%%%%%%%%%%%
+        %% Check Progress %%
+        %%%%%%%%%%%%%%%%%%%%
+        
+        if obj.debugConvergence
+            [du_,dNu_,dLambda_]=getD__(obj);
+            tol=1e5;
+            if all(abs(du_./u_)<tol)
+                fprintf('%3d: ATTENTION: abs(du/u) < %10.2e for all entries\n',...
+                        iter,max(abs(du_./u_)));
+            end
+            if obj.nG>0
+                if all(abs(dNu_./nu_)<tol)
+                    fprintf('%3d: ATTENTION: abs(dnu/nu) < %10.2e for all entries\n',...
+                            iter,max(abs(dNu_./nu_)));
+                end
+            end
+            if obj.nF>0
+                if all(abs(dLambda_./l_)<tol)
+                    fprintf('%3d: ATTENTION: abs(dlambda/lambda) < %10.2e for all entries\n',...
+                            iter,max(abs(dLambda_./l_)));
+                end
+            end
+        end
+        
+
 
     end % while(1)
     
@@ -653,6 +740,14 @@ function [status,iter,time]=ipmPD_CSsolver(obj,mu0,maxIter,saveIter)
             fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
         end
         fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
+    end
+   
+    if nargout==1
+        varargout.status=status;
+        varaoutout.iter=iter;
+        varargout.time=time;
+    else
+        varargout={status,iter,time};
     end
     
 end

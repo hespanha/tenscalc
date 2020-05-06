@@ -530,16 +530,19 @@ EXPORT void ipmPDeq_CSsolver(
     // 2) small gradient
     // 3) equality constraints fairly well satisfied
     // (2+3 mean close to the central path)
-    int th_grad=norminf_grad<MAX(1e-1,1e2*gradTolerance);
+    //int th_grad=norminf_grad<MAX(1e-1,1e2*gradTolerance);
+    int th_grad=norminf_grad<MAX(1e-3,1e0*gradTolerance);
 #if nG>0
-    int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
+    //int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
+    int th_eq=norminf_eq<MAX(1e-5,1e0*equalTolerance);
 #endif
     if (alphaPrimal>.5 && th_grad
 #if nG>0
 	&& th_eq
 #endif
 	) {
-      mu *= muFactorAggressive;
+      //mu *= muFactorAggressive;
+      mu *= MIN(muFactorAggressive,pow(mu,.5));
       if (mu < muMin) mu = muMin;
       setMu__(&mu); 
       printf3(" *");
@@ -548,7 +551,9 @@ EXPORT void ipmPDeq_CSsolver(
       if (mu < muMin) mu = muMin;
       setMu__(&mu);
       if (alphaPrimal<0*.001) {
-	mu = MIN(1e2,1.25*mu);
+	//mu = MIN(1e2,1.25*mu);
+	mu *= 1.25;
+	if (mu > *mu0) mu = *mu0;
 	setMu__(&mu);
 	initDualIneq__();
       }

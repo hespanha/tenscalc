@@ -40,6 +40,7 @@
 extern void initPrimalDual__();
 extern void initDualEq__();
 extern void initDualIneq__();
+extern void setAddEye2Hessian__(const double *addEye2Hessian);
 extern void updatePrimalDual__();
 extern void scaleIneq__();
 extern void scaleCost__();
@@ -121,6 +122,7 @@ EXPORT void ipmPD_CSsolver(
 	       double  *mu0,
 	       int32_t *maxIter,
 	       int32_t *saveIter,
+	       double  *addEye2Hessian,
 	       /* outputs */
 	       int32_t *status,
 	       int32_t *iter,
@@ -151,7 +153,7 @@ EXPORT void ipmPD_CSsolver(
   double J;
 #endif
 
-  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,nU,nG,nF);
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%.1e): %d primal variables, %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,*addEye2Hessian,nU,nG,nF);
 #if verboseLevel>=3
   char *header="Iter   cost      |grad|      |eq|    inequal     dual      gap       mu      alphaA    sigma    alphaP     alphaDI    alphaDE     time\n";
 #endif
@@ -168,6 +170,8 @@ EXPORT void ipmPD_CSsolver(
 #if verboseLevel>=3
   clock_t dt1;
 #endif
+
+  setAddEye2Hessian__(addEye2Hessian);
 
   //initPrimalDual__();
   initPrimal__();
@@ -478,23 +482,27 @@ EXPORT void ipmPD_CSsolver(
     // 2) small gradient
     // 3) equality constraints fairly well satisfied
     // (2+3 mean close to the central path)
-    int th_grad=norminf_grad<MAX(1e-1,1e2*gradTolerance);
+    //int th_grad=norminf_grad<MAX(1e-1,1e2*gradTolerance);
+    int th_grad=norminf_grad<MAX(1e-3,1e0*gradTolerance);
 #if nG>0
-    int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
+    //int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
+    int th_eq=norminf_eq<MAX(1e-5,1e0*equalTolerance);
 #endif
     if (alphaPrimal>alphaMax_/2 && th_grad
 #if nG>0
 	&& th_eq
 #endif
 	) {
-      mu *= muFactorAggressive;
+      //mu *= muFactorAggressive;
+      mu *= MIN(muFactorAggressive,pow(mu,.5));
       if (mu < muMin) mu = muMin;
       setMu__(&mu); 
       printf3(" * ");
     } else {
       if (alphaPrimal<.1) {
 	mu *= 1.25;
-	if (mu > 1e2) mu = 1e2;
+	//if (mu > 1e2) mu = 1e2;
+	if (mu > *mu0) mu = *mu0;
 	setMu__(&mu);
 	initDualIneq__();
 	printf3("^");

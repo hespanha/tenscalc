@@ -18,6 +18,16 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
 
     FUNCTION__='ipmPDeq_CSsolver';
     
+    if nargin<2
+        mu0=1;
+    end    
+    if nargin<3
+        maxIter=200;
+    end
+    if nargin<4
+        saveIter=-1;
+    end    
+    
     function printf2(varargin)
         if obj.verboseLevel>=2
             fprintf(varargin{:});
@@ -367,15 +377,19 @@ function [status,iter,time]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 % 2) small gradient
                 % 3) equality constraints fairly well satisfied
                 % (2+3 mean close to the central path)
-                th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+                %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+                %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+                th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
+                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
-                    mu = max(mu*obj.muFactorAggressive,muMin);
+                    %mu = max(mu*obj.muFactorAggressive,muMin);
+                    mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu); 
                     printf3(' * ');
                 else 
                     if alphaPrimal<0*.02
-                        mu=min(1e2,1.25*mu);
+                        %mu=min(1e2,1.25*mu);
+                        mu=min(1e2,mu0*mu);
                         setMu__(obj,mu); 
                         initDualIneq__(obj);
                         printf3('^');
