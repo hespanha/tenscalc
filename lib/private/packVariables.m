@@ -77,6 +77,6 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
         varargout{i}=substitute(varargin{i},inVariables,outVariable);
     end
     if verboseLevel>0
-        fprintf('packVariables: %d subs...',substituteCounter);
+        fprintf('  packVariables: %d substitutions\n',substituteCounter);
     end        
 end

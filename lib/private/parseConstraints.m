@@ -63,6 +63,14 @@ createSets4Duals=false;
 nowarningsamesize=true;
 nowarningever=true;
 
+verboseLevel=0;
+
+if verboseLevel>0
+    global substituteCounter;
+    substituteCounter=0;
+end
+
+
 if nargin<5
     prefix='';
 end
@@ -94,9 +102,14 @@ for k=1:length(constraints)
                                          'sizes',size(nus{end}));
         end
         declareSet(code,nus{end},sprintf('%s_set_%s',classname,name(nus{end})));
-        outputExpressions=substitute(outputExpressions,...
-                                     Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
-                                     nus{end});
+        if ~isempty(outputExpressions)
+            if verboseLevel>1
+                fprintf('substitute: %s -> nus{%d}\n',vname,length(nus));
+            end
+            outputExpressions=substitute(outputExpressions,...
+                                         Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
+                                         nus{end});
+        end
       case {'ispositive'}
         % remove ispositive
         op1=Tcalculus(operands(constraints{k}));
@@ -113,9 +126,14 @@ for k=1:length(constraints)
                                          'sizes',size(lambdas{end}));
         end
         declareSet(code,lambdas{end},sprintf('%s_set_%s',classname,name(lambdas{end})));
-        outputExpressions=substitute(outputExpressions,...
-                                     Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
-                                     lambdas{end});
+        if ~isempty(outputExpressions)
+            if verboseLevel>1
+                fprintf('substitute: %s -> lambdas{%d}\n',vname,length(lambdas));
+            end
+            outputExpressions=substitute(outputExpressions,...
+                                         Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
+                                         lambdas{end});
+        end
       otherwise
         error('constraint of type ''%s'' not implemented\n',type(constraints{k}));
     end
@@ -125,6 +143,10 @@ end
 G=packExpressions(Gcells);
 F=packExpressions(Fcells);
     
+
+if verboseLevel>0
+    fprintf('  parseConstraints: %d substitutions\n',substituteCounter);
+end        
 
 
 end

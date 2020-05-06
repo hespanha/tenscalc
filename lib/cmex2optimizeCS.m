@@ -80,10 +80,10 @@ function varargout=cmex2optimizeCS(varargin)
             '                         (in the order that they appear and with';
             '                          the same size as the corresponding constraints)';
             '* |Hess_| - Hessian matrix used by the (last) Newton step to update';
-            '            the primal variables (not including |addEye2Hessian|).'
+            '            the primal variables (including |addEye2Hessian|).'
             '* |dHess_| - D factor in the LDL factorization of the Hessian matrix'
             '             used by the (last) Newton step to update the primal variables'
-            '             (including |addEye2Hessian|, unlike Hess_).'
+            '             (including |addEye2Hessian|).'
             '* |Grad_| - gradient of Lagrangian at the (last) Newton step.'
             '* |mu_|   - barrier parameter at the (last) Newton step.'
             '* |u_|    - vector stacked with all primal variables at the (last) Newton step.'
@@ -102,10 +102,13 @@ function varargout=cmex2optimizeCS(varargin)
 
     declareParameter(...
         'VariableName','addEye2Hessian',...
-        'DefaultValue',1e-9,...
+        'DefaultValue',true,...
+        'AdmissibleValues',{false,true},...        
         'Description',{
-            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.';
-            'A larger value for |addEye2Hessian| has two main effects:'
+            'When |true|, adds to the Hessian matrix identity matrices scaled by a small constant,'
+            'whose value is set when the solver is called.'
+            ' '
+            'A larger value for the scaling constant has two main effects:'
             '1) Improves the numerical conditioning of the system of equations that'
             '   finds the Newton search direction.';
             '2) Moves the search direction towards the gradient descent of';
@@ -325,56 +328,34 @@ function varargout=cmex2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]...
-        =ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
-                  smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                  scaleInequalities,scaleCost,scaleEqualities,...
-                  useLDL,umfpack,...
-                  classname,allowSave,debugConvergence);
+    Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+                 smallerNewtonMatrix,addEye2Hessian,skipAffine,...
+                 scaleInequalities,scaleCost,scaleEqualities,...
+                 useLDL,umfpack,...
+                 classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     
     % Replace solver variables into output expression
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('Hess_',size(Hess__),true),Hess__);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('dHess_',size(dHess__),true),dHess__);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('Grad_',size(Grad__),true),Grad__);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('mu_',size(mu),true),mu);
-
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('u_',size(u),true),u);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('G_',size(G),true),G);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('F_',size(F),true),F);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('nu_',size(nu),true),nu);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('lambda_',size(lambda),true),lambda);
-
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('Du1_',size(Du1__),true),Du1__);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('DfDu1_',size(DfDu1__),true),DfDu1__);
-    outputExpressions=substitute(outputExpressions,...
-                                 Tvariable('D2fDu1_',size(D2fDu1__),true),D2fDu1__);
-    
-    
+    fn=fields(Tout);
+    for i=1:length(fn)
+        varname=sprintf('%s_',fn{i});
+        outputExpressions=substitute(outputExpressions,...
+                                     Tvariable(varname,size(Tout.(fn{i})),true),Tout.(fn{i}));
+    end    
     
     %% Declare ipm solver 
     classhelp{end+1}='Solve optimization';
-    classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));';
+    classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
     if ~isempty(simulinkLibrary)
         template(end).Sfunction=sprintf('%sS_solve',classname);
     end
     template(end).Cfunction='ipmPD_CSsolver';
     template(end).method='solve';
-    template(end).inputs(1) =struct('type','double','name','mu0','sizes',1);
-    template(end).inputs(2) =struct('type','int32','name','maxIter','sizes',1);
-    template(end).inputs(3) =struct('type','int32','name','saveIter','sizes',1);
+    template(end).inputs(1) =struct('type','double','name','mu0','sizes',1,'default',1);
+    template(end).inputs(2) =struct('type','int32','name','maxIter','sizes',1,'default',200);
+    template(end).inputs(3) =struct('type','int32','name','saveIter','sizes',1,'default',-1);
+    template(end).inputs(4) =struct('type','double','name','addEye2Hessian','sizes',1,'default',1e-9);
     template(end).outputs(1)=struct('type','int32','name','status','sizes',1);
     template(end).outputs(2)=struct('type','int32','name','iter','sizes',1);
     template(end).outputs(3)=struct('type','double','name','time','sizes',1);

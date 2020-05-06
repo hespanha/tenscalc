@@ -113,7 +113,6 @@ function varargout=Tvars2optimizeCS(varargin)
     end
 
     classname='dummy';
-    Tout=struct();
     scratchbookType='double';
     fastRedundancyCheck='false';
     outputExpressions={};
@@ -224,8 +223,7 @@ function varargout=Tvars2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    [Hess__,dHess__,Grad__,mu,Du1__,DfDu1__,D2fDu1__]...
-        =ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+    Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
                   smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                   scaleInequalities,scaleCost,scaleEqualities,...
                   useLDL,umfpack,...
@@ -234,10 +232,12 @@ function varargout=Tvars2optimizeCS(varargin)
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
-    for i=1:length(optimizationVariables)
-        fld=name(optimizationVariables{i});
-        Tout.(fld)=optimizationVariables{i};
+    fn=fields(Tout);
+    for i=1:length(fn)
+        varname=sprintf('%s_',fn{i});
+        Tout.(fn{i})=Tvariable(varname,size(Tout.(fn{i})));
     end
+
     for i=1:length(constraints)
         switch type(constraints{i})
           case 'ispositive'
@@ -259,19 +259,7 @@ function varargout=Tvars2optimizeCS(varargin)
         fld=name(nus{i});
         Tout.(fld)=nus{i};
     end
-    Tout.Hess=Tvariable('Hess_',size(Hess__));
-    Tout.dHess=Tvariable('dHess_',size(dHess__));
-    Tout.Grad=Tvariable('Grad_',size(Grad__));
-    Tout.mu=Tvariable('mu_',size(mu));
-    Tout.u=Tvariable('u_',size(u));
-    Tout.ineq=Tvariable('F_',size(F));
-    Tout.eq=Tvariable('G_',size(G));
-    Tout.nu=Tvariable('nu_',size(nu));
-    Tout.lambda=Tvariable('lambda_',size(lambda));
-    Tout.Du1=Tvariable('Du1_',size(Du1__));
-    Tout.DfDu1=Tvariable('DfDu1_',size(DfDu1__));
-    Tout.D2fDu1=Tvariable('D2fDu1_',size(D2fDu1__));
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

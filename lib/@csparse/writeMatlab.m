@@ -198,14 +198,17 @@ for i=1:length(obj.gets)
         fprintf(fid,'%c%s',sep,tmpl.outputs(j).name);
         sep=',';
     end
-    if length(obj.gets(i).functionName)>namelengthmax
+    if length(obj.gets(i).functionName)+1>namelengthmax
         error('function name is too long "%s"',obj.gets(i).functionName);
     end
     if verboseLevel>0
         fprintf(']=%s(obj)\n',obj.gets(i).functionName);
     end
-    fprintf(fid,']=%s(obj)\n',obj.gets(i).functionName);
-    
+    if nSources>1
+        fprintf(fid,']=%s_(obj)\n',obj.gets(i).functionName);
+    else
+        fprintf(fid,']=%s(obj)\n',obj.gets(i).functionName);
+    end
     % write function body
     if obj.debug>0
         fprintf(fid,'      fprintf(''running %s\\n'');\n',obj.gets(i).functionName);
@@ -221,18 +224,23 @@ for i=1:length(obj.gets)
         fprintf(fid,'      %s=obj.m%d;\n',tmpl.outputs(j).name,obj.memoryLocations(instructions));
     end
     fprintf(fid,'    end\n');
-    if nSources>0
+    if nSources>1
         % output as structure
         if length(obj.gets(i).functionName)+7>namelengthmax
             error('function name is too long "%s"',obj.gets(i).functionName);
         end
-        fprintf(fid,'    function y=%s_struct(obj)\n      ',obj.gets(i).functionName);
+        fprintf(fid,'    function varargout=%s(obj)\n',obj.gets(i).functionName);
+        fprintf(fid,'       if nargout>1\n');
+        fprintf(fid,'         varargout=cell(nargout,1);[varargout{:}]=%s_(obj);\n',obj.gets(i).functionName);
+        fprintf(fid,'       else\n');
+        fprintf(fid,'         ');
         sep='[';
         for j=1:nSources
-            fprintf(fid,'%cy.%s',sep,tmpl.outputs(j).name);
+            fprintf(fid,'%cvarargout{1}.%s',sep,tmpl.outputs(j).name);
             sep=',';
         end
-        fprintf(fid,']=%s(obj);\n',obj.gets(i).functionName);
+        fprintf(fid,']=%s_(obj);\n',obj.gets(i).functionName);
+        fprintf(fid,'       end\n');
         fprintf(fid,'    end\n');
     end
 end
@@ -296,8 +304,7 @@ for i=1:length(obj.externalFunctions)
 
     % append function
     fic=fopen(obj.externalFunctions(i).fileName,'r');
-    rep=true;
-    search='function\s*([^=]*=\s*|)(\w+)(';
+    rep=true;    search='function\s*([^=]*=\s*|)(\w+)(';
     replac=sprintf('function $1%s(',obj.externalFunctions(i).functionName);
     while 1
         tline=fgetl(fic);
