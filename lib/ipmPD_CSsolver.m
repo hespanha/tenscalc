@@ -28,9 +28,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         saveIter=-1;
     end    
     if nargin<5
-        addEye2Hessian=1e-9;
+        addEye2Hessian=1e-20;
     end
-    
+
     function printf2(varargin)
         if obj.verboseLevel>=2
             fprintf(varargin{:});
@@ -45,7 +45,16 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     
     iter=0;
     
-    setAddEye2Hessian__(obj,addEye2Hessian);
+    addEye2Hessian1=addEye2Hessian;
+    addEye2Hessian2=addEye2Hessian;
+
+    if obj.smallerNewtonMatrix
+        mpDesired=obj.nU;
+        mnDesired=obj.nG;
+    else
+        mpDesired=obj.nU;
+        mnDesired=obj.nF+obj.nG;
+    end
 
     if obj.nF>0
         mu=mu0;
@@ -95,7 +104,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         iter,1/sqrt(obj.debugConvergenceThreshold),length(k));
                 if obj.verboseLevel>=4
                     for ii=k(:)'
-                        printf2('\t ineq %4d: %9.2e\n',ii,full(F_(ii)));
+                        fprintf('\t ineq %4d: %9.2e\n',ii,full(F_(ii)));
                     end
                 end
             end
@@ -116,16 +125,16 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             dt1=clock();
         end        
         
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Check exit conditions %%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
         if iter > maxIter 
             printf3('maximum # iterations (%d) reached.\n',maxIter);
             status = 8;
             break; 
         end
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% Check exit conditions %%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
         if obj.verboseLevel>=3 || obj.debugConvergence
             J=getJ__(obj);
         end
@@ -136,6 +145,78 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         norminf_grad=getNorminf_Grad__(obj);
         printf3('%10.2e',full(norminf_grad));
         
+        if isnan(norminf_grad) 
+            printf2('  -> failed to invert hessian\n');
+            status = 4;
+            break;
+        end
+        
+        if obj.nG>0
+            norminf_eq=getNorminf_G__(obj);
+            printf3('%10.2e',full(norminf_eq));
+        else
+            printf3('    -eq-  ');
+        end
+        
+        if obj.nF>0
+            [gap,ineq,dual]=getGapMinFMinLambda__(obj);
+            printf3('%10.2e%10.2e%10.2e',full(ineq),full(dual),full(gap));
+            if (ineq<=0) 
+                printf2('  -> (primal) variables violate constraints\n');
+                status = 1;
+                break;
+            end
+            if (dual<=0) 
+                printf2('  -> negative value for dual variables\n');
+                    status = 2;
+                    break;
+            end
+        else
+            printf3('   -ineq-    -dual-    -gap-  ');
+        end
+        
+        if norminf_grad<=obj.gradTolerance && ...
+                (obj.nF==0 || gap<=obj.desiredDualityGap) && ...
+                (obj.nG==0 || norminf_eq<=obj.equalTolerance)
+            printf2('  -> clean exit\n');
+            status = 0;
+            break;
+        end
+        
+        if obj.nF>0
+            printf3('%10.2e',mu);
+        else
+            printf3('   -mu-   ');
+        end
+
+        setAddEye2Hessian1__(obj,addEye2Hessian1);
+        setAddEye2Hessian2__(obj,addEye2Hessian2);
+        if obj.useLDL 
+            [mp,mn]=getHessInertia__(obj);
+            if mp==mpDesired && mn==mnDesired
+                if obj.verboseLevel>=4
+                    fprintf('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
+                            addEye2Hessian1,addEye2Hessian2,mp,mn,mpDesired,mnDesired);
+                end
+                addEye2Hessian1=addEye2Hessian;%max(1e-20,.5*addEye2Hessian1);                
+                addEye2Hessian2=addEye2Hessian;%max(1e-20,.5*addEye2Hessian2);                
+            else
+                addEye2Hessian1=1e-8*mu^.25;
+                setAddEye2Hessian1__(obj,addEye2Hessian1);
+                for in=1:10
+                    printf3('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
+                            addEye2Hessian1,addEye2Hessian2,mp,mn,mpDesired,mnDesired);
+                    [mp,mn]=getHessInertia__(obj);
+                    if mn<mnDesired & addEye2Hessian2<1e2
+                        addEye2Hessian2=10*addEye2Hessian2;
+                        setAddEye2Hessian2__(obj,addEye2Hessian2);
+                    else
+                        break;
+                    end
+                end
+            end
+        end
+
         if obj.debugConvergence 
             Lf=getLf__(obj);
             fprintf(' Lf = %9.2e ',Lf);
@@ -146,7 +227,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 printf2('\n%3d: ATTENTION: cost > %10.2e - cost is probably too large\n',...
                             iter,obj.debugConvergenceThreshold);
             end
-            %% Hessian Large
+            %% Hessian with Large entriesarge
             Hess=getHess__(obj);
             tol=1e6;
             [i1,i2]=find(Hess>tol);
@@ -216,9 +297,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             % sort(eig(full(H2))'),;
             % sort(eig(full(Hess))'),;
             % format short 
-        end
 
-        if obj.debugConvergence 
             if norminf_grad>obj.debugConvergenceThreshold
                 grad_=getGrad__(obj);
                 k=find(abs(grad_)>obj.debugConvergenceThreshold);
@@ -230,9 +309,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     end
                 end
             end
-        end
 
-        if obj.debugConvergence 
             g_th=max(abs(J-lastJ)*obj.debugConvergenceThreshold,10*obj.gradTolerance);
             if abs(J-lastJ)<1/obj.debugConvergenceThreshold && norminf_grad>g_th
                 grad_=getGrad__(obj);
@@ -246,51 +323,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 end
             end
             lastJ=J;
-        end
-        
-        if isnan(norminf_grad) 
-            printf2('  -> failed to invert hessian\n');
-            status = 4;
-            break;
-        end
-        
-        if obj.nG>0
-            norminf_eq=getNorminf_G__(obj);
-            printf3('%10.2e',full(norminf_eq));
-        else
-            printf3('    -eq-  ');
-        end
-        
-        if obj.nF>0
-            [gap,ineq,dual]=getGapMinFMinLambda__(obj);
-            printf3('%10.2e%10.2e%10.2e',full(ineq),full(dual),full(gap));
-            if (ineq<=0) 
-                printf2('  -> (primal) variables violate constraints\n');
-                status = 1;
-                break;
-            end
-            if (dual<=0) 
-                printf2('  -> negative value for dual variables\n');
-                    status = 2;
-                    break;
-            end
-        else
-            printf3('   -ineq-    -dual-    -gap-  ');
-        end
-        
-        if norminf_grad<=obj.gradTolerance && ...
-                (obj.nF==0 || gap<=obj.desiredDualityGap) && ...
-                (obj.nG==0 || norminf_eq<=obj.equalTolerance)
-            printf2('  -> clean exit\n');
-            status = 0;
-            break;
-        end
-        
-        if obj.nF>0
-            printf3('%10.2e',mu);
-        else
-            printf3('   -mu-   ');
-        end
+        end        
         
         % WW__=getWW__(obj)
         % b_s__=getb_s__(obj)
@@ -372,7 +405,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
                 th_eq=(obj.nG==0) || (norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance);
                 if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad 
-                    sigma=getRho__(obj);
+                    sigma=full(getRho__(obj));
                     if (sigma>1) sigma=1; end
                     if (sigma<0) sigma=0; end
                     if obj.delta==2
@@ -381,7 +414,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         sigma=sigma*sigma*sigma;
                     end
                     printf3('%10.2e',sigma);
-                    mu=max(sigma*gap/obj.nF,muMin);
+                    mu=full(max(sigma*gap/obj.nF,muMin));
                     setMu__(obj,mu); 
                 else 
                     printf3('  -sigma- ');

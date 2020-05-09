@@ -22,7 +22,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-%profile on
+profile clear;profile on
 
     nowarningsamesize=true;
     nowarningever=true;
@@ -81,11 +81,14 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     out.Lf_u=f_u;
     
     if addEye2Hessian
-        addEye2Hessian=Tvariable('addEye2Hessian__',[],nowarningsamesize,nowarningever);
+        addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
+        addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
     else
-        addEye2Hessian=Tzeros([]);
+        addEye2Hessian1=Tzeros([]);
+        addEye2Hessian2=Tzeros([]);
     end
-    declareSet(code,addEye2Hessian,'setAddEye2Hessian__');
+    declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
+    declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
     
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
@@ -165,8 +168,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
         LPG=tprod(lambda./F,1,F_u,[1,2]);
         WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')...
-              +tprod(addEye2Hessian,[],Teye(size(out.Lf_uu)),[1,2]),G_u';
-              G_u,tprod(-addEye2Hessian,[],Teye([nG,nG]),[1,2])];
+              +tprod(addEye2Hessian1,[],Teye(size(out.Lf_uu)),[1,2]),G_u';
+              G_u,tprod(-addEye2Hessian2,[],Teye([nG,nG]),[1,2])];
         % out.Hess=[out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate'),G_u';
         %        G_u,Tzeros([nG,nG])];
         out.Hess=WW;
@@ -175,6 +178,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
+            tol=1e-10;
+            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
         end
@@ -256,9 +261,9 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %% Large matrix %%
         %%%%%%%%%%%%%%%%%%
 
-        WW=[out.Lf_uu+tprod(addEye2Hessian,[],Teye(size(out.Lf_uu)),[1,2]),G_u',-F_u';
-            G_u,-tprod(addEye2Hessian,[],Teye([nG,nG]),[1,2]),Tzeros([nG,nF]);
-            -F_u,Tzeros([nF,nG]),-diag(F./lambda)-tprod(addEye2Hessian,[],Teye([nF,nF]),[1,2])];
+        WW=[out.Lf_uu+tprod(addEye2Hessian1,[],Teye(size(out.Lf_uu)),[1,2]),G_u',-F_u';
+            G_u,-tprod(addEye2Hessian2,[],Teye([nG,nG]),[1,2]),Tzeros([nG,nF]);
+            -F_u,Tzeros([nF,nG]),-diag(F./lambda)-tprod(addEye2Hessian2,[],Teye([nF,nF]),[1,2])];
         % out.Hess=[out.Lf_uu,G_u',-F_u';
         %        G_u,Tzeros([nG,nG+nF]);
         %        -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
@@ -267,6 +272,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
+            tol=1e-10;
+            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
         end
@@ -398,8 +405,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
     fprintf('  done ipmPD_CS symbolic computations (%.3f sec)\n',etime(clock(),t1));
     
-    %profile off
-    %profile viewer
+    profile off;profile viewer
     
 end
 

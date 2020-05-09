@@ -40,7 +40,8 @@
 extern void initPrimalDual__();
 extern void initDualEq__();
 extern void initDualIneq__();
-extern void setAddEye2Hessian__(const double *addEye2Hessian);
+extern void setAddEye2Hessian1__(const double *addEye2Hessian);
+extern void setAddEye2Hessian2__(const double *addEye2Hessian);
 extern void updatePrimalDual__();
 extern void scaleIneq__();
 extern void scaleCost__();
@@ -131,6 +132,10 @@ EXPORT void ipmPD_CSsolver(
 {
   *iter=0; // iteration number
 
+  double addEye2Hessian1=*addEye2Hessian;
+  double addEye2Hessian2=*addEye2Hessian;
+  double mp,mn;
+
 #ifdef DEBUG
   double buffer[(nU+nF+nG)*(nU+nF+nG)];
 #endif
@@ -171,12 +176,10 @@ EXPORT void ipmPD_CSsolver(
   clock_t dt1;
 #endif
 
-  setAddEye2Hessian__(addEye2Hessian);
-
   //initPrimalDual__();
   initPrimal__();
 
-#if scaleCost>0
+#if scaleCost != 0 
   scaleCost__();
 #endif
 
@@ -272,6 +275,37 @@ EXPORT void ipmPD_CSsolver(
     printf3("   -mu-   ");
 #endif
 
+  setAddEye2Hessian1__(&addEye2Hessian1);
+  setAddEye2Hessian2__(&addEye2Hessian2);
+
+#define mpDesired nU
+#if smallerNewtonMatrix==1
+#define mnDesired nG
+#else
+#define mnDesired (nF+nG)
+#endif
+
+#if useLDL==1 && umfpack==0
+  getHessInertia__(&mp,&mn);
+  if (mp==mpDesired && mn==mnDesired) {
+    addEye2Hessian1=*addEye2Hessian;
+    addEye2Hessian2=*addEye2Hessian;
+  } else {
+    addEye2Hessian1=1e-8*pow(mu,.25);
+    setAddEye2Hessian1__(&addEye2Hessian1);
+    for (int in=0;in<10;in++) {
+      printf3("\n   addEye2Hess=%7.1e %7.1e, inertia= %4.0f %4.0f (desired=%4d %4d)     ",
+	      addEye2Hessian1,addEye2Hessian2,mp,mn,mpDesired,mnDesired);
+      getHessInertia__(&mp,&mn);
+      if (mn<mnDesired & addEye2Hessian2<1e2) {
+	addEye2Hessian2=10*addEye2Hessian2;
+	setAddEye2Hessian2__(&addEye2Hessian2);
+      } else
+	break;
+    }
+  }
+#endif
+    
 #if nF==0
     /****************************************/
     /******  NO INEQUALITY CONSTRAINTS ******/
