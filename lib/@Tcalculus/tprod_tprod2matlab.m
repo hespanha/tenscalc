@@ -18,14 +18,25 @@ function obj=tprod_tprod2matlab(obj)
 
     verboseLevel=1;
 
-    old_size=size(obj);
+    global TCsymbolicExpressions;
 
-    % collects operands and convert nested tprods
-    ops=operands(obj);
+    % directly access osize to improve performance
+    %old_size=size(obj;
+    old_size=obj.osize;
+
+    %% collects operands and convert nested tprods
+
+   
+    % directly access operands to improve performance
+    %ops=operands(obj);
+    ops=TCsymbolicExpressions(obj.TCindex).operands;
+    
     objs=cell(length(ops),1);
     changed=false;
     for i=1:length(ops)
-        objs{i}=Tcalculus(ops(i));
+        % provide size to speed up object creation
+        % objs{i}=Tcalculus(ops(i));
+        objs{i}=Tcalculus(ops(i),TCsymbolicExpressions(ops(i)).osize);
         objs{i}=tprod_tprod2matlab(objs{i});
         if ops(i)~=objs{i}.TCindex
             changed=true;
@@ -33,11 +44,16 @@ function obj=tprod_tprod2matlab(obj)
         end
     end
     
-    if ~strcmp(type(obj),'tprod')
+    % directly access type to improve performance
+    %if ~strcmp(type(obj),'tprod')
+    if ~strcmp(TCsymbolicExpressions(obj.TCindex).type,'tprod')
         if changed
             obj=Tcalculus(type(obj),size(obj),parameters(obj),ops,op_parameters(obj),file_line(obj));
         end
-        if ~myisequal(size(obj),old_size)
+        % directly access osize to improve performance
+        %if ~myisequal(size(obj),old_size)
+        %if ~myisequal(obj.osize,old_size)
+        if length(obj.osize)~=length(old_size) || any(obj.osize~=old_size)
             error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
         end
         return
@@ -47,7 +63,9 @@ function obj=tprod_tprod2matlab(obj)
     %% sort indices
     [inds,objs]=sortIndices(inds,objs);
 
-    tprod_size=size(obj);
+    % directly access osize to improve performance
+    %tprod_size=size(obj);
+    tprod_size=obj.osize;
     sums_size=parameters(obj);
          
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

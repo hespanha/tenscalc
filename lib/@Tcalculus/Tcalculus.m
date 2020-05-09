@@ -30,11 +30,11 @@ classdef Tcalculus
         osize      % size for quick access without reading the table
     end
 
-    properties (GetAccess = {?csparse},SetAccess = {})
-    end
+    % properties (GetAccess = {?csparse},SetAccess = {})
+    % end
     
-    properties (GetAccess = {},SetAccess = 'private');
-    end
+    % properties (GetAccess = {},SetAccess = 'private');
+    % end
 
     methods (Static)
         function clear()
@@ -100,20 +100,33 @@ classdef Tcalculus
         %                  called  addTC2table
         %             etc
         % hash - for faster search
-            if nargin==0
-                error('Tcalculus cannot be created without arguments (nargin=%d, nargout=%d)',...
-                      nargin,nargout);
+            if nargin==2
+                % create object for entry already in TCsymbolicExpressions
+                % if size is given, no need to access table
+                obj.TCindex=type;
+                obj.osize=osize;
+                return
             end
             
+            global TCsymbolicExpressions
+
+            if ~isempty(TCsymbolicExpressions) && ~isstruct(TCsymbolicExpressions)
+                error('unexpected global variable TCsymbolicExpressions\n')
+            end
+
             if nargin==1
                 % create object for entry already in TCsymbolicExpressions
-                global TCsymbolicExpressions
                 if type>length(TCsymbolicExpressions)
                     error('Reference to symbolic variable erased by Tcalculus.clear()\n')
                 end
                 obj.TCindex=type;
                 obj.osize=TCsymbolicExpressions(type).osize;
                 return
+            end
+            
+            if nargin==0
+                error('Tcalculus cannot be created without arguments (nargin=%d, nargout=%d)',...
+                      nargin,nargout);
             end
             
             if nargin<7
@@ -140,8 +153,6 @@ classdef Tcalculus
 
             % add new entry to TCsymbolicExpressions
 
-            global TCsymbolicExpressions TCsymbolicExpressionsHash
-
             if isempty(osize) 
                 % make size uniform to make sure isequal works when
                 % comparing size (technically not needed since we
@@ -154,9 +165,8 @@ classdef Tcalculus
                 error('internal error, operands should be numeric');
             end
                 
-            if ~isempty(TCsymbolicExpressions) && ~strcmp(class(TCsymbolicExpressions),'struct')
-                error('unexpected global variable TCsymbolicExpressions\n')
-            end
+            global TCsymbolicExpressionsHash
+
             ohash=sum(type)+sum(osize)+sum(operands);
             if ~isempty(TCsymbolicExpressions)
                 if isequal(type,'variable')
