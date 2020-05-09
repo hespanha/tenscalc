@@ -31,6 +31,8 @@ function computeScalarInstructions(obj,ks,folder)
 %    ks=1:height(obj.vectorizedOperations);
 %end
 
+%profile on;profile clear;
+    
 if nargin<3
     folder='.';
 end
@@ -474,5 +476,7 @@ for jj=1:length(ks)
 end
 
 %fprintf('    done computeScalarInstructions (%.3f sec)\n',etime(clock(),t0));
+
+%profile off;profile viewer;
 
 end

@@ -208,7 +208,6 @@ classdef csparse < handle
             if nargin<4
                 fastRedundancyCheck=false;
             end
-            
                 
             obj.scratchbookType=scratchbookType;
             obj.debug=debug;
@@ -1292,11 +1291,14 @@ classdef csparse < handle
             
             fprintf('  computeScalarInstructions...\n');t0=clock;
             checkVariableSets(obj);
+            %profile clear;profile on;
             computeScalarInstructions(obj,1:height(obj.vectorizedOperations),folder);
-            fprintf('    done (%.3f sec)\n',etime(clock(),t0));
+            %profile off;profile viewer;
+
+            fprintf('    done computeScalarInstructions (%.3f sec)\n',etime(clock(),t0));
             fprintf('  dependencyGroups... ');t0=clock;
             dependencyGroups(obj);
-            fprintf('done computeScalarInstructions (%.3f sec)\n',etime(clock(),t0));
+            fprintf('done dependencyGroups (%.3f sec)\n',etime(clock(),t0));
 
             fprintf('  compile2C: %d added vectorized Operations, %d unique vectorized Operations\n',...
                     obj.nAddedVectorizedOperations,height(obj.vectorizedOperations));
