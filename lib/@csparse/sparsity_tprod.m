@@ -40,6 +40,10 @@ end
 %% Compute sparsity pattern
 dimY=0;
 nSums=0;
+osizeX=cell(length(operands),1);
+subsX=cell(length(operands),1);
+instrX=cell(length(operands),1);
+nnzX=cell(length(operands),1);
 for i=1:length(operands)
     osizeX{i}=getOne(obj.vectorizedOperations,'osize',operands(i));
     subsX{i}=getOne(obj.vectorizedOperations,'subscripts',operands(i));
@@ -62,7 +66,7 @@ for i=1:length(operands)
     uindi=unique(parameters{i});
     if length(uindi)~=length(parameters{i})
         k=1;
-        kk=max(find(parameters{i}(k)==parameters{i}));
+        kk=find(parameters{i}(k)==parameters{i},'last');
         while kk>k
             % k & kk are equal
             % parameters{i},k,kk
@@ -108,7 +112,7 @@ for i=1:length(operands)
             % prepare for next one
             k=k+1;
             if k<length(parameters{i})
-                kk=max(find(parameters{i}(k)==parameters{i}));
+                kk=find(parameters{i}(k)==parameters{i},'last');
             else
                 kk=-inf;
             end
@@ -186,7 +190,6 @@ subsYS(ind,:)=repmat(subs,1,size(subsX{i},2));
 subsYS(parameters{i},:)=kron(double(subsX{i}),ones(1,size(subs,2)));
 instrYS=zeros(length(operands),size(subsYS,2));
 instrYS(i,:)=kron(double(instrX{i}(:)'),ones(1,size(subs,2)));
-
 %% Expand remaining operators
 for i=operandOrder(2:end)
     % Look only within existing expansion
@@ -207,30 +210,72 @@ end
 %subsYS
 %subsYS(nSums+1:end,:)
 
-% find nonzero entries of tprod
+%% find nonzero entries of tprod
 [subsY,ia,ic]=unique(subsYS(nSums+1:end,:)','rows');
 subsY=subsY';
 
 if verboseLevel<=1 && length(ia)>20000
     verboseLevel=2;
-    fprintf('   Computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
+    fprintf('    computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
 end
+
+% sort by ic to simplify going over variables with same ic
+if ~isequal(subsYS(nSums+1:end,:),subsY(:,ic)) || ~isequal(subsY(:,:),subsYS(nSums+1:end,ia))
+    size(subsYS(nSums+1:end,:)),size(subsY(nSums+1:end,ic)),;
+    size(subsY(nSums+1:end,:)),size(subsYS(nSums+1:end,ia)),;
+    error('before');
+end
+% before: subsYS=subsY(:,ic), subsY=subsYS(:,ia)
+[ic,k]=sort(ic);
+% after: subsYS(:,k)=subsY(:,ic), subsY=subsYS(:,ia)
+if ~isequal(subsYS(nSums+1:end,k),subsY(:,ic)) || ~isequal(subsY(:,:),subsYS(nSums+1:end,ia))
+    error('after');
+end
+subsYS=subsYS(:,k);
+instrYS=instrYS(:,k);
 
 %% Compute instructions
 instrY=nan(size(subsY,2),1);
-% ATTENTION: very slow, needs to be sped up
-for i=1:length(ia)
-    if verboseLevel>1 && mod(i,5000)==0
-        fprintf('%d ',i);
+if 0
+    % ATTENTION: find(ic==i) is very slow, needs to be sped up
+    for i=1:length(ia)
+        if verboseLevel>1 && mod(i,5000)==0
+            fprintf('%d ',i);
+        end
+        k=find(ic==i);
+        if size(instrYS,1)==1 && length(k)==1
+            % no need for any sum_prod
+            instrY(i)=instrYS(1,k);
+        else
+            %fprintf('sumprod %d prods, %d sums\n',size(instrYS,1),length(k));
+            instrY(i)=newInstruction(obj,obj.Itypes.I_sumprod,...
+                                     [size(instrYS,1),length(k)],instrYS(:,k),thisExp);
+        end
     end
-    k=find(ic==i);
-    if size(instrYS,1)==1 && length(k)==1
-        % no need for any sum_prod
-        instrY(i)=instrYS(1,k);
-    else
-        %fprintf('sumprod %d prods, %d sums\n',size(instrYS,1),length(k));
-        instrY(i)=newInstruction(obj,obj.Itypes.I_sumprod,...
-                                 [size(instrYS,1),length(k)],instrYS(:,k),thisExp);
+else
+    % ATTENTION, requires ic to be sorted (must be done above)
+    k1=1;
+    for i=1:length(ia)
+        if verboseLevel>1 && mod(i,5000)==0
+            fprintf('%d ',i);
+        end
+        k2=k1+1;
+        while (k2<=length(ic) && ic(k2)==i); k2=k2+1;end
+        % k=find(ic==i);
+        % if ~myisequal(k',k1:k2-1)
+        %     i, ic(k1:k2-1),
+        %     k,k1:k2-1,;
+        %     error('mismatch');
+        % end
+        if size(instrYS,1)==1 && k2==k1+1
+            % no need for any sum_prod
+            instrY(i)=instrYS(1,k1);
+        else
+            %fprintf('sumprod %d prods, %d sums\n',size(instrYS,1),length(k1:k2-1));
+            instrY(i)=newInstruction(obj,obj.Itypes.I_sumprod,...
+                                     [size(instrYS,1),k2-k1],instrYS(:,k1:k2-1),thisExp);
+        end
+        k1=k2;
     end
 end
 
@@ -240,7 +285,7 @@ subsY=subsY';
 instrY=instrY(k);
 
 if verboseLevel>1
-    fprintf('done %d nnzYS, %d nnzY (%.2f sec)\n',size(subsYS,2),size(subsY,2),etime(clock,t0));
+    fprintf('done %d nnzYS, %d nnzY (%.2f sec)',size(subsYS,2),size(subsY,2),etime(clock,t0));
 end
 
 if verboseLevel>0
@@ -248,7 +293,6 @@ if verboseLevel>0
             ['[',index2str(osizeY),']'],length(instrY),100*length(instrY)/prod(osizeY));
     fprintf(')\n');
 end
-
 
 
 end
