@@ -1,15 +1,19 @@
-function analyzeHess(Hess,Grad,vars,constr,threshold,u,G,F,nu,lambda,mu,dx_s,b_s)
+function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,lambda,mu,dx_s,b_s)
     
     if nargin<5
         threshold=.1;
     end
 
-    fprintf('Problem has %d variables and %d constraints:\n',length(vars),length(constr));
+    if isstruct(optimizationVariables)
+        optimizationVariables=struct2cell(optimizationVariables);
+    end
+
+    fprintf('Problem has %d variables and %d constraints:\n',length(optimizationVariables),length(constr));
     primalVariables=struct();
     k=1;
-    for i=1:length(vars)
-        primalVariables(i).name=name(vars{i});
-        primalVariables(i).size=size(vars{i});
+    for i=1:length(optimizationVariables)
+        primalVariables(i).name=name(optimizationVariables{i});
+        primalVariables(i).size=size(optimizationVariables{i});
         primalVariables(i).range=[k:k+prod(primalVariables(i).size)-1];
         k=primalVariables(i).range(end)+1;
         fprintf('   variable %d:   %-20s\t[%s]\tz[%d..%d]\n',...
