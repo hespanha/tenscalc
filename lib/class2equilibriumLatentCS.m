@@ -170,6 +170,14 @@ function varargout=class2equilibriumLatentCS(varargin)
 
     parameters=checkParameters(parameters);
 
+    if isstruct(P1optimizationVariables)
+        P1optimizationVariables=struct2cell(P1optimizationVariables);
+    end
+
+    if isstruct(P2optimizationVariables)
+        P2optimizationVariables=struct2cell(P2optimizationVariables);
+    end
+
     if ~iscell(P1optimizationVariables)
         P1optimizationVariables
         error('P1optimizationVariables must be a cell array of Tcalculus variables');
@@ -485,6 +493,8 @@ function varargout=class2equilibriumLatentCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
+
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 
     code.statistics.time.csparse=etime(clock,t_csparse);

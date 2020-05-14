@@ -163,6 +163,10 @@ function varargout=class2optimizeCS(varargin)
 
     parameters=checkParameters(parameters);
 
+    if isstruct(optimizationVariables)
+        optimizationVariables=struct2cell(optimizationVariables);
+    end
+
     if ~iscell(optimizationVariables)
         optimizationVariables
         error('optimizationVariables must be a cell array of Tcalculus variables');
@@ -314,7 +318,7 @@ function varargout=class2optimizeCS(varargin)
     %% Declare ipm solver 
     classhelp{end+1}='Solve optimization';
     classhelp{end+1}=...
-        sprintf('[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));');
+        sprintf('[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);');
 
     defines.nU=size(u,1);
     defines.nG=size(G,1);
@@ -351,6 +355,7 @@ function varargout=class2optimizeCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
     
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 

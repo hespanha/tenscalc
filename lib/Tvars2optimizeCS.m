@@ -129,6 +129,10 @@ function varargout=Tvars2optimizeCS(varargin)
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+    if isstruct(optimizationVariables)
+        optimizationVariables=struct2cell(optimizationVariables);
+    end
+
     if ~iscell(optimizationVariables)
         optimizationVariables
         error('optimizationVariables must be a cell array of Tcalculus variables');
@@ -223,7 +227,7 @@ function varargout=Tvars2optimizeCS(varargin)
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
+    Tout_=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
                   smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                   scaleInequalities,scaleCost,scaleEqualities,...
                   useLDL,umfpack,...
@@ -232,10 +236,10 @@ function varargout=Tvars2optimizeCS(varargin)
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
-    fn=fields(Tout);
+    fn=fields(Tout_);
     for i=1:length(fn)
         varname=sprintf('%s_',fn{i});
-        Tout.(fn{i})=Tvariable(varname,size(Tout.(fn{i})));
+        Tout.(varname)=Tvariable(varname,size(Tout_.(fn{i})));
     end
 
     for i=1:length(constraints)

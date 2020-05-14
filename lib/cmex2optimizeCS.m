@@ -172,6 +172,10 @@ function varargout=cmex2optimizeCS(varargin)
 
     parameters=checkParameters(parameters);
 
+    if isstruct(optimizationVariables)
+        optimizationVariables=struct2cell(optimizationVariables);
+    end
+
     if ~iscell(optimizationVariables)
         optimizationVariables
         error('optimizationVariables must be a cell array of Tcalculus variables');
@@ -414,7 +418,7 @@ function varargout=cmex2optimizeCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    classhelp{end+1}=sprintf('[y (struct)]=getOutputs_struct(obj);');
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);');
     declareGet(code,outputExpressions,template(end).Cfunction);
 
     code.statistics.time.csparse=etime(clock,t_csparse);
