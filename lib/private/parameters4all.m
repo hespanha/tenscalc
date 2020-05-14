@@ -21,7 +21,7 @@ function localVariables_=parameters4all(localVariables_)
         'VariableName','gradTolerance',...
         'DefaultValue',1e-4,...
         'Description',{
-            'Maximum norm for the gradient below which the first order optimality'
+            'Maximum infinity norm for the gradient below which the first order optimality'
             'conditions assumed to by met.'
                       });
 
@@ -29,7 +29,7 @@ function localVariables_=parameters4all(localVariables_)
         'VariableName','equalTolerance',...
         'DefaultValue',1e-4,...
         'Description',{
-            'Maximum norm for the vector of equality constraints below which the'
+            'Maximum infinite norm for the vector of equality constraints below which the'
             'equalities are assumed to hold.'
                       });
 
