@@ -216,7 +216,14 @@ and \eqref{eq:inequality-constraints} as
   $\lambda_0\odot F(u_0)=\mu\sbf 1_{M}$.\joao{Starting with $\nu_0=0$ seems to be
     okay. Note that the value of $\nu$ only affects the matrix in the
     left-hand side of \eqref{eq:optimization-linearization-11} when
-    $G(u)$ is nonlinear.}
+    $G(u)$ is nonlinear.} For $\nu$, we can start with a regularized least squares
+  solution to \eqref{eq:primal-dual-equalities}:
+  \begin{align*}
+    \nu_0=&\argmin_\nu \|\nabla_u f(u_0)-\nabla_u F(u_0)'\lambda_0+\nabla G(u_0)'\nu\|^2+\epsilon\|\nu\|^2\\
+    &\eqv \nabla G(u_0)\big(\nabla_u f(u_0)-\nabla_u F(u_0)'\lambda_0+\nabla G(u_0)'\nu)+\epsilon\nu=0\\
+    &\eqv -\nabla G(u_0) w_0+\epsilon\nu=0,\; w_0\eqdef\nabla_u F(u_0)'\lambda_0-\nabla G(u_0)'\nu-\nabla_u f(u_0)\\
+    &\eqv \matt{I & \nabla G(u_0)'\\ \nabla G(u_0)&-\epsilon I}\matt{w_0\\\nu_0}=\matt{\nabla_u F(u_0)'\lambda_0-\nabla_u f(u_0)\\0}
+  \end{align*}
 
 \item Linearize the equations in \eqref{eq:primal-dual-equalities} around a
   current estimate $u_k,\lambda_k,\nu_k$, leading to
