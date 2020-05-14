@@ -22,7 +22,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-profile clear;profile on
+%profile clear;profile on
 
     nowarningsamesize=true;
     nowarningever=true;
@@ -36,6 +36,17 @@ profile clear;profile on
     end
     t1=clock();
     
+    %% Select factorization method
+    if useLDL
+        if atomicFactorization
+            factor=@lu_sym;
+        else
+            factor=@ldl;
+        end        
+    else
+        factor=@lu;
+    end
+
     %% Define all sizes
     nU=length(u);
     nG=length(G);
@@ -121,8 +132,18 @@ profile clear;profile on
         out.Lf_u=out.Lf_u+tprod(G_u,[-1,1],nu,-1);            % Lf_u=Lf_u+G_u'*nu;
 
         % Automatic initialization of nu
+        % simple
         declareCopy(code,nu,Tones(nG),'initDualEq__');
-
+        % complex
+        WW0=[Teye(nU,nU),G_u';G_u,-addEye2Hessian2*Teye(nG,nG)];
+        factor_ww0=factor(WW0,[cmexfunction,'_WW0.subscripts'],[cmexfunction,'_WW0.values']);
+        if atomicFactorization
+            factor_ww0=declareAlias(code,factor_ww0,'factor_ww0',true,nowarningsamesize,nowarningever);
+        end
+        b0=[F_u'*lambda-f_u;Tzeros(nG)];
+        wnu0=factor_ww0\b0;
+        declareCopy(code,nu,wnu0(nU+1:end),'initDualEqX__');
+        
         declareGet(code,norminf(G),'getNorminf_G__');
     else
         G=Tzeros(0);
@@ -149,16 +170,6 @@ profile clear;profile on
     alphaDualIneq=Tvariable('alphaDualIneq__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaDualIneq,'setAlphaDualIneq__');
 
-    if useLDL
-        if atomicFactorization
-            factor=@lu_sym;
-        else
-            factor=@ldl;
-        end        
-    else
-        factor=@lu;
-    end
-    
     fprintf('(%.2f sec)\n    WW...',etime(clock(),t2));
     t2=clock();
     if smallerNewtonMatrix
@@ -178,8 +189,9 @@ profile clear;profile on
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=1e-10;
-            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            tol=-0e-10;
+            declareGet(code,{sum(heaviside(out.dHess-tol)),...
+                             sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
         end
@@ -263,7 +275,7 @@ profile clear;profile on
 
         WW=[out.Lf_uu+tprod(addEye2Hessian1,[],Teye(size(out.Lf_uu)),[1,2]),G_u',-F_u';
             G_u,-tprod(addEye2Hessian2,[],Teye([nG,nG]),[1,2]),Tzeros([nG,nF]);
-            -F_u,Tzeros([nF,nG]),-diag(F./lambda)-tprod(addEye2Hessian2,[],Teye([nF,nF]),[1,2])];
+            -F_u,Tzeros([nF,nG]),-diag(F./lambda)-0*tprod(addEye2Hessian2,[],Teye([nF,nF]),[1,2])];
         % out.Hess=[out.Lf_uu,G_u',-F_u';
         %        G_u,Tzeros([nG,nG+nF]);
         %        -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
@@ -272,7 +284,7 @@ profile clear;profile on
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=1e-10;
+            tol=0e-10;
             declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
@@ -405,7 +417,7 @@ profile clear;profile on
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
     fprintf('  done ipmPD_CS symbolic computations (%.3f sec)\n',etime(clock(),t1));
     
-    profile off;profile viewer
+    %    profile off;profile viewer
     
 end
 

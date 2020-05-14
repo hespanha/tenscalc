@@ -192,11 +192,13 @@ EXPORT void ipmPD_CSsolver(
   setMu__(&mu);
 #endif
 
-#if nG>0
-  initDualEq__();
-#endif
 #if nF>0
   initDualIneq__();
+#endif
+#if nG>0
+  setAddEye2Hessian2__(&addEye2Hessian2);
+  initDualEqX__();
+  //initDualEq__();
 #endif
 
   while (1) {
@@ -284,28 +286,34 @@ EXPORT void ipmPD_CSsolver(
 #else
 #define mnDesired (nF+nG)
 #endif
-
+  
 #if useLDL==1 && umfpack==0
   getHessInertia__(&mp,&mn);
   if (mp==mpDesired && mn==mnDesired) {
-    addEye2Hessian1=*addEye2Hessian;
-    addEye2Hessian2=*addEye2Hessian;
+    addEye2Hessian1 = *addEye2Hessian;
+    addEye2Hessian2 = *addEye2Hessian;
   } else {
-    addEye2Hessian1=1e-8*pow(mu,.25);
+#if nF>0
+    //addEye2Hessian1=1e-8*pow(mu,.25);
+    addEye2Hessian1 = *addEye2Hessian*pow(mu/muMin,.25);
+#else
+    addEye2Hessian1 = *addEye2Hessian;
+#endif    
     setAddEye2Hessian1__(&addEye2Hessian1);
-    for (int in=0;in<10;in++) {
-      printf3("\n   addEye2Hess=%7.1e %7.1e, inertia= %4.0f %4.0f (desired=%4d %4d)     ",
-	      addEye2Hessian1,addEye2Hessian2,mp,mn,mpDesired,mnDesired);
+    while(1) {
       getHessInertia__(&mp,&mn);
-      if (mn<mnDesired & addEye2Hessian2<1e2) {
+      if (mn<mnDesired & addEye2Hessian2<1e-2) {
 	addEye2Hessian2=10*addEye2Hessian2;
 	setAddEye2Hessian2__(&addEye2Hessian2);
-      } else
+      } else {
+	printf3("\n   addEye2Hess=%7.1e %7.1e, inertia= %4.0f %4.0f (desired=%4.0f %4.0f)     ",
+		addEye2Hessian1,addEye2Hessian2,mp,mn,(double)mpDesired,(double)mnDesired);
 	break;
+      }
     }
   }
 #endif
-    
+  
 #if nF==0
     /****************************************/
     /******  NO INEQUALITY CONSTRAINTS ******/
@@ -528,13 +536,18 @@ EXPORT void ipmPD_CSsolver(
 #endif
 	) {
       //mu *= muFactorAggressive;
+#if nF>0
       mu *= MIN(muFactorAggressive,pow(mu,.5));
+#else
+      mu *= muFactorAggressive;
+#endif    
       if (mu < muMin) mu = muMin;
       setMu__(&mu); 
       printf3(" * ");
     } else {
       if (alphaPrimal<.1) {
-	mu *= 1.25;
+	//mu *= 1.25;
+	mu *= 1.1;
 	//if (mu > 1e2) mu = 1e2;
 	if (mu > *mu0) mu = *mu0;
 	setMu__(&mu);
