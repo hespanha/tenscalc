@@ -68,13 +68,17 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             dst{end+1}=Tvariable('scale4IneqD__',size(Fd));
             Fd=dst{end}.*Fd;
         end
-        declareCopy(code,dst,src,'scaleIneq__');
+        if ~isempty(src)
+            declareCopy(code,dst,src,'scaleIneq__');
+        end
     end
     if scaleCost>0
         scale4Cost=Tvariable('scale4Cost__',[]);
         declareCopy(code,scale4Cost,abs(scaleCost/f),'scaleCost__');
         f=scale4Cost*f;
         g=scale4Cost*g;
+        % will also need to scale "desiredGap" to get exist condition that is independent of scaling
+        declareGet(code,scale4Cost,'getScale4Cost__');
     end
 
     fprintf('    getfg()...');
@@ -84,8 +88,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     %% Stack variables
     F=[Fu;Fd];
     lambda=[P1lambda;P2lambda];
-    G=[];
-    nu=[];
+    G=Tzeros(0);
+    nu=Tzeros(0);
     if nGu>0
         G=[G;Gu];
         nu=[nu;P1nu];
@@ -214,6 +218,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
     fprintf('(%.2f sec)\n    2nd derivatives...',etime(clock(),t2));
     t2=clock();
+    
     % Derivatives needed to compute WW
     if nX>0
         Lf_uz=gradientVector(Lf_u,{u,d,x});
@@ -247,6 +252,24 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         G_z=gradientVector(G,{u,d});
     end
 
+    % derivative to confirm if minimum/maximum
+    if nX>0
+        out.Lf_ux=[Lf_u;Lf_x];
+        out.Lf_uxux=gradientVector(out.Lf_ux,{u,x});
+        out.Lg_dx=[Lg_d;Lg_x];
+        out.Lg_dxdx=gradientVector(out.Lg_dx,{d,x});
+    else
+        out.Lf_ux=Lf_u;
+        out.Lf_uxux=gradient(Lf_u,u);
+        out.Lg_dx=Lg_d;
+        out.Lg_dxdx=gradient(Lg_d,d);
+    end
+    
+    if debugConvergence
+        declareGet(code,{out.Lf_ux,out.Lg_dx},'getLf1__');
+        declareGet(code,{out.Lf_uxux,out.Lg_dxdx},'getLf2__');
+    end
+    
     if nF>0
         LFF=tprod(lambda./F,1,F_z,[1,2]); %LFF=diag(lambda./F)*F_z;
 

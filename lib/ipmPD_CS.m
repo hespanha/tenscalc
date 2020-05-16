@@ -69,6 +69,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         scale4Cost=Tvariable('scale4Cost__',[]);
         declareCopy(code,scale4Cost,abs(scaleCost/f),'scaleCost__');
         f=scale4Cost*f;
+        % will also need to scale "desiredGap" to get exist condition that is independent of scaling
+        declareGet(code,scale4Cost,'getScale4Cost__');
     end
     
     fprintf('    getJ()...');
@@ -160,7 +162,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     
     if debugConvergence
         declareGet(code,Lf,'getLf__');
-        declareGet(code,full(out.Lf_uu),'getLfuu__');
+        declareGet(code,out.Lf_uu,'getLfuu__');
     end
     
     alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize,nowarningever);

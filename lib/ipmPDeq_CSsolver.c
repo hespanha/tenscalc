@@ -43,6 +43,7 @@ extern void initDualIneq__();
 extern void updatePrimalDual__();
 extern void scaleIneq__();
 extern void scaleCost__();
+extern void getScale4Cost__(double *scale4Cost);
 extern void setAlphaPrimal__(const double *alpha);
 extern void setAlphaDualEq__(const double *alpha);
 extern void setAlphaDualIneq__(const double *alpha);
@@ -57,19 +58,6 @@ extern void getMinF_a__(double *ineq);
 extern void getMinF_s__(double *ineq);
 extern void getRho__(double *sigma);
 extern void saveWW__(char *filename);
-extern void savedx_s__(char *filename);
-extern void saveb_s__(char *filename);
-
-#if debugConvergence!=0
-extern void getZNL__(double *z,double *nu,double *lambda);
-extern void getFG__(double *F,double *G);
-extern void getDnu_s__(double *dNu_s);
-extern void getDlambda_s__(double *dLambda_s);
-#define printf mexPrintf
-#endif
-
-/* commented out */
-extern void getGap__(double *gap);
 
 #ifdef DYNAMIC_LIBRARY
 #ifdef __APPLE__
@@ -137,18 +125,7 @@ EXPORT void ipmPDeq_CSsolver(
 	       /* outputs */
 	       int32_t *status,
 	       int32_t *iter,
-	       double  *time,
-               double  *z,
-               double  *nu,
-               double  *lambda,
-               double  *dZ_s,
-               double  *dNu_s,
-               double  *dLambda_s,
-               double  *G,
-               double  *F,
-	       double  *alphaPrimal_s,
-	       double  *alphaDualEq_s,
-	       double  *alphaDualIneq_s
+	       double  *time
                )
 {
   *iter=0; // iteration number
@@ -156,8 +133,8 @@ EXPORT void ipmPDeq_CSsolver(
   double norminf_grad,alphaMax_=alphaMax;
 
 #if nF>0
-  double mu=*mu0,muMin=desiredDualityGap/nF/2,gap,ineq,ineq1,dual,
-    alphaPrimal=0,alphaDualEq=0,alphaDualIneq=0;
+  double mu = *mu0,muMin,gap,ineq,ineq1,dual,
+    scale4cost,desiredDualityGapVar=desiredDualityGap,alphaPrimal=0,alphaDualEq=0,alphaDualIneq=0;
 #if skipAffine != 1
   double sigma;
 #endif
@@ -171,10 +148,32 @@ EXPORT void ipmPDeq_CSsolver(
   double f,g;
 #endif
 
-  printf2("%s.c (skipAffine=%d,delta=%g,allowSave=%d): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n",__FUNCTION__,skipAffine,(double)delta,allowSave,nZ,nU,nD,nX,nG,nF);
-  printf3("Iter   cost1      cost2      |grad|     |eq|    inequal     dual      gap       mu      alphaA    sigma     alphaP     alphaI     alphaE   time[us]\n");
+  //initPrimalDual__();
+  initPrimal__();
+
+#if scaleCost != 0 
+  scaleCost__();
+#endif
+
 #if nF>0
-  printf3("%3d: <-maxIter       tol->%10.2e%10.2e                    %10.2e%10.2e\n",*maxIter,gradTolerance,equalTolerance,desiredDualityGap,muMin);
+#if scaleInequalities != 0
+  scaleIneq__();
+#endif
+  setMu__(&mu);
+#if scaleCost != 0
+  getScale4Cost__(&scale4cost);
+  desiredDualityGapVar *= scale4cost;
+#endif
+  muMin=desiredDualityGapVar/nF/2;
+#endif
+
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,nZ,nU,nD,nX,nG,nF);
+#if verboseLevel>=3
+  char *header="Iter   cost1      cost2      |grad|     |eq|    inequal     dual      gap       mu      alphaA    sigma     alphaP     alphaDI    alphaDE  time[us]\n";
+#endif
+  printf3(header);
+#if nF>0
+  printf3("%3d: <-maxIter       tol->%10.2e%10.2e                    %10.2e%10.2e\n",*maxIter,gradTolerance,equalTolerance,desiredDualityGapVar,muMin);
 #else
   printf3("%3d: <-maxIter       tol->%10.2e\n",*maxIter,gradTolerance,equalTolerance);
 #endif
@@ -186,53 +185,26 @@ EXPORT void ipmPDeq_CSsolver(
   clock_t dt1;
 #endif
 
-  //initPrimalDual__();
-  initPrimal__();
-
-#if scaleCost>0
-  scaleCost__();
-#endif
-
-#if nF>0
-#if scaleInequalities!=0
-  scaleIneq__();
-#endif
-  //getGap__(&gap);
-  //if (mu < gap/nF/10) mu = gap/nF/10;
-  setMu__(&mu);
-#endif
-
-#if nG>0
-  initDualEq__();
-#endif
 #if nF>0
   initDualIneq__();
 #endif
-
-  while (1) {
-#if verboseLevel>=3
-    dt1=clock();
+#if nG>0
+  initDualEq__();
 #endif
 
+  while (1) {
     (*iter)++;
+#if verboseLevel>=3
+    if ((*iter) % 50 ==0)
+      printf3(header);
+    dt1=clock();
     printf3("%3d:",*iter);
+#endif
 
     if ((*iter) > (*maxIter)) {
       printf3("maximum # iterations (%d) reached.\n",*maxIter);
       (*status) = 8;
       break; }
-
-#if debugConvergence!=0
-    // get "old" state
-    getZNL__(z,nu,lambda);
-    z+=nZ;
-    nu+=nNu;
-    lambda+=nF;
-
-    getFG__(F,G);
-    G+=nG;
-    F+=nF;
-#endif
 
     /*************************/
     /* Check exit conditions */
@@ -250,19 +222,13 @@ EXPORT void ipmPDeq_CSsolver(
 #if allowSave!=0
 	printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4 (grad)\n");
 	saveWW__(saveNamePrefix "_WW.values");
-	printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4 (grad)\n");
-	savedx_s__(saveNamePrefix "_dx_s.values");
-	printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4 (grad)\n");
-	saveb_s__(saveNamePrefix "_B_s.values");
 #endif
 	break;
       }
 
 #if nG>0
     getNorminf_G__(&norminf_eq);
-#if verboseLevel>=3
     printf3("%10.2e",norminf_eq);
-#endif
 #else
     printf3("    -eq-  ");
 #endif
@@ -285,7 +251,7 @@ EXPORT void ipmPDeq_CSsolver(
 
     if (norminf_grad<=gradTolerance
 #if nF>0
-        && gap<=desiredDualityGap
+        && gap<=desiredDualityGapVar
 #endif
 #if nG>0
         && norminf_eq<=equalTolerance
@@ -315,12 +281,8 @@ EXPORT void ipmPDeq_CSsolver(
 
 #if allowSave!=0
     if ((*iter)==(*saveIter)) {
-      mexPrintf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
+      printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
-      mexPrintf("Saving \"" saveNamePrefix "_dx_s.values\" due to iter = saveIter\n");
-      savedx_s__(saveNamePrefix "_dx_s.values");
-      mexPrintf("Saving \"" saveNamePrefix "_b_s.values\" due to iter = saveIter\n");
-      saveb_s__(saveNamePrefix "_B_s.values");
     }
 #endif
 
@@ -404,29 +366,10 @@ EXPORT void ipmPDeq_CSsolver(
     /** Combined search direction                                     **/
     /*******************************************************************/
 
-#if debugConvergence!=0
-    // get combined search direction
-    getDz_s__(dZ_s);
-    dZ_s+=nZ;
-    getDnu_s__(dNu_s);
-    dNu_s+=nNu;
-    getDlambda_s__(dLambda_s);
-    dLambda_s+=nF;
-#endif
-    
-#if debugConvergence!=0
-    *(alphaPrimal_s++)=alphaPrimal;
-    *(alphaDualIneq_s++)=alphaDualIneq;
-#endif
-    
 #if allowSave!=0
     if ((*iter)==(*saveIter)) {
       printf("Saving \"" saveNamePrefix "_WW.values\" due to iter = saveIter\n");
       saveWW__(saveNamePrefix "_WW.values");
-      printf("Saving \"" saveNamePrefix "_dx_s.values\" due to iter = saveIter\n");
-      savedx_s__(saveNamePrefix "_dx_s.values");
-      printf("Saving \"" saveNamePrefix "_B_s.values\" due to iter = saveIter\n");
-      saveb_s__(saveNamePrefix "_B_s.values");
     }
 #endif
 
@@ -451,19 +394,8 @@ EXPORT void ipmPDeq_CSsolver(
 	  printf2("  -> failed to invert hessian\n");
 	  (*status) = 4;
 #if allowSave!=0
-	  {
-	    /* #define  NWW 357 */
-	    /* double buffer[NWW*NWW]; */
-	    /* extern void getWWW__(double *); */
-	    /* getWW__(buffer); */
-	  }
-	  
-	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4 (ineq)\n");
+	  printf("Saving \"" saveNamePrefix "_WW.values\" due to status = 4\n");
 	  saveWW__(saveNamePrefix "_WW.values");
-	  printf("Saving \"" saveNamePrefix "_dx_s.values\" due to status = 4 (ineq)\n");
-	  savedx_s__(saveNamePrefix "_dx_s.values");
-	  printf("Saving \"" saveNamePrefix "_B_s.values\" due to status = 4 (ineq)\n");
-	  saveb_s__(saveNamePrefix "_B_s.values");
 #endif
 	  break;
 	}
@@ -536,7 +468,7 @@ EXPORT void ipmPDeq_CSsolver(
     //int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
     int th_eq=norminf_eq<MAX(1e-5,1e0*equalTolerance);
 #endif
-    if (alphaPrimal>.5 && th_grad
+    if (alphaPrimal>alphaMax_/2 && th_grad
 #if nG>0
 	&& th_eq
 #endif
@@ -545,17 +477,20 @@ EXPORT void ipmPDeq_CSsolver(
       mu *= MIN(muFactorAggressive,pow(mu,.5));
       if (mu < muMin) mu = muMin;
       setMu__(&mu); 
-      printf3(" *");
+      printf3(" * ");
     } else {
-      mu *= muFactorConservative;
-      if (mu < muMin) mu = muMin;
-      setMu__(&mu);
-      if (alphaPrimal<0*.001) {
+      if (alphaPrimal<.02) {
 	//mu = MIN(1e2,1.25*mu);
-	mu *= 1.25;
-	if (mu > *mu0) mu = *mu0;
+	mu *= 1.1;
+	if (mu > 100* *mu0) mu = 100* *mu0;
 	setMu__(&mu);
 	initDualIneq__();
+	printf3("^");
+      } else {
+	mu *= muFactorConservative;
+	if (mu < muMin) mu = muMin;
+	setMu__(&mu);
+	printf3("v");
       }
 #if verboseLevel>=3
       if (th_grad)
@@ -590,23 +525,7 @@ EXPORT void ipmPDeq_CSsolver(
   if ((*saveIter)==0 && (*status)==0) {
       printf("  Saving \"" saveNamePrefix "_WW.values\" due to saveIter = 0\n");
       saveWW__(saveNamePrefix "_WW.values");
-      printf("Saving \"" saveNamePrefix "_dx_s.values\" due to saveIter = 0\n");
-      savedx_s__(saveNamePrefix "_dx_s.values");
-      printf("Saving \"" saveNamePrefix "_B_s.values\" due to saveIter = 0\n");
-      saveb_s__(saveNamePrefix "_B_s.values");
     }
-#endif
-
-#if debugConvergence!=0
-  // get final state 
-  getZNL__(z,nu,lambda);
-  z+=nZ;
-  nu+=nNu;
-  lambda+=nF;
-  
-  //getFG__(F,G);
-  //G+=nG;
-  //F+=nF;
 #endif
 
   if ((*status)==8) {
@@ -622,7 +541,7 @@ EXPORT void ipmPDeq_CSsolver(
 #endif
 #if nF>0
     getGapMinFMinLambda__(&gap,&ineq,&dual);
-    if (gap>desiredDualityGap) {
+    if (gap>desiredDualityGapVar) {
       (*status) |= 64;
     }
     if (mu>muMin) {
@@ -652,8 +571,37 @@ EXPORT void ipmPDeq_CSsolver(
     getGapMinFMinLambda__(&gap,&ineq,&dual);
 #endif
   }
-  
-  printf2("%3d:status=0x%X, ",(*iter),(*status));
+
+  if (*status) {
+    char sep='(';
+    printf2("%3d:status=0x%X ",(*iter),(*status));
+    if ((*status) & 16) {
+      printf2("%clarge gradient",sep);
+      sep=',';
+    }
+    if ((*status) & 32) {
+      printf2("%cbad equality const.",sep);
+      sep=',';
+    }
+    if ((*status) & 64) {
+      printf2("%clarge duality gap",sep);
+      sep=',';
+    }
+    if ((*status) & 128) {
+      printf2("%clarge mu",sep);
+      sep=',';
+    }
+    if ((*status) & 256) {
+      printf2("%calpha negligible",sep);
+    } else if ((*status) & 512) {
+      printf2("%calpha<.1",sep);
+    } else if ((*status) & 1024) {
+      printf2("%calpha<.5",sep);
+    }
+    printf2(")\n                ");
+  } else {
+    printf2("%3d:status=0x%X, ",(*iter),(*status));
+  }
   printf2("cost=%13.5e,%13.5e",f,g);
 #if nG>0
   printf2(", |eq|=%10.2e",norminf_eq);
@@ -663,6 +611,6 @@ EXPORT void ipmPDeq_CSsolver(
 #endif
   printf2(", |grad|=%10.2e",norminf_grad);
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
-#endif
+#endif  // verboseLevel>=2
 }
 

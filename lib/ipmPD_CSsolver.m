@@ -57,39 +57,40 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         mnDesired=obj.nF+obj.nG;
     end
 
-    if obj.nF>0
-        mu=mu0;
-        alphaPrimal=0;alphaDualEq=0;alphaDualIneq=0;
-        muMin=obj.desiredDualityGap/obj.nF/2;
-    end 
+    %initPrimalDual__(obj);
+    initPrimal__(obj);
     
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%.1e): %d primal variable, %d equality constraints, %d inequality constraints\n',FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,addEye2Hessian,obj.nU,obj.nG,obj.nF);
+    if obj.scaleCost
+        scaleCost__(obj);
+        desiredDualityGap=getScale4Cost__(obj)*obj.desiredDualityGap;
+    else
+        desiredDualityGap=obj.desiredDualityGap;
+    end
+
+    if obj.nF>0
+        if obj.scaleInequalities
+            scaleIneq__(obj);
+        end
+        alphaPrimal=0;alphaDualEq=0;alphaDualIneq=0;
+        mu=mu0;
+        setMu__(obj,mu);
+        muMin=desiredDualityGap/obj.nF/2;
+    end
+    
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%.1e): %d primal variable, %d equality constraints, %d inequality constraints\n',...
+            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,addEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         headers='Iter   cost      |grad|     |eq|     inequal     dual      gap       mu    alphaA    sigma      alphaP     alphaDI    alphaDE       time\n';
         fprintf(headers);
     end
     if obj.nF>0
         printf3('%3d:<-mx tol-> %10.2e%10.2e                    %10.2e%10.2e\n',...
-                maxIter,obj.gradTolerance,obj.equalTolerance,obj.desiredDualityGap,muMin);
+                maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
     else
         printf3('%3d:<-mx tol-> %10.2e%10.2e\n',maxIter,obj.gradTolerance,obj.equalTolerance);
     end
     
     dt0=clock();
-    
-    %initPrimalDual__(obj);
-    initPrimal__(obj);
-    
-    if obj.scaleCost
-        scaleCost__(obj);
-    end
-    
-    if obj.nF>0
-        if obj.scaleInequalities
-            scaleIneq__(obj);
-        end
-        setMu__(obj,mu);
-    end
     
     if obj.nF>0
         initDualIneq__(obj);
@@ -179,7 +180,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
         
         if norminf_grad<=obj.gradTolerance && ...
-                (obj.nF==0 || gap<=obj.desiredDualityGap) && ...
+                (obj.nF==0 || gap<=desiredDualityGap) && ...
                 (obj.nG==0 || norminf_eq<=obj.equalTolerance)
             printf2('  -> clean exit\n');
             status = 0;
@@ -191,6 +192,10 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         else
             printf3('   -mu-   ');
         end
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %% Adjust addEye2Hessian %%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         setAddEye2Hessian1__(obj,addEye2Hessian1);
         setAddEye2Hessian2__(obj,addEye2Hessian2);
@@ -336,12 +341,6 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             lastJ=J;
         end        
         
-        % WW__=getWW__(obj)
-        % b_s__=getb_s__(obj)
-        % dx_s__=getDx_s__(obj)
-        % u__=getU__(obj)
-        % lambda__=getLambda__(obj)
-        
         if obj.nF==0
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%  NO INEQUALITY CONSTRAINTS %%
@@ -414,7 +413,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 % 2) equality constraints fairly well satisfied (perhaps not very important)
                 % 3) small gradient
                 %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance);
+                th_eq=(obj.nG==0) || norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance;
                 if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad 
                     sigma=full(getRho__(obj));
                     if (sigma>1) sigma=1; end
@@ -535,17 +534,13 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 % 2) small gradient
                 % 3) equality constraints fairly well satisfied
                 % (2+3 mean close to the central path)
-                %th_grad            =norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+                %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
                 %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
                 th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
                 th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
                     %mu = max(mu*obj.muFactorAggressive,muMin);
-                    if obj.nF>0
-                        mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
-                    else
-                        mu = max(muMin,mu*obj.muFactorAggressive);
-                    end
+                    mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu); 
                     printf3(' * ');
                 else 
@@ -578,13 +573,13 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 setMu__(obj,mu); 
             end
             
-        end
+        end  % if obj.nF==0
+        
         if obj.verboseLevel>=3
             dt1=etime(clock(),dt1);
             fprintf('%8.1fms\n',dt1*1e3);
         end
         
-        %alphas=[alphas;lphaPrimal,alphaDualEq,alphaDualIneq];
         %%%%%%%%%%%%%%%%%%%%%%%
         %% Debug small alpha %%
         %%%%%%%%%%%%%%%%%%%%%%%
@@ -719,7 +714,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
         if (obj.nF>0)
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
-            if (gap>obj.desiredDualityGap)
+            if (gap>desiredDualityGap)
                 status=bitor(status,64);
             end
             if (mu>muMin)
