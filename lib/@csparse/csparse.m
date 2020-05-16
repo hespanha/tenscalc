@@ -313,7 +313,7 @@ classdef csparse < handle
         % operation loads data from a (full) array into a compiled
         % sparse variable.
             if ~isa(TCdestination,'Tcalculus')
-                error('declareSet 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCdestination));
+                error('declareSet 2nd argument must of class Tcalculus, not ''%s''\n',class(TCdestination));
             end
             
             if isempty(TCdestination)
@@ -381,7 +381,7 @@ classdef csparse < handle
             k=zeros(length(TCsource),1);
             for i=1:length(TCsource)
                 if ~isa(TCsource{i},'Tcalculus')
-                    error('declareGet 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCsource{i}));
+                    error('declareGet 2nd argument must of class Tcalculus, not ''%s''\n',class(TCsource{i}));
                 end
                 
                 k(i)=addTCexpression(obj,TCsource{i});
@@ -437,10 +437,10 @@ classdef csparse < handle
             % remove 0-size variables
             for i=length(TCsource):-1:1
                 if ~isa(TCdestination{i},'Tcalculus')
-                    error('declareCopy 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCdestination{i}));
+                    error('declareCopy 2nd argument must of class Tcalculus, not ''%s''\n',class(TCdestination{i}));
                 end
                 if ~isa(TCsource{i},'Tcalculus')
-                    error('declareCopy 3rd argument must of of class Tcalculus, not ''%s''\n',class(TCsource{i}));
+                    error('declareCopy 3rd argument must of class Tcalculus, not ''%s''\n',class(TCsource{i}));
                 end
                 
                 if prod(size(TCsource{i}))==0
@@ -557,7 +557,7 @@ classdef csparse < handle
             end
             
             if ~isa(TCsource,'Tcalculus')
-                error('declareAlias 2nd argument must of of class Tcalculus, not ''%s''\n',class(TCsource));
+                error('declareAlias 2nd argument must of class Tcalculus, not ''%s''\n',class(TCsource));
             end
             
             k=addTCexpression(obj,TCsource,atomic);

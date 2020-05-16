@@ -460,14 +460,14 @@ for jj=1:length(ks)
     end
 
     if any(isnan(instructions)) 
-        subscripts
-        instructions
+        %subscripts
+        %instructions
         error('computeScalarInstructions: nan instructions for type ''%s''\n',type);
     end
 
     if any(isnan(subscripts(:))) 
-        subscripts
-        instructions
+        %subscripts
+        %instructions
         error('computeScalarInstructions: nan subscripts for type ''%s''\n',type);
     end
 
