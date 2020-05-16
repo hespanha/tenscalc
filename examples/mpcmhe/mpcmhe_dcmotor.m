@@ -19,9 +19,6 @@ clear all
 % remove previous solvers
 %delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
-s = RandStream('mt19937ar','Seed',1);
-RandStream.setGlobalStream(s);
-
 %% Generate solver
 
 % Create symbolic optimization
@@ -45,14 +42,15 @@ Tvariable p  [1,1];
 Tvariable k  [1,1];
 Tvariable r  [1,T-delay];         % [r(t+(delay+1)*Ts), ...,u(t+T*Ts)]
 Tvariable uMax [];
+Tvariable dMax [];
 
 % DC-motor-like transfer function
 % [dot x1]=[0  1][x1]+[0]u
 % [dot x2] [0  p][x2] [k]
 %        y=x1     
 
-dxFun=@(x,u,d,p,k,Ts,r,cc,uMax)[0,1;0,p]*x+[0;k]*(u+d);
-yFun=@(x,u,d,p,k,Ts,r,cc,uMax)x(1,:);    % since yFun only uses 1st argument, it can be called with just one argument
+dxFun=@(x,u,d,p,k,Ts,r,cc,uMax,dMax)[0,1;0,p]*x+[0;k]*(u+d);
+yFun=@(x,u,d,p,k,Ts,r,cc,uMax,dMax)x(1,:);    % since yFun only uses 1st argument, it can be called with just one argument
 
 u=[u_past,u_future];
 
@@ -80,24 +78,31 @@ mpcmhe=Tmpcmhe('reuseSolver',true,...
                'outputFunction',yFun,...
                'objective',J,...
                'controlConstraints',{u_future<=uMax, u_future>=-uMax},...
-               'disturbanceConstraints',{d<=1, d>=-1},...
+               'disturbanceConstraints',{d<=dMax, d>=-dMax},...
                'outputExpressions',{J,JJ,cc,Jcc,x,u_past,u_future,d},...
-               'parameters',{p,k,Ts,r,cc,uMax},...
+               'parameters',{p,k,Ts,r,cc,uMax,dMax},...
                'solverParameters',{;
+                    'scaleCost',0e4,...
                     'alphaMin',1e-4,...
+                    'debugConvergence',false,...
+                    'skipAffine',true,...
                     'solverVerboseLevel',3 ...
                    });
 
 %% Simulate system
 
+s = RandStream('mt19937ar','Seed',1);
+RandStream.setGlobalStream(s);
+
 % set parameter values
 setParameter(mpcmhe,'p',2);
 setParameter(mpcmhe,'k',5);
-setParameter(mpcmhe,'uMax',5);
+setParameter(mpcmhe,'uMax',50);
+setParameter(mpcmhe,'dMax',10);
 Ts=.05;
 setParameter(mpcmhe,'Ts',Ts);
 
-cc=[10;.005;-5e2;-5e2];
+cc=[10;.05;-5e2;-5e2];
 setParameter(mpcmhe,'cc',cc);
 
 % set process initial condition, inputs, disturbances, and noise and
@@ -169,7 +174,7 @@ for i=1:100
     end
     
     [solution,J,JJ,cc,Jcc,x,u_past,u_future,d]=solve(mpcmhe,mu0,maxIter,saveIter);
-    
+    %u_future,d,
     if verbose
         fprintf('solve()\n');
         fprintf('x_opt\n');
@@ -232,9 +237,11 @@ for i=1:100
     end
     
     if solution.status
-        break
+        fprintf('solver failed at time %g (paused)\n',t);
+        pause
     end
 
+    fprintf('paused\n');pause
 end
 
 history=getHistory(mpcmhe);
