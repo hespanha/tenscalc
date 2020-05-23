@@ -96,12 +96,12 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     if addEye2Hessian
         addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
         addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
+        declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
+        declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
     else
         addEye2Hessian1=Tzeros([]);
         addEye2Hessian2=Tzeros([]);
     end
-    declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
-    declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
     
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);

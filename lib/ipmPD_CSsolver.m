@@ -29,8 +29,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     if nargin<4
         saveIter=-1;
     end    
-    if nargin<5
-        addEye2Hessian=1e-20;
+    if obj.addEye2HessianDefine 
+        if nargin<5
+            addEye2Hessian=1e-20;
+        end
+    else
+        addEye2Hessian=0;
     end
 
     function printf2(varargin)
@@ -47,8 +51,10 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     
     iter=0;
     
-    addEye2Hessian1=addEye2Hessian;
-    addEye2Hessian2=addEye2Hessian;
+    if obj.addEye2HessianDefine
+        addEye2Hessian1=addEye2Hessian;
+        addEye2Hessian2=addEye2Hessian;
+    end
 
     mpDesired=obj.nU;
     if obj.smallerNewtonMatrix
@@ -110,7 +116,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     end
     
     if obj.nG>0 
-        setAddEye2Hessian2__(obj,addEye2Hessian2);        
+        if obj.addEye2HessianDefine
+            setAddEye2Hessian2__(obj,addEye2Hessian2);        
+        end
         initDualEqX__(obj);        
         %initDualEq__(obj);
     end
@@ -197,42 +205,44 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         %% Adjust addEye2Hessian %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        setAddEye2Hessian1__(obj,addEye2Hessian1);
-        setAddEye2Hessian2__(obj,addEye2Hessian2);
-        if obj.useLDL 
-            [mp,mn]=getHessInertia__(obj);
-            if ( mp==mpDesired && mn==mnDesired )
-                if obj.verboseLevel>=4
-                    fprintf('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
-                            addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),mpDesired,mnDesired);
-                end
-                addEye2Hessian1=addEye2Hessian;
-                addEye2Hessian2=addEye2Hessian;
-            else
-                %fprintf('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
-                %        addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),mpDesired,mnDesired);
-                if obj.nF>0
-                    %addEye2Hessian1=1e-8*mu^.25;
-                    addEye2Hessian1=addEye2Hessian*(mu/muMin).^.25;
-                else
-                    %addEye2Hessian1=1e-10;
-                    addEye2Hessian1=addEye2Hessian;
-                end
-                setAddEye2Hessian1__(obj,addEye2Hessian1);
-                while 1
-                    [mp,mn]=getHessInertia__(obj);
-                    if mn<mnDesired & addEye2Hessian2<1e-2
-                        addEye2Hessian2=10*addEye2Hessian2;
-                        setAddEye2Hessian2__(obj,addEye2Hessian2);
-                    else
-                        printf3('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
+        if obj.addEye2HessianDefine
+            setAddEye2Hessian1__(obj,addEye2Hessian1);
+            setAddEye2Hessian2__(obj,addEye2Hessian2);
+            if obj.useLDL 
+                [mp,mn]=getHessInertia__(obj);
+                if ( mp==mpDesired && mn==mnDesired )
+                    if obj.verboseLevel>=4
+                        fprintf('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
                                 addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),mpDesired,mnDesired);
-                        break;
+                    end
+                    addEye2Hessian1=addEye2Hessian;
+                    addEye2Hessian2=addEye2Hessian;
+                else
+                    %fprintf('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
+                    %        addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),mpDesired,mnDesired);
+                    if obj.nF>0
+                        %addEye2Hessian1=1e-8*mu^.25;
+                        addEye2Hessian1=addEye2Hessian*(mu/muMin).^.25;
+                    else
+                        %addEye2Hessian1=1e-10;
+                        addEye2Hessian1=addEye2Hessian;
+                    end
+                    setAddEye2Hessian1__(obj,addEye2Hessian1);
+                    while 1
+                        [mp,mn]=getHessInertia__(obj);
+                        if mn<mnDesired & addEye2Hessian2<1e-2
+                            addEye2Hessian2=10*addEye2Hessian2;
+                            setAddEye2Hessian2__(obj,addEye2Hessian2);
+                        else
+                            printf3('\n   addEye2Hess=%7.1e %7.1e, inertia= %4d %4d (desired=%4d %4d)     ',...
+                                    addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),mpDesired,mnDesired);
+                            break;
+                        end
                     end
                 end
             end
         end
-
+        
         if obj.debugConvergence 
             Lf=getLf__(obj);
             fprintf(' Lf = %9.2e ',Lf);

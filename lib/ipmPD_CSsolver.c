@@ -133,9 +133,13 @@ EXPORT void ipmPD_CSsolver(
 {
   *iter=0; // iteration number
 
+#if addEye2HessianDefine != 0
   double addEye2Hessian1=*addEye2Hessian;
   double addEye2Hessian2=*addEye2Hessian;
   double mp,mn;
+#else
+  *addEye2Hessian=0;
+#endif
 
   double norminf_grad,alphaMax_=alphaMax;
 
@@ -196,7 +200,9 @@ EXPORT void ipmPD_CSsolver(
   initDualIneq__();
 #endif
 #if nG>0
+#if addEye2HessianDefine != 0
   setAddEye2Hessian2__(&addEye2Hessian2);
+#endif
   initDualEqX__();
   //initDualEq__();
 #endif
@@ -277,6 +283,7 @@ EXPORT void ipmPD_CSsolver(
     printf3("   -mu-   ");
 #endif
 
+#if addEye2HessianDefine != 0
   setAddEye2Hessian1__(&addEye2Hessian1);
   setAddEye2Hessian2__(&addEye2Hessian2);
 
@@ -312,6 +319,7 @@ EXPORT void ipmPD_CSsolver(
       }
     }
   }
+#endif
 #endif
   
 #if nF==0
@@ -388,7 +396,7 @@ EXPORT void ipmPD_CSsolver(
     // 2) equality constraints fairly well satisfied (perhaps not very important)
     if (alphaPrimal> alphaMax/2
 #if nG>0
-	&& (norminf_eq<100*equalTolerance) || norminf_eq<1e-3)
+	&& (norminf_eq<100*equalTolerance || norminf_eq<1e-3)
 #endif
         ) {
       getRho__(&sigma);
