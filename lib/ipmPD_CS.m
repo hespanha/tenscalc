@@ -181,17 +181,15 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
         LPG=tprod(lambda./F,1,F_u,[1,2]);
         WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')...
-              +tprod(addEye2Hessian1,[],Teye(size(out.Lf_uu)),[1,2]),G_u';
-              G_u,tprod(-addEye2Hessian2,[],Teye([nG,nG]),[1,2])];
-        % out.Hess=[out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate'),G_u';
-        %        G_u,Tzeros([nG,nG])];
+              +addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
+              G_u,-addEye2Hessian2*Teye([nG,nG])];
         out.Hess=WW;
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
         
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=-0e-10;
+            tol=0e-20; % minimum eigenvalue to be considered positive
             declareGet(code,{sum(heaviside(out.dHess-tol)),...
                              sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
@@ -275,18 +273,15 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %% Large matrix %%
         %%%%%%%%%%%%%%%%%%
 
-        WW=[out.Lf_uu+tprod(addEye2Hessian1,[],Teye(size(out.Lf_uu)),[1,2]),G_u',-F_u';
-            G_u,-tprod(addEye2Hessian2,[],Teye([nG,nG]),[1,2]),Tzeros([nG,nF]);
-            -F_u,Tzeros([nF,nG]),-diag(F./lambda)-0*tprod(addEye2Hessian2,[],Teye([nF,nF]),[1,2])];
-        % out.Hess=[out.Lf_uu,G_u',-F_u';
-        %        G_u,Tzeros([nG,nG+nF]);
-        %        -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
+        WW=[out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u',-F_u';
+            G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
+            -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
         out.Hess=WW;
         
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=0e-10;
+            tol=0e-20; % minimum eigenvalue to be considered positive
             declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
         else
             out.dHess=Tzeros(size(factor_ww,1));

@@ -35,92 +35,10 @@ function varargout=cmex2optimizeCS(varargin)
             'See |ipm.pdf| for details of the optimization engine.';
                 });
 
-    %% Declare input parameters
-    declareParameter(...
-        'VariableName','objective',...
-        'Description',{
-            'Scalar Tcalculus symbolic object to be optimized.'
-                      });
-    declareParameter(...
-        'VariableName','optimizationVariables',...
-        'Description',{
-            'Cell-array of Tcalculus symbolic objects representing the'
-            'variables to be optimized.'
-                      });
-    declareParameter(...
-        'VariableName','sensitivityVariables',...
-        'DefaultValue',{},...        
-        'Description',{
-            'Cell-array of Tcalculus symbolic objects representing the'
-            'optimization variables with respect to which we want to compute cost';
-            'sensitivity.'
-                      });
-    declareParameter(...
-        'VariableName','constraints',...
-        'DefaultValue',{},...
-        'Description',{
-            'Cell-array of Tcalculus symbolic objects representing the'
-            'constraints. Both equality and inequality constraints'
-            'are allowed.'
-                      });
-    declareParameter(...
-        'VariableName','outputExpressions',...
-        'Description',{
-            'Cell-array of Tcalculus symbolic objects representing the '
-            'variables to be returned.';
-            ' ';
-            'The following Tcalculus symbolic variables are assigned special values';
-            'and can be using in outputExpressions';
-            '* |lambda1_|,|lambda2_|,... - Lagrangian multipliers associated with';
-            '                         the inequalities constraints';
-            '                         (in the order that they appear and with';
-            '                          the same size as the corresponding constraints)';
-            '* |nu1_|,|nu2_|,...    - Lagrangian multipliers associated with';
-            '                         the equality constraints';
-            '                         (in the order that they appear and with';
-            '                          the same size as the corresponding constraints)';
-            '* |Hess_| - Hessian matrix used by the (last) Newton step to update';
-            '            the primal variables (including |addEye2Hessian|).'
-            '* |dHess_| - D factor in the LDL factorization of the Hessian matrix'
-            '             used by the (last) Newton step to update the primal variables'
-            '             (including |addEye2Hessian|).'
-            '* |Grad_| - gradient of Lagrangian at the (last) Newton step.'
-            '* |mu_|   - barrier parameter at the (last) Newton step.'
-            '* |u_|    - vector stacked with all primal variables at the (last) Newton step.'
-            '* |F_|    - vector stacked with all equalities at the (last) Newton step.'
-            '* |G_|    - vector stacked with all inequalities at the (last) Newton step.'
-            '* |nu_|   - vector stacked with all dual equality variables at the (last) Newton step.'
-            '* |lambda_|   - vector stacked with all dual inequality variables at the (last) Newton step.'
-            ' ';
-            'ATTENTION: To be able to include these variables as input parameters,';
-            '           they have to be previously created outside *with the appropriate sizes*.'
-            '           Eventually, their values will be overridden by the solver'
-            '           to reflect the values listted above.'
-                      });
+    localVariables_=parameters4optimize(localVariables_);
 
     localVariables_=parameters4all(localVariables_);
 
-    declareParameter(...
-        'VariableName','addEye2Hessian',...
-        'DefaultValue',true,...
-        'AdmissibleValues',{false,true},...        
-        'Description',{
-            'When |true|, adds to the Hessian matrix identity matrices scaled by a small constant,'
-            'whose value is set when the solver is called.'
-            ' '
-            'A larger value for the scaling constant has two main effects:'
-            '1) Improves the numerical conditioning of the system of equations that'
-            '   finds the Newton search direction.';
-            '2) Moves the search direction towards the gradient descent of';
-            '   the Lagragian (and away from the Newton direction).';
-            'Both effects improve the robustness of the solver, but this is typically';
-            'achieved at the expense of slower convergence.'
-            'For convex problems, one typically chooses |addEye2Hessian| equal to the';
-            'square root of the machine precision.'
-            'For non-convex problems, one can try to increase this parameter when';
-            'the Newton direction actually causes an increase of the Lagragian.'
-                      });
-    
     declareParameter(...
         'VariableName','useLDL',...
         'DefaultValue',true,...
@@ -359,7 +277,7 @@ function varargout=cmex2optimizeCS(varargin)
     template(end).inputs(1) =struct('type','double','name','mu0','sizes',1,'default',1);
     template(end).inputs(2) =struct('type','int32','name','maxIter','sizes',1,'default',200);
     template(end).inputs(3) =struct('type','int32','name','saveIter','sizes',1,'default',-1);
-    template(end).inputs(4) =struct('type','double','name','addEye2Hessian','sizes',1,'default',1e-9);
+    template(end).inputs(4) =struct('type','double','name','addEye2Hessian','sizes',2,'default',[1e-9;1e-9]);
     template(end).outputs(1)=struct('type','int32','name','status','sizes',1);
     template(end).outputs(2)=struct('type','int32','name','iter','sizes',1);
     template(end).outputs(3)=struct('type','double','name','time','sizes',1);
@@ -383,7 +301,8 @@ function varargout=cmex2optimizeCS(varargin)
     defines.scaleEqualities=double(scaleEqualities);
     defines.alphaMin=sprintf('%e',alphaMin); % to make double
     defines.alphaMax=sprintf('%e',alphaMax); % to make double
-    defines.addEye2HessianDefine=double(addEye2Hessian~=0);
+    defines.setAddEye2Hessian=double(addEye2Hessian~=0);
+    defines.adjustAddEye2Hessian=double(adjustAddEye2Hessian~=0);
     defines.coupledAlphas=double(coupledAlphas);
     defines.muFactorAggressive=sprintf('%e',muFactorAggressive); % to make double
     defines.muFactorConservative=sprintf('%e',muFactorConservative); % to make double

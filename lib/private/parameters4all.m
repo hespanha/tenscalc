@@ -279,7 +279,7 @@ function localVariables_=parameters4all(localVariables_)
             '                  The "hessian" matrix will be saved regardless of the';
             '                  value of |saveIter|, when the solver exists with |status=4|';
             '   * |addEye2Hessian| - scaling parameter for the identity matrices added'
-            '                        to the Hessian matrix (default=1e-9)'
+            '                        to the Hessian matrix (default=1e-20)'
             '   * |status|   - solver exist status';
             '                 *  0  = success';
             '                 *  >0 = solver terminated unexpectedly';
