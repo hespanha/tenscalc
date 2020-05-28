@@ -327,31 +327,31 @@ EXPORT void ipmPD_CSsolver(
       setAddEye2Hessian2__(&addEye2Hessian2);
     }
   } else {
-    int change=FALSE;
+    int change=0;
     for (int ii=0;ii<20;ii++) {
       if ((mp<mpDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
 	printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
 	if (addEye2Hessian1<addEye2HessianMAX) {
 	  addEye2Hessian1=MIN(10*addEye2Hessian1,addEye2HessianMAX);
 	  setAddEye2Hessian1__(&addEye2Hessian1);
-	  change=TRUE;
+	  change=1;
 	}
 	if (addEye2Hessian2<addEye2HessianMAX) {
 	  addEye2Hessian2=MIN(2*addEye2Hessian2,addEye2HessianMAX);
 	  setAddEye2Hessian2__(&addEye2Hessian2);
-	  change=TRUE;
+	  change=1;
 	}
       } else if ((mn<mnDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
 	printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
 	if (addEye2Hessian1<addEye2HessianMAX) {
 	  addEye2Hessian1=MIN(2*addEye2Hessian1,addEye2HessianMAX);
 	  setAddEye2Hessian1__(&addEye2Hessian1);
-	  change=TRUE;
+	  change=1;
 	}
 	if (addEye2Hessian2<addEye2HessianMAX) {
 	  addEye2Hessian2=MIN(10*addEye2Hessian2,addEye2HessianMAX);
 	  setAddEye2Hessian2__(&addEye2Hessian2);
-	  change=TRUE;
+	  change=1;
 	}
       }
       if (! change)
