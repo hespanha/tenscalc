@@ -144,7 +144,7 @@ EXPORT void ipmPD_CSsolver(
   double addEye2Hessian2=addEye2Hessian[1];
   setAddEye2Hessian1__(&addEye2Hessian1);
   setAddEye2Hessian2__(&addEye2Hessian2);
-#if adjustAddEye2Hessian != 0
+#if adjustAddEye2Hessian != 0 && useLDL != 0 && useUmfpack == 0
   double mp,mn;
 #endif
 #endif
