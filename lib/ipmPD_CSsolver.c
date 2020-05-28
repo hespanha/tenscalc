@@ -144,7 +144,7 @@ EXPORT void ipmPD_CSsolver(
   double addEye2Hessian2=addEye2Hessian[1];
   setAddEye2Hessian1__(&addEye2Hessian1);
   setAddEye2Hessian2__(&addEye2Hessian2);
-#if adjustAddEye2Hessian != 0 && useLDL != 0 && useUmfpack == 0
+#if (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   double mp,mn;
 #endif
 #endif
@@ -195,7 +195,7 @@ EXPORT void ipmPD_CSsolver(
   printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
 	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,nU,nG,nF);
 #if verboseLevel>=3
-#if adjustAddEye2Hessian != 0
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   char *header="Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n";
 #else
   char *header="Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n";
@@ -314,7 +314,7 @@ EXPORT void ipmPD_CSsolver(
 #define addEye2HessianMAX 1e-1
 #define addEye2HessianMIN 1e-20
     
-#if adjustAddEye2Hessian != 0 && useLDL != 0 && useUmfpack == 0
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   getHessInertia__(&mp,&mn);
   if (mp==mpDesired && mn==mnDesired) {
     printf3("%8.1e%8.1e%5.0f%5.0f",addEye2Hessian1,addEye2Hessian2,mp,mn);

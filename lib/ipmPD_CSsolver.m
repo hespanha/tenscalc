@@ -31,8 +31,6 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     end    
     
     if obj.setAddEye2Hessian 
-
-        
         addEye2HessianMAX=1e-1;
         addEye2HessianMIN=1e-20;
         
@@ -97,7 +95,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d):\n   %d primal variable, %d equality constraints, %d inequality constraints\n',...
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
-        if obj.adjustAddEye2Hessian && obj.useLDL 
+        if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
         else
             headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
@@ -221,10 +219,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Adjust addEye2Hessian %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
-
         
-        
-        if obj.adjustAddEye2Hessian && obj.useLDL 
+        if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
             if ( mp==mpDesired && mn==mnDesired)
                 printf3('%8.1e%8.1e%5d%5d',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
