@@ -180,8 +180,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %%%%%%%%%%%%%%%%%%
 
         LPG=tprod(lambda./F,1,F_u,[1,2]);
-        WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')...
-              +addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
+        WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
               G_u,-addEye2Hessian2*Teye([nG,nG])];
         out.Hess=WW;
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;

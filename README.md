@@ -241,18 +241,43 @@ The example above and many others can be found in `tenscalc\examples`.
 
 ### Full documentation
 
-Full documentation for this toolbox can be found in
-
-* `doc/tenscalc.pdf`
+*TensCalc*'s user guide can be found online at https://tenscalc.readthedocs.io
 
 Additional technical information can be found at
 
+* `doc/tenscalc.pdf`
 * `doc/ipm.pdf`
 * `doc/csparse.pdf`
 * `doc/computationgraphs.pdf`
 * `doc/timeseries.pdf`
 
+### SuiteSparse
 
+*TensCalc*'s LU factorization can be performed using Tim Davis'
+*SuiteSparse* toolbox. This generally slows down *TensCalc*
+significantly, but in some cases can improve robustness. The use of
+*SuiteSparse* is enabled by setting the parameter ``umfpack`` to
+``true`` and requires SuiteSparse to be installed and in the path. To
+do this
+
+* Download SuiteSparse from
+  https://github.com/DrTimothyAldenDavis/SuiteSparse
+
+* Install SuiteSparse by executing
+  ``make library``
+
+  Installation of SuiteSparse requires cmake and Intel MKL BLAS or
+  OpenBLAS (see SuiteSpase installation notes). On OSX, with OpenBLAS
+  from mac ports and static libraries, I used
+  `make static LDFLAGS='-L/Users/hespanha/GitHub/tenscalc/SuiteSparse/lib -L/opt/local/lib'`
+
+* Install the package UMFPACK/MATLAB, by entering the UMFPACK/MATLAB
+  folder and executing ``umfpack_make`` at the matlab prompt. 
+  
+* Make sure your installation succeeded by executing ``umfpack_demo``
+  
+* Add UMFPACK/MATLAB to your matlab path and save the path.
+  
 ## Issues
 
 * While most *Matlab* scripts are agnostic to the underlying operating

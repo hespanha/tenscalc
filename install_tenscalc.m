@@ -33,3 +33,7 @@ fprintf('Compiling...\n');
 compileInstructionsTable;
 fprintf('done!\n');
 
+pth=findSuiteSparse();
+if isempty(findSuiteSparse)
+    fprintf('The umfpack not installed or not in the path, ''umfpack'' option will not be available. This should not be a problem. However, if you have umfpack installed add ''SuiteSparse/UMFPACK/MATLAB/'' to your matlab path\n');
+end

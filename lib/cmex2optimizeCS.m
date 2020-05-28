@@ -253,7 +253,7 @@ function varargout=cmex2optimizeCS(varargin)
     Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
                   smallerNewtonMatrix,addEye2Hessian,skipAffine,...
                   scaleInequalities,scaleCost,scaleEqualities,...
-                  useLDL,umfpack,...
+                  useLDL,useUmfpack,...
                   classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     
@@ -310,7 +310,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.skipAffine=double(skipAffine);
     defines.smallerNewtonMatrix=double(smallerNewtonMatrix);
     defines.useLDL=double(useLDL);
-    defines.umfpack=double(umfpack);
+    defines.useUmfpack=double(useUmfpack);
     defines.allowSave=double(allowSave);
     defines.debugConvergence=double(debugConvergence);
     defines.debugConvergenceThreshold=debugConvergenceThreshold;
