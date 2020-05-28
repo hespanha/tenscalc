@@ -264,12 +264,13 @@ do this
   https://github.com/DrTimothyAldenDavis/SuiteSparse
 
 * Install SuiteSparse by executing
-  ``make library``
+  make library
+  make install
 
   Installation of SuiteSparse requires cmake and Intel MKL BLAS or
   OpenBLAS (see SuiteSpase installation notes). On OSX, with OpenBLAS
   from mac ports and static libraries, I used
-  `make static LDFLAGS='-L/Users/hespanha/GitHub/tenscalc/SuiteSparse/lib -L/opt/local/lib'`
+  `make library LDFLAGS='-L/Users/hespanha/GitHub/tenscalc/SuiteSparse/lib -L/opt/local/lib'`
 
 * Install the package UMFPACK/MATLAB, by entering the UMFPACK/MATLAB
   folder and executing ``umfpack_make`` at the matlab prompt. 
