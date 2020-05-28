@@ -85,27 +85,12 @@ if 1
         'debugConvergence',debugConvergence,...
         'minInstructions4loop',minInstructions4loop,...
         'compilerOptimization',compilerOptimization,...
-       ...%'callType','client-server','serverProgramName','tmpC_minl2_server','serverAddress','localhost','port',1968,...
-        ...%'callType','client-server','serverComputer','glnxa64','compileStandalones',false,'serverProgramName','tmpC_minl2_server','serverAddress','tamina.ece.ucsb.edu','port',1968,...
         'allowSave',allowSave,...
         'profiling',false,...
         'solverVerboseLevel',2);
 
     obj=feval(classname);
 
-    if 0
-        if system('killall tmpC_minl2_server')==0
-            pause(3);
-        end
-        if system('tmpC_minl2_server &')==0
-            pause(3);
-        end
-    end
-
-    if 0
-        upload(obj)
-    end
-    
     %% initial condition
     position_0=zeros(position.size,1);
 
@@ -194,30 +179,17 @@ J=norm2(noise2) ...
         measurement;dt1;
         weight1acceleration;weight2acceleration;weight1noise},...
     'skipAffine',false,...
+    'adjustAddEye2Hessian',false,...
     'profiling',false,...
     'debugConvergence',debugConvergence,...
     'minInstructions4loop',minInstructions4loop,...
     'compilerOptimization',compilerOptimization,...
-...%'callType','client-server','serverProgramName','tmpC_minl1l2_server','serverAddress','localhost','port',1968,...
-...%'callType','client-server','serverComputer','glnxa64','compileStandalones',false,'serverProgramName','tmpC_minl1l2_server','serverAddress','tamina.ece.ucsb.edu','port',1968,...
     'allowSave',allowSave,...
     'solverVerboseLevel',2);
 %profile viewer
 
 obj=feval(classname);
 
-if 0
-    if system('killall tmpC_minl1l2_server')==0
-        pause(3);
-    end
-    if system('tmpC_minl1l2_server &')==0
-        pause(3);
-    end
-end
-
-if 0
-    upload(obj)
-end
 
 %% parameter values
 thisWeight1acceleration=1;
