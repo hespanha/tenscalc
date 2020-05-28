@@ -241,7 +241,7 @@ for i=1:100
         pause
     end
 
-    fprintf('paused\n');pause
+    %fprintf('paused\n');pause
 end
 
 history=getHistory(mpcmhe);
