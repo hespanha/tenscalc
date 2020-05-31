@@ -513,7 +513,7 @@ we must have
       \nabla_{u_1} G(u_1,u_2^\dagger)\\
       -\nabla_{u_1} F(u_1,u_2^\dagger)}
   \end{align}
-  Moreover, for every value $u_1$ for which the set active inequality
+  Moreover, for every value $u_1$ for which the set of active inequality
   constraints does not change in a sufficiently small neighborhood of
   $u_1$, we have that
   \begin{align}
@@ -530,7 +530,7 @@ we must have
     \matt{\PDeriv{u_2^\dagger}{u_1}\\\PDeriv{\nu^\dagger}{u_1}\\\PDeriv{\lambda^\dagger}{u_1}}.
   \end{align}
 \end{lemma}
-Equation~\ref{eq:sensitivity-Newton} shows that all the partial
+Equation~\eqref{eq:sensitivity-Newton} shows that all the partial
 derivatives $\PDeriv{u_2^\dagger}{u_1}$, $\PDeriv{\nu^\dagger}{u_1}$,
 $\PDeriv{\lambda^\dagger}{u_1}$ can be obtained by solving a system of
 equations defined by a subset of the rows and columns of the matrix
@@ -538,7 +538,7 @@ used in the computation of the Newton Step, which appears in
 \eqref{eq:optimization-linearization}.
 
 \begin{proof-lemma}{\ref{le:sensitivity}}
-  To prove~\ref{eq:sensitivity-Newton}, take derivatives of
+  To prove~\eqref{eq:sensitivity-Newton}, we take derivatives of
   \eqref{eq:u-dagger} with respect to $u_1$, to obtain
   \begin{align*}
     &\nabla_{u_2u_1} L_f(u_1,u_2^\dagger,\lambda^\dagger,\nu^\dagger)
