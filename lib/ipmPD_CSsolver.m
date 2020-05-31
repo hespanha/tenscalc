@@ -223,7 +223,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
             if ( mp==mpDesired && mn==mnDesired)
-                printf3('%8.1e%8.1e%5d%5d',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                printf3('%8.1e%8.1e%5.0f%5.0f',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
                 if addEye2Hessian1>addEye2HessianMIN
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
@@ -235,32 +235,32 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             else
                 change=false;
                 for ii=1:20
-                    if mp < mpDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
+                    if mp<mpDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5d%5d\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(10*addEye2Hessian1,addEye2HessianMAX);
                             setAddEye2Hessian1__(obj,addEye2Hessian1);
                             change=true;
                         end
-                        if addEye2Hessian1<addEye2HessianMAX
-                            addEye2Hessian1= min(2*addEye2Hessian1,addEye2HessianMAX);
-                            setAddEye2Hessian1__(obj,addEye2Hessian1);
+                        if addEye2Hessian2<addEye2HessianMAX
+                            addEye2Hessian2= min(2*addEye2Hessian2,addEye2HessianMAX);
+                            setAddEye2Hessian2__(obj,addEye2Hessian2);
                             change=true;
                         end
-                    elseif mn < mnDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
+                    elseif mn<mnDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5d%5d\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(2*addEye2Hessian1,addEye2HessianMAX);
                             setAddEye2Hessian1__(obj,addEye2Hessian1);
                             change=true;
                         end
-                        if addEye2Hessian1<addEye2HessianMAX
-                            addEye2Hessian1= min(10*addEye2Hessian1,addEye2HessianMAX);
-                            setAddEye2Hessian1__(obj,addEye2Hessian1);
+                        if addEye2Hessian2<addEye2HessianMAX
+                            addEye2Hessian2= min(10*addEye2Hessian2,addEye2HessianMAX);
+                            setAddEye2Hessian2__(obj,addEye2Hessian2);
                             change=true;
                         end
                     end
@@ -269,7 +269,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     end
                     [mp,mn]=getHessInertia__(obj);
                 end
-                printf3('%8.1e%8.1e%5d%5d',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                printf3('%8.1e%8.1e%5.0f%5.0f',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
             end
         elseif obj.setAddEye2Hessian
             printf3('%8.1e%8.1e',addEye2Hessian1,addEye2Hessian2);            
@@ -466,7 +466,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         sigma=sigma*sigma*sigma;
                     end
                     printf3('%8.1e',sigma);
-                    mu = full(max(sigma*gap/obj.nF,muMin));
+                    mu=full(max(sigma*gap/obj.nF,muMin));
                     setMu__(obj,mu); 
                 else 
                     printf3(' -sigm- ');
@@ -486,7 +486,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     setAlphaDualIneq__(obj,1);
                 end
                 [newF_s,newLambda_s]=getFLambda_s__(obj);
-                newmu = mu;
+                newmu=mu;
             end
 
             [alphaPrimal,alphaDualIneq]=getMaxAlphas_s__(obj);
@@ -582,7 +582,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
                     %mu = max(mu*obj.muFactorAggressive,muMin);
-                    mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
+                    mu=max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu); 
                     printf3(' * ');
                 else 
@@ -613,7 +613,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             
             % if no motion, slowly increase mu
             if (alphaPrimal<obj.alphaMin && alphaDualIneq<obj.alphaMin && alphaDualEq<obj.alphaMin) 
-                mu = max(mu/obj.muFactorConservative,muMin);
+                mu=max(mu/obj.muFactorConservative,muMin);
                 setMu__(obj,mu); 
             end
             

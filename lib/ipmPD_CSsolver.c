@@ -192,8 +192,8 @@ EXPORT void ipmPD_CSsolver(
   muMin=desiredDualityGapVar/nF/2;
 #endif
 
-  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
-	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,nU,nG,nF);
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
+	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,useLDL,useUmfpack,nU,nG,nF);
 #if verboseLevel>=3
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   char *header="Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n";
@@ -306,60 +306,60 @@ EXPORT void ipmPD_CSsolver(
 #else
     printf3("  -mu-  ");
 #endif
-
+    
     /*************************/
     /* Adjust addEye2Hessian */
     /*************************/
-
+    
 #define addEye2HessianMAX 1e-1
 #define addEye2HessianMIN 1e-20
     
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
-  getHessInertia__(&mp,&mn);
-  if (mp==mpDesired && mn==mnDesired) {
-    printf3("%8.1e%8.1e%5.0f%5.0f",addEye2Hessian1,addEye2Hessian2,mp,mn);
-    if (addEye2Hessian1>addEye2HessianMIN) {
-      addEye2Hessian1=MAX(.5*addEye2Hessian1,addEye2HessianMIN);
-      setAddEye2Hessian1__(&addEye2Hessian1);
-    }
-    if (addEye2Hessian2>addEye2HessianMIN) {
-      addEye2Hessian2=MAX(.5*addEye2Hessian2,addEye2HessianMIN);
-      setAddEye2Hessian2__(&addEye2Hessian2);
-    }
-  } else {
-    int change=0;
-    for (int ii=0;ii<20;ii++) {
-      if ((mp<mpDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
-	printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
-	if (addEye2Hessian1<addEye2HessianMAX) {
-	  addEye2Hessian1=MIN(10*addEye2Hessian1,addEye2HessianMAX);
-	  setAddEye2Hessian1__(&addEye2Hessian1);
-	  change=1;
-	}
-	if (addEye2Hessian2<addEye2HessianMAX) {
-	  addEye2Hessian2=MIN(2*addEye2Hessian2,addEye2HessianMAX);
-	  setAddEye2Hessian2__(&addEye2Hessian2);
-	  change=1;
-	}
-      } else if ((mn<mnDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
-	printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
-	if (addEye2Hessian1<addEye2HessianMAX) {
-	  addEye2Hessian1=MIN(2*addEye2Hessian1,addEye2HessianMAX);
-	  setAddEye2Hessian1__(&addEye2Hessian1);
-	  change=1;
-	}
-	if (addEye2Hessian2<addEye2HessianMAX) {
-	  addEye2Hessian2=MIN(10*addEye2Hessian2,addEye2HessianMAX);
-	  setAddEye2Hessian2__(&addEye2Hessian2);
-	  change=1;
-	}
+    getHessInertia__(&mp,&mn);
+    if (mp==mpDesired && mn==mnDesired) {
+      printf3("%8.1e%8.1e%5.0f%5.0f",addEye2Hessian1,addEye2Hessian2,mp,mn);
+      if (addEye2Hessian1>addEye2HessianMIN) {
+	addEye2Hessian1=MAX(.5*addEye2Hessian1,addEye2HessianMIN);
+	setAddEye2Hessian1__(&addEye2Hessian1);
       }
-      if (! change)
-	break;
-      getHessInertia__(&mp,&mn);
+      if (addEye2Hessian2>addEye2HessianMIN) {
+	addEye2Hessian2=MAX(.5*addEye2Hessian2,addEye2HessianMIN);
+	setAddEye2Hessian2__(&addEye2Hessian2);
+      }
+    } else {
+      int change=0;
+      for (int ii=0;ii<20;ii++) {
+	if ((mp<mpDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
+	  printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
+	  if (addEye2Hessian1<addEye2HessianMAX) {
+	    addEye2Hessian1=MIN(10*addEye2Hessian1,addEye2HessianMAX);
+	    setAddEye2Hessian1__(&addEye2Hessian1);
+	    change=1;
+	  }
+	  if (addEye2Hessian2<addEye2HessianMAX) {
+	    addEye2Hessian2=MIN(2*addEye2Hessian2,addEye2HessianMAX);
+	    setAddEye2Hessian2__(&addEye2Hessian2);
+	    change=1;
+	  }
+	} else if ((mn<mnDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
+	  printf4("%8.1e%8.1e%5.0f%5.0f\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn);
+	  if (addEye2Hessian1<addEye2HessianMAX) {
+	    addEye2Hessian1=MIN(2*addEye2Hessian1,addEye2HessianMAX);
+	    setAddEye2Hessian1__(&addEye2Hessian1);
+	    change=1;
+	  }
+	  if (addEye2Hessian2<addEye2HessianMAX) {
+	    addEye2Hessian2=MIN(10*addEye2Hessian2,addEye2HessianMAX);
+	    setAddEye2Hessian2__(&addEye2Hessian2);
+	    change=1;
+	  }
+	}
+	if (! change)
+	  break;
+	getHessInertia__(&mp,&mn);
+      }
+      printf3("%8.1e%8.1e%5.0f%5.0f",addEye2Hessian1,addEye2Hessian2,mp,mn);
     }
-    printf3("%8.1e%8.1e%5.0f%5.0f",addEye2Hessian1,addEye2Hessian2,mp,mn);
-  }
 #else
 #if setAddEye2Hessian != 0
     printf3("%8.1e%8.1e",addEye2Hessian1,addEye2Hessian2);
@@ -452,8 +452,8 @@ EXPORT void ipmPD_CSsolver(
       sigma=sigma*sigma*sigma;
 #endif
       printf3("%8.1e",sigma);
-      mu = sigma*gap/nF;
-      if (mu < muMin) mu = muMin;
+      mu=sigma*gap/nF;
+      if (mu < muMin) mu=muMin;
       setMu__(&mu); 
     } else {
       printf3(" -sigm- ");
@@ -573,14 +573,14 @@ EXPORT void ipmPD_CSsolver(
 	) {
       //mu *= muFactorAggressive;
       mu *= MIN(muFactorAggressive,pow(mu,.5));
-      if (mu < muMin) mu = muMin;
+      if (mu < muMin) mu=muMin;
       setMu__(&mu); 
       printf3(" * ");
     } else {
       if (alphaPrimal<.1) {
 	//mu = MIN(1e2,1.25*mu);
 	mu *= 1.1;
-	if (mu > 100* *mu0) mu = 100* *mu0;
+	if (mu > *mu0) mu = *mu0;
 	setMu__(&mu);
 	initDualIneq__();
 	printf3("^");

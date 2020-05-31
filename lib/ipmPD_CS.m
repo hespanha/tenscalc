@@ -373,15 +373,15 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         out.DfDu1=out.Lf_u(isSensitivity);
         out.D2fDu1=WW([isSensitivity;false(nF+nG,1)],[isSensitivity;false(nF+nG,1)]);        
         if any(~isSensitivity)
-            Hess1=WW([~isSensitivity;true(nG+nF,1)],[~isSensitivity;true(nG+nF,1)]);
-            B1=-WW([~isSensitivity;true(nG+nF,1)],[isSensitivity;false(nG+nF,1)]);
+            out.Hess1 =  WW([~isSensitivity;true(nG+nF,1)],[~isSensitivity;true(nG+nF,1)]);
+            out.B1    = -WW([~isSensitivity;true(nG+nF,1)],[isSensitivity;false(nG+nF,1)]);
             if atomicFactorization
                 %factor_Hess1=declareAlias(code,factor_Hess1,'factor_Hess1',true,nowarningsamesize,nowarningever);
                 % atomic mldivide(LU,b) only implemented for 1-d vector
-                out.Du1=Tzeros(size(B1));
+                out.Du1=Tzeros(size(out.B1));
             else
-                factor_Hess1=factor(Hess1);
-                out.Du1=factor_Hess1\B1;
+                factor_Hess1=factor(out.Hess1);
+                out.Du1=factor_Hess1\out.B1;
             end
             out.D2fDu1=out.D2fDu1+WW([isSensitivity;false(nF+nG,1)],[~isSensitivity;true(nG+nF,1)])*out.Du1;        
         else
