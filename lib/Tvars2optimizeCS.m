@@ -57,24 +57,6 @@ function varargout=Tvars2optimizeCS(varargin)
                       });
     
     declareParameter(...
-        'VariableName','addEye2Hessian',...
-        'DefaultValue',1e-9,...
-        'Description',{
-            'Add to the Hessian matrix appropriate identity matrices scaled by this constant.';
-            'A larger value for |addEye2Hessian| has two main effects:'
-            '1) Improves the numerical conditioning of the system of equations that'
-            '   finds the Newton search direction.';
-            '2) Moves the search direction towards the gradient descent of';
-            '   the Lagragian (and away from the Newton direction).';
-            'Both effects improve the robustness of the solver, but this is typically';
-            'achieved at the expense of slower convergence.'
-            'For convex problems, one typically chooses |addEye2Hessian| equal to the';
-            'square root of the machine percision.'
-            'For non-convex problems, one can try to increase this parameter when';
-            'the Newton direction actually causes and increase of the Lagragian.'
-                      });
-    
-    declareParameter(...
         'VariableName','smallerNewtonMatrix',...
         'DefaultValue',false,...
         'AdmissibleValues',{false,true},...
@@ -124,6 +106,7 @@ function varargout=Tvars2optimizeCS(varargin)
     scaleInequalities=false;
     scaleCost=false;
     scaleEqualities=false;
+    addEye2Hessian=false;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
@@ -202,28 +185,8 @@ function varargout=Tvars2optimizeCS(varargin)
         lambda=Tzeros(0);
     end
 
-    %% Find indices of sensitivityVariables in x
-    isSensitivity=false(length(u),1);
-    for i=1:length(sensitivityVariables)
-        if ~strcmp(type(sensitivityVariables{i}),'variable')
-            sensitivityVariables{i}
-            error('all sensitivityVariables must be of the type ''variable'' (%dth is of type ''%s'')\n',...
-                  i,type(sensitivityVariables{i}));
-        end
-        found=false;
-        for j=1:length(optimizationVariables)
-            if isequal(sensitivityVariables{i},optimizationVariables{j})
-                fprintf('   sensitivityVariable %s: %d values\n',sensitivityVariables{i}.name,length(whereVariables{j}));
-                isSensitivity(whereVariables{j})=true;
-                found=true;
-                break;
-            end
-        end
-        if ~found
-            error('sensitivityVariable %s is not an optimizationVariable\n',name(sensitivityVariables{i}));
-        end
-    end
-    fprintf('      %d sensitivity variables\n',sum(isSensitivity));
+    %% Get indices of sensitivity variables
+    isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
     
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
@@ -234,12 +197,12 @@ function varargout=Tvars2optimizeCS(varargin)
                   classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
-    fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
+    %% Copy variables with appropriate size to output structure
     fn=fields(Tout_);
     for i=1:length(fn)
         varname=sprintf('%s_',fn{i});
-        Tout.(varname)=Tvariable(varname,size(Tout_.(fn{i})));
+        Tout.(varname)=Tvariable(varname,size(Tout_.(fn{i})),true);
     end
 
     for i=1:length(constraints)
@@ -263,6 +226,8 @@ function varargout=Tvars2optimizeCS(varargin)
         fld=name(nus{i});
         Tout.(fld)=nus{i};
     end
+
+    fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
