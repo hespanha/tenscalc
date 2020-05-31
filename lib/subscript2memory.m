@@ -1,5 +1,5 @@
 function linear=subscript2memory(tsize,subscript)
-% linear=memory2subscript(tsize,subscript)
+% linear=subscript2memory(tsize,subscript)
 %    Returns an array of 1-based linear indexing, corresponding to 1-based subscripts, 
 %    for a tensor of size 'tsize'.
 %    Somewhat similar to Matlab's 'sub2ind' but takes a matrix with the subcripts.
