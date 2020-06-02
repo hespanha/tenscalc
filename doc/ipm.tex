@@ -86,9 +86,7 @@ approximation to the solution of \eqref{eq:minimization}.
   Suppose that we have found \emph{primal variables} $u\in\R^{N}$
   and \emph{dual variables} $\lambda\in\R^{M}$, $\nu\in\R^{K}$ that
   simultaneously satisfy all of the following
-  conditions\footnote{Given a vector $x\in\R^n$ and a scalar $a\in\R$, we
-    denote by $x\ge a$ the entry-wise ``greater than or equal to''
-    comparison of each entry of $x$ with $a$.}
+  conditions
   \begin{subequations}
     \begin{align}
       \label{eq:central-points}
@@ -477,7 +475,7 @@ goal is to determine
 \begin{align*}
   \Deriv{^2f(u_1,u_2^\dagger(u_1))}{u_1^2}\Big|_{u_1=u_1^*}.
 \end{align*}
-Assuming that the solution \eqref{le:minima-gap} is the unique
+Assuming that the solution to \eqref{eq:minimization} is the unique
 solution to the conditions of Lemma~\ref{le:minima-gap} with $\mu=0$:
 \begin{align}\label{eq:u-star}
   &\nabla_u L_f(u_1^*,u_2^*,\lambda^*,\nu^*)=\sbf 0_{N}, &
