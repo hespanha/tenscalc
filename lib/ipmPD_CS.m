@@ -188,11 +188,13 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=0e-20; % minimum eigenvalue to be considered positive
-            declareGet(code,{sum(heaviside(out.dHess-tol)),...
-                             sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            out.lHess=ldl_l(factor_ww);
+            tol=1e-8; % minimum eigenvalue to be considered positive -- seems needed larger than 1e-9 for cmex2optimize in bad problems
+            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
+            out.lHess=Tzeros(size(factor_ww));
         end
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true,nowarningsamesize,nowarningever);
@@ -280,10 +282,13 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
-            tol=0e-20; % minimum eigenvalue to be considered positive
+            out.lHess=ldl_l(factor_ww);
+            tol=1e-8; % minimum eigenvalue to be considered positive -- seems needed larger than 1e-9 for cmex2optimize in bad problems
             declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
+            out.lHess=Tzeros(size(factor_ww));
         end
         if atomicFactorization
             factor_ww=declareAlias(code,factor_ww,'factor_ww',true,nowarningsamesize,nowarningever);
@@ -332,6 +337,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %% search direction
         dx_s=factor_ww\b_s;
         dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
+        
+        declareGet(code,{sqrt(norm2(WW*dx_s-b_s))},'getDirectionError__');
         
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;

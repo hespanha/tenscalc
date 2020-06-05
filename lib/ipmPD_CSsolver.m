@@ -31,7 +31,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     end    
     
     if obj.setAddEye2Hessian 
-        addEye2HessianMAX=1e-1;
+        addEye2HessianMAX=1e2;
         addEye2HessianMIN=1e-20;
         
         if nargin<5
@@ -96,9 +96,17 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
-            headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
+            if obj.verboseLevel>=4
+                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig-  d.err.  f.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
+            else
+                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
+            end
         else
-            headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
+            if obj.setAddEye2Hessian
+                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
+            else
+                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
+            end
         end            
         fprintf(headers);
         if obj.nF>0
@@ -222,13 +230,20 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
+            derr=getDirectionError__(obj);
+            if obj.verboseLevel>=4
+                ferr=getFactorError__(obj);
+            end
             if ( mp==mpDesired && mn==mnDesired)
-                printf3('%8.1e%8.1e%5.0f%5.0f',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
+                if obj.verboseLevel>=4
+                    fprintf('%8.1e',ferr);
+                end
                 if addEye2Hessian1>addEye2HessianMIN
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
                 end
-                if addEye2Hessian2>addEye2HessianMIN
+                if addEye2Hessian2>addEye2HessianMIN && derr<1e-8
                     addEye2Hessian2=max(.5*addEye2Hessian2,addEye2HessianMIN);
                     setAddEye2Hessian2__(obj,addEye2Hessian2);
                 end
@@ -237,7 +252,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 for ii=1:20
                     if mp<mpDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr,ferr);
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(10*addEye2Hessian1,addEye2HessianMAX);
@@ -251,7 +266,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         end
                     elseif mn<mnDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr,ferr);
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(2*addEye2Hessian1,addEye2HessianMAX);
@@ -268,8 +283,15 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         break;
                     end
                     [mp,mn]=getHessInertia__(obj);
+                    derr=getDirectionError__(obj);
+                    if obj.verboseLevel>=4
+                        ferr=getFactorError__(obj);
+                    end
                 end
-                printf3('%8.1e%8.1e%5.0f%5.0f',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn));
+                printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
+                if obj.verboseLevel>=4
+                    fprintf('%8.1e',ferr);
+                end
             end
         elseif obj.setAddEye2Hessian
             printf3('%8.1e%8.1e',addEye2Hessian1,addEye2Hessian2);            
@@ -578,7 +600,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 % (2+3 mean close to the central path)
                 %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
                 %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
-                th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
+                th_grad=            norminf_grad<=max(1e-4,1e0*obj.gradTolerance);
                 th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
                     %mu = max(mu*obj.muFactorAggressive,muMin);
