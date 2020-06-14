@@ -85,6 +85,10 @@ Fcells={};
 nus={};
 lambdas={};
 for k=1:length(constraints)
+    if ~isa(constraints{k},'Tcalculus')
+        disp(constraints{k})
+        error('constraint %d is not a Tcalculus expression\n',k);
+    end
     switch (type(constraints{k}))
       case {'iszero'}
         % remove iszero
