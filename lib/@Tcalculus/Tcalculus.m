@@ -167,7 +167,10 @@ classdef Tcalculus
                 
             global TCsymbolicExpressionsHash
 
-            ohash=sum(type)+sum(osize)+sum(operands);
+            % slower
+            %ohash=sum(type)+sum(osize)+prod(osize)+sum(operands)+sum(serialize(op_parameters),'all');
+            % faster
+            ohash=sum(type)+sum(osize)+prod(osize)+sum(operands);
             if ~isempty(TCsymbolicExpressions)
                 if isequal(type,'variable')
                     % variable with same name already exists?
@@ -188,7 +191,7 @@ classdef Tcalculus
                             myisequal(TCsymbolicExpressions(i).operands,operands)
                         %1) file_line need not match (keeps the file_line
                         %   that originally created the expression)
-                        %2) derivatives_cache need not match (keep existing)
+                        %2) XXX_cache, need not match (keep existing)
                         obj.TCindex=i;
                         obj.osize=osize;
                         return
@@ -202,6 +205,8 @@ classdef Tcalculus
             TCsymbolicExpressions(end).op_parameters=op_parameters;
             TCsymbolicExpressions(end).file_line=file_line;
             TCsymbolicExpressions(end).derivatives_cache=zeros(0,2);
+            TCsymbolicExpressions(end).tprod2matlab_cache=zeros(0,1);
+            TCsymbolicExpressions(end).substitute_cache=zeros(0,3);
             TCsymbolicExpressionsHash(end+1)=ohash;
             TCindex=length(TCsymbolicExpressions);
             obj.TCindex=TCindex;
@@ -305,7 +310,27 @@ classdef Tcalculus
         
         function add2derivatives_cache(obj,var,grad)
             global TCsymbolicExpressions;
-           TCsymbolicExpressions(obj.TCindex).derivatives_cache(end+1,:)=[var.TCindex,grad.TCindex];
+            TCsymbolicExpressions(obj.TCindex).derivatives_cache(end+1,:)=[var.TCindex,grad.TCindex];
+        end
+        
+        function tprod2matlab_cache=tprod2matlab_cache(obj)
+            global TCsymbolicExpressions;
+            tprod2matlab_cache=TCsymbolicExpressions(obj.TCindex).tprod2matlab_cache;
+        end
+        
+        function add2tprod2matlab_cache(obj,exp)
+            global TCsymbolicExpressions;
+            TCsymbolicExpressions(obj.TCindex).tprod2matlab_cache(end+1,:)=exp.TCindex;
+        end
+        
+        function substitute_cache=substitute_cache(obj)
+            global TCsymbolicExpressions;
+            substitute_cache=TCsymbolicExpressions(obj.TCindex).substitute_cache;
+        end
+        
+        function add2substitute_cache(obj,var,expIn,expOut)
+            global TCsymbolicExpressions;
+            TCsymbolicExpressions(obj.TCindex).substitute_cache(end+1,:)=[var.TCindex,expIn.TCindex,expOut.TCindex];
         end
         
         function [children,depth]=children(obj,maxDepth)
@@ -2971,6 +2996,18 @@ classdef Tcalculus
         %
         % Recursive function used by substitute()
 
+            %% Check if already in the cache
+            obj_substitute_cache=substitute_cache(obj); % [variable.TCindex,derivative.TCindex;...]
+            k=find(obj_substitute_cache(:,1)==var.TCindex & obj_substitute_cache(:,2)==obj1.TCindex);
+            if length(k)==1
+                %fprintf('.');
+                obj=Tcalculus(obj_substitute_cache(k,3));
+                return
+            elseif length(k)>1
+                error('substitute_cache has repeated entries\n');
+            end
+            originalObj=obj;
+    
             if ~isequal(type(var),'variable')
                 var
                 error('Can only substitute variables (not %s)',var(type));
@@ -3004,6 +3041,9 @@ classdef Tcalculus
                                   ops,op_parameters(obj),1);
                 end
             end
+            
+            %% Add to the cache
+            add2substitute_cache(originalObj,var,obj1,obj);
         end            
                                 
     end

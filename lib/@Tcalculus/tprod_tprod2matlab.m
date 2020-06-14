@@ -18,6 +18,16 @@ function obj=tprod_tprod2matlab(obj)
 
     verboseLevel=1;
 
+    %% Check if already in the cache
+    obj_tprod2matlab_cache=tprod2matlab_cache(obj); 
+    
+    if ~isempty(obj_tprod2matlab_cache)
+        obj=Tcalculus(obj_tprod2matlab_cache);
+        return
+    else
+        originalObj=obj;
+    end
+    
     global TCsymbolicExpressions;
 
     % directly access osize to improve performance
@@ -56,6 +66,7 @@ function obj=tprod_tprod2matlab(obj)
         if length(obj.osize)~=length(old_size) || any(obj.osize~=old_size)
             error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
         end
+        add2tprod2matlab_cache(originalObj,obj);
         return
     end
             
@@ -139,7 +150,7 @@ function obj=tprod_tprod2matlab(obj)
     if ~isempty(collapse)
         for i=1:length(inds)
             if verboseLevel>4
-                fprintf('before collapse (%d):\n',i)
+                fprintf('before collapse (%d):\n',i);
                 disp(objs{i},0,1)
                 disp(inds{i})
             end
@@ -166,7 +177,7 @@ function obj=tprod_tprod2matlab(obj)
                 inds{i}(k)=inds{i}(k)+(max(collapse)-min(collapse));
             end
             if verboseLevel>4
-                fprintf('after collapse (%d):\n',i)
+                fprintf('after collapse (%d):\n',i);
                 disp(objs{i},0,1)
                 disp(inds{i})
             end
@@ -216,8 +227,9 @@ function obj=tprod_tprod2matlab(obj)
             obj=tprod_tprod2matlab(obj);
         end
         if ~myisequal(size(obj),old_size)
-            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
         end
+        add2tprod2matlab_cache(originalObj,obj);
         return
     elseif verboseLevel>4
         fprintf('tprod_tprod2matlab: cannot collapse: ');
@@ -256,8 +268,9 @@ function obj=tprod_tprod2matlab(obj)
     if length(objs)==1 && isequal(inds{1},1:length(inds{1}))
         obj=objs{1};
         if ~myisequal(size(obj),old_size)
-            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
         end
+        add2tprod2matlab_cache(originalObj,obj);
         return
     end
     
@@ -271,6 +284,7 @@ function obj=tprod_tprod2matlab(obj)
             inds(i)=[];
             if isempty(objs)
                 obj=c;
+                add2tprod2matlab_cache(originalObj,obj);
                 return
             else
                 % should find most economical way to do multiplication by scalar
@@ -288,8 +302,9 @@ function obj=tprod_tprod2matlab(obj)
                 end
             end
             if ~myisequal(size(obj),old_size)
-                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
             end
+            add2tprod2matlab_cache(originalObj,obj);
             return
         end
     end
@@ -328,13 +343,14 @@ function obj=tprod_tprod2matlab(obj)
             vars=vars(:);
             obj=tprod_tprod2matlab(tprod(vars{:}));
             if ~myisequal(size(obj),old_size)
-                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
             end
+            add2tprod2matlab_cache(originalObj,obj);
             return
         end
     end        
     
-    %disp('tprod_tprod2matlab 1:')
+    %disp('tprod_tprod2matlab 1:');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find dot products - LEVEL 1 BLAS (_DOT)
@@ -366,8 +382,9 @@ function obj=tprod_tprod2matlab(obj)
             vars=vars(:);
             obj=tprod_tprod2matlab(tprod(vars{:}));
             if ~myisequal(size(obj),old_size)
-                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
             end
+            add2tprod2matlab_cache(originalObj,obj);
             return
         end
     end
@@ -432,12 +449,13 @@ function obj=tprod_tprod2matlab(obj)
         vars=vars(:);
         obj=tprod_tprod2matlab(tprod(vars{:}));
         if ~myisequal(size(obj),old_size)
-            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
         end
+        add2tprod2matlab_cache(originalObj,obj);
         return
     end
     
-    %disp('tprod_tprod2matlab 3:')
+    %disp('tprod_tprod2matlab 3:');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find matrix-matrix products - LEVEL 3 BLAS (_GEMM)
@@ -480,8 +498,9 @@ function obj=tprod_tprod2matlab(obj)
             vars=vars(:);
             obj=tprod_tprod2matlab(tprod(vars{:}));
             if ~myisequal(size(obj),old_size)
-                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+                error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
             end
+            add2tprod2matlab_cache(originalObj,obj);
             return
         end
     end
@@ -518,8 +537,9 @@ function obj=tprod_tprod2matlab(obj)
         vars=vars(:);
         obj=tprod_tprod2matlab(tprod(vars{:}));
         if ~myisequal(size(obj),old_size)
-            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)))
+            error('Size changed [%s] -> [%s]',index2str(old_size),index2str(size(obj)));
         end
+        add2tprod2matlab_cache(originalObj,obj);
         return
     end
 
@@ -681,7 +701,7 @@ function obj=tprod_tprod2matlab(obj)
             obj=tprod_tprod2matlab(obj);
             if ~myisequal(size(obj),old_size)
                 error('Size changed [%s] -> [%s] (library entry %d)',...
-                      index2str(old_size),index2str(size(obj)),i)
+                      index2str(old_size),index2str(size(obj)),i);
             end
         else
             obj=Tcalculus('tprod_matlab',size(obj),parameters(obj),ops,op_parameters(obj),file_line(obj));
@@ -692,7 +712,7 @@ function obj=tprod_tprod2matlab(obj)
         end
     else
         if verboseLevel>0
-            fprintf('ATTENTION: The tensor product:\n        %% y_{%s}=','h'+(1:length(tprod_size)))
+            fprintf('ATTENTION: The tensor product:\n        %% y_{%s}=','h'+(1:length(tprod_size)));
             for k=1:length(inds)
                 if length(inds{k})>1
                     fprintf('%c_{','A'+k-1);
@@ -730,13 +750,13 @@ function obj=tprod_tprod2matlab(obj)
                 end
             end
             fprintf(') ;\n');
-            fprintf('  needs to be included in the library\n')
+            fprintf('  needs to be included in the library\n');
             fprintf('  Brute-force rule used for now.\n\n');
             %disp('paused');pause
         end
         obj=Tcalculus('tprod_matlab',size(obj),parameters(obj),ops,op_parameters(obj),file_line(obj));
     end
-
+    add2tprod2matlab_cache(originalObj,obj);
 end  
 
 function Z=timesrep(X,y)

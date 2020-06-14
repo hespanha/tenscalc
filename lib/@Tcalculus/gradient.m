@@ -44,8 +44,8 @@ function grad=gradient(obj,var)
     
     obj=toCalculus(obj);
 
+    %% Check if already in the cache
     obj_derivatives_cache=derivatives_cache(obj); % [variable.TCindex,derivative.TCindex;...]
-    
     k=find(obj_derivatives_cache(:,1)==var.TCindex);
     if length(k)==1
         %fprintf('.');
@@ -336,6 +336,7 @@ function grad=gradient(obj,var)
     
     updateFile2table(grad,1);
     
+    %% Add to the cache
     add2derivatives_cache(obj,var,grad);
     
     if ~isequal(size(grad),gsize)
