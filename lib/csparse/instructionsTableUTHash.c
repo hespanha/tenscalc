@@ -178,7 +178,7 @@ do {                                                                            
 
 #define MAX_INSTRUCTIONS_PER_TABLE  5000000LL
 #define MAX_PARAMETERS_PER_TABLE   20000000LL // lasso2 example needs very large
-#define MAX_OPERANDS_PER_TABLE     20000000LL 
+#define MAX_OPERANDS_PER_TABLE   1500000000LL 
 
 #define MAX_TERMS_PERLINE 100
 
@@ -547,7 +547,7 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
 				       int64_t nOperands,
 				       int64_t *operands)
 {
-  // save values, prior ro adding instruction
+  // save values, prior to adding instruction
   int64_t 
     oldP=instructionsTable.nParameters,
     oldO=instructionsTable.nOperands;
