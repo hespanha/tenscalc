@@ -96,11 +96,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
-            if obj.verboseLevel>=4
-                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig-  d.err.  f.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
-            else
-                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig- alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
-            end
+            headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig-  d.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
         else
             if obj.setAddEye2Hessian
                 headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
@@ -231,14 +227,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
             derr=getDirectionError__(obj);
-            if obj.verboseLevel>=4
-                ferr=getFactorError__(obj);
-            end
             if ( mp==mpDesired && mn==mnDesired)
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
-                if obj.verboseLevel>=4
-                    fprintf('%8.1e',ferr);
-                end
                 if addEye2Hessian1>addEye2HessianMIN
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
@@ -252,7 +242,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 for ii=1:20
                     if mp<mpDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr,ferr);
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(10*addEye2Hessian1,addEye2HessianMAX);
@@ -266,7 +256,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         end
                     elseif mn<mnDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr,ferr);
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
                         end
                         if addEye2Hessian1<addEye2HessianMAX
                             addEye2Hessian1= min(2*addEye2Hessian1,addEye2HessianMAX);
@@ -284,14 +274,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     end
                     [mp,mn]=getHessInertia__(obj);
                     derr=getDirectionError__(obj);
-                    if obj.verboseLevel>=4
-                        ferr=getFactorError__(obj);
-                    end
                 end
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),derr);
-                if obj.verboseLevel>=4
-                    fprintf('%8.1e',ferr);
-                end
             end
         elseif obj.setAddEye2Hessian
             printf3('%8.1e%8.1e',addEye2Hessian1,addEye2Hessian2);            
