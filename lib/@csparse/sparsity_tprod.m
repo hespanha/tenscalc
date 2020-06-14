@@ -256,7 +256,7 @@ else
     % ATTENTION, requires ic to be sorted (must be done above)
     k1=1;
     for i=1:length(ia)
-        if verboseLevel>1 && mod(i,5000)==0
+        if verboseLevel>1 && mod(i,25000)==0
             fprintf('%d ',i);
         end
         k2=k1+1;
