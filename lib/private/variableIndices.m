@@ -36,5 +36,7 @@ function isSensitivity=variableIndices(u,optimizationVariables,whereVariables,se
             error('sensitivityVariable %s is not an optimizationVariable\n',name(sensitivityVariables{i}));
         end
     end
-    fprintf('      %d sensitivity variables\n',sum(isSensitivity));
+    if any(isSensitivity)
+        fprintf('      %d sensitivity variables\n',sum(isSensitivity));
+    end
 end
