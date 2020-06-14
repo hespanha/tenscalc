@@ -1106,7 +1106,9 @@ classdef csparse < handle
                             obj.statistics.nAddedInstructions,instructionsTableHeight());
                 end
             end
-
+            if any(instr<0)
+                error('instrution table is full, increase sizes in instructionsTableUTHash.c');
+            end
         end
 
         function instr=newInstruction(obj,typ,parameters,operands,vectorizedOperation,fast)
@@ -1134,6 +1136,10 @@ classdef csparse < handle
             if mod(obj.statistics.nAddedInstructions,100000)==0
                  fprintf('added %d instr. (%d unique)...',...
                          obj.statistics.nAddedInstructions,instructionsTableHeight());
+            end
+
+            if instr<0
+                error('instrution table is full, increase sizes in instructionsTableUTHash.c');
             end
         end
 
