@@ -205,26 +205,26 @@ function varargout=Tvars2optimizeCS(varargin)
         Tout.(varname)=Tvariable(varname,size(Tout_.(fn{i})),true);
     end
 
-    for i=1:length(constraints)
-        switch type(constraints{i})
+    %% constraints and associated dual variables
+    kl=0;
+    kn=0;
+    for k=1:length(constraints)
+        switch type(constraints{k})
           case 'ispositive'
-            fld=sprintf('ispositive%d',i);
-            Tout.(fld)=Tcalculus(operands(constraints{i}));
+            kl=kl+1;
+            fld=sprintf('ispositive%d__',kl);
+            Tout.(fld)=Tcalculus(operands(constraints{k}));
+            fld=name(lambdas{kl});
+            Tout.(fld)=lambdas{kl};
           case 'iszero'
-            fld=sprintf('iszero%d',i);
-            Tout.(fld)=Tcalculus(operands(constraints{i}));
+            kn=kn+1;
+            fld=sprintf('iszero%d__',kn);
+            Tout.(fld)=Tcalculus(operands(constraints{k}));
+            fld=name(nus{kn});
+            Tout.(fld)=nus{kn};
           otherwise
-            Tout.(fld)=constraints{i};
+            error('constraint of type ''%s'' not implemented\n',type(constraints{k}));
         end
-    end
-    %Tout.constraints=constraints;
-    for i=1:length(lambdas)
-        fld=name(lambdas{i});
-        Tout.(fld)=lambdas{i};
-    end
-    for i=1:length(nus)
-        fld=name(nus{i});
-        Tout.(fld)=nus{i};
     end
 
     fprintf('done Tvars2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
