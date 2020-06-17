@@ -189,7 +189,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
             out.lHess=ldl_l(factor_ww);
-            tol=1e-8; % minimum eigenvalue to be considered positive -- seems needed larger than 1e-9 for cmex2optimize in bad problems
+            tol=0*1e-8; % minimum eigenvalue to be considered positive -- as we let addEye2Hessian get smaller, this generally also needs to get smaller
             declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
             %declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
@@ -283,7 +283,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         if isequal(factor,@ldl)
             out.dHess=ldl_d(factor_ww);
             out.lHess=ldl_l(factor_ww);
-            tol=1e-8; % minimum eigenvalue to be considered positive -- seems needed larger than 1e-9 for cmex2optimize in bad problems
+            tol=0*1e-8; % minimum eigenvalue to be considered positive -- as we let addEye2Hessian get smaller, this generally also needs to get smaller
             declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
             %declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
