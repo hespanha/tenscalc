@@ -119,7 +119,7 @@ for k=1:length(constraints)
         op1=Tcalculus(operands(constraints{k}));
         Fcells{end+1}=op1;
         % create appropriate lambda;
-        vname=sprintf('%slbd%d_',prefix,length(lambdas)+1);
+        vname=sprintf('%slambda%d_',prefix,length(lambdas)+1);
         lambdas{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize,nowarningever);
         if nargout>=6 && createSets4Duals
             template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
