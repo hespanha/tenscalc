@@ -317,7 +317,7 @@ EXPORT void ipmPD_CSsolver(
     
 #define addEye2HessianMAX 1e2
 #define addEye2HessianMIN 1e-20
-#define maxDirectionError 1e-5
+#define maxDirectionError 1e-9
     
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
     getHessInertia__(&mp,&mn);

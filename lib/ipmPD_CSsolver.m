@@ -233,7 +233,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
                 end
-                if addEye2Hessian2>addEye2HessianMIN && derr<1e-8
+                if addEye2Hessian2>addEye2HessianMIN && derr<1e-9
                     addEye2Hessian2=max(.5*addEye2Hessian2,addEye2HessianMIN);
                     setAddEye2Hessian2__(obj,addEye2Hessian2);
                 end
