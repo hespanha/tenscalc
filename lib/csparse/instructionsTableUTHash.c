@@ -178,7 +178,7 @@ do {                                                                            
 
 #define MAX_INSTRUCTIONS_PER_TABLE  5000000LL
 #define MAX_PARAMETERS_PER_TABLE   20000000LL // lasso2 example needs very large
-#define MAX_OPERANDS_PER_TABLE    500000000LL 
+#define MAX_OPERANDS_PER_TABLE     50000000LL 
 
 #define MAX_TERMS_PERLINE 100
 
