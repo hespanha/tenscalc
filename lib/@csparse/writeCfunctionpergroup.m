@@ -139,7 +139,7 @@ groups=obj.instructionsGroup;
 nGroups=max(groups);
 
 if verboseLevel>0
-    fprintf('WARNING: writeC: each instruction is being assigned a specific memory address but one should reuse memory\n');
+    fprintf('WARNING: writeCfunctionpergroup: each instruction is being assigned a specific memory address but one should reuse memory\n');
 end
 
 %% Static library
@@ -393,7 +393,7 @@ if ~isempty(logFile)
 end
 
 if verboseLevel>0
-    fprintf('writeC: creating computation functions\n');
+    fprintf('writeCfunctionpergroup: creating computation functions\n');
 end
 
 %% Create functions to do the computations
@@ -515,12 +515,12 @@ for i=1:nGroups
 end
 
 if verboseLevel>0
-    fprintf('writeC: creating methods functions\n');
+    fprintf('writeCfunctionpergroup: creating methods functions\n');
 end
 
 %% Create functions for sets
 if verboseLevel>0
-    fprintf('writeC: creating sets functions\n');
+    fprintf('writeCfunctionpergroup: creating sets functions\n');
 end
 for i=1:length(obj.sets)
     if verboseLevel>0
@@ -572,7 +572,7 @@ for i=1:length(obj.sets)
     end
     % set group status
     if isempty(obj.sets(i).childrenGroups)
-        %fprintf('writeC: %s has no effect\n',obj.sets(i).functionName);
+        %fprintf('writeCfunctionpergroup: %s has no effect\n',obj.sets(i).functionName);
     else
         if ~isempty(obj.sets(i).childrenGroups)
             fprintf(fid,'  groupStatus[%d]=0;\n',obj.sets(i).childrenGroups-1);
@@ -586,7 +586,7 @@ end
 
 %% Create functions for gets
 if verboseLevel>0
-    fprintf('writeC: creating gets functions\n');
+    fprintf('writeCfunctionpergroup: creating gets functions\n');
 end
 for i=1:length(obj.gets)
     nSources=length(obj.gets(i).source);
@@ -729,7 +729,8 @@ for i=1:length(obj.gets)
                     % error specific to optimization
                     error('some optimization variables do not affect the criteria nor the constraints (look for zeros in gradient) ');
                 else
-                    error('getting non-full variable %s(%d) with size [%s]\n',obj.gets(i).functionName,j,index2str(osize));
+                    error('getting non-full variable %s(%d) with size [%s]\n',...
+                          obj.gets(i).functionName,j,index2str(osize));
                 end
             end
 
@@ -759,7 +760,7 @@ end
 
 %% Create functions for copies
 if verboseLevel>0
-    fprintf('writeC: creating copies functions\n');
+    fprintf('writeCfunctionpergroup: creating copies functions\n');
 end
 for i=1:length(obj.copies)
     if verboseLevel>0
@@ -813,8 +814,12 @@ for i=1:length(obj.copies)
         instructionsSource=[instructionsSource;iS];
         
         if ~isequal(subscriptsDestination,subscriptsSource)
-            subscriptsDestination,subscriptsSource
-            error('writeC: source and destination for Copy command ''%s'' with different sparsity structures, you may need to use full() in the source\n',obj.copies(i).functionName);
+            if strcmp(obj.copies(i).functionName,'initDualEqX__')
+                error('writeCfunctionpergroup: source and destination for Copy command ''%s'' with different sparsity structures, *most likely caused by equality constraints that do not involve optimization variables*',obj.copies(i).functionName);
+            else
+                subscriptsDestination,subscriptsSource;
+                error('writeCfunctionpergroup: source and destination for Copy command ''%s'' with different sparsity structures, you may need to use full() in the source\n',obj.copies(i).functionName);
+            end
         end
     end
     instructionsDestination=obj.memoryLocations(instructionsDestination);
@@ -845,7 +850,7 @@ end
 
 %% Create functions for saves
 if verboseLevel>0
-    fprintf('writeC: creating saves functions\n');
+    fprintf('writeCfunctionpergroup: creating saves functions\n');
 end
 for i=1:length(obj.saves)
     % create function
@@ -912,7 +917,7 @@ end
 
 %% Create functions for externalFunctions
 if verboseLevel>0
-    fprintf('writeC: creating external functions\n');
+    fprintf('writeCfunctionpergroup: creating external functions\n');
 end
 for i=1:length(obj.externalFunctions)
     % create function header
