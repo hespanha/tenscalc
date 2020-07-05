@@ -1252,6 +1252,12 @@ classdef Tcalculus
             end
         end
         
+        function obj=permute(obj1,order)
+            osize1=size(obj1);
+            %obj=Tcalculus('permute',osize1(order),order,obj1.TCindex,{},1);
+            obj=tprod(obj1,order);
+        end
+        
         function obj=factor(obj1,type,typical_subscripts,typical_values)
             osize1=size(obj1);
             if length(osize1)~=2
@@ -2952,7 +2958,7 @@ classdef Tcalculus
         % be broken into pieces, each with the same size as one of the variables.
         % Each variable is the replaced by the corresponding piece
         % of obj1.
-
+            
             if iscell(obj)
                 % Apply substitution to each element of cell array 'obj'
                 for k=1:length(obj)
@@ -2983,6 +2989,10 @@ classdef Tcalculus
                     error('Variables and new expression must have the same total sizes\n');
                 end
                 return
+            end
+            
+            if ~isa(var,'Tcalculus')
+                error('2nd argument of substitute must be a Tcalculus object');
             end
             
             if isa(obj,'Tcalculus')
