@@ -689,12 +689,29 @@ classdef csparse < handle
 
             typ=type(TCobj);
             switch (typ)
+              case 'tprod'
+                if 0
+                    % check if it has inverses inside
+                    ops=operands(TCobj);
+                    pars=op_parameters(TCobj);
+                    for i=1:length(ops)
+                        if strcmp(type(Tcalculus(ops(i))),'inv')
+                            pars{i}
+                            fprintf('tprod with %d parameters, has inverse [%s] and should be simplified\n',length(ops),index2str(pars{i}));
+                        end
+                    end
+                end
+
               case 'traceinv'
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
                 TCobj=trace(op1\Teye(size(op1)));
                 typ=type(TCobj);
               case 'inv'
+                % One should check if it is possible to avoid forming the inverse:
+                % e.g., if the inverse is part of a tprod, one could
+                % use LDL or LU factorization intop the tprod to avoid
+                % forming the inverse, which may be full.
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
                 TCobj=op1\Teye(size(op1));
