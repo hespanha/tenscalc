@@ -405,10 +405,8 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     setMu__(obj,mu); 
                     printf3(' * ');
                 else 
-                    if alphaPrimal<.02
-                        mu=min(1e2,1.25*mu);
-                        %mu=min(1e2,mu0*mu);
-                        %mu=min(mu0,1.1*mu);
+                    if alphaPrimal<.1
+                        mu=min(mu0,1.1*mu);
                         setMu__(obj,mu); 
                         initDualIneq__(obj);
                         printf3('^');
