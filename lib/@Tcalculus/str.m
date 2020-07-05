@@ -48,10 +48,19 @@ function s=str(obj,tprod2mat,maxDepth)
               case 'double'
                 if issparse(parameters)
                     [ii,jj,vv]=find(parameters);
-                    s=horzcat(s,'sparse([',index2str(ii),...
-                              '],[',index2str(jj),'],[',index2str(vv),'])');
+                    if numel(vv)<10
+                        s=horzcat(s,'sparse([',index2str(ii),...
+                                  '],[',index2str(jj),'],[',index2str(vv),'])');
+                    else
+                        s=horzcat(s,'sparse([',index2str(ii(1:10)),...
+                                  ';...],[',index2str(jj(1:10)),';...],[',index2str(vv(1:10)),';...])');
+                    end
                 else
-                    s=horzcat(s,'[',index2str(parameters),'],');
+                    if numel(parameters)<10
+                        s=horzcat(s,'[',index2str(parameters),'],');
+                    else
+                        s=horzcat(s,'[',index2str(parameters(1:10)),'...],');
+                    end
                 end
               case 'struct'
                 if isfield(parameters,'subs')
