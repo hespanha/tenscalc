@@ -82,7 +82,7 @@
   Nonlinear Optimization Using Symbolic Tensor Calculus}
 
 \author{\jph}
-\date{December 8, 2018}
+\date{July 5, 2020}
 
 \begin{document}                        \maketitle
 
@@ -1220,6 +1220,35 @@ case the scalar always appear in the product inside the summation
 \end{align*}
 for indices selected using the rules above.
 
+\medskip
+
+For several linear algebra operations, it will be useful to consider
+the special case of tensor multiplication that extends the usual
+matrix product when the first tensor is a square matrix. Specifically
+given a square matrix $A\in\R^{n_1\times n_1}$ and another tensor
+$B\in\R^{n_1\times n_2\times\cdot\times n_\sigma}$ whose first dimension matches that of A, we
+extend the usual matrix multiplication as follows:
+\begin{align}\label{eq:generalized-product}
+  AB=A^{(1,-1)} * B^{(-1,2,\cdots,\sigma)} \in\R^{n_1\times n_2\times\cdot\times n_\sigma},
+\end{align}
+and will continue to simply use $AB$ to denote this product.  This
+extended multiplication continues to enjoy the associative rule in
+that given and additional square matrix $C\in\R^{n_1\times n_1}$, we have that
+\begin{align*}
+  (C*A)*B=C*(A*B).
+\end{align*}
+In addition, when the matrix $A$ in nonsingular, we further introduce
+the notation
+\begin{align*}
+  A\backslash B \eqdef A^{-1} B 
+\end{align*}
+where we can also see $A\backslash B$ as the solution
+$Y\in\R^{n_1\times n_2\times\cdot\times n_\sigma}$ to the system of equations
+\begin{align*}
+  A Y=B.
+\end{align*}
+
+
 \paragraph{Examples}
 
 Suppose that $a\in\R$ (scalar), $x\in\R^2$, $y\in\R^2$, $A\in\R^{3\times 2}$, $B\in\R^{2\times 2}$
@@ -1355,26 +1384,46 @@ $F:\R^{(n_A)}\to\R^{(n_B)}$, $G:\R^{(n_A)}\to\R^{(n_C)}$,
 $H:\R^{(n_A)}\to\R^{(n_D)}$ and a triple $(p,q,r)$ that is product
 compatible for their co-domains, the gradient of their
 $(p,q,r)$-product is given by
-\begin{multline*}
+\begin{multline}\label{eq:product-rule}
   \nabla_x \big( F(x)^{(p)} * G(x)^{(q)} * H(x)^{(r)} \big)
-  =\nabla_xF(x)^{(\bar p)} * G(x)^{(q)} * H(x)^{(r)}\\
-  + F(x)^{(p)} * \nabla_xG(x)^{(\bar q)} * H(x)^{(r)}
-  + F(x)^{(p)} *  G(x)^{(q)} * \nabla_x H(x)^{(\bar r)},
-\end{multline*}
+  =(\nabla_xF(x))^{(\bar p)} * G(x)^{(q)} * H(x)^{(r)}\\
+  + F(x)^{(p)} * (\nabla_xG(x))^{(\bar q)} * H(x)^{(r)}
+  + F(x)^{(p)} *  G(x)^{(q)} * (\nabla_x H(x))^{(\bar r)},
+\end{multline}
 where $n_A\eqdef(n_1,n_2,\dots,n_\alpha)$, $\eta\eqdef\max\{0,p,q,r\}$, and
 \begin{align*}
   \bar p&\eqdef(p,\eta+1,\dots,\eta+\alpha), &
   \bar q&\eqdef(q,\eta+1,\dots,\eta+\alpha), &
   \bar r&\eqdef(r,\eta+1,\dots,\eta+\alpha).
 \end{align*}
+For the generalized product \eqref{eq:generalized-product} of a square
+matrix-valued function $F:\R^{(m_A)}\to\R^{n_1\times n_1}$ by a tensor-valued
+function
+$G:\R^{(m_A)}\to\R^{n_1\times n_2\times \cdots\times n_\sigma}$, with
+$m_A\eqdef(m_1,m_2,\dots,m_\alpha)$, the product rule in \eqref{eq:product-rule}
+becomes
+\begin{align*}
+  \nabla_x \big(F(x)G(x)\big)
+  &=\nabla_x \big( F^{(1,-1)} * G^{(-1,2,\dots,\sigma)} \big)\\
+  &=(\nabla_xF)^{(1,-1,\eta+1,\dots,\eta+\alpha)} * G^{(-1,2,\dots,\sigma)}+
+  F^{(1,-1)} * (\nabla_xG)^{(-1,2,\dots,\sigma,\eta+1,\dots,\eta+\alpha)}\\
+  &=(\nabla_xF)^{(1,-1,\eta+1,\dots,\eta+\alpha)} * G^{(-1,2,\dots,\sigma)}+F \nabla_xG
+\end{align*}
+where $\eta\eqdef\max\{2,\dots,\sigma\}$.
+
+\medskip
+
 For the particular case of the Frobenius-norm squared of $F(x)$:
 \begin{align*}
   \| F(x) \|_F^2\eqdef F(x)^{(-1,\dots,-\alpha)} * F(x)^{(-1,\dots,-\alpha)},
 \end{align*}
 we get
 \begin{align*}
-  \nabla_x \|F(x)\|_F^2 &=2 \nabla_xF(x)^{(-1,\dots,-\alpha,1,\dots,\alpha)} * F(x)^{(-1,\dots,-\alpha)}
+  \nabla_x \|F(x)\|_F^2 &=2 (\nabla_xF(x))^{(-1,\dots,-\alpha,1,\dots,\alpha)} * F(x)^{(-1,\dots,-\alpha)}.
 \end{align*}
+
+
+
 \paragraph{Composition rule:} Given two functions
 $F:\R^{(n_A)}\to\R^{(n_B)}$ and
 $G:\R^{(n_B)}\to\R^{(n_C)}$, the gradient of the
@@ -1448,51 +1497,96 @@ where
 % $f(x,z)$ with respect to $z$, viewed as an $\R^{n_1\times\cdots\times n_\alpha}\times\R\to\R^{m_1\times\cdots\times
 %   m_\beta}$ mapping.
 
-\paragraph{Matrix rules:} Given a function
-$F:\R^{(n_A)}\to\R^{{n_C}}$, $n_C\eqdef(n,n)$ the gradients
+\paragraph{Solutions to linear equations:}
+
+Given a square matrix-valued function
+$F:\R^{(m_A)}\to\R^{n_1\times n_1}$, a tensor-valued function
+$G:\R^{(m_A)}\to\R^{n_1\times n_2\times \cdots\times n_\sigma}$, with
+$m_A\eqdef(m_1,m_2,\dots,m_\alpha)$, and their generalized product
+$H:\R^{(m_A)}\to\R^{n_1\times n_2\times\cdots\times n_\alpha}$, defined by
+$H(x)\eqdef F(x) G(x)$,
+$\forall x\in\R^{m_1\times m_2\times\cdots\times m_\alpha}$, we conclude from the implicit function
+theorem and the product rule that
 \begin{align*}
-  &\nabla_x \log\det F(x):\R^{(n_A)}\to\R^{(n_A)}, \\
-  &\nabla_x \trace F(x)^{-1}:\R^{(n_A)}\to\R^{(n_A)}, \\
-  &\nabla_x F(x)^{-1}:\R^{(n_A)}\to\R^{(n_C\times n_A)}, &
+  \nabla_x \big(F(x) G(x)\big)=\nabla_x H(x)
+  &\eqv
+  (\nabla_xF)^{(1,-1,\eta+1,\dots,\eta+\alpha)} * G^{(-1,2,\dots,\sigma)}+ F \nabla_xG=\nabla_x H\\
+  &\eqv
+  \nabla_xG=F^{-1}\Big(\nabla_x H-(\nabla_xF)^{(1,-1,\eta+1,\dots,\eta+\alpha)} * G^{(-1,2,\dots,\sigma)}\Big)\\
+  &\eqv
+  \nabla_xG=F\backslash\Big(\nabla_x H-(\nabla_xF)^{(1,-1,\eta+1,\dots,\eta+\alpha)} * G^{(-1,2,\dots,\sigma)}\Big),
+\end{align*}
+where $\eta\eqdef\max\{2,\dots,\sigma\}$.
+
+
+\paragraph{Matrix rules:} Given a function
+$F:\R^{(n_A)}\to\R^{{n_C}}$, $n_A\eqdef(n_1,n_2,\dots,n_\alpha)$, $n_C\eqdef(n,n)$ the gradients
+\begin{align*}
+  &\nabla_x \log\det F:\R^{(n_A)}\to\R^{(n_A)}, \\
+  &\nabla_x \trace F^{-1}:\R^{(n_A)}\to\R^{(n_A)}, \\
+  &\nabla_x F^{-1}:\R^{(n_A)}\to\R^{(n_C\times n_A)}, &
 \end{align*}
 are given by
 \begin{align*}
   \nabla_x \big(\log\det F (x)\big)
-  &= \Big[\sum_{ij\in\scr{I}_B}\PDeriv{\log\det\big(F(x)\big)}{F_{ij}}\PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
-  &= \Big[\sum_{(i,j)\in\scr{I}_C}[F(x)^{-1}]_{ji}
-  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
-  &= (F(x)^{-1})^{(p)} * \nabla_x F(x)^{(q)}, \quad
+  &= \Big[\sum_{ij\in\scr{I}_B}\PDeriv{\log\det F}{F_{ij}}\PDeriv{F_{ij}}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}[F^{-1}]_{ji}
+  \PDeriv{F_{ij}}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= (F^{-1})^{(p)} * \nabla_x F^{(q)}, \quad
   p\eqdef(-2,-1), \;
   q\eqdef(-1,-2,1,2,\dots,\alpha),\\
   %
   \nabla_x \big(\trace F(x)^{-1}\big)
-  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{\trace F(x)^{-1}}{F_{ij}}
-  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
-  &=-\Big[\sum_{(i,j)\in\scr{I}_C}[F(x)^{-2}]_{ji}
-  \PDeriv{F_{ij}(x)}{x_r}\Big]_{r\in\scr{I}_A}\\
-  &= -(F(x)^{-2})^{(p)} * \nabla_x F(x)^{(q)}, \quad
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{\trace F^{-1}}{F_{ij}}
+  \PDeriv{F_{ij}}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &=-\Big[\sum_{(i,j)\in\scr{I}_C}[F^{-2}]_{ji}
+  \PDeriv{F_{ij}}{x_r}\Big]_{r\in\scr{I}_A}\\
+  &= -(F^{-2})^{(p)} * \nabla_x F^{(q)}, \quad
   p\eqdef(-2,-1), \;
   q\eqdef(-1,-2,1,2,\dots,\alpha),\\
   %
   \nabla_x (F^{-1}(x))
-  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{[F(x)^{-1}]_{k\ell}}{F_{ij}}
-  \PDeriv{F_{ij}(x)}{x_r}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
+  &= \Big[\sum_{(i,j)\in\scr{I}_C}\PDeriv{[F^{-1}]_{k\ell}}{F_{ij}}
+  \PDeriv{F_{ij}}{x_r}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
   &= -\Big[\sum_{(i,j)\in\scr{I}_C}[A^{-1}]_{ki}
-  \PDeriv{F_{ij}(x)}{x_r}[A^{-1}]_{j\ell}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
-  &= - \big(F(x)^{-1}\big)^{(p)} * \nabla_x F(x)^{(q)} * \big(F(x)^{-1}\big)^{(r)},
+  \PDeriv{F_{ij}}{x_r}[A^{-1}]_{j\ell}\Big]_{(k\ell,r)\in\scr{I}_C\times\scr{I}_A}\\
+  &= - \big(F^{-1}\big)^{(p)} * \nabla_x F^{(q)} * \big(F^{-1}\big)^{(r)},
   \\&\qquad\qquad
   p=(1,-1), \;
   q=(-1,-2,3,4,\dots,2+\alpha),\;
   r=(-2,2).
 \end{align*}
-where we used the facts that
+where, for simplicity we omitted the
+dependence on $x$ from $F(x)$, and used the facts that
 \begin{align*}
   &\PDeriv{\log\det(A)}{A_{ij}}=[A^{-1}]_{ji}, &
   &\PDeriv{\trace A^{-1}}{A_{ij}}=-[A^{-2}]_{ji}, &
   &\PDeriv{[A^{-1}]_{k\ell}}{A_{ij}}=-[A^{-1}]_{ki}[A^{-1}]_{j\ell}.
 \end{align*}
-
-
+For sparse matrix, it important to implement these rules without ever
+constructing the inverse matrix. To accomplish this, we use the notation
+\begin{align*}
+  \sum_1 Y = \sum_{i_1} Y_{i_1,i_2,\dots,i_\alpha} = Y^{(-1,1,2,\dots,n_\sigma)} *,
+  \quad
+  Y\in\R^{n_1\times n_2 \times\cdots \times n_\sigma}
+\end{align*}
+which allow us to re-write the gradients above as follows:
+\begin{align*}
+  \nabla_x \big(\log\det F (x)\big)
+  &= (F^{-1})^{(-2,-1)} * (\nabla_x F)^{(-1,-2,1,2,\dots,\alpha)} \\
+  &=\sum_1(F^{-1})^{(1,-1)} * (\nabla_x F)^{(-1,1,2,3,\dots,\alpha+1)}\\
+  &=\sum_1F^{-1} \nabla_x F\\
+  &=\sum_1F\backslash \nabla_x F\\
+  % 
+  \nabla_x \big(\trace F(x)^{-1}\big)
+  &= -(F^{-2})^{(-2,-1)} * (\nabla_x F)^{(-1,-2,1,2,\dots,\alpha)} \\
+  &= -\sum_1(F^{-2})^{(1,-1)} *( \nabla_x F)^{(-1,1,2,3,\dots,\alpha+1)} \\
+  &= -\sum_1 F^{-2} \nabla_x F\\
+  &= -\sum_1 F^{-1}F^{-1} \nabla_x F\\
+  &= -\sum_1 F\backslash\big( F\backslash\nabla_x F)\big),
+\end{align*}
+which involve solving systems of linear equations, rather than
+explicitly computing inverses.
 
 \subsection{Table interpolation}
 
