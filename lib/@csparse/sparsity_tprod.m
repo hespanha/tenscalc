@@ -66,7 +66,7 @@ for i=1:length(operands)
     uindi=unique(parameters{i});
     if length(uindi)~=length(parameters{i})
         k=1;
-        kk=find(parameters{i}(k)==parameters{i},'last');
+        kk=find(parameters{i}(k)==parameters{i},1,'last');
         while kk>k
             % k & kk are equal
             % parameters{i},k,kk
@@ -112,7 +112,7 @@ for i=1:length(operands)
             % prepare for next one
             k=k+1;
             if k<length(parameters{i})
-                kk=find(parameters{i}(k)==parameters{i},'last');
+                kk=find(parameters{i}(k)==parameters{i},1,'last');
             else
                 kk=-inf;
             end
@@ -216,7 +216,7 @@ subsY=subsY';
 
 if verboseLevel<=1 && length(ia)>20000
     verboseLevel=2;
-    fprintf('    computing instructions for (large) tprod size with size [%s] and %d nonzero entries... ',index2str(osizeY),length(ia));
+    fprintf('    computing instructions for (large) tprod with size [%s] and %d nonzero entries... ',index2str(osizeY),length(ia));
 end
 
 % sort by ic to simplify going over variables with same ic
@@ -285,7 +285,7 @@ subsY=subsY';
 instrY=instrY(k);
 
 if verboseLevel>1
-    fprintf('done %d nnzYS, %d nnzY (%.2f sec)',size(subsYS,2),size(subsY,2),etime(clock,t0));
+    fprintf('tprod nnzYS=%d, nnzY=%d',size(subsYS,2),size(subsY,2));
 end
 
 if verboseLevel>0
@@ -294,6 +294,9 @@ if verboseLevel>0
     fprintf(')\n');
 end
 
+if verboseLevel>1
+    fprintf('tprod done in %.2f sec  ',etime(clock,t0));
+end
 
 end
 
