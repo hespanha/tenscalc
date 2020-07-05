@@ -69,7 +69,7 @@ function grad=gradient(obj,var)
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
         updateFile2table(objs{i},1);
-        if ismember(obj_type,{'det','logdet','traceinv','inv'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
+        if ismember(obj_type,{'det','logdet','traceinv','inv','mldivide'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
             grads{i}=gradient(Tcalculus(operands(objs{i})),var);
         else
             grads{i}=gradient(objs{i},var);
@@ -210,12 +210,11 @@ function grad=gradient(obj,var)
         % This operation should not form the inverse and then do the product
         % because the inverse will lose the sparsity that typically
         % exists in the factorization
-        if 0
-            disp('using associate');
-            grad=tprod(inv(objs{1}),[-2,-1],...
-                       grads{1},[-1,-2,1:length(var_size)],'associate');
-        else
-            %disp('not using associate');
+        if 1
+            %disp('using backlash');
+            grad=trace(objs{1}\grads{1});
+        elseif 0
+            disp('Using the inverse, very bad!');
             grad=tprod(inv(objs{1}),[-2,-1],...
                        grads{1},[-1,-2,1:length(var_size)]);
         end
@@ -225,17 +224,39 @@ function grad=gradient(obj,var)
         % This operation should not form the inverse and then do the product
         % because the inverse will lose the sparsity that typically
         % exists in the factorization
-        grad=det(objs{1})*tprod(inv(objs{1}),[-2,-1],...
-                                grads{1},[-1,-2,1:length(var_size)]);
-        
+        if 1
+            %disp('using backlash');
+            grad=det(objs{1})*trace(objs{1}\grads{1});
+        else
+            grad=det(objs{1})*tprod(inv(objs{1}),[-2,-1],...
+                                    grads{1},[-1,-2,1:length(var_size)]);
+        end
+            
       case 'traceinv'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
         % because the inverse will lose the sparsity that typically
         % exists in the factorization
-        grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
-                    grads{1},[-1,-2,1:length(var_size)]);
+        if 1
+            %disp('using backlash');
+            grad=-trace(objs{1}\(objs{1}\grads{1}));
+        else
+            disp('Using the inverse, very bad!');
+            grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
+                        grads{1},[-1,-2,1:length(var_size)]);
+        end
                 
+        
+      case 'mldivide'
+        osize1=size(objs{1});
+        % This operation should not form the inverse and then do the product
+        % because the inverse will lose the sparsity that typically
+        % exists in the factorization
+        alpha=numel(var_size);
+        sigma=numel(obj_size);
+        eta=max(2,sigma);
+        grad=mldivide(objs{1},grads{2}-tprod(grads{1},[1,-1,eta+1:eta+alpha],mldivide(objs{1},objs{2}),[-1,2:sigma]));
+        
       case 'inv'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product

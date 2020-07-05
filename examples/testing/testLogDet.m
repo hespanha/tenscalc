@@ -43,15 +43,15 @@ declareGet(code,full(gradient(trace(AS),A)),'get_gtraceAS');
 declareGet(code,logdet(lu(AS)),'get_logdetLUAS');
 declareGet(code,logdet(ldl(AS)),'get_logdetLDLAS');
 declareGet(code,lu(AS)\eye(n),'get_mldLUAS');
-declareGet(code,inv(lu(AS)),'get_invLUAS');
-declareGet(code,inv(ldl(AS)),'get_invLDLAS');
-declareGet(code,full(gradient(inv(ldl(AS)),A)),'get_ginvLDLAS');
 declareGet(code,full(gradient(logdet(ldl(AS)),A)),'get_glogdetLDLAS');
 declareGet(code,full(gradient(logdet(lu(AS)),A)),'get_glogdetLUAS');
 declareGet(code,traceinv(lu(AS)),'get_traceinvLUAS');
 declareGet(code,traceinv(ldl(AS)),'get_traceinvLDLAS');
 declareGet(code,full(gradient(traceinv(ldl(AS)),A)),'get_gtraceinvLDLAS');
 declareGet(code,full(gradient(traceinv(lu(AS)),A)),'get_gtraceinvLUAS');
+declareGet(code,inv(lu(AS)),'get_invLUAS');
+declareGet(code,inv(ldl(AS)),'get_invLDLAS');
+declareGet(code,full(gradient(inv(ldl(AS)),A)),'get_ginvLDLAS');
 
 cmex2compute('csparseObject',code,'classname','tmpTest');
 %class2compute('csparseObject',code,'classname','tmpTest');

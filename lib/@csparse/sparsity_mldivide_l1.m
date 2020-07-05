@@ -29,7 +29,7 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
-    verboseLevel=0;
+    verboseLevel=1;
     
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
     
@@ -60,6 +60,11 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
         error('mldivide: in (I+L)\\B, B must be a vector or a (2D) matrix with the same number of rows as L\n');
     end
     
+    if verboseLevel<=1 && m*n>20000
+        verboseLevel=2;
+        fprintf('    computing instructions for (large) mldivide:\n');
+    end
+    
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -82,16 +87,18 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
     for col=1:m
         for row=2:n
             k=find(instrL(row,1:row-1) & instrX(1:row-1,col)');
-            if instrX(row,col) && ~isempty(k)
-                operands=[instrL(row,k);instrX(k,col)'];
-                operands=full([instrX(row,col),operands(:)']);
-                instrX(row,col)=newInstructions(obj,obj.Itypes.I_plus_minus_dot,...
-                                                {[]},num2cell(operands,2),thisExp);
-            elseif instrX(row,col)==0 && ~isempty(k)
-                operands=[instrL(row,k);instrX(k,col)'];
-                operands=full([operands(:)']);
-                instrX(row,col)=newInstructions(obj,obj.Itypes.I_minus_dot,...
-                                                {[]},num2cell(operands,2),thisExp);
+            if ~isempty(k)
+                if instrX(row,col)
+                    operands=[instrL(row,k);instrX(k,col)'];
+                    operands=full([instrX(row,col),operands(:)']);
+                    instrX(row,col)=newInstructions(obj,obj.Itypes.I_plus_minus_dot,...
+                                                    {[]},num2cell(operands,2),thisExp);
+                elseif instrX(row,col)==0 
+                    operands=[instrL(row,k);instrX(k,col)'];
+                    operands=full([operands(:)']);
+                    instrX(row,col)=newInstructions(obj,obj.Itypes.I_minus_dot,...
+                                                    {[]},num2cell(operands,2),thisExp);
+                end
             end
         end
     end

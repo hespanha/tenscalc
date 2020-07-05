@@ -1179,7 +1179,8 @@ classdef Tcalculus
                 updateFile2table(obj,1);
             elseif length(osize1)==2 && osize1(1)==osize1(2)
                 if nargin>1
-                    error('diag(x) can only take 2nd argument when x is a vector')
+                    error('current implementation of diag(x) can only take 2nd argument when x is a vector not with size [%s]',...
+                          index2str(osize1))
                 end
                 % matrix->vector
                 obj=tprod(obj1,[1,1]);
@@ -1195,12 +1196,20 @@ classdef Tcalculus
         %   
         %  trace(A) is the sum of the diagonal elements of A, which is
         %  also the sum of the eigenvalues of A.
+        %  
+        %  For more general tensors n-dimensional tensors, one must
+        %  have size(A,1)==size(A,2), and trace returns a (n-2)-dimensional
+        %  tensor obtained by summing over the same entries
+        %  of the 1st two dimensions, as in
+        %       Y(i,k,l)=sum_i A(i,i,j,k,l,...)
+        %  
+            
             osize1=size(obj1);
-            if length(osize1)==2 && osize1(1)==osize1(2)
-                obj=tprod(obj1,[-1,-1]);
-                else
-                    obj1
-                    error('ambigous Tcalculus/trace()');
+            if length(osize1)>=2 && osize1(1)==osize1(2)
+                obj=tprod(obj1,[-1,-1,1:length(osize1)-2]);
+            else
+                obj1
+                error('ambigous Tcalculus/trace()');
             end
         end
         
@@ -2535,6 +2544,9 @@ classdef Tcalculus
         %   
         %   A\B is the matrix division of A into B, which is rougly
         %   the same as inv(A)*B
+        %   
+        %   A must be a square matrix, but B can be a more genarl tensor,
+        %   as long as its 1st dimension matches the size of A.
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
@@ -2545,9 +2557,9 @@ classdef Tcalculus
                 return
             end
             
-            if (length(osize1) ~= 2 && length(osize1) ~= 0) || length(osize2) > 2
+            if length(osize1) ~= 0 && (length(osize1) ~= 2 || osize1(1)~=osize1(2) ) %|| length(osize2) > 2
                 obj1,obj2
-                error('mldivide takes 2-matrix (not [%s]) and scalar/1-vector/2-matrix (not [%s])\n',...
+                error('1st argument of mldivide must be a square matrix (not [%s]))\n',...
                       index2str(osize1),index2str(osize2))
             end
             

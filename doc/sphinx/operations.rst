@@ -579,9 +579,8 @@ matrices).
        .. function:: mldivide(ldl(A),B)
      - Left matrix division, which is the solution to the system of
        equations ``A*X=B`` where ``A`` must be a nonsingular square
-       matrix (tensor with 2 dimensions) and ``B`` may either be a
-       vector (tensor with 1 dimension) or a matrix (tensor with 2
-       dimensions) with ``size(A,1)==size(A,2)==size(B,1)``.
+       matrix (tensor with 2 dimensions) and ``B`` a tensor such
+       that ``size(A,1)==size(A,2)==size(B,1)``.
 
      - |matlab| allows for non-square and possibly singular matrices
        ``A``, in which case the least-squares solution to ``A*X=B`` is

@@ -4,7 +4,7 @@ clear all;
 s = RandStream('mt19937ar','Seed',0);
 RandStream.setGlobalStream(s);
 
-gen={@cmex2compute,@class2compute};
+gen={@class2compute,@cmex2compute};
     
 N=2;
 n=1;
@@ -50,25 +50,25 @@ fixdiff=@(A,B,tol)norm2(tril(A)-tril(B,-1)/2-diag(diag(B)))<=tol;
 fixdiff1=@(A,B,tol)tril(A)-tril(B,-1)/2-diag(diag(B))
 
 fun={;
-     close,    @(A,As,B)diag(A),             [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
-     close,    @(A,As,B)diag(A,1),           [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
-     close,    @(A,As,B)diag(A,-1),          [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
-     close,    @(A,As,B)logdet(ldl(As)),     @(A,As,B)logdet(As),     @(A,As,B)zeros(N,N),     @(A,As,B)inv(As);
-     fixdiff,  @(A,As,B)logdet(ldl(A)),      @(A,As,B)logdet(sym(A)), @(A,As,B)inv(As),        @(A,As,B)zeros(N,N);
-     close,    @(A,As,B)inv(lu(A)),          @(A,As,B)inv(A),         @(A,As,B)dInverse,       @(A,As,B)zeros(N,N,N,N);
-     close,    @(A,As,B)inv(ldl(As)),        @(A,As,B)inv(As),        @(A,As,B)zeros(N,N,N,N), @(A,As,B)dInverses;
-     close,    @(A,As,B)logdet(lu(A)),       @(A,As,B)logdet(A),      @(A,As,B)inv(A'),        @(A,As,B)zeros(N,N);
-     close,    @(A,As,B)traceinv(lu(A)),     @(A,As,B)traceinv(A),    @(A,As,B)-inv(A')^2,     @(A,As,B)zeros(N,N);
-     close,    @(A,As,B)traceinv(ldl(As)),   @(A,As,B)traceinv(As),   @(A,As,B)zeros(N,N),     @(A,As,B)-inv(As)^2;
-     fixdiff,    @(A,As,B)traceinv(ldl(A)),    @(A,As,B)traceinv(sym(A)),@(A,As,B)-inv(As)^2,    @(A,As,B)zeros(N,N);
-     close,    @(A,As,B)trace(A),            [],                      @(A,As,B)eye(N),         @(A,As,B)zeros(N,N);
-     close,    @(A,As,B)transpose(A),        [],                      @(A,As,B)dTranspose,     @(A,As,B)zeros(N,N,N,N);
-     close,    @(A,As,B)ctranspose(A),       [],                      @(A,As,B)dTranspose,     @(A,As,B)zeros(N,N,N,N);
-     close,    @(A,As,B)mldivide(lu(A),B),   @(A,As,B)mldivide(A,B),  NaN,                     NaN;
-     close,    @(A,As,B)mldivide(ldl(As),B), @(A,As,B)mldivide(As,B), NaN,                     NaN;
+     close,    @(A,As,B)mldivide(lu(A),B),   @(A,As,B)mldivide(A,B),  @(A,As,B)tprod(dInverse,[1,-1,3,4],B,[-1,2]),     @(A,As,B)zeros(N,n,N,N);
+     close,    @(A,As,B)mldivide(ldl(As),B), @(A,As,B)mldivide(As,B), @(A,As,B)zeros(N,n,N,N),                     @(A,As,B)tprod(dInverses,[1,-1,3,4],B,[-1,2]);
      close,    @(A,As,B)mldivide(ldl(A),B),  @(A,As,B)mldivide(sym(A),B), NaN,                     NaN;
      close,    @(A,As,B)det(lu(A)),          @(A,As,B)det(A),         @(A,As,B)det(A)*inv(A'), @(A,As,B)zeros(N,N);
      close,    @(A,As,B)det(ldl(As)),        @(A,As,B)det(As),        @(A,As,B)zeros(N,N),     @(A,As,B)det(As)*inv(As');
+     close,    @(A,As,B)traceinv(lu(A)),     @(A,As,B)traceinv(A),    @(A,As,B)-inv(A')^2,     @(A,As,B)zeros(N,N);
+     close,    @(A,As,B)traceinv(ldl(As)),   @(A,As,B)traceinv(As),   @(A,As,B)zeros(N,N),     @(A,As,B)-inv(As)^2;
+     fixdiff,    @(A,As,B)traceinv(ldl(A)),    @(A,As,B)traceinv(sym(A)),@(A,As,B)-inv(As)^2,    @(A,As,B)zeros(N,N);
+     close,    @(A,As,B)logdet(lu(A)),       @(A,As,B)logdet(A),      @(A,As,B)inv(A'),        @(A,As,B)zeros(N,N);
+     close,    @(A,As,B)logdet(ldl(As)),     @(A,As,B)logdet(As),     @(A,As,B)zeros(N,N),     @(A,As,B)inv(As);
+     fixdiff,  @(A,As,B)logdet(ldl(A)),      @(A,As,B)logdet(sym(A)), @(A,As,B)inv(As),        @(A,As,B)zeros(N,N);
+     close,    @(A,As,B)diag(A),             [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
+...%     close,    @(A,As,B)diag(A,1),           [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
+...%     close,    @(A,As,B)diag(A,-1),          [],                      @(A,As,B)dDiag,          @(A,As,B)zeros(N,N,N);
+     close,    @(A,As,B)trace(A),            [],                      @(A,As,B)eye(N),         @(A,As,B)zeros(N,N);
+     close,    @(A,As,B)transpose(A),        [],                      @(A,As,B)dTranspose,     @(A,As,B)zeros(N,N,N,N);
+     close,    @(A,As,B)ctranspose(A),       [],                      @(A,As,B)dTranspose,     @(A,As,B)zeros(N,N,N,N);
+     close,    @(A,As,B)inv(lu(A)),          @(A,As,B)inv(A),         @(A,As,B)dInverse,       @(A,As,B)zeros(N,N,N,N);
+     close,    @(A,As,B)inv(ldl(As)),        @(A,As,B)inv(As),        @(A,As,B)zeros(N,N,N,N), @(A,As,B)dInverses;
     };
 
 for f=1:size(fun,1)
@@ -145,6 +145,18 @@ for f=1:size(fun,1)
             elseif numel(y)==N*N
                 dy=zeros(N,N,N,N);
                 dys=zeros(N,N,N,N);
+                for i=1:N
+                    for j=1:N
+                        eij=zeros(N,N);
+                        eij(i,j)=h;
+                        dy(:,:,i,j)=(fun{f,3}(in.A+eij,in.As,in.B)-y)/h;
+                        dys(:,:,i,j)=(fun{f,3}(in.A,in.As+eij,in.B)-y)/h;
+                    end
+                end
+            elseif length(size(y))==2
+                [m1,m2]=size(y);
+                dy=zeros(m1,m2,N,N);
+                dys=zeros(m1,m2,N,N);
                 for i=1:N
                     for j=1:N
                         eij=zeros(N,N);

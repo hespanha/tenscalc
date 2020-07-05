@@ -1566,7 +1566,8 @@ dependence on $x$ from $F(x)$, and used the facts that
 For sparse matrix, it important to implement these rules without ever
 constructing the inverse matrix. To accomplish this, we use the notation
 \begin{align*}
-  \sum_1 Y = \sum_{i_1} Y_{i_1,i_2,\dots,i_\alpha} = Y^{(-1,1,2,\dots,n_\sigma)} *,
+  %&\sum_1 Y = \sum_{i_1} Y_{i_1,i_1,i_3,\dots,i_\alpha} = Y^{(-1,1,2,\dots,n_\sigma-1)} *\in\R^{n_2 \times\cdots \times n_\sigma},\\
+  &\trace Y = \sum_{i_1} Y_{i_1,i_1,i_3,\dots,i_\alpha} = Y^{(-1,-1,1,2,\dots,n_\sigma-2)} *\in\R^{n_3\times n_4 \times\cdots \times n_\sigma},
   \quad
   Y\in\R^{n_1\times n_2 \times\cdots \times n_\sigma}
 \end{align*}
@@ -1574,16 +1575,16 @@ which allow us to re-write the gradients above as follows:
 \begin{align*}
   \nabla_x \big(\log\det F (x)\big)
   &= (F^{-1})^{(-2,-1)} * (\nabla_x F)^{(-1,-2,1,2,\dots,\alpha)} \\
-  &=\sum_1(F^{-1})^{(1,-1)} * (\nabla_x F)^{(-1,1,2,3,\dots,\alpha+1)}\\
-  &=\sum_1F^{-1} \nabla_x F\\
-  &=\sum_1F\backslash \nabla_x F\\
+  &=\trace \Big((F^{-1})^{(1,-1)} * (\nabla_x F)^{(-1,2,3,4,\dots,\alpha+2)}\Big)\\
+  &=\trace (F^{-1} \nabla_x F)\\
+  &=\trace(F\backslash \nabla_x F)\\
   % 
   \nabla_x \big(\trace F(x)^{-1}\big)
   &= -(F^{-2})^{(-2,-1)} * (\nabla_x F)^{(-1,-2,1,2,\dots,\alpha)} \\
-  &= -\sum_1(F^{-2})^{(1,-1)} *( \nabla_x F)^{(-1,1,2,3,\dots,\alpha+1)} \\
-  &= -\sum_1 F^{-2} \nabla_x F\\
-  &= -\sum_1 F^{-1}F^{-1} \nabla_x F\\
-  &= -\sum_1 F\backslash\big( F\backslash\nabla_x F)\big),
+  &= -\trace\Big((F^{-2})^{(1,-1)} *( \nabla_x F)^{(-1,2,3,4,\dots,\alpha+2)}\Big) \\
+  &= -\trace F^{-2} \nabla_x F\\
+  &= -\trace F^{-1}F^{-1} \nabla_x F\\
+  &= -\trace F\backslash\big( F\backslash\nabla_x F)\big),
 \end{align*}
 which involve solving systems of linear equations, rather than
 explicitly computing inverses.

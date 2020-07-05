@@ -702,6 +702,18 @@ classdef csparse < handle
                     end
                 end
 
+              case 'mldivide'
+                % reshape so that 2nd tensor is a matrix
+                ops=operands(TCobj);
+                op2=Tcalculus(ops(2));
+                osize2=size(op2);
+                if length(osize2)>2
+                    op1=Tcalculus(ops(1));
+                    % merge all dimensions past the 1st before appying mldivide and undo it afterwords
+                    TCobj=reshape(mldivide(op1,reshape(op2,[osize2(1),prod(osize2(2:end))])),osize2);
+                end
+                typ=type(TCobj);
+                
               case 'traceinv'
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
@@ -712,6 +724,7 @@ classdef csparse < handle
                 % e.g., if the inverse is part of a tprod, one could
                 % use LDL or LU factorization intop the tprod to avoid
                 % forming the inverse, which may be full.
+                warning('Forming the inverse is computationally very expensive for sparse matries and should be avoided');
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
                 TCobj=op1\Teye(size(op1));
