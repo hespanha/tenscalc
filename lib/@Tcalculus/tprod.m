@@ -19,7 +19,7 @@ function obj=tprod(varargin)
     if length(varargin)<2
         error('tprod: t least 2 input arguments needed (%d found)\n',length(varargin));
     end
-    
+
     if isequal(varargin{end},'associate')
         associate=1;
         varargin(end)=[];
@@ -59,6 +59,10 @@ function obj=tprod(varargin)
     if isempty(objs)
         varargin{:}
         error('trying to create tprod() with no arguments\n');
+    end
+    
+    if length(objs)>2
+        warning('tprod with more than 2 factors should be avoided as it is typically computationally not very efficient');
     end
     
     %% Apply associative rule for tprod(tprod)

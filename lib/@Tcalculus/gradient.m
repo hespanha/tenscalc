@@ -207,25 +207,53 @@ function grad=gradient(obj,var)
 
       case 'logdet'
         osize1=size(objs{1});
-        grad=tprod(inv(objs{1}),[-2,-1],...
-                   grads{1},[-1,-2,1:length(var_size)]);
+        % This operation should not form the inverse and then do the product
+        % because the inverse will lose the sparsity that typically
+        % exists in the factorization
+        if 0
+            disp('using associate');
+            grad=tprod(inv(objs{1}),[-2,-1],...
+                       grads{1},[-1,-2,1:length(var_size)],'associate');
+        else
+            %disp('not using associate');
+            grad=tprod(inv(objs{1}),[-2,-1],...
+                       grads{1},[-1,-2,1:length(var_size)]);
+        end
         
       case 'det'
         osize1=size(objs{1});
-        grad=tprod(det(objs{1}),[],...
-                   inv(objs{1}),[-2,-1],...
-                   grads{1},[-1,-2,1:length(var_size)]);
+        % This operation should not form the inverse and then do the product
+        % because the inverse will lose the sparsity that typically
+        % exists in the factorization
+        grad=det(objs{1})*tprod(inv(objs{1}),[-2,-1],...
+                                grads{1},[-1,-2,1:length(var_size)]);
         
       case 'traceinv'
         osize1=size(objs{1});
+        % This operation should not form the inverse and then do the product
+        % because the inverse will lose the sparsity that typically
+        % exists in the factorization
         grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
                     grads{1},[-1,-2,1:length(var_size)]);
                 
       case 'inv'
         osize1=size(objs{1});
-        grad=-tprod(inv(objs{1}),[1,-1],...
-                    grads{1},[-1,-2,3:2+length(var_size)],...
-                    inv(objs{1}),[-2,2]);
+        % This operation should not form the inverse and then do the product
+        % because the inverse will lose the sparsity that typically
+        % exists in the factorization
+        if 0
+            grad=-tprod(inv(objs{1}),[1,-1],...
+                        grads{1},[-1,-2,3:2+length(var_size)],...
+                        inv(objs{1}),[-2,2]);
+        else
+            % faster and also easier to keep tprod(inv) with just 2 factors to
+            % help simplifications
+            %grad=-tprod(inv(objs{1}),[1,-1],tprod(grads{1},[1,-1,3:2+length(var_size)],...
+            %                                      inv(objs{1}),[-1,2]),[-1,2:2+length(var_size)]);
+            grad=-tprod(tprod(inv(objs{1}),[1,-1],...
+                              grads{1},[-1,2,3:2+length(var_size)]),[1,-1,3:2+length(var_size)],...
+                        inv(objs{1}),[-1,2]);
+        end
         
       case 'cat'
         grad=cat(pars,grads{:});
