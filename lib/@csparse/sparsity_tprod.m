@@ -216,7 +216,7 @@ subsY=subsY';
 
 if verboseLevel<=1 && length(ia)>20000
     verboseLevel=2;
-    fprintf('    computing instructions for (large) tprod with %d nonzero entries... ',length(ia));
+    fprintf('    computing instructions for (large) tprod size with size [%s] and %d nonzero entries... ',index2str(osizeY),length(ia));
 end
 
 % sort by ic to simplify going over variables with same ic
