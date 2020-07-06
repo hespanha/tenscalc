@@ -1132,7 +1132,7 @@ classdef csparse < handle
                 obj.statistics.nAddedInstructions=obj.statistics.nAddedInstructions+1;
                 
                 if mod(obj.statistics.nAddedInstructions,100000)==0
-                    fprintf('added %d instr. (%d unique)...',...
+                    fprintf('     added %d instr. (%d unique)...\n',...
                             obj.statistics.nAddedInstructions,instructionsTableHeight());
                 end
             end
@@ -1164,7 +1164,7 @@ classdef csparse < handle
             obj.statistics.nAddedInstructions=obj.statistics.nAddedInstructions+1;
             
             if mod(obj.statistics.nAddedInstructions,100000)==0
-                 fprintf('added %d instr. (%d unique)...',...
+                 fprintf('     added %d instr. (%d unique)...\n',...
                          obj.statistics.nAddedInstructions,instructionsTableHeight());
             end
 
