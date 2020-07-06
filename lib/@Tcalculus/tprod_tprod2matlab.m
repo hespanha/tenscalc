@@ -627,9 +627,9 @@ function obj=tprod_tprod2matlab(obj)
         % y_{ijk}=A_{k1jk} * B_{ik1} * c_{i}
         3, {[-1,2,3],[1,-1],[1]},      @(A,B,c) tprod(reshape(B*reshape(A,A.size(1),A.size(2)*A.size(3)),B.size(1),A.size(2),A.size(3)),[1,2,3],c,1);
         % y_{ijk}=A_{ik1j} * B_{ik1k}
-        3, {[1,-1,2],[1,-1,3]},      '';
+        %3, {[1,-1,2],[1,-1,3]},      ''
         % y_{ijk}=A_{ik1k} * B_{k1j}
-        3, {[1,-1,3],[-1,2]},      '';
+        3, {[1,-1,3],[-1,2]},      @(A,B)permute(tprod(A,[1,-1,2],B,[-1,3]),[1,3,2]);
         % y_{ijk}=A_{ij}(1,1) * B_{ik}(1,1) * c_{i}(1)
         3, {[1,2],[1,3],[1]},      @(A,B,c)  tprod(timesrep(A,c),[1,2],B,[1,3]);
         % y_{ijk}=A_{ij}(1,1) * B_{ik}(1,1)
@@ -652,6 +652,11 @@ function obj=tprod_tprod2matlab(obj)
         3, {[-1,-2,3],[-2,2],[1,-1]},      @(A,B,C) tprod(tprod(A,[-1,2,3],C,[1,-1]),[1,-1,3],B,[-1,2]);    
              
         3, {[1,-1,2],[-1,3]},      @(A,B) tprod(permute(A,[2,1,3]),[-1,1,2],B,[-1,3]); % does not really help
+
+        % permutations
+        3, {[1,3,2]},      '';
+        3, {[2,1,3]},      '';
+             
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 4D-matrix output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{ijkl}=A_{k1k2ij} * B_{k1k2kl}
         %4, {[-1,-2,1,2],[-1,-2,3,4]},      @(A,B) reshape(tprod(reshape(A,prod(A.size(1:2)),prod(A.size(3:4))),[-1,1],reshape(B,prod(B.size(1:2)),prod(B.size(3:4))),[-1,2]),A.size(3),A.size(4),B.size(3),B.size(4));
