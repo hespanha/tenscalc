@@ -60,7 +60,7 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
         error('mldivide: in (I+L)\\B, B must be a vector or a (2D) matrix with the same number of rows as L\n');
     end
     
-    if verboseLevel<=1 && m*n>20000
+    if verboseLevel<=1 && m*n>1e6
         verboseLevel=2;
         fprintf('    computing instructions for (large) mldivide:\n');
     end
@@ -84,24 +84,33 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
     
     %% Compute instructions
     instrX=instrB;
-    for col=1:m
+    instrXTranspose=instrX';
+    cols=find(any(instrXTranspose,2))';
+    for col=cols
         for row=2:n
-            k=find(instrL(row,1:row-1) & instrX(1:row-1,col)');
-            if ~isempty(k)
-                if instrX(row,col)
-                    operands=[instrL(row,k);instrX(k,col)'];
-                    operands=full([instrX(row,col),operands(:)']);
-                    instrX(row,col)=newInstructions(obj,obj.Itypes.I_plus_minus_dot,...
-                                                    {[]},num2cell(operands,2),thisExp);
-                elseif instrX(row,col)==0 
-                    operands=[instrL(row,k);instrX(k,col)'];
-                    operands=full([operands(:)']);
-                    instrX(row,col)=newInstructions(obj,obj.Itypes.I_minus_dot,...
-                                                    {[]},num2cell(operands,2),thisExp);
+            cond1=instrXTranspose(col,1:row-1);
+            if any(cond1)
+                cond2=instrL(row,1:row-1);
+                if any(cond2)
+                    k=find(cond1 & cond2);
+                    if ~isempty(k)
+                        if instrXTranspose(col,row)
+                            operands=[instrL(row,k);instrXTranspose(col,k)];
+                            operands=full([instrXTranspose(col,row),operands(:)']);
+                            instrXTranspose(col,row)=newInstructions(obj,obj.Itypes.I_plus_minus_dot,...
+                                                                     {[]},num2cell(operands,2),thisExp);
+                        elseif instrXTranspose(col,row)==0 
+                            operands=[instrL(row,k);instrXTranspose(col,k)];
+                            operands=full([operands(:)']);
+                            instrXTranspose(col,row)=newInstructions(obj,obj.Itypes.I_minus_dot,...
+                                                                     {[]},num2cell(operands,2),thisExp);
+                        end
+                    end
                 end
             end
         end
     end
+    instrX=instrXTranspose';
     % keep subsX in the natural order
     [i,j,instrX]=find(instrX);
     if length(osizeB)==1
@@ -113,7 +122,7 @@ function [subsX,instrX]=sparsity_mldivide_l1(obj,thisExp)
     instrX=instrX(k);
     
     if verboseLevel>0
-        fprintf('  sparsify_mldivide_l1(%3d): (I+L)\\B size=%-10s, nnz=%d,                          # new instr=%4d (%d..%d) (%.2f sec)\n',...
+        fprintf('  sparsify_mldivide_l1(%3d): (I+L)\\B size=%-10s, nnz=%d, # new instr=%4d (%d..%d) (%.2f sec)\n',...
                 thisExp,['[',index2str(osizeB),']'],length(instrX),...
                 instructionsTableHeight()-n0,n0+1,instructionsTableHeight(),etime(clock,t0));
     end

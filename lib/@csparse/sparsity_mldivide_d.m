@@ -72,11 +72,12 @@ function [subsX,instrX]=sparsity_mldivide_d(obj,thisExp)
     
     %% Compute instructions
     instrX=instrB;
-    for col=1:m
+    if any(diag(instrD)==0)
+        error('mldivide_d: zero in the diagonal\n');
+    end
+    cols=find(any(instrX,1));
+    for col=cols
         for row=n:-1:1
-            if instrD(row,row)==0
-                error('mldivide_d: zero in the diagonal\n');
-            end
             if instrX(row,col)
                 operands=full([instrX(row,col),instrD(row,row)]);
                 instrX(row,col)=newInstructions(obj,obj.Itypes.I_div,...
