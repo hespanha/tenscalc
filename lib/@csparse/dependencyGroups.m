@@ -58,66 +58,67 @@ obj.dependencyGraph=sparse(double(children),double(parents),...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% Computes dependencies for gets, sets, copies
+
+% create tranpose matrix since it is faster to assign rows of sparse matrices rather than columns
+
+t0=clock;
+fprintf(' dependency matrix with %d instructions',nInstructions);
 dependencies=sparse([],[],[],...
-                    nInstructions,length(obj.gets)+length(obj.sets)+2*length(obj.copies));
+                    length(obj.gets)+length(obj.sets)+2*length(obj.copies),nInstructions);
 
 inputInstructions=zeros(1,0);
 outputInstructions=zeros(1,0);
 obj.dependencyGroupColName={};
 j=1;
+fprintf('(gets');
 for i=1:length(obj.gets)
-    %dependencies(:,j)=parentsOf(obj,getOne(obj.vectorizedOperations,'instructions',obj.gets(i).source));
     instr=getMulti(obj.vectorizedOperations,'instructions',obj.gets(i).source);
     instr=vertcat(instr{:});
-    dependencies(:,j)=parentsOf(obj,instr);
+    dependencies(j,:)=parentsOf(obj,instr);
     obj.dependencyGroupColName{j}=obj.gets(i).functionName;
     j=j+1;
     outputInstructions=union(outputInstructions,instr);
-    %obj.gets(i).functionName,length(instr)
 end
+fprintf(',saves');
 for i=1:length(obj.saves)
-    %dependencies(:,j)=parentsOf(obj,getOne(obj.vectorizedOperations,'instructions',obj.saves(i).source));
     instr=getMulti(obj.vectorizedOperations,'instructions',obj.saves(i).source);
     instr=vertcat(instr{:});
-    dependencies(:,j)=parentsOf(obj,instr);
+    dependencies(j,:)=parentsOf(obj,instr);
     obj.dependencyGroupColName{j}=obj.saves(i).functionName;
     j=j+1;
     outputInstructions=union(outputInstructions,instr);
-    %obj.saves(i).functionName,length(instr)
 end
+fprintf(',copies');
 for i=1:length(obj.copies)
-    % for k=1:length(obj.copies(i).source)
-    %     dependencies(:,j)=dependencies(:,j)|...
-    %         parentsOf(obj,getOne(obj.vectorizedOperations,'instructions',obj.copies(i).source(k)));
-    % end
     instr=getMulti(obj.vectorizedOperations,'instructions',obj.copies(i).source);
     instr=vertcat(instr{:});
-    dependencies(:,j)=parentsOf(obj,instr);
+    dependencies(j,:)=parentsOf(obj,instr);
     obj.dependencyGroupColName{j}=obj.copies(i).functionName;
     j=j+1;
     outputInstructions=union(outputInstructions,instr);
-    %obj.copies(i).functionName,length(instr)
 end
+fprintf(',sets');
 for i=1:length(obj.sets)
     instr=getMulti(obj.vectorizedOperations,'instructions',obj.sets(i).destination);
     instr=vertcat(instr{:});
-    dependencies(:,j)=childrenOf(obj,instr);
+    dependencies(j,:)=childrenOf(obj,instr);
     obj.dependencyGroupColName{j}=obj.sets(i).functionName;
     j=j+1;
     inputInstructions=union(inputInstructions,instr);
 end
+fprintf(',copies');
 for i=1:length(obj.copies)
-    % for k=1:length(obj.copies(i).destination)
-    %     dependencies(:,j)=dependencies(:,j)|...
-    %         childrenOf(obj,getOne(obj.vectorizedOperations,'instructions',obj.copies(i).destination(k)));
-    % end
     instr=getMulti(obj.vectorizedOperations,'instructions',obj.copies(i).destination);
     instr=vertcat(instr{:});
-    dependencies(:,j)=childrenOf(obj,instr);
+    dependencies(j,:)=childrenOf(obj,instr);
     obj.dependencyGroupColName{j}=obj.copies(i).functionName;
     j=j+1;
     inputInstructions=union(inputInstructions,instr);
 end
+
+% back to non-transpose matrix
+dependencies=dependencies';
+fprintf(' %.2f sec) determining groups',etime(clock,t0));
 
 %% Determine unique dependency groups 
 groups=zeros(nInstructions,1);
@@ -161,7 +162,7 @@ nzgroups=find(groups>0);
 in=1:nInstructions;
 p=sparse(in(nzgroups),groups(nzgroups),ones(length(nzgroups),1),nInstructions,nGroups);
 groupsGraph=p'*obj.dependencyGraph*p;
-[i,j,v]=find(groupsGraph);
+[i,j]=find(groupsGraph);
 k=find(i==j);
 i(k)=[];
 j(k)=[];
@@ -194,6 +195,8 @@ if verboseLevel>2
         fprintf('Group %d [%s]: %s\n',computeOrder(i),index2str(dependencyGroups(computeOrder(i),:)),index2str(find(groups==computeOrder(i))));
     end
 end
+
+fprintf(' (%.2f sec), ordering groups',etime(clock,t0));
 
 %% reorder groups to get the right computation order
 dependencyGroups=dependencyGroups(computeOrder,:);
@@ -236,6 +239,8 @@ end
 %% determine input, output, and local variables for the different groups
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf(' (%.2f sec), local variables',etime(clock,t0));
+
 if true
     maxLocal=0;
     gT=obj.dependencyGraph';
@@ -277,6 +282,8 @@ end
 %% Compute mapping between instructions and memory locations
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+fprintf(' (%.2f sec), memory locations (',etime(clock,t0));
+
 obj.memoryLocations=(1:nInstructions);
 
 %obj.memoryLocations=randperm(nInstructions);
@@ -286,6 +293,7 @@ obj.memoryLocations=(1:nInstructions);
 %obj.memoryLocations=(2:nInstructions+1);
 
 if reuseLocalMemory
+    fprintf(' reuse-across-groups');
     %% memory location reusing local variables
     nFixed=sum(nonLocalInstructions);
     % non-local instructions
@@ -298,6 +306,7 @@ if reuseLocalMemory
 end
 
 if findUnusedMemory
+    fprintf(' unused-instructions');
     %% find unused instructions
     k=find((groups==0) & ~findInstructionsByType(obj.Itypes.I_set));
     nUnused=length(k);
@@ -311,6 +320,7 @@ end
 nReuses=0;
 nLocalVariables=0;
 if reuseMemory  
+    fprintf(' reuse-within-group');
     %% look for variables internal to the group, and reuse memory when possible
     nGroups=size(dependencyGroups,1);
     for g=1:nGroups
@@ -327,7 +337,7 @@ if reuseMemory
         % last time each local variable is used
         if ~isempty(localVariables)
             usedBy=obj.dependencyGraph(:,localVariables);   % 1 if used
-            [i,j,v]=find(usedBy);
+            [i,j]=find(usedBy);
             usedBy=sparse(i,j,i,size(usedBy,1),size(usedBy,2)); % variable # if used
             % fprintf('localVariables;usedBy\n');
             % disp(full([localVariables';usedBy]))
@@ -365,9 +375,9 @@ if reuseMemory
                       lastUsedMemory;
                       lastUsedMemory<localVariables(j)]);
             end
-            i=find(lastUsedMemory<localVariables(j));
-            if ~isempty(i)
-                i=min(i);
+            cond=lastUsedMemory<localVariables(j);
+            if any(cond)
+                i=find(cond,1,'first');
                 if verboseLevel>2
                     fprintf('     reusing memory location %d (instead of %d), for instruction %d\n',...
                             localMemory(i),...
@@ -396,6 +406,8 @@ if reuseMemory
         end
     end
 end
+
+fprintf(' %.2f sec) ',etime(clock,t0));
 
 if verboseLevel>0
     fprintf('  dependencyGroups: re-used %d memory locations (%4d local variables)\n',...
@@ -428,7 +440,7 @@ obj.instructionsGroup=groups;
 
 obj.outputInstructions=outputInstructions;
 obj.inputInstructions=inputInstructions;
-ibj.nonLocalInstructions=nonLocalInstructions;
+obj.nonLocalInstructions=nonLocalInstructions;
 
 if verboseLevel>1
     fprintf('Dependency groups:\n');
@@ -452,3 +464,4 @@ obj.statistics.nCopies=length(obj.copies);
 obj.statistics.nInstructions=nInstructions;
 obj.statistics.sizeScratchbook=max(obj.memoryLocations);
 
+end
