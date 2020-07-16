@@ -17,7 +17,6 @@ function M=mytprod(varargin)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     [tprod_size,sums_size]=checkTprodSizes(varargin{:});
-
     if 0
         fprintf('\n>>>tprod: ');
         for i=1:2:length(varargin)
@@ -34,9 +33,7 @@ function M=mytprod(varargin)
         end
     end
     if spa
-        %tic
         M=mytprodSparse(tprod_size,varargin{:});
-        %toc
         if 0
             MM=M;
         else
@@ -46,7 +43,6 @@ function M=mytprod(varargin)
     
     % create expanded matrices with dimension [tprod_size,sums_size]
     
-    tic
     sizes=[tprod_size,sums_size];
     ind=[1:length(tprod_size),-1:-1:-length(sums_size)];
     msizes=sizes;
@@ -132,7 +128,6 @@ function M=mytprod(varargin)
     for i=length(tprod_size)+1:length(ind)
         M=sum(M,i);
     end
-    %toc
     if big
         fprintf('done!\n');
     end
@@ -224,6 +219,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
+
 end
 
 function test_tprod()
