@@ -27,7 +27,7 @@ function linear=subscript2memory(tsize,subscript)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     linear=ones(1,size(subscript,2),'uint64');
-    k=[1 cumprod(tsize(1:end-1))]
+    k=[1 cumprod(tsize(1:end-1))];
     for i = length(tsize):-1:1,
         linear=linear+(subscript(i,:)-1)*k(i);
     end
