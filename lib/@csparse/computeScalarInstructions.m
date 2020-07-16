@@ -43,7 +43,7 @@ end
 t0=clock;
 for jj=1:length(ks)
     thisExp=ks(jj);
-    if mod(jj,25)==0
+    if mod(jj,50)==0
         fprintf('   computeScalarInstructions: currently at expr %d/%d...\n',jj,length(ks));
     end
     subscripts=getOne(obj.vectorizedOperations,'subscripts',thisExp);
