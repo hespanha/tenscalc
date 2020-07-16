@@ -108,11 +108,13 @@ fprintf('log(det(AS)) = %f\n',log(det(AS)));
 logdetLUAS=get_logdetLUAS(obj);
 fprintf('logdetLU(AS) = %f\n',full(logdetLUAS));
 logdetLDLAS=get_logdetLDLAS(obj);
-fprintf('logdetLDL(AS) = %f\n',logdetLDLAS);
+fprintf('logdetLDL(AS) = %f\n',full(logdetLDLAS));
 if abs(log(det(AS))-logdetLUAS)>sqrt(eps)
+    abs(log(det(AS))-logdetLUAS)
     error('mismatch');
 end
 if abs(log(det(AS))-logdetLDLAS)>sqrt(eps)
+    abs(log(det(AS))-logdetLDLAS)
     error('mismatch');
 end
 

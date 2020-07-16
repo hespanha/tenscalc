@@ -57,14 +57,19 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
     
     subsY=zeros(0,1);
     if length(instrX)==n
-        instrY=newInstruction(obj,obj.Itypes.I_sumprod,[length(instrX),1],instrX(:)',thisExp);
-        P(p,1:n)=speye(n);
-        Q(q,1:n)=speye(n);
-        s=det(P*Q);
-        if s<0
-            instrY=newInstruction(obj,obj.Itypes.I_sum,[-1],instrY,thisExp);
-        end
-        instrY=newInstruction(obj,obj.Itypes.I_log,[],instrY,thisExp);        
+        % log(prod)
+        % instrY=newInstruction(obj,obj.Itypes.I_sumprod,[length(instrX),1],instrX(:)',thisExp);
+        % P(p,1:n)=speye(n);
+        % Q(q,1:n)=speye(n);
+        % s=det(P*Q);
+        % if s<0
+        %     instrY=newInstruction(obj,obj.Itypes.I_sum,[-1],instrY,thisExp);
+        % end
+        % instrY=newInstruction(obj,obj.Itypes.I_log,[],instrY,thisExp);       
+        instrY=newInstructions(obj,obj.Itypes.I_abs,{[]},num2cell(instrX,2),thisExp);
+        instrY=newInstructions(obj,obj.Itypes.I_log,{[]},num2cell(instrY,2),thisExp);
+        parameters=ones(1,numel(instrY));
+        instrY=newInstruction(obj,obj.Itypes.I_sum,parameters,instrY,thisExp);                
     else
         error('sparsity_logdet_lu: LU structurally singular in logdet_lu(LU)\n');
     end

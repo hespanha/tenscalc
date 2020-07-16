@@ -1624,6 +1624,7 @@ classdef Tcalculus
             
         function obj=logdet(obj1)
         % logdet - Natural logarithm of the determinant of a factorized matrix
+        %          (with positive determinant)
         %      
         %   logdet(lu(A)) or logdet(ldl(A)) return the natural
         %   logarithm of the determinant of the square matrix A.
@@ -1644,6 +1645,11 @@ classdef Tcalculus
         %   equal to the one below the main diagonal, without
         %   performing any test regarding of whether or not this is
         %   true.
+        %   
+        %   |tenscalc| assumes that det(A)>0 and actually returns
+        %   log(abs(det(A))), but ignores the abs() operation when
+        %   computing derivatives of logdet.
+
             if ~strcmp(type(obj1),'ldl') && ~strcmp(type(obj1),'lu') && ~strcmp(type(obj1),'lu_sym')
                 error('logdet can only be called for LDL/LU factorizations (not ''%s'')',type(obj1))
             end

@@ -331,15 +331,21 @@ function writeMatlabInstructions(obj,fid,ks)
             %% det/logdet
             % [L,D,p,s]=ldl(A,'vector');                  %% I_Mldl
             % log(det(A))=log(det(D)/det(s)^2);           %% I_logdet_ldl
+            %            =sum(log(diag(D)))-sum(log(diag(s.^2))) % if diag(D)>0 & D diagonal
             
             % [L,U,p,q,d]=lu(A,'vector');s=inv(d);        %% I_Mlu
             % P(p,p)=eye(size(A));Q(q,q)=eye(size(A));
             % log(det(A))=log(prod(diag(U))*prod(diag(d)))*det(P)*det(Q);  %% I_logdet_lu
-
+            %            =sum(log(diag(U).*diag(d)))+log(det(P)*det(Q))
           case obj.Itypes.I_Mlogdet_ldl
-            fprintf(fid,'\t\tobj.m%d=log(det(obj.m%d.D)/det(obj.m%d.s)^2); %% op %d: [%s]\n',...
-                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
-            
+            if 0
+                % only if D is really diagonal 
+                fprintf(fid,'\t\tobj.m%d=sum(log(abs(diag(obj.m%d.D))))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
+                        operands(1),obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
+            else
+                fprintf(fid,'\t\tobj.m%d=log(abs(det(obj.m%d.D)))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
+                        obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
+            end
           case obj.Itypes.I_Mdet_ldl
             fprintf(fid,'\t\tobj.m%d=det(obj.m%d.D)/det(obj.m%d.s)^2; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
@@ -349,9 +355,14 @@ function writeMatlabInstructions(obj,fid,ks)
                     operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
             fprintf(fid,'\t\tobj.m%d.Q(obj.m%d.q,1:length(obj.m%d.q))=speye(length(obj.m%d.q)); %% op %d: [%s]\n',...
                     operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
-            fprintf(fid,'\t\tobj.m%d=log(prod(diag(obj.m%d.U).*diag(obj.m%d.d))*det(obj.m%d.P)*det(obj.m%d.Q)); %% op %d: [%s]\n',...
-                    obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
-                        
+            if 0 
+                % only if U is really diagonal with all positive entries
+fprintf(fid,'\t\tobj.m%d=sum(log(diag(obj.m%d.U).*diag(obj.m%d.d)))+log(det(obj.m%d.P)*det(obj.m%d.Q)); %% op %d: [%s]\n',...
+                         obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
+            else
+fprintf(fid,'\t\tobj.m%d=sum(log(abs(diag(obj.m%d.U).*diag(obj.m%d.d))))+log(abs(det(obj.m%d.P)*det(obj.m%d.Q))); %% op %d: [%s]\n',...
+                         obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            
+            end
           case obj.Itypes.I_Mdet_lu
             fprintf(fid,'\t\tobj.m%d.P(obj.m%d.p,1:length(obj.m%d.p))=speye(length(obj.m%d.p)); %% op %d: [%s]\n',...
                     operands(1),operands(1),operands(1),operands(1),k,index2str(osize));            

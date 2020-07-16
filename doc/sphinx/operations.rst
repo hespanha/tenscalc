@@ -614,7 +614,8 @@ matrices).
 
    * - .. function:: logdet(lu(A))
        .. function:: logdet(ldl(A))
-     - Natural logarithm of the determinant of a square matrix.
+     - Natural logarithm of the determinant of a square matrix with
+       positive determinant.
      - Results in the same value ``log(det(A))``, but in the
        context of optimizations, it is *more efficient to use
        ``logdet(A)`` because the latter simplifies the computation of
@@ -625,6 +626,10 @@ matrices).
        the one below the main diagonal, *without performing any test
        regarding of whether or not this is true*.
 
+       |tenscalc| assumes that ``det(A)>0`` and actually returns
+       ``log(abs(det(A)))`` but ignores the ``abs()`` operation when
+       computing derivatives of ``logdet``
+       
    * - .. function:: traceinv(lu(A))
        .. function:: traceinv(ldl(A))
      - Natural logarithm of the determinant of a square matrix.
