@@ -995,11 +995,18 @@ classdef Tcalculus
                 sum2tprod=true;
             end
             if nargin<2 
-                if length(size(obj1))==1
+                switch length(size(obj1))
+                  case 0
+                    dimension=[];
+                  case 1
                     dimension=1;
-                else
+                  otherwise
                     error('Tcalculus.sum: must include dimension to sum');
                 end
+            end
+            if isempty(dimension)
+                % no need to sum
+                obj1=obj1;
             end
             if myisequal(dimension,'all')
                 dimension=1:ndims(obj1);
