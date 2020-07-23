@@ -101,6 +101,10 @@ function writeMatlabInstructions(obj,fid,ks)
                     obj.memoryLocations(k),operands,...
                     index2str(parameters{2}),index2str(parameters{3}'),parameters{1},k,index2str(osize));
                     
+          case obj.Itypes.I_Mpermute_matlab
+            fprintf(fid,'\t\tobj.m%d=permute(obj.m%d,[%s]); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands,index2str(parameters),k,index2str(osize));
+                    
           case obj.Itypes.I_Mmin
             fprintf(fid,'\t\tobj.m%d=min(obj.m%d,[],%s);\n',...
                     obj.memoryLocations(k),operands,mymat2str(parameters));

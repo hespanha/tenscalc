@@ -551,6 +551,11 @@ classdef Tcalculus
                     if ischar(S.subs{i}) && S.subs{i}==':'
                         S.subs{i}=1:osize(i);
                     else
+                        if size(S.subs{i},1)>1 && size(S.subs{i},2)>1
+                            S.subs{i}
+                            error('subsref: indices must have a single dimension (index %d has size [%s] instead)\n',...
+                                  i,index2str(size(S.subs{i})));
+                        end
                         if islogical(S.subs{i})
                             if length(S.subs{i})==osize(i)
                                 S.subs{i}=find(S.subs{i});
@@ -1270,10 +1275,14 @@ classdef Tcalculus
         
         function obj=permute(obj1,order)
             osize1=size(obj1);
-            %obj=Tcalculus('permute',osize1(order),order,obj1.TCindex,{},1);
             obj=tprod(obj1,order);
         end
         
+        function obj=permute_matlab(obj1,order)
+            osize1=size(obj1);
+            obj=Tcalculus('permute_matlab',osize1(order),order,obj1.TCindex,{},1);
+        end
+
         function obj=factor(obj1,type,typical_subscripts,typical_values)
             osize1=size(obj1);
             if length(osize1)~=2

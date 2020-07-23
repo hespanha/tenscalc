@@ -24,7 +24,6 @@ function [subsY,instrY]=sparsity_subsref(obj,thisExp)
     
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
     S=getOne(obj.vectorizedOperations,'parameters',thisExp);
-    
     oosize=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsX=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrX=getOne(obj.vectorizedOperations,'instructions',operands(1));

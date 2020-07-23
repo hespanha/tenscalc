@@ -171,6 +171,7 @@ instructionTypes={
     'I_Msubsref'
     'I_Mtprod'
     'I_Mtprod_matlab'
+    'I_Mpermute_matlab'
     'I_Mfull'         
     'I_Mreshape'         
     'I_Mvec2tensor'         

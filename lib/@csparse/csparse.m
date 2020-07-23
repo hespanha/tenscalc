@@ -227,7 +227,7 @@ classdef csparse < handle
                     'inv_ldl','det_ldl','logdet_ldl','traceinv_ldl',...
                     'inv_lu','det_lu','logdet_lu','traceinv_lu',...
                     'mldivide','mldivide_l1','mldivide_u','mldivide_u1','mldivide_d',...
-                    'rdivide','mtimes','ctranspose','times','sum','diag','tprod_matlab'...
+                    'rdivide','mtimes','ctranspose','times','sum','diag','tprod_matlab','permute_matlab',...
                        },...
                 'description','string',... % description of the operation result
                 'name','string',... % (unique) name of the expression:
@@ -800,7 +800,12 @@ classdef csparse < handle
                 nameMatch=false;
                 pars=osize;
                 parametersMatch=true;
-              case {'vec2tensor'}
+              case 'permute_matlab'
+                oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
+                nameMatch=false;
+                pars=parameters(TCobj);
+                parametersMatch=true;                
+              case 'vec2tensor'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 pars=parameters(TCobj);
