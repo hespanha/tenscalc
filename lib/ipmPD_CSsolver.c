@@ -207,12 +207,12 @@ EXPORT void ipmPD_CSsolver(
 #endif
   printf3(header);
 #if nF>0
-  printf3("%3d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e",
+  printf3("%4d:<-mx des.->%8.1e%8.1e               %8.1e%8.1e",
 	  *maxIter,gradTolerance,equalTolerance,desiredDualityGapVar,muMin);
 #else
-  printf3("%3d:<-mx tol.->%8.1e%8.1e                                 ",*maxIter,gradTolerance,equalTolerance);
+  printf3("%4d:<-mx tol.->%8.1e%8.1e                                ",*maxIter,gradTolerance,equalTolerance);
 #endif
-#if adjustAddEye2Hessian != 0
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   printf3("                %5d%5d\n",mpDesired,mnDesired);
 #else
   printf3("\n");

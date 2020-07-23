@@ -106,12 +106,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end            
         fprintf(headers);
         if obj.nF>0
-            fprintf('%3d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e',...
+            fprintf('%4d:<-mx des.->%8.1e%8.1e               %8.1e%8.1e',...
                     maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
         else
-            fprintf('%3d:<-mx tol.->%8.1e%8.1e                                 ',maxIter,obj.gradTolerance,obj.equalTolerance);
+            fprintf('%4d:<-mx tol.->%8.1e%8.1e                                ',maxIter,obj.gradTolerance,obj.equalTolerance);
         end
-        if obj.adjustAddEye2Hessian
+        if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             fprintf('                %5d%5d\n',mpDesired,mnDesired);
         else
             fprintf('\n');
