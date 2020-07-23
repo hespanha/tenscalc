@@ -168,7 +168,7 @@ function varargout=class2optimizeCS(varargin)
         parseConstraints(code,classname,constraints,outputExpressions);
     
     %% Pack primal variables
-    [u,whereVariables,packU,unpackU,objective,outputExpressions,F,G]...
+    [u,whereVariables,~,~,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
     u0=packExpressions(optimizationVariables);
 

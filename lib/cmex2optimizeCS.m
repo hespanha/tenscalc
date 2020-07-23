@@ -198,7 +198,7 @@ function varargout=cmex2optimizeCS(varargin)
     template=[template;tpl];    
     
     %% Pack primal variables
-    [u,whereVariables,packU,unpackU,objective,outputExpressions,F,G]...
+    [u,whereVariables,~,~,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
     u0=packExpressions(optimizationVariables);
 
