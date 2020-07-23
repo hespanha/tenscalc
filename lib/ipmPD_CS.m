@@ -243,6 +243,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         dx_s=factor_ww\b_s;
         dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
         
+        declareGet(code,{norminf((WW*dx_s-b_s))},'getDirectionError__');
+        
         dU_s=dx_s(1:nU);
         newU_s=u+alphaPrimal*dU_s;
         dNu_s=dx_s(nU+1:end);
