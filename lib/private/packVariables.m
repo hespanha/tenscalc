@@ -53,7 +53,7 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
         if ~isequal(inVariables{i}.type,'variable')
             inVariables{i}
             inVariables{i}.type
-            error('Can only pack variables (not %s)',        inVariables{i}.type);
+            error('Can only pack variables (not %s)',inVariables{i}.type);
         end
         len=prod(size(inVariables{i}));
         packCmd=sprintf('%sreshape(%s,%d,1);',packCmd,name(inVariables{i}),len);
@@ -63,6 +63,7 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
         whereVariables{i}=n+1:n+len;
         n=n+len;
     end
+    
     packCmd=[packCmd,']'];
     
     outVariable=Tvariable(outVariableName,n,nowarningsamesize,nowarningever);
