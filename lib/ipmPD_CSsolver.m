@@ -227,7 +227,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
             derr=getDirectionError__(obj);
-            if ( mp==mpDesired && mn==mnDesired)
+            if ( mp==mpDesired && mn==mnDesired ) %|| derr<1e-12
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                 if addEye2Hessian1>addEye2HessianMIN
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);

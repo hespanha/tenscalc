@@ -342,14 +342,15 @@ function writeMatlabInstructions(obj,fid,ks)
             % log(det(A))=log(prod(diag(U))*prod(diag(d)))*det(P)*det(Q);  %% I_logdet_lu
             %            =sum(log(diag(U).*diag(d)))+log(det(P)*det(Q))
           case obj.Itypes.I_Mlogdet_ldl
-            if 0
-                % only if D is really diagonal 
-                fprintf(fid,'\t\tobj.m%d=sum(log(abs(diag(obj.m%d.D))))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
-                        operands(1),obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
-            else
-                fprintf(fid,'\t\tobj.m%d=log(abs(det(obj.m%d.D)))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
-                        obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
-            end
+            fprintf(fid,'\t\t if isdiag(obj.m%d.D)\n',operands(1));
+            % only if D is really diagonal 
+            fprintf(fid,'\t\t\tobj.m%d=sum(log(abs(diag(obj.m%d.D))))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
+            fprintf(fid,'else\n');
+            % general case
+            fprintf(fid,'\t\t\tobj.m%d=log(abs(det(obj.m%d.D)))-sum(log(diag(obj.m%d.s).^2)); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
+            fprintf(fid,'end\n');
           case obj.Itypes.I_Mdet_ldl
             fprintf(fid,'\t\tobj.m%d=det(obj.m%d.D)/det(obj.m%d.s)^2; %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),operands(1),k,index2str(osize));            
