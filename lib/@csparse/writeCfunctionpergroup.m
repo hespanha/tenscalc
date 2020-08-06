@@ -427,6 +427,8 @@ for i=1:nGroups
     end
     % write auxiliary functions
     countFlops=0;
+    tmpFilename=tempname('.');
+    tmpFilename=['tmp_2rm_',tmpFilename(3:end),'.c'];
     for ii=1:nFunctions-1
         if verboseLevel>1
             fprintf('    void %s%d_%d(): auxiliary functions with %d instructions\n',...
@@ -440,15 +442,17 @@ for i=1:nGroups
         end
         fprintf(fid,'  // %d instructions\n',nInstr);
         % not pretty, but apparently C cannot use matlab's fd
-        countFlops=countFlops+writeCinstructionsC(int64(k(1:nInstr)),int64(obj.memoryLocations'),int64(minInstructions4loop));
-        f=fopen('tmp_toremove.c','r');
+        countFlops=countFlops+writeCinstructionsC(tmpFilename,...
+                                                  int64(k(1:nInstr)),int64(obj.memoryLocations'),...
+                                                  int64(minInstructions4loop));
+        f=fopen(tmpFilename,'r');
         if f<0
             ls -l
-            error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
+            error('unable to open temporary file ''%s'', fd=%d\n',tmpFilename,f);
         end
         str=fread(f,inf);
         fclose(f);
-        delete('tmp_toremove.c');
+        delete(tmpFilename);
         fwrite(fig,str);
         fprintf(fid,'}\n');
         k=k(nInstr+1:end);
@@ -478,15 +482,17 @@ for i=1:nGroups
                 computeFunctions,i-1,length(k));
     end
     % not pretty, but apparently C cannot use matlab's fd
-    countFlops=countFlops+writeCinstructionsC(int64(k),int64(obj.memoryLocations'),int64(minInstructions4loop));
-    f=fopen('tmp_toremove.c','r');
+    countFlops=countFlops+writeCinstructionsC(tmpFilename,...
+                                              int64(k),int64(obj.memoryLocations'),...
+                                              int64(minInstructions4loop));
+    f=fopen(tmpFilename,'r');
     if f<0
         ls -l
-        error('unable to open file ''tmp_toremove.c'', fd=%d\n',f);
+        error('unable to open temporary file ''%s'', fd=%d\n',tmpFilename,f);
     end
     str=fread(f,inf);
     fclose(f);
-    delete('tmp_toremove.c');
+    delete(tmpFilename);
     fwrite(fig,str);
         
     for q=1:length(countFlops)

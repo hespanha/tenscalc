@@ -94,7 +94,8 @@ MEXfunction writeCinstructionsC
 Cfunction writeCinstructionsC
 include instructionsTableFunctions.h
 
-inputs 
+inputs
+      char  filename [1,nameLength]
       int64 indices [nInstructions]
       int64 memoryLocations [NInstructions]
       int64 minInstructions4Loop [1]
@@ -107,6 +108,7 @@ Cfunction writeAsmInstructionsC
 include instructionsTableFunctions.h
 
 inputs 
+      char  filename [1,nameLength]
       int64 indices [nInstructions]
       int64 memoryLocations [NInstructions]
 
@@ -798,6 +800,7 @@ EXPORT void getDependencies4MEX(/* outputs */
  * Returns -1 if any index is not valid, otherwise returns 0
  *******************************************************************************/
 EXPORT int writeCinstructionsC(/* inputs */
+			       char *filename,                // filename
 			       int64_t *indices,              // indices of instructions to write
 			       int64_t *memoryLocations,      // memory locations for
 			                                      // all instructions
@@ -805,11 +808,12 @@ EXPORT int writeCinstructionsC(/* inputs */
 			                                      // implemented as a loop
 			       
                                /* outputs */
-                               int64_t *countFlops,          // array with instruction counts
+                               int64_t *countFlops,           // array with instruction counts
 
-                               /* sizes */
-			       mwSize nInstructions,     // # of instructions to write
-			       mwSize NInstructions)     // total # of instructions
+                               /* sizes */			       
+			       mwSize nameLength,             // filename length
+			       mwSize nInstructions,          // # of instructions to write
+			       mwSize NInstructions)          // total # of instructions
 {
   instructionType_t type,nextType;
   int64_t nParameters,nextNparameters; 
@@ -869,10 +873,11 @@ EXPORT int writeCinstructionsC(/* inputs */
 #if P_nCountFlops != 17
 #error "update outputs field of writeCinstructionsC() (line 103) of instructionsTableUTHash.c"
 #endif
- 
-  FILE *fid=fopen("tmp_toremove.c","w");
+
+  //printf0("writing instructions to file \"%s\" (name length = %d)\n",filename,nameLength);
+  FILE *fid=fopen(filename,"w");
   if (!fid) {
-    printf0("writeCinstructionsC: unable to open file (errno=%d, %s)\n",errno,strerror(errno));
+    printf0("writeCinstructionsC: unable to open file \"%s\",(errno=%d, %s)\n",filename,errno,strerror(errno));
     return -1;
   }    
 
@@ -1620,11 +1625,13 @@ fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"
  * Returns -1 if any index is not valid, otherwise returns 0
  *******************************************************************************/
 EXPORT int writeAsmInstructionsC(/* inputs */
-			       int64_t *indices,          // indices of instructions to write
-			       int64_t *memoryLocations,  // memory locations for all instructions
-			       /* sizes */
-			       mwSize nInstructions,     // # of instructions to write
-			       mwSize NInstructions)     // total # of instructions
+				 char *filename,                // filename
+				 int64_t *indices,              // indices of instructions to write
+				 int64_t *memoryLocations,      // memory locations for all instructions
+				 /* sizes */
+				 mwSize nameLength,             // filename length
+				 mwSize nInstructions,          // # of instructions to write
+				 mwSize NInstructions)          // total # of instructions
 {
   instructionType_t type;
   int64_t nParameters; 
@@ -1635,8 +1642,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
   int anyConstant=0;
   int64_t label;
 
-
-  FILE *fid=fopen("tmp_toremove.c","w");
+  FILE *fid=fopen(filename,"w");
   if (!fid) {
     printf0("writeAsmInstructionsC: unable to open file (errno=%d, %s)\n",errno,strerror(errno));
     return -1;
