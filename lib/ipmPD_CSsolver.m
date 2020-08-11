@@ -31,7 +31,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     end    
     
     if obj.setAddEye2Hessian 
-        addEye2HessianMAX=1e2;
+        addEye2Hessian1MAX=1e2;
+        addEye2Hessian2MAX=1e2;
         addEye2HessianMIN=1e-20;
         
         if nargin<5
@@ -227,7 +228,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
             [mp,mn]=getHessInertia__(obj);
             derr=getDirectionError__(obj);
-            if ( mp==mpDesired && mn==mnDesired ) %|| derr<1e-12
+            if ( mp==mpDesired && mn==mnDesired ) %|| derr<1e-16
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                 if addEye2Hessian1>addEye2HessianMIN
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
@@ -240,31 +241,34 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             else
                 change=false;
                 for ii=1:20
-                    if mp<mpDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
+                    if false %derr<1e-10
+                        break
+                    end
+                    if mp<mpDesired && (addEye2Hessian1<addEye2Hessian1MAX || addEye2Hessian2<addEye2Hessian2MAX)
                         if obj.verboseLevel>=4
                             fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                         end
-                        if addEye2Hessian1<addEye2HessianMAX
-                            addEye2Hessian1= min(10*addEye2Hessian1,addEye2HessianMAX);
+                        if addEye2Hessian1<addEye2Hessian1MAX
+                            addEye2Hessian1= min(10*addEye2Hessian1,addEye2Hessian1MAX);
                             setAddEye2Hessian1__(obj,addEye2Hessian1);
                             change=true;
                         end
-                        if addEye2Hessian2<addEye2HessianMAX
-                            addEye2Hessian2= min(2*addEye2Hessian2,addEye2HessianMAX);
+                        if addEye2Hessian2<addEye2Hessian2MAX
+                            addEye2Hessian2= min(2*addEye2Hessian2,addEye2Hessian2MAX);
                             setAddEye2Hessian2__(obj,addEye2Hessian2);
                             change=true;
                         end
-                    elseif mn<mnDesired && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)
+                    elseif mn<mnDesired && (addEye2Hessian1<addEye2Hessian1MAX || addEye2Hessian2<addEye2Hessian2MAX)
                         if obj.verboseLevel>=4
                             fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                         end
-                        if addEye2Hessian1<addEye2HessianMAX
-                            addEye2Hessian1= min(2*addEye2Hessian1,addEye2HessianMAX);
+                        if addEye2Hessian1<addEye2Hessian1MAX
+                            addEye2Hessian1= min(2*addEye2Hessian1,addEye2Hessian1MAX);
                             setAddEye2Hessian1__(obj,addEye2Hessian1);
                             change=true;
                         end
-                        if addEye2Hessian2<addEye2HessianMAX
-                            addEye2Hessian2= min(10*addEye2Hessian2,addEye2HessianMAX);
+                        if addEye2Hessian2<addEye2Hessian2MAX
+                            addEye2Hessian2= min(10*addEye2Hessian2,addEye2Hessian2MAX);
                             setAddEye2Hessian2__(obj,addEye2Hessian2);
                             change=true;
                         end
@@ -352,6 +356,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     disp(vv(:,km));
                 end
                 fprintf('              ');
+                %status=55;
+                %break;
             end
             % H1=Hess(1:obj.nU,1:obj.nU);
             % H2=Hess(obj.nU+1:end,obj.nU+1:end);
