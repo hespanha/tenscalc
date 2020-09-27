@@ -26,6 +26,8 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
     nowarningsamesize=true;
     nowarningever=true;
+    
+    trustRegion=false;
 
     szHess_=TcheckVariable('Hess_');
 
@@ -89,10 +91,6 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
     t2=clock();
-    f_u=gradient(f,u);
-    Lf=f;
-    out.Lf_u=f_u;
-    
     if addEye2Hessian
         addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
         addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
@@ -102,6 +100,16 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         addEye2Hessian1=Tzeros([]);
         addEye2Hessian2=Tzeros([]);
     end
+    out.addEye2Hessian1=addEye2Hessian1;
+    out.addEye2Hessian2=addEye2Hessian2;
+    if trustRegion
+        f_u=gradient(f+.5*addEye2Hessian1*norm2(u),u);
+        Lf=f+.5*addEye2Hessian1*norm2(u);
+    else
+        f_u=gradient(f,u);
+        Lf=f;
+    end
+    out.Lf_u=f_u;
     
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
@@ -180,8 +188,13 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %%%%%%%%%%%%%%%%%%
 
         LPG=tprod(lambda./F,1,F_u,[1,2]);
-        WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
-              G_u,-addEye2Hessian2*Teye([nG,nG])];
+        if trustRegion
+            WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate'),G_u';
+                  G_u,-addEye2Hessian2*Teye([nG,nG])];
+        else
+            WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
+                  G_u,-addEye2Hessian2*Teye([nG,nG])];
+        end
         out.Hess=WW;
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
         
@@ -276,9 +289,15 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         %% Large matrix %%
         %%%%%%%%%%%%%%%%%%
 
-        WW=[out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u',-F_u';
-            G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
-            -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
+        if trustRegion
+            WW=[out.Lf_uu,G_u',-F_u';
+                G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
+                -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
+        else
+            WW=[out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u',-F_u';
+                G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
+                -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
+        end
         out.Hess=WW;
         
         factor_ww=factor(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);

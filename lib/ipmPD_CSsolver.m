@@ -113,7 +113,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             fprintf('%4d:<-mx tol.->%8.1e%8.1e                                ',maxIter,obj.gradTolerance,obj.equalTolerance);
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL 
-            fprintf('                %5d%5d\n',mpDesired,mnDesired);
+            fprintf('%8.1e        %5d%5d\n',obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
         else
             fprintf('\n');
         end
@@ -209,7 +209,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         
         if norminf_grad<=obj.gradTolerance && ...
                 (obj.nF==0 || gap<=desiredDualityGap) && ...
-                (obj.nG==0 || norminf_eq<=obj.equalTolerance)
+                (obj.nG==0 || norminf_eq<=obj.equalTolerance) && ...
+                (obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && addEye2Hessian1<=obj.addEye2Hessian1tolerance)
             printf2('  -> clean exit\n');
             status = 0;
             break;
@@ -230,7 +231,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             derr=getDirectionError__(obj);
             if ( mp==mpDesired && mn==mnDesired ) %|| derr<1e-16
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
-                if addEye2Hessian1>addEye2HessianMIN
+                if addEye2Hessian1>addEye2HessianMIN %&& norminf_grad<=10*obj.gradTolerance
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
                 end
@@ -832,6 +833,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         fprintf('cost=%13.5e, ',full(J));
         norminf_grad=getNorminf_Grad__(obj);
         fprintf('|grad|=%10.2e',full(norminf_grad));
+        if obj.setAddEye2Hessian 
+            fprintf(', addEye2Hessian=[%10.2e,%10.2e]',addEye2Hessian1,addEye2Hessian2);  
+        end
         if obj.nG>0
             fprintf(', |eq|=%10.2e',full(norminf_eq));
         end

@@ -213,7 +213,7 @@ EXPORT void ipmPD_CSsolver(
   printf3("%4d:<-mx tol.->%8.1e%8.1e                                ",*maxIter,gradTolerance,equalTolerance);
 #endif
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
-  printf3("                %5d%5d\n",mpDesired,mnDesired);
+  printf3("%8.1e        %5d%5d\n",addEye2Hessian1tolerance,mpDesired,mnDesired);
 #else
   printf3("\n");
 #endif
@@ -299,6 +299,9 @@ EXPORT void ipmPD_CSsolver(
 #if nG>0
         && norminf_eq<=equalTolerance
 #endif
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) 
+	&& addEye2Hessian1<=addEye2Hessian1tolerance
+#endif	
          ) {
                printf2("  -> clean exit\n");
                (*status) = 0;
@@ -324,7 +327,7 @@ EXPORT void ipmPD_CSsolver(
     getDirectionError__(&derr);
     if (mp==mpDesired && mn==mnDesired) {
       printf3("%8.1e%8.1e%5.0f%5.0f%8.1e",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
-      if (addEye2Hessian1>addEye2HessianMIN) {
+      if (addEye2Hessian1>addEye2HessianMIN ) { //&& norminf_grad<=10*gradTolerance) {
 	addEye2Hessian1=MAX(.5*addEye2Hessian1,addEye2HessianMIN);
 	setAddEye2Hessian1__(&addEye2Hessian1);
       }
@@ -710,13 +713,16 @@ EXPORT void ipmPD_CSsolver(
     printf2("%3d:status=0x%X, ",(*iter),(*status));
   }
   printf2("cost=%13.5e",J);
+  printf2(", |grad|=%10.2e",norminf_grad);
+#if setAddEye2Hessian != 0
+  printf2(", addEye2Hessian=[%10.2e,%10.2e]",addEye2Hessian1,addEye2Hessian2);  
+#endif
 #if nG>0
   printf2(", |eq|=%10.2e",norminf_eq);
 #endif
 #if nF>0
   printf2(", ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alphaPrimal);
 #endif
-  printf2(", |grad|=%10.2e",norminf_grad);
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
 #endif  // verboseLevel>=2
 }
