@@ -57,6 +57,8 @@ function localVariables_=parameters4optimize(localVariables_)
             '* |G_|    - vector stacked with all inequalities at the (last) Newton step.'
             '* |nu_|   - vector stacked with all dual equality variables at the (last) Newton step.'
             '* |lambda_|   - vector stacked with all dual inequality variables at the (last) Newton step.'
+            '* |addEye2Hessia1__|,|addEye2Hessia2__|  - values of addEye2Hessian1/2 at the (last) Newton step.'
+            '            (see help for ||addEye2Hessia|)'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
             '           they have to be previously created outside *with the appropriate sizes*.'
@@ -69,14 +71,20 @@ function localVariables_=parameters4optimize(localVariables_)
         'DefaultValue',true,...
         'AdmissibleValues',{false,true},...        
         'Description',{
-            'When |true|, adds to the Newton matrix identity matrices scaled by a small constant.';
+            'When |true|, adds to the Newton matrix identity matrices scaled by small constants.';
             ' ';
             'One scaled identity matrix equal to';
             '           addEye2Hessian1 * eye(# primal variables)'
             'is added to the matrix of 2nd derivatives of the Lagragian (Hessian), helping this'
             'matrix to become positive definite and moving the Newton''s';
             'search direction towards the gradient descent of the Lagragian (and away from the'
-            'pure Newton direction).';
+            'pure Newton direction).'
+            ' '
+            'Setting a positive value for |addEye2Hessian1|, can be views as achieving convexity'
+            'by adding a constraint of the form'
+            '     .5 \| primal variables \|^2 < R'
+            'for a sufficietly small |R|. From this perspective, |addEye2Hessian1| corresponds to'
+            'the Lagrange associated with this constraint.'
             ' ';
             'A seconds scaled identity matrix equal to';
             '           addEye2Hessian2 * eye(# equality constraints)'
@@ -86,14 +94,14 @@ function localVariables_=parameters4optimize(localVariables_)
             ' '
             'Both effects improve the robustness of the solver, but may lead to slower convergence.';
             ' ';
-            'The constants ''addEye2Hessian1'' and ''addEye2Hessian2'' can be set at solve time'
+            'The constants |addEye2Hessian1| and |addEye2Hessian2| can be set at solve time'
             'through input parameters to the solve function and can also be adjusted by the solver'
-            'at run time. See ''adjustAddEye2Hessian''.'
+            'at run time. See |adjustAddEye2Hessian|.'
             ' '
-            'A typical choices for ''addEye2Hessian1'' and ''addEye2Hessian2'' is the square root'
+            'A typical choices for |addEye2Hessian1| and |addEye2Hessian2| is the square root'
             'of the machine precision.'
             ' '
-            'For non-convex problems, one can try to increase this parameter when';
+            'For non-convex problems, one can try to increase addEye2Hessian1 when';
             'the Newton direction actually causes an increase of the Lagragian.'
                       });
     
@@ -102,16 +110,25 @@ function localVariables_=parameters4optimize(localVariables_)
         'DefaultValue',true,...
         'AdmissibleValues',{false,true},...        
         'Description',{
-            'When |true|, the values of the parametes ''addEye2Hessian1'' and ''addEye2Hessian2''';
+            'When |true|, the values of the parametes |addEye2Hessian1| and |addEye2Hessian2|';
             'are adjusted in rwal-time by the solver.';
             ' '
-            'This is only possivle when using LDL factorization (''useLDL'' set to true) and will result';
-            'slightly slower solvers. Ideally, one would try a few test runs with ''adjustAddEye2Hessian''';
-            'set to ''true'' to learn good values for ''addEye2Hessian1'' and ''addEye2Hessian2'' and then turn';
-            '''adjustAddEye2Hessian'' to ''false''.';
+            'This is only possivle when using LDL factorization (|useLDL| set to true) and will result';
+            'slightly slower solvers. Ideally, one would try a few test runs with |adjustAddEye2Hessian|';
+            'set to |true| to learn good values for |addEye2Hessian1| and |addEye2Hessian2| and then turn';
+            '|adjustAddEye2Hessian| to |false|.';
             ' ';
-            'The values of ''addEye2Hessian1'' and ''addEye2Hessian2'' can be viewed by setting'
-            '''solverVerboseLevel'' to 3.'
+            'The values of |addEye2Hessian1| and |addEye2Hessian2| can be viewed by setting'
+            '|solverVerboseLevel| to 3.'
+                      });
+    
+    declareParameter(...
+        'VariableName','addEye2Hessian1tolerance',...
+        'DefaultValue',1e-9,...
+        'Description',{
+            'When |adjustAddEye2Hessian|=|true|, waits until |addEye2Hessian1| becomes smaller than this value.';
+            ' ';
+            'This parameter is ignored when |adjustAddEye2Hessian|=|false|.'
                       });
     
 end

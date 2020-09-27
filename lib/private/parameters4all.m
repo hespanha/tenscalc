@@ -264,7 +264,7 @@ function localVariables_=parameters4all(localVariables_)
             '                   - sets the value of one of the optimization variables';
             '   * |[y1,y2,...]=getOutputs(obj)|';
             '                   - gets the values of the |outputExpressions|';
-            '   * |[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),add)|'
+            '   * |[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian)|'
             'where'
             '   * |mu0|      - initial value for the barrier variable (default=1)'
             '   * |maxIter|  - maximum number of Newton iterations (default=200)'
@@ -278,8 +278,7 @@ function localVariables_=parameters4all(localVariables_)
             ' '
             '                  The "hessian" matrix will be saved regardless of the';
             '                  value of |saveIter|, when the solver exists with |status=4|';
-            '   * |addEye2Hessian| - scaling parameter for the identity matrices added'
-            '                        to the Hessian matrix (default=1e-20)'
+            '   * |addEye2Hessian| - see help for |addEye2Hessian| and |adjustAddEye2Hessian|'
             '   * |status|   - solver exist status';
             '                 *  0  = success';
             '                 *  >0 = solver terminated unexpectedly';

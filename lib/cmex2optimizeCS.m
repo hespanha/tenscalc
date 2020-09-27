@@ -274,6 +274,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.nG=size(G,1);
     defines.nF=size(F,1);
     defines.gradTolerance=sprintf('%e',gradTolerance); % to make double
+    defines.addEye2Hessian1tolerance=sprintf('%e',addEye2Hessian1tolerance); % to make double
     defines.equalTolerance=sprintf('%e',equalTolerance); % to make double
     defines.desiredDualityGap=sprintf('%e',desiredDualityGap); % to make double
     defines.scaleCost=double(scaleCost~=0);
