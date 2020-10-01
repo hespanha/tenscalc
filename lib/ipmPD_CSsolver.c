@@ -327,7 +327,8 @@ EXPORT void ipmPD_CSsolver(
     getDirectionError__(&derr);
     if (mp==mpDesired && mn==mnDesired) {
       printf3("%8.1e%8.1e%5.0f%5.0f%8.1e",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
-      if (addEye2Hessian1>addEye2HessianMIN ) { //&& norminf_grad<=10*gradTolerance) {
+      if (addEye2Hessian1>addEye2HessianMIN ) { 
+      //if (addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*gradTolerance) {
 	addEye2Hessian1=MAX(.5*addEye2Hessian1,addEye2HessianMIN);
 	setAddEye2Hessian1__(&addEye2Hessian1);
       }

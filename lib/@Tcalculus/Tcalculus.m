@@ -2993,6 +2993,10 @@ classdef Tcalculus
         % Each variable is the replaced by the corresponding piece
         % of obj1.
             
+            if isnumeric(obj)
+                return
+            end
+            
             if iscell(obj)
                 % Apply substitution to each element of cell array 'obj'
                 for k=1:length(obj)

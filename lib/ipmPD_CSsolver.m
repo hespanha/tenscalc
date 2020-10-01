@@ -231,7 +231,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             derr=getDirectionError__(obj);
             if ( mp==mpDesired && mn==mnDesired ) %|| derr<1e-16
                 printf3('%8.1e%8.1e%5.0f%5.0f%8.1e',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
-                if addEye2Hessian1>addEye2HessianMIN %&& norminf_grad<=10*obj.gradTolerance
+                if addEye2Hessian1>addEye2HessianMIN 
+                %if addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*obj.gradTolerance
                     addEye2Hessian1=max(.5*addEye2Hessian1,addEye2HessianMIN);
                     setAddEye2Hessian1__(obj,addEye2Hessian1);
                 end
