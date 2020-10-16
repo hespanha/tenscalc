@@ -427,8 +427,7 @@ for i=1:nGroups
     end
     % write auxiliary functions
     countFlops=0;
-    tmpFilename=tempname('.');
-    tmpFilename=['tmp_2rm_',tmpFilename(3:end),'.c'];
+    tmpFilename=myTempName();
     for ii=1:nFunctions-1
         if verboseLevel>1
             fprintf('    void %s%d_%d(): auxiliary functions with %d instructions\n',...
