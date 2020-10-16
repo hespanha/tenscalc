@@ -397,8 +397,8 @@ if verboseLevel>0
 end
 
 %% Create functions to do the computations
+tmpFilename=myTempName();
 for i=1:nGroups
-
     if allFunctionSameFile
         fig=fid;
     else
@@ -427,7 +427,6 @@ for i=1:nGroups
     end
     % write auxiliary functions
     countFlops=0;
-    tmpFilename=myTempName();
     for ii=1:nFunctions-1
         if verboseLevel>1
             fprintf('    void %s%d_%d(): auxiliary functions with %d instructions\n',...
@@ -451,7 +450,6 @@ for i=1:nGroups
         end
         str=fread(f,inf);
         fclose(f);
-        delete(tmpFilename);
         fwrite(fig,str);
         fprintf(fid,'}\n');
         k=k(nInstr+1:end);
@@ -491,7 +489,6 @@ for i=1:nGroups
     end
     str=fread(f,inf);
     fclose(f);
-    delete(tmpFilename);
     fwrite(fig,str);
         
     for q=1:length(countFlops)
@@ -517,6 +514,9 @@ for i=1:nGroups
         fclose(fig);
     end
 
+end
+if exist('f','var')
+    delete(tmpFilename);
 end
 
 if verboseLevel>0
