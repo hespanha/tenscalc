@@ -7,7 +7,7 @@ function writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunct
 % Inputs:
 % obj - csparse object
 % minInstructions4loop - minimum number of similar instructions to
-%                        be implmented as a for loop (rather than inlined) 
+%                        be implmented as a for loop (rather than inlined)
 % maxInstructionsPerFunction - maximum number of instructions to be
 %                        included in a single function. Used to avoid
 %                        very large functions for which the compiler
@@ -364,7 +364,7 @@ if obj.debug>1
                     index2str(subscripts(:,j))',obj.memoryLocations(instructions(j))-1);
         end
         fprintf(fid,'  fprintf(stderr,"\\n");\n');
-        
+
     end
     fprintf(fid,'}\n');
 end
@@ -372,12 +372,12 @@ end
 if ~isempty(logFile)
 
     if 1
-        %% Write description of the csparse object 
+        %% Write description of the csparse object
         %% very time consuming for obj.str(1)
         fprintf(fil,'* Sparse object:\n');
         fprintf(fil,'%s',obj.str(0));
     end
-    
+
     %% Write Dependency groups to the log file
     fprintf(fil,'\n* Dependency groups:\n');
     fprintf(fil,'%35s','group');
@@ -413,11 +413,11 @@ for i=1:nGroups
         fprintf(fig,'#define EXPORT \n');
         fprintf(fig,'#endif\n');
     end
-    
+
     if ~isempty(Hfunction)
         fprintf(fih,'extern void %s%d();\n',computeFunctions,i-1);
     end
-    
+
     k=find(groups==i);
     % Check how many functions will be needed
     nFunctions=ceil(length(k)/maxInstructionsPerFunction);
@@ -454,7 +454,7 @@ for i=1:nGroups
         fprintf(fid,'}\n');
         k=k(nInstr+1:end);
     end
-    
+
     fprintf(fig,'EXPORT void %s%d() {\n',computeFunctions,i-1);
     if obj.debug>0
         fprintf(fig,'  fprintf(stderr,"computing group %d\\n");\n',i-1);
@@ -472,7 +472,7 @@ for i=1:nGroups
     % call auxiliary functions
     for ii=1:nFunctions-1
         fprintf(fig,'  %s%d_%d();\n',computeFunctions,i-1,ii-1);
-    end    
+    end
     fprintf(fid,'  // %d instructions\n',length(k));
     if verboseLevel>1
         fprintf('    void %s%d(): main functions with %d instructions\n',...
@@ -490,7 +490,7 @@ for i=1:nGroups
     str=fread(f,inf);
     fclose(f);
     fwrite(fig,str);
-        
+
     for q=1:length(countFlops)
         if countFlops(q)>0
             if profiling
@@ -510,7 +510,7 @@ for i=1:nGroups
 
     %% one function per file?
     if ~allFunctionSameFile
-        %% one function per file 
+        %% one function per file
         fclose(fig);
     end
 
@@ -549,14 +549,14 @@ for i=1:length(obj.sets)
     end
     if obj.debug>0
         fprintf(fid,'  fprintf(stderr,"running %s\\n");\n',obj.sets(i).functionName);
-    
+
     end
-    
+
     subscripts=getOne(obj.vectorizedOperations,'subscripts',obj.sets(i).destination);
     instructions=getOne(obj.vectorizedOperations,'instructions',obj.sets(i).destination);
     instructions=obj.memoryLocations(instructions);
     osize=getOne(obj.vectorizedOperations,'osize',obj.sets(i).destination);
-    
+
     if size(subscripts,2)~=prod(osize)
         subscripts,size(subscripts,2),prod(osize)
         error('setting non-full variable %s\n',obj.gets(i).functionName);
@@ -566,7 +566,7 @@ for i=1:length(obj.sets)
     [subscripts,k]=sortrows(subscripts',size(subscripts,1):-1:1);
     subscripts=subscripts';
     instructions=instructions(k);
-    
+
     % copy values
     if all(instructions(2:end)-instructions(1:end-1)==1) && strcmp(obj.scratchbookType,'double')
         % consecutive source
@@ -604,8 +604,8 @@ for i=1:length(obj.gets)
         if isSparse(j)
             obj.template(obj.gets(i).templateNdx).outputs(j).type='sparse';
         end
-    end    
-    
+    end
+
     if any(isSparse)
         %error('current version does not support the return of sparse matrices, make matrix full using ''full(.)''');
         % This code is untested, but does create a sparse matrix assuming the
@@ -662,13 +662,13 @@ for i=1:length(obj.gets)
     if obj.debug>0
         fprintf(fid,'  fprintf(stderr,"running %s\\n");\n',obj.gets(i).functionName);
     end
-    
+
     % perform needed computations
     if ~isempty(obj.gets(i).parentGroups)
         fprintf(fid,callComputeFunctions,...
                 repmat(obj.gets(i).parentGroups(:)'-1,NcallComputeFunctions,1));
     end
-    
+
     for j=1:nSources
         atomic=getOne(obj.vectorizedOperations,'atomic',obj.gets(i).source(j));
         if (atomic)
@@ -686,14 +686,14 @@ for i=1:length(obj.gets)
                 msize(end+1)=1;
                 msubscripts(end+1,:)=ones(1,size(msubscripts,2));
             end
-            
+
             %% sparse matrices returned in compressed-column form
 
             % compute sparse arrays
             %[msubscripts',instructions]
             [ji,k]=sortrows(msubscripts(end:-1:1,:)');
             % http://www.mathworks.com/help/matlab/apiref/mxsetir.html
-            ir=ji(:,2)-1; 
+            ir=ji(:,2)-1;
             % http://www.mathworks.com/help/matlab/apiref/mxsetjc.html
             jc=zeros(msize(2)+1,1);
             this=0;
@@ -744,7 +744,7 @@ for i=1:length(obj.gets)
                 [subscripts,k]=sortrows(subscripts',size(subscripts,1):-1:1);
                 subscripts=subscripts';
                 instructions=instructions(k);
-        
+
                 if all(instructions(2:end)-instructions(1:end-1)==1) &&...
                         strcmp(obj.scratchbookType,'double')
                     % consecutive destination
@@ -790,13 +790,13 @@ for i=1:length(obj.copies)
     if obj.debug>0
         fprintf(fid,'  fprintf(stderr,"running %s\\n");\n',obj.copies(i).functionName);
     end
-    
+
     % perform needed computations
     if ~isempty(obj.copies(i).parentGroups)
         fprintf(fid,callComputeFunctions,...
                 repmat(obj.copies(i).parentGroups(:)'-1,NcallComputeFunctions,1));
     end
-    
+
     % copy commands
     instructionsDestination=[];
     instructionsSource=[];
@@ -809,7 +809,7 @@ for i=1:length(obj.copies)
                                      'subscripts',obj.copies(i).destination(k));
         iD=getOne(obj.vectorizedOperations,'instructions',obj.copies(i).destination(k));
         instructionsDestination=[instructionsDestination;iD];
-        
+
         atomic=getOne(obj.vectorizedOperations,'atomic',obj.copies(i).source(k));
         if (atomic)
             error('copies not supported for atomic operator');
@@ -817,7 +817,7 @@ for i=1:length(obj.copies)
         subscriptsSource=getOne(obj.vectorizedOperations,'subscripts',obj.copies(i).source(k));
         iS=getOne(obj.vectorizedOperations,'instructions',obj.copies(i).source(k));
         instructionsSource=[instructionsSource;iS];
-        
+
         if ~isequal(subscriptsDestination,subscriptsSource)
             if strcmp(obj.copies(i).functionName,'initDualEqX__')
                 error('writeCfunctionpergroup: source and destination for Copy command ''%s'' with different sparsity structures, *most likely caused by equality constraints that do not involve optimization variables*',obj.copies(i).functionName);
@@ -829,7 +829,7 @@ for i=1:length(obj.copies)
     end
     instructionsDestination=obj.memoryLocations(instructionsDestination);
     instructionsSource=obj.memoryLocations(instructionsSource);
-    
+
     if length(instructionsDestination)>1 &&...
             all(instructionsDestination(2:end)-instructionsDestination(1:end-1)==1) && ...
             all(instructionsSource(2:end)-instructionsSource(1:end-1)==1)  && ...
@@ -877,7 +877,7 @@ for i=1:length(obj.saves)
         fprintf(fid,callComputeFunctions,...
                 repmat(obj.saves(i).parentGroups(:)'-1,NcallComputeFunctions,1));
     end
-    
+
     fprintf(fid,'#if _WIN32\n');
     fprintf(fid,'  int fd=open(filename,O_WRONLY|O_CREAT|O_TRUNC);\n');
     fprintf(fid,'#else\n');
@@ -910,7 +910,7 @@ for i=1:length(obj.saves)
     osize=getOne(obj.vectorizedOperations,'osize',obj.saves(i).source);
     subscripts=getOne(obj.vectorizedOperations,'subscripts',obj.saves(i).source);
     fis=fopen(fullfile(folder,obj.saves(i).filename),'w');
-    % magic=int64(intmax('int64')*rand(1)); 
+    % magic=int64(intmax('int64')*rand(1));
     fprintf('Saving "%s" (fd=%d,magic=%d)\n',obj.saves(i).filename,fis,obj.saves(i).magic);
     fwrite(fis,obj.saves(i).magic,'int64');
     fwrite(fis,int32(length(osize)),'int32');
@@ -1029,7 +1029,7 @@ function includeFile(fid,filename)
 % includeFile(fid,filename)
 %   includes the file named 'filename' into the file with the given
 %   descriptor
-    
+
     fii=fopen(filename,'r');
     if fii<0
         error('unable to open file ''%s''\n',filename);
@@ -1039,6 +1039,5 @@ function includeFile(fid,filename)
     fwrite(fid,a);
     fprintf(fid,'/* END OF #included "%s" */\n',filename);
     fclose(fii);
-    
-end
 
+end

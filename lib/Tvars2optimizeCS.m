@@ -1,4 +1,4 @@
-function varargout=Tvars2optimizeCS(varargin)	
+function varargout=Tvars2optimizeCS(varargin)
 % To get help, type Tvars2optimizeCS('help')
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -16,7 +16,7 @@ function varargout=Tvars2optimizeCS(varargin)
 % General Public License for more details.
 %
 % You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.    
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     %% Function global help
     declareParameter(...
@@ -55,7 +55,7 @@ function varargout=Tvars2optimizeCS(varargin)
             'constraints. Both equality and inequality constraints'
             'are allowed.'
                       });
-    
+
     declareParameter(...
         'VariableName','smallerNewtonMatrix',...
         'DefaultValue',false,...
@@ -66,10 +66,10 @@ function varargout=Tvars2optimizeCS(varargin)
             'constrainst.'
             'However, often the smaller matrix is not as sparse so the computation'
             'may actually increase.'
-                      });    
+                      });
     declareParameter(...
         'VariableName','sensitivityVariables',...
-        'DefaultValue',{},...        
+        'DefaultValue',{},...
         'Description',{
             'Cell-array of Tcalculus symbolic objects representing the'
             'optimization variables with respect to which we want to compute cost';
@@ -91,7 +91,7 @@ function varargout=Tvars2optimizeCS(varargin)
 
     [stopNow,params]=setParameters(nargout,varargin);
     if stopNow
-        return 
+        return
     end
 
     classname='dummy';
@@ -107,7 +107,7 @@ function varargout=Tvars2optimizeCS(varargin)
     scaleCost=false;
     scaleEqualities=false;
     addEye2Hessian=false;
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,9 +144,9 @@ function varargout=Tvars2optimizeCS(varargin)
 
     fprintf('Tvars2optimizeCS:... ');
     t_cmexCS=clock();
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Declare the problem-specific variables 
+    %% Declare the problem-specific variables
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     t_csparse=clock();
@@ -165,7 +165,7 @@ function varargout=Tvars2optimizeCS(varargin)
 
     [G,F,nus,lambdas,outputExpressions,tpl]=...
         parseConstraints(code,classname,constraints,outputExpressions);
-    
+
     %% Pack primal variables
     [u,whereVariables,~,~,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
@@ -187,7 +187,7 @@ function varargout=Tvars2optimizeCS(varargin)
 
     %% Get indices of sensitivity variables
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
-    
+
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
     Tout_=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
@@ -232,7 +232,7 @@ function varargout=Tvars2optimizeCS(varargin)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     varargout=setOutputs(nargout,params);
 
 end

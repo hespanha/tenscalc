@@ -15,7 +15,7 @@ function obj=tprod(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if length(varargin)<2
         error('tprod: t least 2 input arguments needed (%d found)\n',length(varargin));
     end
@@ -37,7 +37,7 @@ function obj=tprod(varargin)
         associate=0;  % often faster because it avoids very time
                       % consuming tprod
     end
-    
+
     if isequal(varargin{end},'distribute')
         distribute=1;
         varargin(end)=[];
@@ -47,7 +47,7 @@ function obj=tprod(varargin)
     else
         distribute=0;
     end
-    
+
     %% get operands
     [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin{:});
 
@@ -55,21 +55,21 @@ function obj=tprod(varargin)
         obj=Tzeros(tprod_size);
         return
     end
-    
+
     if isempty(objs)
         varargin{:}
         error('trying to create tprod() with no arguments\n');
     end
-    
+
     if length(objs)>2
         warning('tprod with more than 2 factors should be avoided as it is typically computationally not very efficient');
     end
-    
+
     %% Apply associative rule for tprod(tprod)
     if associate
-        % flatten nested tprod's 
+        % flatten nested tprod's
         look4tprods=true;
-        while look4tprods 
+        while look4tprods
             look4tprods=false;
             for i=1:length(objs)
                 if strcmp(type(objs{i}),'tprod')
@@ -84,12 +84,12 @@ function obj=tprod(varargin)
             error('associative rule resulted in tprod() with no arguments\n');
         end
     end
-    
-    %% Apply distributive rule for tprod(plus) 
+
+    %% Apply distributive rule for tprod(plus)
     if distribute
         error('tprod distributive rule not implemented\n');
         look4pluses=true;
-        while look4pluses 
+        while look4pluses
             look4pluses=false;
             for i=1:length(objs)
                 if strcmp(objs{i}.type,'plus')
@@ -105,7 +105,7 @@ function obj=tprod(varargin)
             error('distributive rule resulted in tprod() with no arguments\n');
         end
     end
-    
+
     %% Create object
     [ops,inds]=Tcalculus.tprod_sort_operands(objs,inds);
     obj=Tcalculus('tprod',tprod_size,sums_size,ops,inds,1);
@@ -149,25 +149,25 @@ function [objs,inds,sums_size]=flattenTprod(objs,inds,sums_size,k)
     % remove old objects
     objs(k)=[];
     inds(k)=[];
-end  
-    
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Expand: tprod(sum) -> sum(tprod)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [newobj,changed]=distributeTprod(obj,k)
-    
+
     if ~strcmp(obj.type,'tprod')
         error('distributeTprod can only expand a tprod(), not %s\n',obj.type);
     end
-    
+
     if ~strcmp(obj.objs{k}.type,'plus')
         error('distributeTprod can only expand a tprod(), not %s\n',obj.objs{k}.type);
     end
-    
+
     if length(size(obj.objs{k}))>=0 % 3?
         fprintf('\ndistributeTprod: tprod size=[%s], plus size=[%s]\n',index2str(size(obj)),index2str(size(obj.objs{k})));
-        
+
         changed=true;
 
         objs=cell(length(obj.objs{k}.objs),1);
@@ -189,4 +189,3 @@ function [newobj,changed]=distributeTprod(obj,k)
         newobj=obj;
     end
 end
-

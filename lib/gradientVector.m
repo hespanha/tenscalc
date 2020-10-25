@@ -43,7 +43,7 @@ end
 grad=cell(length(objs),length(vars));
 remove=false(length(vars),1);
 for i=1:length(vars)
-    if prod(msize(vars{i}))>0 
+    if prod(msize(vars{i}))>0
         if ~isequal(type(vars{i}),'variable')
             vars{i}
             vars{i}.type
@@ -60,9 +60,9 @@ end
 if nargout>1
     hess=cell(length(objs),length(vars),length(vars));
     for i=1:length(vars)
-        if prod(msize(vars{i}))>0 
+        if prod(msize(vars{i}))>0
             for j=i:length(vars)
-                if prod(msize(vars{j}))>0 
+                if prod(msize(vars{j}))>0
                     for k=1:length(objs)
                         hess{k,i,j}=gradient(grad{i},vars{j});
                     end

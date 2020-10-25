@@ -81,19 +81,19 @@ extern void saveWW__(char *filename);
 #include <mex.h>
 #define printf2(...) mexPrintf(__VA_ARGS__)
 #else
-#define printf2(...) 
+#define printf2(...)
 #endif
 
 #if verboseLevel>=3
 #define printf3(...) mexPrintf(__VA_ARGS__)
 #else
-#define printf3(...) 
+#define printf3(...)
 #endif
 
 #if verboseLevel>=4
 #define printf4(...) mexPrintf(__VA_ARGS__)
 #else
-#define printf4(...) 
+#define printf4(...)
 #endif
 
 #define MIN(A,B) (((A)<(B))?(A):(B))
@@ -155,7 +155,7 @@ EXPORT void ipmPD_CSsolver(
 #else
 #define mnDesired (nF+nG)
 #endif
-    
+
   double norminf_grad,alphaMax_=alphaMax;
 
 #if nF>0
@@ -164,7 +164,7 @@ EXPORT void ipmPD_CSsolver(
 #if skipAffine != 1
   double sigma;
 #endif
-#endif 
+#endif
 
 #if nG>0
   double norminf_eq;
@@ -176,12 +176,12 @@ EXPORT void ipmPD_CSsolver(
 
   initPrimal__();
 
-#if scaleCost != 0 
+#if scaleCost != 0
   scaleCost__();
 #if nF>0
   getScale4Cost__(&scale4cost);
   desiredDualityGapVar *= scale4cost;
-#endif 
+#endif
 #endif
 
 #if nF>0
@@ -217,7 +217,7 @@ EXPORT void ipmPD_CSsolver(
 #else
   printf3("\n");
 #endif
-  
+
 #if verboseLevel>=1
   clock_t dt0=clock();
 #endif
@@ -228,7 +228,7 @@ EXPORT void ipmPD_CSsolver(
 #if nF>0
   initDualIneq__();
 #endif
-  
+
 #if nG>0
   initDualEqX__();
   //initDualEq__();
@@ -251,7 +251,7 @@ EXPORT void ipmPD_CSsolver(
     /*************************/
     /* Check exit conditions */
     /*************************/
-    
+
 #if verboseLevel>=3
     getJ__(&J);
     printf3("%11.3e",J);
@@ -299,9 +299,9 @@ EXPORT void ipmPD_CSsolver(
 #if nG>0
         && norminf_eq<=equalTolerance
 #endif
-#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) 
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
 	&& addEye2Hessian1<=addEye2Hessian1tolerance
-#endif	
+#endif
          ) {
                printf2("  -> clean exit\n");
                (*status) = 0;
@@ -313,21 +313,21 @@ EXPORT void ipmPD_CSsolver(
 #else
     printf3("  -mu-  ");
 #endif
-    
+
     /*************************/
     /* Adjust addEye2Hessian */
     /*************************/
-    
+
 #define addEye2HessianMAX 1e2
 #define addEye2HessianMIN 1e-20
 #define maxDirectionError 1e-9
-    
+
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
     getHessInertia__(&mp,&mn);
     getDirectionError__(&derr);
     if (mp==mpDesired && mn==mnDesired) {
       printf3("%8.1e%8.1e%5.0f%5.0f%8.1e",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
-      if (addEye2Hessian1>addEye2HessianMIN ) { 
+      if (addEye2Hessian1>addEye2HessianMIN ) {
       //if (addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*gradTolerance) {
 	addEye2Hessian1=MAX(.5*addEye2Hessian1,addEye2HessianMIN);
 	setAddEye2Hessian1__(&addEye2Hessian1);
@@ -376,7 +376,7 @@ EXPORT void ipmPD_CSsolver(
     printf3("%8.1e%8.1e",addEye2Hessian1,addEye2Hessian2);
 #endif
 #endif
-  
+
 #if nF==0
     /****************************************/
     /******  NO INEQUALITY CONSTRAINTS ******/
@@ -465,7 +465,7 @@ EXPORT void ipmPD_CSsolver(
       printf3("%8.1e",sigma);
       mu=sigma*gap/nF;
       if (mu < muMin) mu=muMin;
-      setMu__(&mu); 
+      setMu__(&mu);
     } else {
       printf3(" -sigm- ");
     }
@@ -529,7 +529,7 @@ EXPORT void ipmPD_CSsolver(
 	      if (ineq1>ineq/10) {
 		break; }
 	    }
-	  } 
+	  }
 	  if (alphaPrimal < alphaMin) {
 	    alphaPrimal = 0;
 	    setAlphaPrimal__(&alphaPrimal);
@@ -558,7 +558,7 @@ EXPORT void ipmPD_CSsolver(
 #endif
     setAlphaDualIneq__(&alphaDualIneq);
     updatePrimalDual__();
-    
+
 #if nG>0
     printf3("%8.1e%8.1e%8.1e",alphaPrimal,alphaDualIneq,alphaDualEq);
 #else
@@ -585,7 +585,7 @@ EXPORT void ipmPD_CSsolver(
       //mu *= muFactorAggressive;
       mu *= MIN(muFactorAggressive,pow(mu,.5));
       if (mu < muMin) mu=muMin;
-      setMu__(&mu); 
+      setMu__(&mu);
       printf3(" * ");
     } else {
       if (alphaPrimal<.1) {
@@ -617,7 +617,7 @@ EXPORT void ipmPD_CSsolver(
 #else
 	printf3("   ");
 #endif
-    
+
     // if no motion, slowly increase mu
     if (alphaPrimal<alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) {
       mu /= (muFactorConservative*muFactorConservative); // square to compensate for previous decrease
@@ -658,7 +658,7 @@ EXPORT void ipmPD_CSsolver(
     if (mu>muMin) {
       (*status) |= 128;
     }
-    if (alphaPrimal<=alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) 
+    if (alphaPrimal<=alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin)
       (*status) |= 1792; // (256|512|1024);
     else if (alphaPrimal<=.1 && alphaDualIneq<.1 && alphaDualEq<.1)
       (*status) |= 1536; // (512|1024);
@@ -666,11 +666,11 @@ EXPORT void ipmPD_CSsolver(
       (*status) |= 1024;
 #endif
   }
-  
+
 #if verboseLevel>=1
   (*time)=(clock()-dt0)/(double)CLOCKS_PER_SEC;
 #endif
-    
+
 #if verboseLevel>=2
   getJ__(&J);
   if ((*status)<8) {
@@ -716,7 +716,7 @@ EXPORT void ipmPD_CSsolver(
   printf2("cost=%13.5e",J);
   printf2(", |grad|=%10.2e",norminf_grad);
 #if setAddEye2Hessian != 0
-  printf2(", addEye2Hessian=[%10.2e,%10.2e]",addEye2Hessian1,addEye2Hessian2);  
+  printf2(", addEye2Hessian=[%10.2e,%10.2e]",addEye2Hessian1,addEye2Hessian2);
 #endif
 #if nG>0
   printf2(", |eq|=%10.2e",norminf_eq);
@@ -727,4 +727,3 @@ EXPORT void ipmPD_CSsolver(
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
 #endif  // verboseLevel>=2
 }
-

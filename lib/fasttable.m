@@ -24,7 +24,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     properties (GetAccess={},SetAccess={})
         data={};          % cell-vector where data will be stored, one variable per entry
         hash=[];          % hash value for type 1,2,3 for faster search (just the sum)
@@ -38,7 +38,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                           % 0 - categorical array
                           % 1 - numerical row vector
                           % 2 - cell string
-                          % 3 - numeric matrix 
+                          % 3 - numeric matrix
                           %     (to be packed into a string before storing)
                           % 4 - general
                           %     (stored unpacked as a cell array)
@@ -77,17 +77,17 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         %      {cell-string}  = variable will be a categorical array
         %                     with the given categories
         %                     (data stored as a numeric 1-based index)
-        %      
+        %
         %      'fixed-vector' = variable is a row vector always with the same size
         %                     (data stored as numeric matrix)
-        %      
+        %
         %      'string'     = variable is a string
         %                     (data stored as a string array)
-        %      
+        %
         %      'matrix'     = variable is a matrix (different rows may
         %                     have different sizes)
         %                     (packed/unpacked using getByteStreamFromArray/getArrayFromByteStream)
-        %      
+        %
         %      'general'    = variable can be of any type (stored as cell array)
         %                     (packed/unpacked using getByteStreamFromArray/getArrayFromByteStream)
             obj.args=varargin;
@@ -119,9 +119,9 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
             obj.nVariables=length(obj.variableNames);
             obj.hash(end+1,obj.nVariables)=nan;
         end % fasttable
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% Method for save and serialize 
+        %% Method for save and serialize
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         function obj1=saveobj(obj)
             obj1=struct('args',{obj.args},...
@@ -131,11 +131,11 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                         'dataSize',{obj.dataSize});
             %fprintf('saveobj(fasttable): %s -> %s\n',class(obj),class(obj1))
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Access properties
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function disp(obj,rows)
             if nargin<2
                 rows=1:obj.nRows;
@@ -174,11 +174,11 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                 end
             end
         end
-        
+
         function width=width(obj)
             width=obj.nVariables;
         end
-            
+
         function height=height(obj)
             height=obj.nRows;
         end
@@ -187,10 +187,10 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
             error('size(fasttable) not implemented: inefficient');
         end
 
-        
+
         function rc=isempty(obj)
         % rc=isempty(obj)
-        %   
+        %
         %   Returns true if the table has no rows.
             rc=(obj.nRows==0);
         end
@@ -198,7 +198,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Read table
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function value=getOne(obj,variable,row)
         % value=getOne(obj,variable,rows)
         %
@@ -222,13 +222,13 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                 value=obj.data{i}{row};
             end
         end
-                
+
         function value=getMulti(obj,variable,rows)
         % value=getMulti(obj,variable,rows)
-        %   
+        %
         %   Returns the value of a given variable for a set of rows
         %   (a little slower than getOne() for a single row)
-            
+
             if nargin<3
                 rows=1:obj.nRows;
             end
@@ -263,16 +263,16 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                 end
             end
         end
-            
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Write to table
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function set(obj,variable,row,value)
         % set(obj,variable,row,value)
-        %   
+        %
         %   Sets value of a given variable,, for a given row
-            
+
             i=find(strcmp(variable,obj.variableNames));
             switch(obj.variableTypes(i))
               case 3
@@ -291,13 +291,13 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                 obj.hash(row,i)=sum(value);
             end
         end
-            
+
         function row=appendRow(obj,varargin)
-        % row=appendRow(obj,value1,value2,...)  
-        %   
+        % row=appendRow(obj,value1,value2,...)
+        %
         %   Appends a row at the end of the table with the given values
         %   for the variables. Returns the index of the row created.
-            
+
             row=obj.nRows+1;
             obj.nRows=row;
             % reserve memory
@@ -337,12 +337,12 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                     obj.hash(row,i)=sum(value);
                 end
             end
-            
+
         end % appendrow
-            
+
         function row=appendRowUnique(obj,varargin)
-        % row=appendRowUnique(obj,value1,match1,value2,match2,...)  
-        %   
+        % row=appendRowUnique(obj,value1,match1,value2,match2,...)
+        %
         %   Searches for a row that matches the given variables.
         %   When found, returns the row index, otherwise
         %   creates a row with the given variables
@@ -357,7 +357,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
         %
         % Output:
         %   row - index of the row created/updated
-            
+
             % search for a match
             % handle 1st element separately to go faster
             if varargin{2}
@@ -422,14 +422,14 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
                     end
                 end
             end
-            
+
             if length(row)>1
                 error('appendRowUnique: multiple matches\n');
             end
         end % appendRowUnique
-        
+
     end % methods
-    
+
     methods (Static)
         function t=test()
             clear all
@@ -443,7 +443,7 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
             end
             fprintf('appendRowUnique: %f us/append\n',1e6*etime(clock,t0)/N);
             t
-            
+
             t0=clock;
             for i=1:N
                 appendRowUnique(t,'cat2',true,'tt',true,[5,55,7],true,rand(3,4),false);
@@ -456,4 +456,3 @@ classdef fasttable < matlab.mixin.Copyable % abstract handle class with a copy m
     end % methods
 
 end % class
-

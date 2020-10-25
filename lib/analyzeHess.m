@@ -1,5 +1,5 @@
 function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,lambda,mu,dx_s,b_s)
-    
+
     if nargin<5
         threshold=.1;
     end
@@ -39,7 +39,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
         fprintf('   %s %d:\t\t[%s]\tz[%d..%d]\n',constraints(i).type,i,index2str(constraints(i).size),...
         constraints(i).range(1),constraints(i).range(end));
     end
-    
+
     fprintf('Analyzing Hessian''s magnitude\n');
     tol=1e6;
     [i1,i2]=find(Hess>tol);
@@ -49,7 +49,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
             fprintf('\tHess(%4d,%4d)=%8.1e\n',i1(j),i2(j),full(Hess(i1(j),i2(j))));
         end
     end
-    
+
     fprintf('Analyzing Hessian''s kernel\n');
     [v,d]=eigs(Hess,4,'smallestabs');
     for j=1:size(v,2)
@@ -66,7 +66,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
                 end
             end
         end
-        
+
         for i=1:length(constraints)
             ind=find(abs(v(constraints(i).range,j))>threshold);
             if ~isempty(ind)
@@ -93,7 +93,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
                 fprintf('      %s(%s)\t= %g\n',...
                         primalVariables(i).name,index2str(sub(:,q)),Grad(primalVariables(i).range(ind(q))));
             end
-        end        
+        end
     end
 
     fprintf('Analyzing Newton direction\n');
@@ -113,7 +113,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
             end
         end
     end
-    
+
     x=full([u;nu;lambda]);
     tol=.25;
     for i=1:length(constraints)
@@ -129,7 +129,7 @@ function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,l
             end
         end
     end
-    
+
     %disp([u,dN(1:length(u))])
 
 

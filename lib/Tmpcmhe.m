@@ -1,5 +1,5 @@
 classdef Tmpcmhe < handle
-% Get help with 
+% Get help with
 %   Tmpcmhe help;
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -20,16 +20,16 @@ classdef Tmpcmhe < handle
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     properties (SetAccess = 'immutable');
-        
+
         % properties set by constructor
-        
+
         sampleTimeName=''  % When sampleTime is a symbolic
                            % variable, this holds the name of the
                            % variable; otherwise empty string.
         stateDerivativeFunction % anonymous function with the state derivative
         outputFunction     % anonymous function with the state derivative
         controlDelay       % controlDelay (in sampleTime units) before a control can be applied
-        
+
         solverName         % name of solver class
         solverObject       % solver object
         parameters         % solver symbolic parameters
@@ -44,7 +44,7 @@ classdef Tmpcmhe < handle
         nOutputs           % length of output vector
         nBackwardHorizon   % length of backward horizon (L)
         nForwardHorizon    % length of foward horizon (T)
-        
+
         parameterNames={}    % cell array with the names of all the parameters
         initialStateName=''  % name of symbolic initial state variable
         latentStateName=''   % name of symbolic latent state variable
@@ -53,17 +53,17 @@ classdef Tmpcmhe < handle
         futureControlName='' % name of symbolic future control variable
         disturbanceName=''   % names of symbolic disturbance variable
 
-        currentStateName   % name of symbolic variable with the current state 
+        currentStateName   % name of symbolic variable with the current state
         delayedControls    % symbolic variable with the future controls
                            % that cannot be modified (only for controlDelay>0)
 
         times2add=1000;    % number of times to add to history
                            % matrices, for each call to extendHistory
     end
-        
+
     properties %(GetAccess = {},SetAccess = 'immutable');
         history=struct('time',{[]},...      % vector of time instants
-                       'state',{[]},...     % matrix with state history 
+                       'state',{[]},...     % matrix with state history
                                     ...     % (one state per row, one time instant per column)
                        'control',{[]},...   % matrix with control history
                                       ...   % (one control per row, one time instant per column);
@@ -87,7 +87,7 @@ classdef Tmpcmhe < handle
                          %   status/iter/stime have valid data from
                          %                (:,1:currentIndex+controlDelay-1)
                          %   status/iter/stime indices match the index of the computed control
-        
+
         parameterValues={};
         parametersSet=[];
         initialStateSet=false;
@@ -96,21 +96,21 @@ classdef Tmpcmhe < handle
         disturbanceSet=false;
         stateSet=false;
         sampleTimeValue=NaN % numerical value for sampling time;
-        
+
     end
-    
+
     methods
-    
+
         %%%%%%%%%%%%%%%%%%%%%%%
         %% Class constructor %%
         %%%%%%%%%%%%%%%%%%%%%%%
-        
-        function obj=Tmpcmhe(varargin)	
+
+        function obj=Tmpcmhe(varargin)
         % Creates a matlab class for
         % 1) creating a Tcalculus solver for an MPC controller
         % 2) running the MPC optimization
         % 3) simulating the MPC controller
-                    
+
             declareParameter(...
                 'Help', {
                     'Creates a matlab class for';
@@ -118,14 +118,14 @@ classdef Tmpcmhe < handle
                     '2) calling the MPC-MHE solver';
                     '3) simulating the MPC-MHE controller';
                         });
-            
+
             %% Declare input parameters
             declareParameter(...
                 'VariableName','solverClassname',...
                 'Description',{
                     'Name of the solver class to be created.';
                               });
-            
+
             declareParameter(...
                 'VariableName','solverType',...
                 'DefaultValue','matlab',...
@@ -142,7 +142,7 @@ classdef Tmpcmhe < handle
                     'that was called with the same input parameters.';
                     'In this case, a unique suffix is appended to the solverClassname';
                               });
-            
+
             declareParameter(...
                 'VariableName','sampleTime',...
                 'Description',{
@@ -289,7 +289,7 @@ classdef Tmpcmhe < handle
                     'disturbance constraints. Both equality and inequality constraints';
                     'are allowed.';
                               });
-            
+
             declareParameter(...
                 'VariableName','parameters',...
                 'DefaultValue',{},...
@@ -311,14 +311,14 @@ classdef Tmpcmhe < handle
                     'solver generator.'
                       });
 
-            
+
             %% Retrieve parameters and inputs
-            
+
             [stopNow,params]=setParameters(nargout,varargin);
             if stopNow
-                return 
+                return
             end
-            
+
             %% Constructor body
 
             if ~iscell(parameters)
@@ -332,7 +332,7 @@ classdef Tmpcmhe < handle
             obj.nControls=size(futureControlVariable,1);
             obj.nDisturbances=size(disturbanceVariable,1);
             obj.nOutputs=size(futureControlVariable,1);
-            
+
             obj.controlDelay=size(pastControlVariable,2)-size(pastOutputVariable,2)+1;
             obj.nBackwardHorizon=size(pastOutputVariable,2)-1;
             obj.nForwardHorizon=size(futureControlVariable,2)+obj.controlDelay;
@@ -408,7 +408,7 @@ classdef Tmpcmhe < handle
                 error('sampleTime must be a double or a Tcalculus object');
             end
             % check sample time
-                
+
             extendHistory(obj);
 
             %% Save names of parameters, control, and state
@@ -428,7 +428,7 @@ classdef Tmpcmhe < handle
             for i=1:length(obj.parameters)
                 obj.parameterNames{i}=name(obj.parameters{i});
             end
-            
+
             %% create dynamics
             % separate initial state (P2's optimization variable)
             % from the rest of the state (latent variable)
@@ -438,7 +438,7 @@ classdef Tmpcmhe < handle
                                 [obj.nStates,obj.nForwardHorizon+obj.nBackwardHorizon]);
             obj.latentStateName=name(nextState);
             allState=[initialState,nextState];
-            
+
             obj.objective=substitute(obj.objective,stateVariable,allState);
             controlConstraints=substitute(controlConstraints,stateVariable,allState);
             disturbanceConstraints=substitute(disturbanceConstraints,stateVariable,allState);
@@ -446,7 +446,7 @@ classdef Tmpcmhe < handle
 
             previousState=[initialState,nextState(:,1:end-1)];
             previousControl=[pastControlVariable,futureControlVariable];
-            
+
             try
                 if 1
                     %% Trapesoidal integration for u with ZOH
@@ -472,9 +472,9 @@ classdef Tmpcmhe < handle
                 fprintf('error in appyling ''stateDerivativeFunction'' to symbolic variables\n');
                 rethrow(me);
             end
-                
+
             disturbanceVariable={disturbanceVariable;initialState};
-                            
+
             % add state & control to outputs
             obj.nOutputExpressions=length(outputExpressions);
             outputExpressions=[outputExpressions,...
@@ -490,13 +490,13 @@ classdef Tmpcmhe < handle
               otherwise
                 error('unknown solver type "%s"',solverType);
             end
-            
+
             if reuseSolver
                 executeScript='asneeded';
             else
                 executeScript='yes';
             end
-            
+
             if ~isempty(solverParameters)
                 if ~iscell(solverParameters)
                     solverParameters,
@@ -536,18 +536,18 @@ classdef Tmpcmhe < handle
 
             obj.solverName=getValue(classname);
             obj.solverObject=feval(obj.solverName);
-            
+
         end
-        
+
         %%%%%%%%%%%%%%%%%%%
         %% Other methods %%
         %%%%%%%%%%%%%%%%%%%
-        
+
         function extendHistory(obj)
         % extendHistory(obj)
         %
         % adds time-steps to the History matrices
-            
+
             obj.history.time=[obj.history.time;nan(obj.times2add,1)];
             obj.history.state=[obj.history.state,nan(obj.nStates,obj.times2add)];
             obj.history.control=[obj.history.control,nan(obj.nControls,obj.times2add)];
@@ -558,7 +558,7 @@ classdef Tmpcmhe < handle
             obj.history.iter=[obj.history.iter;nan(obj.times2add,1)];
             obj.history.stime=[obj.history.stime;nan(obj.times2add,1)];
         end
-    
+
         function setParameter(obj,name,value)
             k=find(strcmp(name,obj.parameterNames));
             if isempty(k)
@@ -587,13 +587,13 @@ classdef Tmpcmhe < handle
                 end
             end
         end
-    
+
         function [t,t_y_past,y_past,t_u_past,u_past,t_state,state]=...
                 setInitialState(obj,t_init,x_init,u_init,d_init,n_init);
         % [t,t_y_past,y_past,t_u_past,u_past,t_state,state]=...
         %        setInitialState(obj,t_init,x_init,u_init,d_init,n_init)
         %
-        % Initilizes the system with 
+        % Initilizes the system with
         %   t_init - initial time t==t_init+L*Ts
         %   x_init - initial state x(t_init)
         %   u_init - past control     [u(t_init),...,u(t_init+(L+delay-1)*Ts)]
@@ -699,7 +699,7 @@ classdef Tmpcmhe < handle
             obj.history.currentIndex=obj.nBackwardHorizon+1;
 
             t=obj.history.time(obj.history.currentIndex);
-            
+
             k_u_past=obj.history.currentIndex-obj.nBackwardHorizon:...
                      obj.history.currentIndex+obj.controlDelay-1;
             u_past=obj.history.control(:,k_u_past);
@@ -709,17 +709,17 @@ classdef Tmpcmhe < handle
                      obj.history.currentIndex;
             y_past=obj.history.output(:,k_y_past);
             t_y_past=obj.history.time(k_y_past);
-            
+
             k_state=obj.history.currentIndex-obj.nBackwardHorizon:...
                     obj.history.currentIndex;
             t_state=obj.history.time(k_state);
             state=obj.history.state(:,k_state);
         end
-        
+
         function [t_state,state]=setSolverWarmStart(obj,u_past,y_past,x_warm,u_warm,d_warm)
         % [t_state,state]=setSolverWarmStart(obj,u_past,y_past,x_warm,u_warm,d_warm)
         %
-        % Inputs: 
+        % Inputs:
         %    u_past = Sequence of past control controls.
         %             Should be a matrix with size
         %                  [ # controls , L + controlDelay ]
@@ -751,7 +751,7 @@ classdef Tmpcmhe < handle
         %             with value at time t equal to
         %                  [ d(t-L*Ts, ..., x(t), ..., x(t+(T-1)*Ts) ]
         %             where d(s) is applied from time s to time s+Ts
-        % Computes 
+        % Computes
         %    state = Sequence of states compatible with "warm" inputs
         %             which is a matrix with size
         %                  [ # states , L + T + 1 ]
@@ -796,11 +796,11 @@ classdef Tmpcmhe < handle
                     rethrow(me);
                 end
             end
-            
+
             k_state=obj.history.currentIndex-obj.nBackwardHorizon:...
                     obj.history.currentIndex+obj.nForwardHorizon;
             t_state=obj.history.time(k_state);
-            
+
             setParameter(obj,obj.pastControlName,u_past);
             setParameter(obj,obj.pastOutputName,y_past);
             feval(['setV_',obj.initialStateName],obj.solverObject,state(:,1));
@@ -864,10 +864,10 @@ classdef Tmpcmhe < handle
             if ~obj.latentStateSet
                 error('must set initial value for the latent state before calling solver');
             end
-            
+
             [solution.status,solution.iter,solution.time]=...
                 solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter));
-            
+
             varargout=cell(obj.nOutputExpressions,1);
             [varargout{:},solution.futureControl,...
              solution.disturbance,solution.initialState,...
@@ -880,7 +880,7 @@ classdef Tmpcmhe < handle
             solution.t_state=solution.t+...
                 obj.sampleTimeValue*(-obj.nBackwardHorizon:obj.nForwardHorizon);
         end
-        
+
         function [t,t_y_past,y_past,t_u_past,u_past,x_warm,u_warm,d_warm,t_state,state]=...
                 applyControl(obj,u_past,y_past,solution,disturbance,noise,u_final,d_final);
         % [t,t_y_past,y_past,t_u_past,u_past,x_warm,u_warm,d_warm,t_state,state]=...
@@ -901,12 +901,12 @@ classdef Tmpcmhe < handle
         %            with value at time t equal to
         %                 [ y(t-L*Ts), ..., y(t)]
         %   solution = MPCMHE solution returned by solver()
-        %   disturbance = Vector of input disturbance at time 
+        %   disturbance = Vector of input disturbance at time
         %                 [ t ]
         %                 if empty, the worst-case disturbance from
         %                 the last solution is used
         %   noise    = Vector of measurement noise that will
-        %              appear in the output at time 
+        %              appear in the output at time
         %                 [ t+Ts ]
         %   u_final  = Sequence of control values to be inserted at the end of u_warm
         %              Should be a matrix with size
@@ -966,11 +966,11 @@ classdef Tmpcmhe < handle
 
             t=t+obj.sampleTimeValue;
             obj.history.time(obj.history.currentIndex+1)=t;
-            
+
             % control & disturbance
             obj.history.control(:,obj.history.currentIndex+obj.controlDelay)=...
                 solution.futureControl(:,1);
-            if isempty(disturbance) 
+            if isempty(disturbance)
                 obj.history.disturbance(:,obj.history.currentIndex)=...
                     solution.disturbance(:,obj.nBackwardHorizon+1);
             else
@@ -986,7 +986,7 @@ classdef Tmpcmhe < handle
                                                           obj.parameterValues{:}),...
                         [obj.history.time(obj.history.currentIndex),obj.history.time(obj.history.currentIndex+1)],...
                         obj.history.state(:,obj.history.currentIndex));
-                    obj.history.state(:,obj.history.currentIndex+1)=yout(end,:)';                    
+                    obj.history.state(:,obj.history.currentIndex+1)=yout(end,:)';
                 else
                     % Forward Euler integration for the dynamics
                     obj.history.state(:,obj.history.currentIndex+1)=...
@@ -1010,7 +1010,7 @@ classdef Tmpcmhe < handle
                 solution.iter;
             obj.history.stime(obj.history.currentIndex+obj.controlDelay)=...
                 solution.time;
-            
+
             %% Attention: if output depends on the current u & d and
             %%            controlDelay=0 this will results in NaN's
             try
@@ -1024,15 +1024,15 @@ classdef Tmpcmhe < handle
                 fprintf('error in appyling ''outputFunction'' to numerical values\n');
                 rethrow(me);
             end
-            
+
             obj.history.currentIndex=obj.history.currentIndex+1;
-            
+
             u_warm=[solution.futureControl(:,2:end),u_final];
             d_warm=[solution.disturbance(:,2:end),d_final];
             x_warm=solution.state(:,2);
 
             t=obj.history.time(obj.history.currentIndex);
-            
+
             k_u_past=obj.history.currentIndex-obj.nBackwardHorizon:...
                      obj.history.currentIndex+obj.controlDelay-1;
             u_past=obj.history.control(:,k_u_past);
@@ -1042,7 +1042,7 @@ classdef Tmpcmhe < handle
                      obj.history.currentIndex;
             y_past=obj.history.output(:,k_y_past);
             t_y_past=obj.history.time(k_y_past);
-            
+
             k_state=obj.history.currentIndex-obj.nBackwardHorizon:...
                     obj.history.currentIndex;
             t_state=obj.history.time(k_state);
@@ -1051,12 +1051,12 @@ classdef Tmpcmhe < handle
             obj.initialStateSet=false;
             obj.latentStateSet=false;
             obj.futureControlSet=false;
-            obj.disturbanceSet=false;            
+            obj.disturbanceSet=false;
         end
 
         function history=getHistory(obj);
         % [t,x,u,d,y,status,iter,stime]=getHistory(obj);
-        %        
+        %
         % Returns the history of
         %    history.t      - sampling times
         %    history.u      - control values
@@ -1065,7 +1065,7 @@ classdef Tmpcmhe < handle
         %    history.status - solver status
         %    history.iter   - # of solver iterations
         %    history.stime  - solver times
-            
+
             history.t=obj.history.time(1:obj.history.currentIndex-1);
             history.u=obj.history.control(:,1:obj.history.currentIndex-1);
             history.d=obj.history.disturbance(:,1:obj.history.currentIndex-1);

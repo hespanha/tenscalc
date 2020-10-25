@@ -1,4 +1,4 @@
-function varargout=class2optimizeCS(varargin)	
+function varargout=class2optimizeCS(varargin)
 % To get help, type class2optimizeCS('help')
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -16,7 +16,7 @@ function varargout=class2optimizeCS(varargin)
 % General Public License for more details.
 %
 % You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.    
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     %% Function global help
     declareParameter(...
@@ -48,14 +48,14 @@ function varargout=class2optimizeCS(varargin)
             ' '
             'In general, the LDL factorization leads to faster code.';
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Retrieve parameters and inputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     [stopNow,params]=setParameters(nargout,varargin);
     if stopNow
-        return 
+        return
     end
 
     %% transfer any folder in classname into folder
@@ -68,10 +68,10 @@ function varargout=class2optimizeCS(varargin)
             error('Unable to create folder ''%s''\n',folder)
         end
     end
-    
+
     rmpath(folder);
     addpath(folder);
-    
+
     %% Fix class when gotten from pedigree
     classname=regexprep(classname,'+TS=','_TS_');
     classname=regexprep(classname,'-','_');
@@ -123,9 +123,9 @@ function varargout=class2optimizeCS(varargin)
 
     fprintf('class2optimizeCS:... ');
     t_classCS=clock();
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Declare the problem-specific variables 
+    %% Declare the problem-specific variables
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     t_csparse=clock();
@@ -166,7 +166,7 @@ function varargout=class2optimizeCS(varargin)
 
     [G,F,nus,lambdas,outputExpressions]=...
         parseConstraints(code,classname,constraints,outputExpressions);
-    
+
     %% Pack primal variables
     [u,whereVariables,~,~,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
@@ -197,7 +197,7 @@ function varargout=class2optimizeCS(varargin)
 
     %% Get indices of sensitivity variables
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
-    
+
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
     Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
@@ -215,7 +215,7 @@ function varargout=class2optimizeCS(varargin)
                                      Tvariable(varname,size(Tout.(fn{i})),true),Tout.(fn{i}));
     end
 
-    %% Declare ipm solver 
+    %% Declare ipm solver
     classhelp{end+1}='Solve optimization';
     classhelp{end+1}=...
         sprintf('[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);');
@@ -247,10 +247,10 @@ function varargout=class2optimizeCS(varargin)
     defines.debugConvergenceThreshold=debugConvergenceThreshold;
     defines.profiling=double(profiling);
     defines.verboseLevel=solverVerboseLevel;
-    
+
     pth=fileparts(which('class2optimizeCS.m'));
     declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.m'),'solve',defines,[],[],'solve');
-    
+
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
@@ -259,12 +259,12 @@ function varargout=class2optimizeCS(varargin)
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
     classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
-    
+
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 
     code.statistics.time.csparse=etime(clock,t_csparse);
     code.statistics.defines=defines;
-    
+
     fprintf('  done creating csparse object (%.3f sec)\n',etime(clock,t_csparse));
 
     %% Compile code
@@ -280,17 +280,17 @@ function varargout=class2optimizeCS(varargin)
     fprintf(' done creating matlab code (%.3f sec)\n',etime(clock,t_compile2matlab));
 
     %% debug info to be passed to debugConvergenceAnalysis
-    
+
     debugInfo.optimizationVariables=optimizationVariables;
     debugInfo.constraints=constraints;
-    
+
     code.statistics.time.classCS=etime(clock,t_classCS);
     fprintf('done class2optimizeCS (%.3f sec)\n',etime(clock,t_classCS));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     varargout=setOutputs(nargout,params);
 
 end

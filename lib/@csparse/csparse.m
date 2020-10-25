@@ -1,7 +1,7 @@
 classdef csparse < handle
 % Class used to generate C code to perform operations on multi-dimensional matrices.
 % The operations to be performed are declared off-line using TCalculus (symbolic) objects.
-% 
+%
 % See csparse.pdf for details
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -20,41 +20,41 @@ classdef csparse < handle
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     properties
-        
+
         debug; % When nonzero the C functions print debug information
                % to stderr:
                %    >=1 - functions write their name when called
-               %         
+               %
                %    >=2 - functions write the content of the buffer
-               %    >=3 - a get function is declared for every 
+               %    >=3 - a get function is declared for every
                %          intermediate vectorized operations
 
         tprod2matlab=true; % attemps to convert any tprod to matlab operations
-        
+
         fastRedundancyCheck=true; % uses fast newInstruction some scalarizations
 
-        
+
         %% Information about set's
         sets=struct('functionName',{},...  % desired name for the C function
                     'destination',{},...   % elementary expression to be set
                     'childrenGroups',{},...% groups of instructions that depend on destination
                     'templateNdx',{});    % index in template
-        
+
         %% Information about get's
         gets=struct('functionName',{},... % desired name for the C function
                     'source',{},...       % elementary expression to be retrieved
                     'parentGroups',{},... % groups of instructions that source depends on
                     'templateNdx',{});    % index in template
-        
+
         %% Information about copy's
         copies=struct('functionName',{},...   % desired name for the C function
                       'source',{},...         % source elementary expression(s)
                       'destination',{},...    % destination elementary expression(s)
                       'childrenGroups',{},... % groups of instructions that depend on destination
                       'parentGroups',{});     % groups of instructions that source depends on
-        
+
         %% Information about save's
         saves=struct('functionName',{},...  % desired name for the C function
                      'filename',{},...      % filename where variable will be saved
@@ -68,44 +68,44 @@ classdef csparse < handle
                           'inputs',{},...        % input parameters
                           'output',{},...        % output parameters
                           'defines',{});         % #defines
-        
+
         %% template for createGateway
         template=cmextoolsTemplate();
-        
+
         %% Information about all the vectorized operations needed:
         %    each vectorized operation is essentially one TC operation.
-        
+
         vectorizedOperations=[];
         nAddedVectorizedOperations=0; % counter of added vectorizedOperations (to keep track of reuse)
         TCindex2CSvectorized=[]; % index in vectorizedOperations of
                                  % entries of TCsymbolicExpressions
-        
+
         typeInstructions=[]; % recall which type of instructions have been generated to prevent mixing of C and matlab
-        
+
         %% Information about all the scalar operations needed
         %    each vectorized operation should map to just a few
         %    assembly commands (so that one can reuse instructions
         %    as much as possible).
         % The table is storied in a global variable of the instructionsTable.c
-        
+
         Itypes; % instruction types;
-        
+
         atomicVariables=struct(...
             'Ap',{},...   % column compressed form of indices
             'Ai',{}...
             );
-        
+
         %% Information about dependencies between instructions:
-        %    dependencyGraph(i,j) = true if instructions(j) affects instructions(i) 
-           dependencyGraph=sparse([],[],[],0,0); 
-        % array with the group of each instruction 
+        %    dependencyGraph(i,j) = true if instructions(j) affects instructions(i)
+           dependencyGraph=sparse([],[],[],0,0);
+        % array with the group of each instruction
         % (instructions in the same group can be computed in blocks)
-           instructionsGroup;    
+           instructionsGroup;
         % dependencyGroup(g,:) = instructions in g dependency group
-           dependencyGroups=[]; 
+           dependencyGroups=[];
            dependencyGroupColName={};
         % row vector with the memory location for the result of each instruction
-           memoryLocations=[]; 
+           memoryLocations=[];
         % list of instructions that appear in sets or copies (as destinations)
            inputInstructions=zeros(1,0);
         % list of instructions that appear in gets or copies (as sources)
@@ -121,15 +121,15 @@ classdef csparse < handle
         % groupOutputInstructions{g} = list of instructions of group g that
         %                             appear in gets or copies (as sources)
            groupOutputInstructions={};
-        
+
         %% Compilation information
-        
+
         % C-type for the inermediate computations
-        scratchbookType='double'; 
-        
+        scratchbookType='double';
+
         %% Statistics about code generation
         statistics=struct(...
-            'nGroups',nan,...          % # of dependency groups  
+            'nGroups',nan,...          % # of dependency groups
             'nSets',nan,...            % # of set functions
             'nGets',nan,...            % # of get functions
             'nCopies',nan,...          % # of copy functions
@@ -141,7 +141,7 @@ classdef csparse < handle
             'chol',{{}}...             % information about chol-factorization
             );
     end
-    
+
     methods (Static)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Method for load and deserialize (must be static)
@@ -160,7 +160,7 @@ classdef csparse < handle
             fprintf('loadobj(csparse): %s -> %s (ATTENTION: Instructions table was lost)\n',class(obj),class(obj1));
         end
     end
-    
+
     methods
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Object creation & display method
@@ -195,7 +195,7 @@ classdef csparse < handle
             %                do not check if it is possible to
             %                reuse computations.
             %                Default = false
-            
+
             if nargin<1
                 scratchbookType='double';
             end
@@ -208,7 +208,7 @@ classdef csparse < handle
             if nargin<4
                 fastRedundancyCheck=false;
             end
-                
+
             obj.scratchbookType=scratchbookType;
             obj.debug=debug;
             obj.tprod2matlab=tprod2matlab;
@@ -216,7 +216,7 @@ classdef csparse < handle
 
             global TCsymbolicExpressions
             obj.TCindex2CSvectorized=zeros(length(TCsymbolicExpressions),1);
-            
+
             obj.vectorizedOperations=fasttable(...
                 'type',{...      % type of operation
                     'variable','zeros','constant','eye','ones',...
@@ -240,12 +240,12 @@ classdef csparse < handle
                 ...       % elements, as a [n x nnz] matrices, where
                 ...       %   n   - dimension of the tensor
                 ...       %   nnz - number of non-zero entries
-                ...       %   each column denotes the index of a nonzero entry                
+                ...       %   each column denotes the index of a nonzero entry
                 'operands','matrix',...   % array with the indices of the operands
                 'parameters','general',... % parameters for the instruction
                 ...       % . value for type='constant'
                 ...       % . array with +/-1 for type='plus'
-                ...       % . cell-array with size of sums, followed by indices for type='tprod' 
+                ...       % . cell-array with size of sums, followed by indices for type='tprod'
                 ...       % . {row permutation vector (p),column permutation vector (q),...
                 ...       %    typical subscripts filename,typical value filename}
                 ...       %   for type 'lu'
@@ -262,16 +262,16 @@ classdef csparse < handle
                 'atomic','fixed-vector'... % boolean variable indicating
                 ...                        % if the operator is atomic
             );
-                
+
             obj.Itypes=instructionTypes();
-            
+
             if ~libisloaded('instructionsTable')
                 [notfound,warnings]=loadlibrary('instructionsTable','instructionsTable.h');
             end
-            
+
             initInstructionsTable();
         end
-        
+
         function disp(obj,verboseLevel)
             if nargin<2
                 verboseLevel=0;
@@ -285,9 +285,9 @@ classdef csparse < handle
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% Method for save and serialize 
+        %% Method for save and serialize
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function obj1=saveobj(obj)
             obj1=struct();
             fs=fields(obj);
@@ -301,7 +301,7 @@ classdef csparse < handle
             %obj1
             %fprintf('saveobj(csparse): %s -> %s\n',class(obj),class(obj1))
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Declare operation methods
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -315,13 +315,13 @@ classdef csparse < handle
             if ~isa(TCdestination,'Tcalculus')
                 error('declareSet 2nd argument must of class Tcalculus, not ''%s''\n',class(TCdestination));
             end
-            
+
             if isempty(TCdestination)
                 TCdestination
                 error('empty declareSet')
             end
             before=length(obj.vectorizedOperations);
-            
+
             k=addTCexpression(obj,TCdestination);
             obj.sets(end+1,1)=...
                 struct('functionName',{functionName},'destination',{k},'childrenGroups',{[]},...
@@ -333,7 +333,7 @@ classdef csparse < handle
             if length(obj.vectorizedOperations)>before
                 fprintf('declareSet: ATTENTION setting a previously unseen variable, which may lead to unpredictable behavior\n');
             end
-            
+
             % add to template
             obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
             obj.template(end,1).Sfunction=sprintf('%sS',functionName);
@@ -343,7 +343,7 @@ classdef csparse < handle
                 obj.template(end,1).help='';
             else
                 obj.template(end,1).help=helpmsg;
-            end            
+            end
             obj.template(end,1).inputs(1).type=obj.scratchbookType;
             if strcmp(type(TCdestination),'variable')
                 obj.template(end,1).inputs(1).name=name(TCdestination);
@@ -351,13 +351,13 @@ classdef csparse < handle
                 obj.template(end,1).inputs(1).name='input1';
             end
             obj.template(end,1).inputs(1).sizes=TCdestination.osize;
-            
+
             %computeScalarInstructions(obj,k);
         end
-        
+
         function declareGet(obj,TCsource,functionName,helpmsg)
-        % declareGet(obj,TCsource,functionName) 
-        %    
+        % declareGet(obj,TCsource,functionName)
+        %
         %    Declares a 'get' operation to be compiled.  Each 'get'
         %    operation retrives data from a compiled sparse
         %    variables. TCsource may be a cell array (with one
@@ -371,7 +371,7 @@ classdef csparse < handle
             else
                 names=[];
             end
-            if ~iscell(TCsource) 
+            if ~iscell(TCsource)
                 TCsource={TCsource};
             end
             if isempty(TCsource)
@@ -383,14 +383,14 @@ classdef csparse < handle
                 if ~isa(TCsource{i},'Tcalculus')
                     error('declareGet 2nd argument must of class Tcalculus, not ''%s''\n',class(TCsource{i}));
                 end
-                
+
                 k(i)=addTCexpression(obj,TCsource{i});
                 %computeScalarInstructions(obj,k(i));
             end
             obj.gets(end+1,1)=...
                 struct('functionName',{functionName},'source',{k},'parentGroups',{[]},...
                        'templateNdx',length(obj.template)+1);
-        
+
             % add to template
             obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
             obj.template(end,1).Sfunction=sprintf('%sS',functionName);
@@ -400,7 +400,7 @@ classdef csparse < handle
                 obj.template(end,1).help='';
             else
                 obj.template(end,1).help=helpmsg;
-            end            
+            end
             for i=1:length(TCsource)
                 obj.template(end,1).outputs(i).type=obj.scratchbookType;
                 if isempty(names)
@@ -415,19 +415,19 @@ classdef csparse < handle
                 obj.template(end,1).outputs(i).sizes=TCsource{i}.osize;
             end
         end
-        
+
         function declareCopy(obj,TCdestination,TCsource,functionName,helpmsg)
-        % declareCopy(obj,TCdestination,TCsource,functionName) 
-        %    
+        % declareCopy(obj,TCdestination,TCsource,functionName)
+        %
         %    Declares a 'copy' operation to be compiled.  Each 'copy'
         %    operation assigns data from one compiled sparse variable
         %    to another one.  TCsource and TC destination may be cell
         %    arrays for multiple simultaneous copies.
-            
-            if ~iscell(TCdestination) 
+
+            if ~iscell(TCdestination)
                 TCdestination={TCdestination};
             end
-            if ~iscell(TCsource) 
+            if ~iscell(TCsource)
                 TCsource={TCsource};
             end
             if length(TCdestination)~=length(TCsource)
@@ -442,29 +442,29 @@ classdef csparse < handle
                 if ~isa(TCsource{i},'Tcalculus')
                     error('declareCopy 3rd argument must of class Tcalculus, not ''%s''\n',class(TCsource{i}));
                 end
-                
+
                 if prod(size(TCsource{i}))==0
                     %fprintf('discarding copy of 0-sized variable \n');
                    TCsource(i)=[];
                    TCdestination(i)=[];
                 end
-            end            
-            
+            end
+
             if isempty(TCdestination)
                 TCsource
                 TCdestination
                 error('empty declareCopy')
             end
-            
+
             % add expressions
             k1=zeros(length(TCdestination),1);
-            k2=zeros(length(TCsource),1);            
-            
+            k2=zeros(length(TCsource),1);
+
             for i=1:length(TCsource)
                 if ~strcmp(type(TCdestination{i}),'variable')
                     fprintf('declareCopy: ATTENTION destination ''%s'' is not a Tvariable, which may lead to unpredictable behavior\n',str(TCdestination{i}));
                 end
-                
+
                 if ~isequal(size(TCdestination{i}),size(TCsource{i}))
                     disp('source =')
                     disp(TCsource{i})
@@ -485,8 +485,8 @@ classdef csparse < handle
             end
             obj.copies(end+1,1)=struct('functionName',{functionName},'source',{k2},'destination',{k1},...
                                        'childrenGroups',{[]},'parentGroups',{[]});
-        
-        
+
+
             % add to template
             obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
             obj.template(end,1).Sfunction=sprintf('%sS',functionName);
@@ -496,9 +496,9 @@ classdef csparse < handle
                 obj.template(end,1).help='';
             else
                 obj.template(end,1).help=helpmsg;
-            end            
+            end
         end
-        
+
         % function [TCvar,subscripts,instructions]=declareComputation(obj,TCsource,name)
         % % [TCvar,subscripts,instructions]=declareComputation(obj,TCsource)
         % %
@@ -507,7 +507,7 @@ classdef csparse < handle
         % %   also returning the subscripts of its nonzero elements.
         %     k=addTCexpression(obj,TCsource);
         %     %disp(obj)
-        %     % if needed, compute instructions 
+        %     % if needed, compute instructions
         %     subscripts=getOne(obj.vectorizedOperations,'subscripts',k);
         %     if isnan(subscripts)
         %         computeScalarInstructions(obj,k)
@@ -530,7 +530,7 @@ classdef csparse < handle
         %     end
         %     %disp(obj)
         % end
-        
+
         function [TCvar,subscripts,instructions]=declareAlias(obj,TCsource,name,atomic,nowarningsamesize,nowarningever)
         % TCvar=declareAlias(obj,TCsource,name)
         % TCvar=declareAlias(obj,TCsource,name,atomic)
@@ -538,30 +538,30 @@ classdef csparse < handle
         %
         %   Returns TC variable with the given name that acts as an
         %   alias for a TC expression, that is added to the csparse
-        %   obj. 
-        %   
+        %   obj.
+        %
         %   When atomic is true, the top expression is declared atomic
-        %   
+        %
         %   Optionally, returns the TC variable's sparsity structure.
-            
+
             if nargin<4
                 atomic=false;
             end
-            
+
             if nargin<5
                 nowarningsamesize=false;
             end
-            
+
             if nargin<6
                 nowarningever=false;
             end
-            
+
             if ~isa(TCsource,'Tcalculus')
                 error('declareAlias 2nd argument must of class Tcalculus, not ''%s''\n',class(TCsource));
             end
-            
+
             k=addTCexpression(obj,TCsource,atomic);
-            
+
             if nargout>1
                 subscripts=getOne(obj.vectorizedOperations,'subscripts',k);
                 if isnan(subscripts)
@@ -570,7 +570,7 @@ classdef csparse < handle
                 end
                 instructions=getOne(obj.vectorizedOperations,'instructions',k);
             end
-            
+
             if nargin>=3 && ~isempty(name)
                 % create linked variable
                 TCvar=Tvariable(name,size(TCsource),nowarningsamesize,nowarningever);
@@ -590,39 +590,39 @@ classdef csparse < handle
                 TCvar=[];
             end
         end
-        
+
         function declareSave(obj,TCsource,functionName,filename)
         % declareSave(obj,TCsource,functionName,filename)
-        %   
+        %
         %   Writes to a file the subscripts of its nonzero elements,
         %   and declares a 'save' operation to be compiled. Each
         %   'save' writes to a file the values of a compiled sparse
         %   variables
             k=addTCexpression(obj,TCsource);
-            % magic=int64(intmax('int64')*rand(1)); 
+            % magic=int64(intmax('int64')*rand(1));
             magic=int64(etime(clock(),[2000,1,1,0,0,0])*1e9); % ns 2000/1/1
             %fprintf('      declareSave(%s,magic=%d\n',functionName,magic);
             obj.saves(end+1,1)=struct('functionName',functionName,'filename',filename,...
                                       'source',k,'parentGroups',[],'magic',magic);
         end
-        
+
         function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,helpmsg)
-        % declarefunction(obj,filename,functionName,defines,inputs,outputs) 
-        % 
-        % declarefunction(obj,filename,functionName,defines) 
+        % declarefunction(obj,filename,functionName,defines,inputs,outputs)
         %
-        %   Declares a C (first form) or a matlab (second form) 
+        % declarefunction(obj,filename,functionName,defines)
+        %
+        %   Declares a C (first form) or a matlab (second form)
         %   function that typically calls the functions
         %   created through declareSet, declareGet, declareCopy,
         %   declareSave. The function can be found in the file
-        %   'filename' and is called 'functionName()'. 
+        %   'filename' and is called 'functionName()'.
         %   (for matlab functions, the 1st function in the file
         %   will be changed to functionName(), if that was not the case)
         %
         %   For matlab functions, the structure 'defines' specifies a
         %   set of constants that will be included in the class and
         %   can be used to pass parameters to the matlab
-        %   function, as in: 
+        %   function, as in:
         %     defines.name1 = value
         %     defines.name2 = value
         %
@@ -646,7 +646,7 @@ classdef csparse < handle
             obj.externalFunctions(end).defines=defines;
             obj.externalFunctions(end).inputs=inputs;
             obj.externalFunctions(end).outputs=outputs;
-        
+
             % add to template
             obj.template(end+1,1).MEXfunction=sprintf('%s',functionName);
             obj.template(end,1).Sfunction=sprintf('%sS',functionName);
@@ -658,17 +658,17 @@ classdef csparse < handle
                 obj.template(end,1).help='';
             else
                 obj.template(end,1).help=helpmsg;
-            end            
-        
+            end
+
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Create table with vectorized operations
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function k=addTCexpression(obj,TCobj,atomic)
         % k=addTCexpression(obj,TCobj)
-        %   
+        %
         %   Parses a tenscalc expression into a sequence of
         %   ''vectorizedOperations'' and adds them to the csparse
         %   object.
@@ -680,11 +680,11 @@ classdef csparse < handle
             if nargin<3
                 atomic=false;
             end
-            
+
             TCobj=toCalculus(TCobj);
 
             %% pre-processing
-           
+
             %TCobj=precompute(TCobj);
 
             typ=type(TCobj);
@@ -713,7 +713,7 @@ classdef csparse < handle
                     TCobj=reshape(mldivide(op1,reshape(op2,[osize2(1),prod(osize2(2:end))])),osize2);
                 end
                 typ=type(TCobj);
-                
+
               case 'traceinv'
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
@@ -748,7 +748,7 @@ classdef csparse < handle
                                    TCobj.value,true);
                 typ=type(TCobj);
             end
-            if obj.tprod2matlab && strcmp(typ,'tprod') 
+            if obj.tprod2matlab && strcmp(typ,'tprod')
                 TCobj=tprod_tprod2matlab(TCobj);
                 typ=type(TCobj);
             end
@@ -758,7 +758,7 @@ classdef csparse < handle
                 k=obj.TCindex2CSvectorized(TCobj.TCindex);
                 return
             end
-                
+
             % add children
             ops=operands(TCobj);
 
@@ -773,7 +773,7 @@ classdef csparse < handle
                     end
                 end
             end
-                
+
             osize=size(TCobj);
             description=file_line(TCobj);
 
@@ -804,12 +804,12 @@ classdef csparse < handle
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 pars=parameters(TCobj);
-                parametersMatch=true;                
+                parametersMatch=true;
               case 'vec2tensor'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 pars=parameters(TCobj);
-                parametersMatch=true;                
+                parametersMatch=true;
               case {'clp','subsref','min','max',...
                     'all','any','cat','sum','repmat','abs',...
                     'times','mtimes','norm2','norm1','norminf',...
@@ -824,14 +824,14 @@ classdef csparse < handle
                 pars=op_parameters(TCobj);
                 pars={parameters(TCobj),pars{:}}';
                 parametersMatch=true;
-                
+
               case 'componentwise'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 pars=parameters(TCobj);
                 pars=pars(1:2); % derivatives do not need to match, only need to keep matlab and c functions
                 parametersMatch=true;
-                
+
               case 'compose'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
@@ -840,7 +840,7 @@ classdef csparse < handle
                                     % (derivative of exp may be shorter because
                                     % truncated by gradient)
                 parametersMatch=true;
-                
+
               case {'det','logdet','traceinv'}
                 pars=[];
                 parametersMatch=false;
@@ -856,7 +856,7 @@ classdef csparse < handle
                 end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
-                
+
               case 'mldivide'
                 pars=[];
                 parametersMatch=false;
@@ -869,16 +869,16 @@ classdef csparse < handle
                         % Since   L U x = b <=> L y = b & U x = y
                         % we expand
                         %    mldivide(LU,b) = mldivide_u(LU,mldivide_l1(LU,b))
-                        % where 
-                        %    mldivide_l1(LU,b) - 1) computes L by 
-                        %                           . extracting the strictly lower-triangular 
+                        % where
+                        %    mldivide_l1(LU,b) - 1) computes L by
+                        %                           . extracting the strictly lower-triangular
                         %                             entries of LU
                         %                           . adding 1 to the diagonal
-                        %                        2) applies any required row-permutation to b 
+                        %                        2) applies any required row-permutation to b
                         %                           (from the LU factorization)
                         %                        3) solves L y = b
-                        %    mldivide_u(LU,y)  - 1) computes U by 
-                        %                           . extracting the (non-strict) upper-triangular 
+                        %    mldivide_u(LU,y)  - 1) computes U by
+                        %                           . extracting the (non-strict) upper-triangular
                         %                             entries of LU
                         %                        2) solves U x = y
                         %                        3) applies any required column-permutation to x
@@ -921,21 +921,21 @@ classdef csparse < handle
                     % Since   L D U x = b <=> L y = b & D z = y & U x = z
                     % we expand
                     %    mldivide(LDU,b) = mldivide_u1(LDU,mldivide_d(LDU,mldivide_l1(LDU,b)))
-                    % where 
-                    %    mldivide_l1(LDU,b) - 1) computes L by 
-                    %                            . extracting the strictly lower-triangular 
+                    % where
+                    %    mldivide_l1(LDU,b) - 1) computes L by
+                    %                            . extracting the strictly lower-triangular
                     %                              entries of LDU
                     %                            . adding 1 to the diagonal
-                    %                         2) applies any required permutation to b 
+                    %                         2) applies any required permutation to b
                     %                            (from the LDU factorization)
                     %                         3) solves L y = b
-                    %    
-                    %    mldivide_d(LDU,y)  - 1) computes D by 
+                    %
+                    %    mldivide_d(LDU,y)  - 1) computes D by
                     %                            . extracting the main diagonal of LDU
                     %                         2) solves D z = y
-                    %    
-                    %    mldivide_u1(LDU,z) - 1) computes U by 
-                    %                            . extracting the strictly upper-triangular 
+                    %
+                    %    mldivide_u1(LDU,z) - 1) computes U by
+                    %                            . extracting the strictly upper-triangular
                     %                              entries of LU
                     %                            . adding 1 to the diagonal
                     %                         2) solves U x = z
@@ -980,83 +980,83 @@ classdef csparse < handle
                 parametersMatch=false; % since matrix may already have p & q defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
-                  
+
               case 'lu_sym'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false; % since matrix may already have p & q defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
-                  
+
               case 'lu_d'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'lu')
                     error('unexpected operand for lu_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
-                end                    
+                end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false;
                 pars=parameters(TCobj);
                 pars=[];
-                  
+
               case 'lu_l'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'lu')
                     error('unexpected operand for lu_l ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
-                end                    
+                end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false;
                 pars=parameters(TCobj);
                 pars=[];
-                  
+
               case 'lu_u'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'lu')
                     error('unexpected operand for lu_u ''%s'' this operator can only be applied to a matrix that has been factorized using ''lu''\n',optype);
-                end                    
+                end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false;
                 pars=parameters(TCobj);
                 pars=[];
-                  
+
               case 'ldl'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false; % since matrix may already have p defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
-                  
+
               case 'ldl_d'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'ldl')
                     error('unexpected operand for ldl_d ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
-                end                    
+                end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false;
                 pars=parameters(TCobj);
                 pars=[];
-                  
+
               case 'ldl_l'
                 optype=getOne(obj.vectorizedOperations,'type',ops(1));
                 if ~strcmp(optype,'ldl')
                     error('unexpected operand for ldl_l ''%s'' this operator can only be applied to a matrix that has been factorized using ''ldl''\n',optype);
-                end                    
+                end
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false;
                 pars=parameters(TCobj);
                 pars=[];
-                  
+
               case 'chol'
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
                 nameMatch=false;
                 parametersMatch=false; % since matrix may already have p defined
                 pars=parameters(TCobj);
                 pars={[],[],pars.typical_subscripts,pars.typical_values};
-              
+
               otherwise
                 error('addTCexpression: unimplemented type %s\n',typ)
                 oname=sprintf('%s_%d',char(typ),height(obj.vectorizedOperations)+1);
@@ -1064,7 +1064,7 @@ classdef csparse < handle
                 parametersMatch=false;
                 pars=[];
             end
-            
+
             % add this expression
             len=height(obj.vectorizedOperations);
 
@@ -1080,7 +1080,7 @@ classdef csparse < handle
             end
 
             %fprintf('addTCexpression: %-20s stored at row %4d, nAddedVectorizedOperations=%6d, table height=%4d\n',['"',oname,'"'],k,obj.nAddedVectorizedOperations,len);
-            
+
             if obj.debug>=3 && k>len
                 if ~strcmp(type(TCobj),'full');
                     addTCexpression(obj,full(TCobj));
@@ -1091,21 +1091,21 @@ classdef csparse < handle
                         'functionName',{name},'source',{k},'parentGroups',{[]});
                 end
             end
-            
+
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Create table with instruction
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function instr=newInstructions(obj,types,parameters,operands,vectorizedOperation,fast)
         % instr=newInstructions(obj,types,parameters,operands,vectorizedOperation,fast)
-        %   
+        %
         %   Creates one or several instructions of the given type,
         %   with the given parameters, operands's intructions, and
         %   corresponding vectorizedOperation.  If a similar
         %   intruction already exists, returns the previous location.
-        %   
+        %
         %   The input parameter 'type' may be a string or a cell
         %   array.  The input parameters 'parameters' and 'operands',
         %   must be cell arrays (one per instruction to be created).
@@ -1128,14 +1128,14 @@ classdef csparse < handle
             instr=nan(n,1);
             for i=1:n
                 % not clear why exception for I_set (2015/03/05)
-                if types{i}==obj.Itypes.I_set || fast  
+                if types{i}==obj.Itypes.I_set || fast
                     instr(i)=appendInstruction(types{i},parameters{i},int64(operands{i}));
                 else
                     [operands{i},parameters{i}]=normalize(obj,types{i},parameters{i},operands{i});
                     instr(i)=appendUniqueInstruction(types{i},parameters{i},int64(operands{i}));
                 end
                 obj.statistics.nAddedInstructions=obj.statistics.nAddedInstructions+1;
-                
+
                 if mod(obj.statistics.nAddedInstructions,100000)==0
                     fprintf('     added %d instr. (%d unique)...\n',...
                             obj.statistics.nAddedInstructions,instructionsTableHeight());
@@ -1148,12 +1148,12 @@ classdef csparse < handle
 
         function instr=newInstruction(obj,typ,parameters,operands,vectorizedOperation,fast)
         % instr=newInstruction(obj,typ,parameters,operands,vectorizedOperation,fast)
-        %   
+        %
         %   Creates a single instruction of the given type, with the
         %   given parameters, operands, and corresponding
         %   vectorizedOperation.  If a similar intruction already
         %   exists, returns the previous location.
-        %   
+        %
         %   Slightly faster than newInstructions for a single
         %   instruction.
             if nargin<6
@@ -1167,7 +1167,7 @@ classdef csparse < handle
                 instr=double(appendUniqueInstruction(typ,parameters,int64(operands)));
             end
             obj.statistics.nAddedInstructions=obj.statistics.nAddedInstructions+1;
-            
+
             if mod(obj.statistics.nAddedInstructions,100000)==0
                  fprintf('     added %d instr. (%d unique)...\n',...
                          obj.statistics.nAddedInstructions,instructionsTableHeight());
@@ -1185,7 +1185,7 @@ classdef csparse < handle
                     operands=reshape(operands,parameters);
                 end
                 operands=sort(operands,1);     % sort factors in each product;
-                operands=sortrows(operands')'; % sort sums 
+                operands=sortrows(operands')'; % sort sums
               case obj.Itypes.I_sum
                 [operands,k]=sort(operands);
                 parameters=parameters(k);
@@ -1193,28 +1193,28 @@ classdef csparse < handle
                 if length(operands)>1
                     operands=reshape(operands,2,[]);
                     operands=sort(operands,1);     % sort factors in each product;
-                    operands=sortrows(operands')'; % sort sums 
+                    operands=sortrows(operands')'; % sort sums
                     operands=reshape(operands,1,[]);
                 end
               case obj.Itypes.I_minus_dot_div
                 if length(operands)>2
                     ops=reshape(operands(2:end),2,[]);
                     ops=sort(ops,1);     % sort factors in each product;
-                    ops=sortrows(ops')'; % sort sums 
+                    ops=sortrows(ops')'; % sort sums
                     operands(2:end)=reshape(ops,1,[]);
                 end
               case obj.Itypes.I_plus_minus_dot
                 if length(operands)>2
                     ops=reshape(operands(2:end),2,[]);
                     ops=sort(ops,1);     % sort factors in each product;
-                    ops=sortrows(ops')'; % sort sums 
+                    ops=sortrows(ops')'; % sort sums
                     operands(2:end)=reshape(ops,1,[]);
                 end
               case obj.Itypes.I_plus_minus_dot_div
                 if length(operands)>3
                     ops=reshape(operands(3:end),2,[]);
                     ops=sort(ops,1);     % sort factors in each product;
-                    ops=sortrows(ops')'; % sort sums 
+                    ops=sortrows(ops')'; % sort sums
                     operands(3:end)=reshape(ops,1,[]);
                 end
               case obj.Itypes.I_plus_sqr
@@ -1238,17 +1238,17 @@ classdef csparse < handle
               otherwise
             end
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Find dependencies
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function children=childrenOf(obj,parents)
         % children=childrenOf(obj,parents)
-        %   
+        %
         %   Computes the set of instructions that depend on 'parents'
         %   (exclusive)
-            
+
             children=obj.dependencyGraph*sparse(parents,ones(size(parents)),ones(size(parents)),size(obj.dependencyGraph,1),1);
             while 1
                 new=double((children+obj.dependencyGraph*children)>0);
@@ -1259,10 +1259,10 @@ classdef csparse < handle
                 children=new;
             end
         end
-        
+
         function parents=parentsOf(obj,children)
         % parents=parentsOf(obj,children)
-        %    
+        %
         %    Computes the set of instructions that the 'children'
         %    depend on (inclusive)
             parents=sparse(ones(size(children)),children,ones(size(children)),1,size(obj.dependencyGraph,1));
@@ -1275,7 +1275,7 @@ classdef csparse < handle
             end
             parents=parents';
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Compile code
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1287,11 +1287,11 @@ classdef csparse < handle
         %
         % Inputs:
         %   obj - csparse object
-        %   
+        %
         %   minInstructions4loop - minimum number of similar
         %                          instructions to be implmented as a
         %                          for loop (rather than inlined)
-        %   
+        %
         %   maxInstructionsPerFunction - maximum number of
         %                                instructions to be included
         %                                in a single function. Used to
@@ -1308,7 +1308,7 @@ classdef csparse < handle
         % folder    - folder where all files will be written (optional)
         %
         % profiling - when non-zero adds profiling code (optional)
-            
+
             if nargin<8
                 profiling=false;
             end
@@ -1329,7 +1329,7 @@ classdef csparse < handle
 
             % reset in case code was previously generated;
             obj.memoryLocations=[];
-            
+
             fprintf('  computeScalarInstructions...\n');t0=clock;
             checkVariableSets(obj);
             %profile clear;profile on;
@@ -1356,7 +1356,7 @@ classdef csparse < handle
                                    Cfunction,Hfunction,logFile,folder,profiling);
             fprintf('done (%.3f sec)\n',etime(clock(),t0));
         end
-    
+
         function compile2matlab(obj,Mfunction,logFile,classhelp,profiling)
         % compile2matlab(obj,Mfunction,logFile,classhelp,profiling)
         %
@@ -1379,10 +1379,10 @@ classdef csparse < handle
                 error('csparse object was previously used to generate C code');
             end
             obj.typeInstructions='matlab';
-            
+
              % reset in case code was previously generated;
             obj.memoryLocations=[];
-            
+
             fprintf('  computeMatlabInstructions... ');t0=clock;
             checkVariableSets(obj);
             computeMatlabInstructions(obj);
@@ -1403,13 +1403,13 @@ classdef csparse < handle
             writeMatlab(obj,Mfunction,logFile,classhelp);
             fprintf('done (%.3f sec)\n',etime(clock(),t0));
         end
-        
+
         function checkVariableSets(obj)
         % checkVariableSets(obj)
-        %   
+        %
         %   Makes sure that every variable in the csparse object has a
         %   corresponding set or copy
-            
+
             variables=[];
             variable_names={};
             operands=[];
@@ -1424,39 +1424,39 @@ classdef csparse < handle
                 end
             end
             variables=unique(variables);
-            
+
             sets=[];
             set_names={};
             for k=1:length(obj.sets)
                 dest=obj.sets(k).destination;
                 typ=getOne(obj.vectorizedOperations,'type',dest);
-                if strcmp(typ,'subsref') 
+                if strcmp(typ,'subsref')
                     %% perhaps a subsref to a variable? Dangerous but possible
                     ops=getOne(obj.vectorizedOperations,'operands',dest);
                     typ1=getOne(obj.vectorizedOperations,'type',ops(1));
-                    if strcmp(typ1,'variable') 
+                    if strcmp(typ1,'variable')
                         dest=ops(1);
                     end
-                end                
+                end
                 sets=[sets;dest];
                 set_names{end+1,1}=obj.sets(k).functionName;
             end
             for k=1:length(obj.copies)
                 dest=obj.copies(k).destination;
                 typ=getOne(obj.vectorizedOperations,'type',dest);
-                if strcmp(typ,'subsref') 
+                if strcmp(typ,'subsref')
                     %% perhaps a subsref to a variable? Dangerous but possible
                     ops=getOne(obj.vectorizedOperations,'operands',dest);
                     typ1=getOne(obj.vectorizedOperations,'type',ops(1));
-                    if strcmp(typ1,'variable') 
+                    if strcmp(typ1,'variable')
                         dest=ops(1);
                     end
-                end                
+                end
                 sets=[sets;dest];
                 set_names{end+1,1}=obj.copies(k).functionName;
             end
             sets=unique(sets);
-            
+
             missing=setdiff(variables,sets);
             if ~isempty(missing)
                 fprintf('\n\n');
@@ -1467,7 +1467,7 @@ classdef csparse < handle
                     name=getOne(obj.vectorizedOperations,'name',thisExp);
                     fprintf('%d: type="%s", name="%s"\n',thisExp,typ,name);
                 end
-                    
+
                 error('variables missing sets/copies');
             end
             if ~isequal(variables,sets)
@@ -1478,7 +1478,7 @@ classdef csparse < handle
                 error('variables do not matchs sets/copies');
             end
         end
-    
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Debug stuff
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1511,8 +1511,7 @@ classdef csparse < handle
                 end
             end
         end
-    
-    end
-    
-end 
 
+    end
+
+end

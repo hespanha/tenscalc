@@ -28,7 +28,7 @@ instr1=getOne(obj.vectorizedOperations,'instructions',operands(1));
 if fun{1}(0) ~= 0
     subsY=memory2subscript(osize,1:prod(osize));
     [lia,locb]=ismember(subsY',subs1','rows');
-    
+
     % fill matrix
     instrFull=nan(size(subsY,2),1);
     % non-zero
@@ -49,4 +49,3 @@ instrY=newInstructions(obj,obj.Itypes.I_componentwise,{cfun},num2cell(instr1,2),
 
 
 end
-

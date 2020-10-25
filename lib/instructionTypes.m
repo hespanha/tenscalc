@@ -16,7 +16,7 @@ function [iTypes,pTypes]=instructionTypes()
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 instructionTypes={
     'I_set'                % no operation needed (value determined by set)
                            %   no parameters
@@ -127,7 +127,7 @@ instructionTypes={
     'I_componentwise'      % computes scalar function f(a1)
                            %   parameters = characters in string for function call, each 0 should be replaced by a1
                            %   operand = a1
-    
+
 %% Atomic C instructions;
     'I_luS2A'              % performs an atomic LU factorization of a
                            % matrix with entries in the scratchbook
@@ -149,7 +149,7 @@ instructionTypes={
                            % I_mldivideA2F1 to scratchbook
                            %   parameters = [ entry # (1-based)]
 %                          %   operands = [I_luS2A instruction,I_mldivideA2F1 intruction ]
-    
+
 %% Matlab instructions
     'I_Mnorm2'
     'I_Mnorm1'
@@ -172,11 +172,11 @@ instructionTypes={
     'I_Mtprod'
     'I_Mtprod_matlab'
     'I_Mpermute_matlab'
-    'I_Mfull'         
-    'I_Mreshape'         
-    'I_Mvec2tensor'         
-    'I_Mrepmat'         
-    'I_Mcat'         
+    'I_Mfull'
+    'I_Mreshape'
+    'I_Mvec2tensor'
+    'I_Mrepmat'
+    'I_Mcat'
     'I_Mlu'
     'I_Mlu_l'
     'I_Mlu_u'
@@ -230,4 +230,3 @@ pTypes=cell2struct(m,profileTypes,2);
 
 
 end
-

@@ -1,16 +1,16 @@
 function grad=gradient(obj,var)
 % gradient - Gradient of a tensor-values symbolic expression with
 %            respect to a tensor-valued symbolic variable
-%  
+%
 %    g=gradient(f,x), returns a tensor with the partial derivatives of
 %    the entries of f with respect to the entries of the variable x
 %
-%    When f is a tensor with size 
-%      [n1,n2,...,nN] 
+%    When f is a tensor with size
+%      [n1,n2,...,nN]
 %    and x a tensor-valued variable (created with Tvariable) with size
 %      [m1,m2,...,mM]
 %    then
-%      g=gradient(f,x) 
+%      g=gradient(f,x)
 %    results in a tensor g with size
 %      [n1,n2,...,nN,m1,m2,...,mM]
 %    with
@@ -32,16 +32,16 @@ function grad=gradient(obj,var)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     tprod_associate=false; % associativity often leads to tprods
                            % that have many arguments and need to
                            % be very much expanded
-    
+
     if ~isequal(type(var),'variable')
         var
         error('Can only compute gradient with respect to variables (not %s)',type(var));
     end
-    
+
     obj=toCalculus(obj);
 
     %% Check if already in the cache
@@ -54,16 +54,16 @@ function grad=gradient(obj,var)
     elseif length(k)>1
         error('derivatives_cache has repeated entries\n');
     end
-    
+
     obj_type=type(obj);
     obj_size=size(obj);
     var_size=size(var);
-    
+
     gsize=[obj_size,var_size];
     ops=operands(obj);
     pars=parameters(obj);
     inds=op_parameters(obj);
-    
+
     objs=cell(length(ops),1);
     grads=cell(length(ops),1);
     for i=1:length(ops)
@@ -78,20 +78,20 @@ function grad=gradient(obj,var)
     end
 
     switch obj_type
-      
+
       case {'zeros','ones','eye','constant'}
         grad=Tzeros(gsize);
-      
+
       case 'variable'
         if strcmp(parameters(obj),parameters(var))
             grad=Teye(gsize);
         else
             grad=Tzeros(gsize);
         end
-      
+
       case 'subsref'
         gsize1=size(grads{1});
-        switch pars.type 
+        switch pars.type
           case '()'
             for i=length(pars.subs)+1:length(gsize1)
                 pars.subs{i}=':';
@@ -106,15 +106,15 @@ function grad=gradient(obj,var)
         osize1=size(objs{1});
         osize=[obj_size,gsize1(length(osize1)+1:end)];
         grad=reshape(grads{1},osize);
-        
+
       case 'vec2tensor'
         % subscripts are stores in the transposed form, which is more
         % compatible with tenscalc's internal representation
         grad=vec2tensor(grads{1},pars{2},pars{3}',pars{1});
-        
+
       case 'full'
         grad=full(grads{1});
-        
+
       case 'plus'
         if isempty(objs)
             error('taking gradient of plus() with no arguments\n');
@@ -135,7 +135,7 @@ function grad=gradient(obj,var)
                 end
             end
         end
-        
+
       case 'tprod'
         if isempty(objs)
             error('taking gradient of prod() with no arguments\n');
@@ -163,27 +163,27 @@ function grad=gradient(obj,var)
                 end
             end
         end
-        
+
       case {'ctranspose','transpose'}
         grad=gradient(tprod(objs{1},[2,1]),var);
         % associate may seem faster, but often leads to poor reuse
         % of computation. E.g., there would be no reuse between
-        % A*x and (A*x)'  
+        % A*x and (A*x)'
         %grad=gradient(tprod(objs{1},[2,1],'associate'),var);
-      
+
       case 'norm2'
         osize1=size(objs{1});
         grad=2*tprod(grads{1},...
                      [-1:-1:-length(osize1),1:length(var_size)],...
                      objs{1},-1:-1:-length(osize1));
-      
+
       case 'norm1'
         osize1=size(objs{1});
         grad=tprod(grads{1},...
                      [-1:-1:-length(osize1),1:length(var_size)],...
                      abs(objs{1}),-1:-1:-length(osize1));
         error('Do not attemp to take derivative of norm1() as it is typically not smooth at optimal value.')
-        
+
       case 'componentwise'
         fun=parameters(obj);
         osize1=size(objs{1});
@@ -194,7 +194,7 @@ function grad=gradient(obj,var)
       case 'compose'
         fun=parameters(obj);
         osize1=size(objs{1});
-        fsize=size(fun{1}(0)); 
+        fsize=size(fun{1}(0));
         % remove singletons at the end of fsize
         while ~isempty(fsize) && fsize(end)==1
             fsize(end)=[];
@@ -218,7 +218,7 @@ function grad=gradient(obj,var)
             grad=tprod(inv(objs{1}),[-2,-1],...
                        grads{1},[-1,-2,1:length(var_size)]);
         end
-        
+
       case 'det'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
@@ -231,7 +231,7 @@ function grad=gradient(obj,var)
             grad=det(objs{1})*tprod(inv(objs{1}),[-2,-1],...
                                     grads{1},[-1,-2,1:length(var_size)]);
         end
-            
+
       case 'traceinv'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
@@ -245,8 +245,8 @@ function grad=gradient(obj,var)
             grad=-tprod(inv(objs{1})*inv(objs{1}),[-2,-1],...
                         grads{1},[-1,-2,1:length(var_size)]);
         end
-                
-        
+
+
       case 'mldivide'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
@@ -256,7 +256,7 @@ function grad=gradient(obj,var)
         sigma=numel(obj_size);
         eta=max(2,sigma);
         grad=mldivide(objs{1},grads{2}-tprod(grads{1},[1,-1,eta+1:eta+alpha],mldivide(objs{1},objs{2}),[-1,2:sigma]));
-        
+
       case 'inv'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
@@ -275,7 +275,7 @@ function grad=gradient(obj,var)
                               grads{1},[-1,2,3:2+length(var_size)]),[1,-1,3:2+length(var_size)],...
                         inv(objs{1}),[-1,2]);
         end
-        
+
       case 'cat'
         grad=cat(pars,grads{:});
 
@@ -296,13 +296,13 @@ function grad=gradient(obj,var)
         else
             error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size))
         end
-        
+
       case 'rdivide'
         osize1=objs{1}.size;
         osize2=objs{2}.size;
         if isempty(osize1) && isempty(osize2)
             %% scalar by scalar
-            % [d/dX a./b]_K = d(a / b)/ d X_K 
+            % [d/dX a./b]_K = d(a / b)/ d X_K
             %               = (da/dX_K) / b - a (db/dX_K) /b^2
             %                = [da/dX]_K /b   - a [db/dX]_K /b^2
             % K = (1:length(size(X)))
@@ -310,7 +310,7 @@ function grad=gradient(obj,var)
             grad=grads{1}/objs{2}-tprod(objs{1},[],grads{2},K)/(objs{2}*objs{2});
         elseif isempty(osize2)
             %% division by scalar
-            % [d/dX A./b]_IK = d(A_I / b)/ d X_K 
+            % [d/dX A./b]_IK = d(A_I / b)/ d X_K
             %                = (dA_I/dX_K) / b - A_I (db/dX_K) /b^2
             %                = [dA/dX]_IK /b   - A_I [db/dX]_K /b^2
             % I = 1:length(size(A)); K = I(end)+(1:length(size(X)))
@@ -319,7 +319,7 @@ function grad=gradient(obj,var)
             grad=grads{1}/objs{2}-tprod(objs{1},I,grads{2},K)/(objs{2}*objs{2});
         elseif isempty(osize1)
             %% scalar divided by tensor
-            % [d/dX a./B]_IK = d(a/B_I)/ d X_K 
+            % [d/dX a./B]_IK = d(a/B_I)/ d X_K
             %                = (da/dX_K) / B_I - a (dB_I/dX_K) / B_I.^2
             %                = [da/dX]_K / B_I - a [dB/dX]_IK / B_I.^2
             % I = 1:length(size(B)); K = I(end)+(1:length(size(X)))
@@ -329,7 +329,7 @@ function grad=gradient(obj,var)
                  tprod(grads{2},[I,K],objs{1}./(objs{2}.*objs{2}),I);
         elseif myisequal(osize1,osize2)
             %% tensor divided by tensor
-            % [d/dX A./B]_IK = d(A_I/B_I)/ d X_K 
+            % [d/dX A./B]_IK = d(A_I/B_I)/ d X_K
             %                = (dA_I/dX_K) / B_I - A_I (dB_I/dX_K) / B_I^2
             %                = [dA/dX]_IK / B_I - A_I [dB/dX]_IK / B_I^2
             % I = 1:length(size(A)); K = I(end)+(1:length(size(X)))
@@ -341,7 +341,7 @@ function grad=gradient(obj,var)
             osize1,osize2
             error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size))
         end
-        
+
       case 'interpolate'
         if strcmp(type(grads{2}),'zeros')
             objs{2}
@@ -358,8 +358,8 @@ function grad=gradient(obj,var)
         grad=tprod(Ginterpolate(objs{1},objs{2},objs{3},objs{4},parameters(obj)),...
                    [1:length(obj_size),-(1:length(objs{1}.size))],...
                    grads{1},[-(1:length(objs{1}.size)),length(obj_size)+1:length(obj_size)+length(var_size)]);
-        
-        
+
+
       case 'Ginterpolate'
         if strcmp(type(grads{2}),'zeros')
             objs{2}
@@ -376,18 +376,18 @@ function grad=gradient(obj,var)
         grad=tprod(Hinterpolate(objs{1},objs{2},objs{3},objs{4},parameters(obj)),...
                    [1:length(obj_size),-(1:length(objs{1}.size))],...
                    grads{1},[-(1:length(objs{1}.size)),length(obj_size)+1:length(obj_size)+length(var_size)]);
-            
+
       otherwise
         obj,objs{1}
         grad=Tcalculus('gradient',gsize,[],[obj.TCindex;var.TCindex],{},1);
         error('error in computing: grad_{%s}(%s)\n\tgradient of %s_{%s} not implemented\n',str(var),str(obj),obj_type,index2str(obj_size))
     end
-    
+
     updateFile2table(grad,1);
-    
+
     %% Add to the cache
     add2derivatives_cache(obj,var,grad);
-    
+
     if ~isequal(size(grad),gsize)
         obj
         gsize
@@ -396,4 +396,3 @@ function grad=gradient(obj,var)
     end
     %fprintf('D_{%s} (%s) = %s\n',str(var),str(obj),str(grad))
 end
-

@@ -30,17 +30,17 @@ function y=tsIntegral(x,ts);
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     osize=size(x);
-    if length(osize)<1 || length(osize)>2 
+    if length(osize)<1 || length(osize)>2
         error('tsIntegral: only implemented for time series of vectors ([%s])\n',...
               index2str(osize));
     end
-    
+
     if length(ts)>1 && length(ts)~=osize(end)
         error('tsIntegral: length of sample times does not match size of input (%d,[%s])\n',...
               length(ts),index2str(osize));
     end
-    
-    if ~isequal(class(x),'Tcalculus') 
+
+    if ~isequal(class(x),'Tcalculus')
         whichtprod=@mytprod;
     else
         whichtprod=@tprod;
@@ -54,7 +54,7 @@ function y=tsIntegral(x,ts);
         dt=[.5*ts;ts*ones(osize(end)-2,1);.5*ts];
         y=whichtprod(dt,-1,x,[1:length(osize)-1,-1]);
     end
-    
+
 end
 
 function test
@@ -66,7 +66,7 @@ function test
     legend('sin','cos')
 
     y=tsIntegral(x,ts)
-    
+
     % Symbolic
     Tvariable x [2,length(ts)]
     y=tsIntegral(x,ts)

@@ -24,7 +24,7 @@ function obj=Tones(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if nargin==1
         osize=varargin{1};
     else

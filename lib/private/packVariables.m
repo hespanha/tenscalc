@@ -9,8 +9,8 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
 %
 % The input variables in 'inVariables' are then replaced in all the
 % Tcalculus expressions
-%    in1,in2,... 
-% to create new Tcalculus expressions 
+%    in1,in2,...
+% to create new Tcalculus expressions
 %    out1,out2,...
 % whose dependence on the input variables in 'inVariables' has been
 % replaced by approproate dependences on the 'outVariable'.
@@ -44,7 +44,7 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
     nowarningever=true;
 
     verboseLevel=0;
-    
+
     n=0;
     packCmd=sprintf('%s=[',outVariableName);
     unpackCmd='';
@@ -63,11 +63,11 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
         whereVariables{i}=n+1:n+len;
         n=n+len;
     end
-    
+
     packCmd=[packCmd,']'];
-    
+
     outVariable=Tvariable(outVariableName,n,nowarningsamesize,nowarningever);
-    
+
     if verboseLevel>0
         global substituteCounter;
         substituteCounter=0;
@@ -79,5 +79,5 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
     end
     if verboseLevel>0
         fprintf('  packVariables: %d substitutions\n',substituteCounter);
-    end        
+    end
 end

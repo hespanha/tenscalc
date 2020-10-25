@@ -5,7 +5,7 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
 %   elements.
 %
 % logdet_lu(LU):
-% 1) computes det(LU) by 
+% 1) computes det(LU) by
 %    . computing the product of the main diagonal entries of LU
 %    . multiplying the result by -1 in case the one of the
 %      premutations changes the sign of the det.
@@ -28,9 +28,9 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLU=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLU=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLU=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -43,7 +43,7 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
     else
         n=double(osizeLU(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -54,7 +54,7 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
     % find instructions for diagonal
     k=find(subsLU(1,:)==subsLU(2,:)); % find diagonal elements
     instrX=instrLU(k);
-    
+
     subsY=zeros(0,1);
     if length(instrX)==n
         % log(prod)
@@ -65,13 +65,13 @@ function [subsY,instrY]=sparsity_logdet_lu(obj,thisExp)
         % if s<0
         %     instrY=newInstruction(obj,obj.Itypes.I_sum,[-1],instrY,thisExp);
         % end
-        % instrY=newInstruction(obj,obj.Itypes.I_log,[],instrY,thisExp);       
+        % instrY=newInstruction(obj,obj.Itypes.I_log,[],instrY,thisExp);
         instrY=newInstructions(obj,obj.Itypes.I_abs,{[]},num2cell(instrX,2),thisExp);
         instrY=newInstructions(obj,obj.Itypes.I_log,{[]},num2cell(instrY,2),thisExp);
         parameters=ones(1,numel(instrY));
-        instrY=newInstruction(obj,obj.Itypes.I_sum,parameters,instrY,thisExp);                
+        instrY=newInstruction(obj,obj.Itypes.I_sum,parameters,instrY,thisExp);
     else
         error('sparsity_logdet_lu: LU structurally singular in logdet_lu(LU)\n');
     end
-    
+
 end

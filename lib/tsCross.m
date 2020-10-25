@@ -13,7 +13,7 @@ function [y,ts]=tsCross(x1,x2,ts);
 %                (for TC variables size(ts)=N)
 %
 % Output
-%   y  [3 x N] - values of the dot product at the given times 
+%   y  [3 x N] - values of the dot product at the given times
 %                (one time per column)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
 %
@@ -44,13 +44,13 @@ function [y,ts]=tsCross(x1,x2,ts);
         error('tsCross: inputs must be time series of 3-vectors ([%s],[%s])\n',...
               index2str(size(x1)),index2str(size(x2)));
     end
-    
+
     if length(ts)~=size(x1,2) || length(ts)~=size(x2,2)
         error('tsCross: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
               length(ts),index2str(size(x1)),index2str(size(x2)));
     end
-    
-    if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus') 
+
+    if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus')
         % y=[x1(2,:).*x2(3,:)-x1(3,:).*x2(2,:);
         %    x1(3,:).*x2(1,:)-x1(1,:).*x2(3,:);
         %    x1(1,:).*x2(2,:)-x1(2,:).*x2(1,:);];
@@ -58,7 +58,7 @@ function [y,ts]=tsCross(x1,x2,ts);
     else
         y=cross(x1,x2,1);
     end
-    
+
 end
 
 function test
@@ -66,7 +66,7 @@ function test
     ts=pi/2:pi/10:4*pi+pi/2;
     x=[sin(ts).*cos(ts);cos(ts).*cos(ts);sin(ts)];
     y=tsCross(x,x,ts);
-    
+
     plot(ts,x','-x',ts,y','-+');
     legend('x1','x2','x3','y1','y2','y3')
 

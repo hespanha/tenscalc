@@ -32,7 +32,7 @@ void profilingViewFP(FILE *fp)
     c+=countFlops[i];
   }
   fprintf(fp,"  Total   %9"PRId64"\n",c);
-  
+
   long calls=0,execs=0, time=0;
   fprintf(fp,"Group   calls    execs   time [us]\n");
   //      <234> <2345678><2345678><23456789>
@@ -43,7 +43,7 @@ void profilingViewFP(FILE *fp)
     fprintf(fp,"%5d %9ld%9ld%14.0f\n",
 	    i,countCallGroup[i],countExecuteGroup[i],timeExecuteGroup[i]*1e6/CLOCKS_PER_SEC);
   }
-  fprintf(fp,"Total %9ld%9ld%14.0f\n",calls,execs,time*1e6/CLOCKS_PER_SEC); 
+  fprintf(fp,"Total %9ld%9ld%14.0f\n",calls,execs,time*1e6/CLOCKS_PER_SEC);
 
   calls=0;time=0;
   fprintf(fp,"Set                                                                calls      time [us]\n");
@@ -54,7 +54,7 @@ void profilingViewFP(FILE *fp)
     fprintf(fp,"  %-60s %9ld%14.0f\n",setNames[i],countCallSet[i],timeExecuteSet[i]*1e6/CLOCKS_PER_SEC);
   }
   fprintf(fp,"  Total                                                        %9ld%14.0f\n",
-	 calls,time*1e6/CLOCKS_PER_SEC); 
+	 calls,time*1e6/CLOCKS_PER_SEC);
 
   calls=0;time=0;
   fprintf(fp,"Get                                                                calls      time [us]\n");
@@ -65,14 +65,14 @@ void profilingViewFP(FILE *fp)
     fprintf(fp,"  %-60s %9ld%14.0f\n",getNames[i],countCallGet[i],timeExecuteGet[i]*1e6/CLOCKS_PER_SEC);
   }
   fprintf(fp,"  Total                                                        %9ld%14.0f\n",
-	  calls,time*1e6/CLOCKS_PER_SEC); 
+	  calls,time*1e6/CLOCKS_PER_SEC);
 
   calls=0;time=0;
   fprintf(fp,"Copy                                                               calls      time [us]\n");
   //        <234567890123456789012345678901234567890123456789> <2345678><23456789>
   for (int i=0;i<nCopies;i++) {
     calls+=countCallCopy[i];
-    time+=timeExecuteCopy[i]; 
+    time+=timeExecuteCopy[i];
     fprintf(fp,"  %-60s %9ld%14.0f\n",copyNames[i],countCallCopy[i],timeExecuteCopy[i]*1e6/CLOCKS_PER_SEC);
   }
   fprintf(fp,"  Total                                                        %9ld%14.0f\n",
@@ -93,4 +93,3 @@ EXPORT void profilingView0()
   profilingViewFP(fp);
   fclose(fp);
 }
-    

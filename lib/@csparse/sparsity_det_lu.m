@@ -5,7 +5,7 @@ function [subsY,instrY]=sparsity_det_lu(obj,thisExp)
 %   elements.
 %
 % det_lu(LU):
-% 1) computes det(LU) by 
+% 1) computes det(LU) by
 %    . computing the product of the main diagonal entries of LU
 %    . multiplying the result by -1 in case the one of the
 %      premutations changes the sign of the det.
@@ -28,9 +28,9 @@ function [subsY,instrY]=sparsity_det_lu(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLU=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLU=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLU=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -43,7 +43,7 @@ function [subsY,instrY]=sparsity_det_lu(obj,thisExp)
     else
         n=double(osizeLU(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -54,7 +54,7 @@ function [subsY,instrY]=sparsity_det_lu(obj,thisExp)
     % find instructions for diagonal
     k=find(subsLU(1,:)==subsLU(2,:)); % find diagonal elements
     instrX=instrLU(k);
-    
+
     subsY=zeros(0,1);
     if length(instrX)==n
         instrY=newInstruction(obj,obj.Itypes.I_sumprod,[length(instrX),1],instrX(:)',thisExp);
@@ -67,5 +67,5 @@ function [subsY,instrY]=sparsity_det_lu(obj,thisExp)
     else
         error('sparsity_det_lu: LU structurally singular in det_lu(LU)\n');
     end
-    
+
 end

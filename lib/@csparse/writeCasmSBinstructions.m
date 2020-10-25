@@ -18,7 +18,7 @@ function writeCasmSBinstructions(obj,fid,ks)
 % - gnu extended ams
 % - Intel-x86
 % - scratchbook is double
-% - temporary register used: xmm0 (double) 
+% - temporary register used: xmm0 (double)
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -287,8 +287,7 @@ for i=1:length(ks)
       otherwise
         error('instruction ''%s'' not implemented\n',type)
     end
-    
+
 end
 
 fprintf(fid,'\t};\n');
-

@@ -24,11 +24,11 @@ function obj=Tconstant(value,osize)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if ~isnumeric(value)
         error('Tconstant: can only accept numeric values (not ''%s'')\n',class(value));
     end
-    
+
     if nargin<2
         osize=size(value);
         if isequal(osize,[1,1])
@@ -47,12 +47,12 @@ function obj=Tconstant(value,osize)
     while length(msize)>2 && msize(end)==1
         msize(end)=[];
     end
-        
+
     if ~isequal(msize,size(value)) && (prod(msize)>0 || ~isempty(value))
         disp(value)
         error('Tconstant: size [msize=%s, osize=%s] incompatible with value [%s]\n',index2str(msize),index2str(osize),index2str(size(value)));
     end
-    
+
     if nnz(value)==0
         obj=Tzeros(osize);
         updateFile2table(obj,1);

@@ -16,8 +16,8 @@ function varargout=class2compute(varargin)
 % General Public License for more details.
 %
 % You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.    
-    
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+
     %% Function global help
     declareParameter(...
         'Help', {
@@ -26,22 +26,22 @@ function varargout=class2compute(varargin)
             'The computation is performed through a matlab class with methods'
             'for the set, get, and copy operations.'
                 });
-    
+
     localVariables_=parameters4compute(localVariables_);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Retrieve parameters and inputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     [stopNow,params]=setParameters(nargout,varargin);
     if stopNow
-        return 
+        return
     end
-    
+
 
     %% transfer any folder in classname into folder
     [folder,classname]=fileparts(fsfullfile(folder,classname));
-    
+
     %% create folder if it does not exist
     if ~strcmp(folder,'.') && ~exist(folder,'dir')
         fprintf('class2compute: outputs folder ''%s'' does not exist, creating it\n',folder);
@@ -49,10 +49,10 @@ function varargout=class2compute(varargin)
             error('Unable to create folder ''%s''\n',folder)
         end
     end
-    
+
     rmpath(folder);
     addpath(folder);
-    
+
     %% Fix class when gotten from pedigree
     classname=regexprep(classname,'+TS=','_TS_');
     classname=regexprep(classname,'-','_');
@@ -67,15 +67,14 @@ function varargout=class2compute(varargin)
                    fsfullfile(folder,sprintf('%s.log',classname)),...
                    classHelp,profiling);
     statistics.time.compile2matlab=etime(clock,t_compile2matlab);
-    
+
     fprintf(' done creating matlab code (%.3f sec)\n',etime(clock,t_compile2matlab));
-    
+
     rehash path;
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     varargout=setOutputs(nargout,params);
 end
-        

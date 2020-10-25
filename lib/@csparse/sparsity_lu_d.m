@@ -5,10 +5,10 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
 %   elements.
 %
 % lu_d(LDL):
-% 1) computes D by 
+% 1) computes D by
 %    . extracting the main diagonal entries of LU
 %    . adjust sign to account for permutations
-    
+
 % Copyright 2012-2017 Joao Hespanha
 
 % This file is part of Tencalc.
@@ -27,9 +27,9 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLU=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLU=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLU=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -41,7 +41,7 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
     else
         n=double(osizeLU(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -53,7 +53,7 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
     k=find(subsLU(1,:)==subsLU(2,:)); % find diagonal elements
     subsX=subsLU(1,k);
     instrX=instrLU(k);
-    
+
     % keep subsX in the natural order
     [subsX,k]=sortrows(subsX');
     subsX=subsX';
@@ -65,7 +65,7 @@ function [subsX,instrX]=sparsity_lu_d(obj,thisExp)
         instructions=num2cell(instrX,2);
         instrX=newInstructions(obj,obj.Itypes.I_sum,{-1},instructions,thisExp);
     end
-    
+
     if verboseLevel>0
         fprintf('  sparsify_lu_d (%3d): D     size=%-10s, nnz=%d,                          # new instr=%4d (%d..%d) (%.2f sec)\n',...
                 thisExp,['[',index2str(osizeLU(1)),']'],length(instrX),...

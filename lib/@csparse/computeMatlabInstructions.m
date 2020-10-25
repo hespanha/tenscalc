@@ -53,17 +53,17 @@ for thisExp=ks(:)'
     for i=1:length(operands)
         opinstr(i)=getOne(obj.vectorizedOperations,'instructions',operands(i));
     end
-    
+
     switch type
       case {'variable'}
-        if isempty(operands) 
+        if isempty(operands)
             % new variable
             instructions=newInstructions(obj,obj.Itypes.I_set,{[]},{[]},thisExp,fast);
         else
             % alias
             instructions=getOne(obj.vectorizedOperations,'instructions',operands);
         end
-        
+
       case {'constant'}
         instructions=newInstructions(obj,obj.Itypes.I_load,...
                                      {double(getByteStreamFromArray({osize,parameters}))},...
@@ -77,7 +77,7 @@ for thisExp=ks(:)'
                                      {opinstr},...
                                      thisExp,fast);
     end
-    
+
     %fprintf('%3d: %s (instr=%d)\n',thisExp,name,instructions);
 
     set(obj.vectorizedOperations,'instructions',thisExp,instructions);

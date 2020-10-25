@@ -5,7 +5,7 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
 %   elements.
 %
 % ldl_d(LDL):
-% 1) computes D by 
+% 1) computes D by
 %    . extracting the main diagonal entries of LDL
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -26,9 +26,9 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -40,7 +40,7 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
     else
         n=double(osizeLDL(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -52,12 +52,12 @@ function [subsX,instrX]=sparsity_ldl_d(obj,thisExp)
     k=find(subsLDL(1,:)==subsLDL(2,:)); % find diagonal elements
     subsX=subsLDL(1,k);
     instrX=instrLDL(k);
-    
+
     % keep subsX in the natural order
     [subsX,k]=sortrows(subsX');
     subsX=subsX';
     instrX=instrX(k);
-    
+
     if verboseLevel>0
         fprintf('  sparsify_ldl_d (%3d): D     size=%-10s, nnz=%d,                          # new instr=%4d (%d..%d) (%.2f sec)\n',...
                 thisExp,['[',index2str(osizeLDL(1)),']'],length(instrX),...

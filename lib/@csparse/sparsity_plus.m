@@ -22,11 +22,11 @@ function [subsY,instrY]=sparsity_plus(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     osize=getOne(obj.vectorizedOperations,'osize',thisExp);
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
     parameters=getOne(obj.vectorizedOperations,'parameters',thisExp);
-    
+
     %% Compute sparsity pattern
     subsY=zeros(0,length(osize),'uint64');
     instrXs=zeros(0,length(operands),'uint64'); % one operand per column
@@ -42,18 +42,18 @@ function [subsY,instrY]=sparsity_plus(obj,thisExp)
     [~,k]=sortrows(subsY,size(subsY,2):-1:1);
     subsY=subsY(k,:)';
     instrXs=instrXs(k,:);
-    
+
     %% Determine instructions for Y
     instrY=nan(size(subsY,2),1);
     nTerms=sum(instrXs~=0,2);
-    
+
     [instrXs,k]=sort(instrXs,2,'ascend'); % sort terms by instructions
     indXs=reshape(parameters(k),size(k)); % to fix the case of a single instruction
-    
+
     % "sums of 1 term" - no instruction needed
     k=(nTerms==1 & indXs(:,end)==1);
     instrY(k)=instrXs(k,end);
-    
+
     %% Compute instructions
     for n=1:max(nTerms)
         k=find(nTerms==n & (n>1 | indXs(:,end)==-1));
@@ -63,7 +63,7 @@ function [subsY,instrY]=sparsity_plus(obj,thisExp)
             instrY(k)=newInstructions(obj,obj.Itypes.I_sum,parameters,instructions,thisExp);
         end
     end
-    
+
     if verboseLevel>0
         fprintf('  sparsify: size=%-10s, nnz=%4d (%6.2f%%) <- plus(',...
                 ['[',index2str(osize),']'],length(instrY),100*length(instrY)/prod(osize));
@@ -72,5 +72,5 @@ function [subsY,instrY]=sparsity_plus(obj,thisExp)
         end
         fprintf(')\n');
     end
-    
+
 end

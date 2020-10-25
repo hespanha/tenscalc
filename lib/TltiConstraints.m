@@ -16,7 +16,7 @@ function [stateConstraints,y,z]=TltiConstraints(A,B,C,D,G,H,x0,x,u,Ty,Tz);
 % Tz - desired time length for the controlle output vector (see output z)
 %
 % Output:
-% stateConstraints  - constraints of the form 
+% stateConstraints  - constraints of the form
 %                     x(t+1) = A x(t) + B u(t) for times 0,1, ... Tu-1
 % y  - ny by Ty matrix with outputs          y(0), y(1), ..., y(Ty-1)
 %      (only returned is C is not empty)
@@ -39,19 +39,19 @@ function [stateConstraints,y,z]=TltiConstraints(A,B,C,D,G,H,x0,x,u,Ty,Tz);
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 if ismember(class(B),{'Tvariable','Tcalculus'})
     nx=msize(B,1);
     nu=msize(B,2);
 else
     nx=size(B,1);
     nu=size(B,2);
-end    
+end
 if ismember(class(u),{'Tvariable','Tcalculus'})
     Tu=msize(u,2);
 else
     Tu=size(u,2);
-end    
+end
 
 u=reshape(u,[nu,Tu]);
 A=reshape(A,[nx,nx]);
@@ -64,19 +64,19 @@ if ~isempty(C)
         ny=msize(C,1);
     else
         ny=size(C,1);
-    end    
+    end
     C=reshape(C,[ny,nx]);
     D=reshape(D,[ny,nu]);
     y=C*[x0,x(:,1:Ty-1)]+D*u(:,1:Ty);
 end
 
-    
+
 if ~isempty(G)
     if ismember(class(G),{'Tvariable','Tcalculus'})
         nz=msize(G,1);
     else
         nz=size(G,1);
-    end    
+    end
     G=reshape(G,[nz,nx]);
     H=reshape(H,[nz,nu]);
     z=G*[x0,x(:,1:Tz-1)]+H*u(:,1:Tz);

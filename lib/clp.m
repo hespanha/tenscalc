@@ -2,9 +2,9 @@ function [alpha,k]=clp(x,dx)
 % [alpha,k]=clp(x,dx)
 %
 % Canonical LP: For a given x with all entries >=0 ,
-% computes the scalar 
+% computes the scalar
 %     max { alpha >0 : x + alpha dx >= 0 }
-% x and dx must have the same size. 
+% x and dx must have the same size.
 % Used by ipm Newton solvers to determine the step size.
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -23,7 +23,7 @@ function [alpha,k]=clp(x,dx)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 
     k=find(dx<0);
     if isempty(k)

@@ -21,7 +21,7 @@ function bool=myisequal(a,b)
 
     if isempty(a) && isempty(b)
         bool=true;
-        return 
+        return
     end
     bool=isequal(a,b);
 end

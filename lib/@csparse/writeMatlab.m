@@ -68,7 +68,7 @@ for i=1:length(obj.externalFunctions)
         value=getfield(obj.externalFunctions(i).defines,names{j});
         if ischar(value)
             fprintf(fid,'    %s=''%s'';\n',names{j},value);
-        elseif isnumeric(value) 
+        elseif isnumeric(value)
             fprintf(fid,'    %s=[%s];\n',names{j},mymat2str(value));
         else
             value
@@ -99,7 +99,7 @@ if ~isempty(logFile)
     % c=c(k,:);
     % fprintf(fil,'CSparse index, TC index\n');
     % fprintf(fil,'  %6d %6d\n',c');
-    
+
     %% Write Dependency groups to the log file
     fprintf(fil,'\n* Dependency groups:\n');
     fprintf(fil,'%35s','group');
@@ -213,12 +213,12 @@ for i=1:length(obj.gets)
     if obj.debug>0
         fprintf(fid,'      fprintf(''running %s\\n'');\n',obj.gets(i).functionName);
     end
-    
+
     % perform needed computations
     if ~isempty(obj.gets(i).parentGroups)
         fprintf(fid,callComputeFunction,obj.gets(i).parentGroups);
     end
-    
+
     for j=1:nSources
         instructions=getOne(obj.vectorizedOperations,'instructions',obj.gets(i).source(j));
         fprintf(fid,'      %s=obj.m%d;\n',tmpl.outputs(j).name,obj.memoryLocations(instructions));
@@ -261,28 +261,28 @@ for i=1:length(obj.copies)
     if obj.debug>0
         fprintf(fid,'      fprintf(''running %s\\n'');\n',obj.copies(i).functionName);
     end
-    
+
     % perform needed computations
     if ~isempty(obj.copies(i).parentGroups)
         fprintf(fid,callComputeFunction,obj.copies(i).parentGroups);
     end
-    
+
     for k=1:length(obj.copies(i).destination)
         instructionsDestination=getOne(obj.vectorizedOperations,...
                                        'instructions',obj.copies(i).destination(k));
         instructionsSource=getOne(obj.vectorizedOperations,...
                                   'instructions',obj.copies(i).source(k));
-        
+
         fprintf(fid,'      obj.m%d=obj.m%d;\n',...
                 obj.memoryLocations(instructionsDestination),...
                 obj.memoryLocations(instructionsSource));
     end
-    
+
     if ~isempty(obj.copies(i).childrenGroups)
         % set group status
         fprintf(fid,'      obj.groupStatus(%d)=0;\n',obj.copies(i).childrenGroups);
     end
-    
+
     fprintf(fid,'    end\n');
 end
 
@@ -320,7 +320,7 @@ for i=1:length(obj.externalFunctions)
     fclose(fic);
     fprintf(fid,'\n');
 
-    
+
     fprintf(fid,'    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n');
     fprintf(fid,'    %% End of code for function %s(), copied from \"%s\"\n',...
             obj.externalFunctions(i).functionName,obj.externalFunctions(i).fileName);
@@ -347,7 +347,7 @@ function includeFile(fid,filename)
 % includeFile(fid,filename)
 %   includes the file named 'filename' into the file with the given
 %   descriptor
-    
+
     fii=fopen(filename,'r');
     if fii<0
         error('unable to open file ''%s''\n',filename);
@@ -357,5 +357,5 @@ function includeFile(fid,filename)
     fwrite(fid,a);
     fprintf(fid,'%% END OF #included "%s"\n',filename);
     fclose(fii);
-    
+
 end

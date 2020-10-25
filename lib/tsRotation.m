@@ -8,7 +8,7 @@ function [y,ts]=tsRotation(q,x,ts);
 % In terms of the rotation matrix
 %    R=expm(theta*skew(omega)),
 %                 skew(w1,w2,w3)=[0,-w3,w2;w3,0,-w1;-w2,w1,0]
-% with    
+% with
 %    q=(cos(theta/2),omega*sin(theta/2))
 % this corresponds to
 %    y=R x
@@ -21,7 +21,7 @@ function [y,ts]=tsRotation(q,x,ts);
 %   ts [N x 1] - vector of times
 %
 % Output
-%   y [3 x N]  - values of the rotated function at the given times 
+%   y [3 x N]  - values of the rotated function at the given times
 %                (one time per column)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
 %
@@ -48,7 +48,7 @@ function [y,ts]=tsRotation(q,x,ts);
         ts=ts(:);
     end
 
-    if ~isequal(class(q),'Tcalculus') && ~isequal(class(x),'Tcalculus') 
+    if ~isequal(class(q),'Tcalculus') && ~isequal(class(x),'Tcalculus')
         whichtprod=@mytprod;
     else
         whichtprod=@tprod;
@@ -58,17 +58,17 @@ function [y,ts]=tsRotation(q,x,ts);
         error('tsRotation: first input must be a time series of 4-vectors ([%s])\n',...
               index2str(size(q)));
     end
-    
+
     if length(size(x))~=2 || size(x,1)~=3
         error('tsRotation: second input must be a time series of 3-vectors ([%s])\n',...
               index2str(size(x)));
     end
-    
+
     if length(ts)~=size(x,2) || length(ts)~=size(q,2)
         error('tsRotation: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
               length(ts),index2str(size(q)),index2str(size(x)));
     end
-    
+
     % pq=[p0*q0-p'*q;
     %     q0*p+p0*q+cross(p,q)];
     if isequal(class(q),'Tcalculus')
@@ -84,7 +84,7 @@ function [y,ts]=tsRotation(q,x,ts);
     y=whichtprod(minus_qx0,[2],q(2:4,:),[1,2])...
       +whichtprod(q0,[2],qx1,[1,2])...
       +tsCross(q(2:4,:),qx1,ts);
-        
+
     % y1=whichtprod(minus_qx0,[2],q(2:4,:),[1,2]);
     % y2=whichtprod(q0,[2],qx1,[1,2]);
     % y3=tsCross(q(2:4,:),qx1,ts);
@@ -112,12 +112,12 @@ function test
         % exponential formula
         R=expm(th*[0,-omega(3),omega(2);omega(3),0,-omega(1);-omega(2),omega(1),0]);
         % explicit formula (http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation)
-        
+
         qi=q(:,i);
         R=[qi(1)^2+qi(2)^2-qi(3)^2-qi(4)^2,2*qi(2)*qi(3)-2*qi(1)*qi(4),2*qi(2)*qi(4)+2*qi(1)*qi(3);
            2*qi(2)*qi(3)+2*qi(1)*qi(4),qi(1)^2-qi(2)^2+qi(3)^2-qi(4)^2,2*qi(3)*qi(4)-2*qi(1)*qi(2);
            2*qi(2)*qi(4)-2*qi(1)*qi(3),2*qi(3)*qi(4)+2*qi(1)*qi(2),qi(1)^2-qi(2)^2-qi(3)^2+qi(4)^2];
-           
+
         yy(:,i)=R*x(:,i);
     end
     y
@@ -125,7 +125,7 @@ function test
     if norm(y-yy)>sqrt(eps)
         error('tsRotation error %g\n',norm(y-yy))
     end
-    
+
     plot(ts,x','-x',ts,y','-+');
     legend('x1','x2','x3','y1','y2','y3')
 

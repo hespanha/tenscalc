@@ -13,10 +13,10 @@ function [G,F,nus,lambdas,outputExpressions,template]=...
 % 5) replaces appearences of the dual variables in
 %    outputExpressions to the given names.
 %
-% 
-% Input: 
 %
-% code              - csparse object 
+% Input:
+%
+% code              - csparse object
 % classname         - classname to be used in the names of the functions
 % constraints       - cell array of constrainsts as TC symbolic variables
 % outputExpressions - original output expressions
@@ -28,11 +28,11 @@ function [G,F,nus,lambdas,outputExpressions,template]=...
 % Gcells - cell array of TC symbolic variables corresponding to
 %          equality constraints (value should be made equal to
 %          zero)
-% nus    - cell array of dual variables corresponding to the 
+% nus    - cell array of dual variables corresponding to the
 %          equality constraints in Gcells
 % Fcells - cell array of TC symbolic variables corresponding to
 %          inequality constraints (value should be made positive)
-% lambdas - cell array of dual variables corresponding to the 
+% lambdas - cell array of dual variables corresponding to the
 %          inequality constraints in Fcells
 % outputExpressions - output expressions with the dual variables
 %          replaced by the ones that appear in nus & lambdas
@@ -57,7 +57,7 @@ function [G,F,nus,lambdas,outputExpressions,template]=...
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 createSets4Duals=false;
 
 nowarningsamesize=true;
@@ -143,15 +143,14 @@ for k=1:length(constraints)
     end
 end
 
-%% Pack constraints 
+%% Pack constraints
 G=packExpressions(Gcells);
 F=packExpressions(Fcells);
-    
+
 
 if verboseLevel>0
     fprintf('  parseConstraints: %d substitutions\n',substituteCounter);
-end        
+end
 
 
 end
-

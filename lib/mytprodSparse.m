@@ -38,7 +38,7 @@ for l=1:2:length(varargin)
         instrX{i}=nonzeros(varargin{l});
     end
     instrX{i}=instrX{i}(:)';
-    
+
     if verboseLevel>2
         fprintf('Operand %d (size = [%s], indices = [%s])\n',...
                 i,index2str(osize{i}),index2str(parameters{i}));
@@ -57,7 +57,7 @@ for l=1:2:length(varargin)
             disp(subsX{i})
         end
     end
-    
+
     if length(osize{i})>length(parameters{i})
         if all(osize{i}(length(parameters{i})+1:end)==1)
             % extra dimensions are singletons
@@ -68,7 +68,7 @@ for l=1:2:length(varargin)
                   index2str(osize{i}),index2str(parameters));
         end
     end
-    
+
     if 0
         fprintf('parameter %d: osize=[%s], parameters=[%s], size(subsX)=[%s], size(instrX)=[%s]\n',...
                 i,index2str(osize{i}),index2str(parameters{i}),...
@@ -80,7 +80,7 @@ for l=1:2:length(varargin)
 end
 
 dimYS=dimY+nSums;
-    
+
 
 %% Set parameters with all indices starting from 1, starting with the Sums
 %% Compute sizes of each indice
@@ -172,8 +172,3 @@ ndx(end)=[];
 ndx=ndx*(subsY-1)+1;
 
 M(ndx)=instrY;
-
-
-
-
-

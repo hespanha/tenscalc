@@ -18,9 +18,9 @@ function varargout=precompute(varargin)
 
     maxNumel2ExpandConstants=2000;
     maxNnz2ExpandConstants=1000;
-                             
+
     varargout=varargin;
-    
+
     for i=1:length(varargin)
         type=getType(varargin{i});
         if ~isequal(type,'constant') && ~isequal(type,'zeros') && ~isequal(type,'ones') && getIsStatic(varargin{i})
@@ -45,4 +45,3 @@ function varargout=precompute(varargin)
         end
     end
 end
-

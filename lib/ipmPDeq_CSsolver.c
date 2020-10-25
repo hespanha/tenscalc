@@ -79,13 +79,13 @@ extern void saveWW__(char *filename);
 #include <mex.h>
 #define printf2(...) mexPrintf(__VA_ARGS__)
 #else
-#define printf2(...) 
+#define printf2(...)
 #endif
 
 #if verboseLevel>=3
 #define printf3(...) mexPrintf(__VA_ARGS__)
 #else
-#define printf3(...) 
+#define printf3(...)
 #endif
 
 #define MIN(A,B) (((A)<(B))?(A):(B))
@@ -138,7 +138,7 @@ EXPORT void ipmPDeq_CSsolver(
 #if skipAffine != 1
   double sigma;
 #endif
-#endif 
+#endif
 
 #if nG>0
   double norminf_eq;
@@ -151,7 +151,7 @@ EXPORT void ipmPDeq_CSsolver(
   //initPrimalDual__();
   initPrimal__();
 
-#if scaleCost != 0 
+#if scaleCost != 0
   scaleCost__();
 #endif
 
@@ -177,7 +177,7 @@ EXPORT void ipmPDeq_CSsolver(
 #else
   printf3("%3d: <-maxIter       tol->%10.2e\n",*maxIter,gradTolerance,equalTolerance);
 #endif
-  
+
 #if verboseLevel>=1
   clock_t dt0=clock();
 #endif
@@ -356,7 +356,7 @@ EXPORT void ipmPDeq_CSsolver(
       printf3("%10.2e",sigma);
       mu = sigma*gap/nF;
       if (mu < muMin) mu = muMin;
-      setMu__(&mu); 
+      setMu__(&mu);
     } else {
       printf3("  -sigma- ");
     }
@@ -420,7 +420,7 @@ EXPORT void ipmPDeq_CSsolver(
 	      if (ineq1>ineq/10) {
 		break; }
 	    }
-	  } 
+	  }
 	  if (alphaPrimal < alphaMin) {
 	    alphaPrimal = 0;
 	    setAlphaPrimal__(&alphaPrimal);
@@ -449,7 +449,7 @@ EXPORT void ipmPDeq_CSsolver(
 #endif
     setAlphaDualIneq__(&alphaDualIneq);
     updatePrimalDual__();
-    
+
 #if nG>0
     printf3("%10.2e %10.2e %10.2e",alphaPrimal,alphaDualIneq,alphaDualEq);
 #else
@@ -476,7 +476,7 @@ EXPORT void ipmPDeq_CSsolver(
       //mu *= muFactorAggressive;
       mu *= MIN(muFactorAggressive,pow(mu,.5));
       if (mu < muMin) mu = muMin;
-      setMu__(&mu); 
+      setMu__(&mu);
       printf3(" * ");
     } else {
       if (alphaPrimal<.02) {
@@ -506,7 +506,7 @@ EXPORT void ipmPDeq_CSsolver(
 #endif
     }
 #endif
-    
+
     // if no motion, slowly increase mu
     if (alphaPrimal<alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) {
       mu /= (muFactorConservative*muFactorConservative); // square to compensate for previous decrease
@@ -547,7 +547,7 @@ EXPORT void ipmPDeq_CSsolver(
     if (mu>muMin) {
       (*status) |= 128;
     }
-    if (alphaPrimal<=alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin) 
+    if (alphaPrimal<=alphaMin && alphaDualIneq<alphaMin && alphaDualEq<alphaMin)
       (*status) |= 1792; // (256|512|1024);
     else if (alphaPrimal<=.1 && alphaDualIneq<.1 && alphaDualEq<.1)
       (*status) |= 1536; // (512|1024);
@@ -555,11 +555,11 @@ EXPORT void ipmPDeq_CSsolver(
       (*status) |= 1024;
 #endif
   }
-  
+
 #if verboseLevel>=1
   (*time)=(clock()-dt0)/(double)CLOCKS_PER_SEC;
 #endif
-    
+
 #if verboseLevel>=2
   getfg__(&f,&g);
   if ((*status)<8) {
@@ -613,4 +613,3 @@ EXPORT void ipmPDeq_CSsolver(
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
 #endif  // verboseLevel>=2
 }
-

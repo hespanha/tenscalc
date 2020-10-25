@@ -21,7 +21,7 @@ function CG=CGregistration()
 CG.magic(1,1) = struct('type',16,'name','int16l','description','indices stored as 16bit integers with the least significant byte first (little-endian byte ordering)');
 CG.magic(2,1) = struct('type',32,'name','int32l','description','indices stored as 32bit integers with the least significant byte first (little-endian byte ordering)');
 CG.magic(3,1) = struct('type',64,'name','int64l','description','indices stored as 64bit integers with the least significant byte first (little-endian byte ordering)');
-    
+
 %% Constants
 CG.constant(1,1)    =struct('type',10001,'name','double_full_tensor',...
                             'description','tensor with double-values entries [# dimension,size vector,double values]');
@@ -81,7 +81,7 @@ CG.function(end+1,1)=struct('type',20001,'name','Ssum','description',...
 
 CG.function(end+1,1)=struct('type',20002,'name','Ssumprod','description',...
         'sum(prod(operands,1))=a1*a2*...*am+b1*b2*...*bm+..., operands = a1,a2,...,am,b1,b2,...,bm,c1,... In case operands are one long vector: parameters = [m; # sums]');
-    
+
 CG.function(end+1,1)=struct('type',20003,'name','Sinv','description',...
                             'inverse: 1/denominator, operands = denominator');
 CG.function(end+1,1)=struct('type',20004,'name','Sminus_inv_sqr','description',...
@@ -142,13 +142,13 @@ CG.function(end+1,1)=struct('type',20031,'name','SDatan','description',...
                             'computes 1/(1+a1^2), operand = a1');
 CG.function(end+1,1)=struct('type',20032,'name','SDDatan','description',...
                             'computes -2*a1/(1+a1^2)^2, operand = a1');
-    
+
 %% tensor-scalar convertion functions
 CG.function(end+1,1)=struct('type',30001,'name','scalars2ftensor','description',...
                             'compiles scalars into a full variable: tensor=f(subscripts,a1,a2,a3,...)');
 CG.function(end+1,1)=struct('type',30002,'name','ftensor2scalars','description',...
                             'compiles scalars into a full variable: [a1,a2,a3,...]=f(tensor)');
-    
+
 %% I/O functions
 CG.io(1,1)    =struct('type', 1,'name','set'    ,'description','set');
 CG.io(end+1,1)=struct('type', 2,'name','get'    ,'description','get');

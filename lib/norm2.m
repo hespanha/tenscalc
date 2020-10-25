@@ -1,10 +1,10 @@
 function obj=norm2(obj1,S)
-% norm2 - Squared quadratic norm 
-%   
+% norm2 - Squared quadratic norm
+%
 %   norm2(x) returns the sum of the square of all entries of
 %   the tensor x, which for matrices corresponds to the square
 %   of the Frobenius norm of x.
-%   
+%
 %   norm2(x,S) returns the value of the quadratic form <x,Sx>. This
 %   form is only applicable when x is a vector (tensor with 1
 %   dimension) and S a square matrix (tensor with 2 dimensions).
@@ -22,4 +22,3 @@ else
 end
 
 end
-

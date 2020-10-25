@@ -40,7 +40,7 @@ if any(~ismember(subsdX',subsX','rows'))
     error(['sparsity_clp: structurally zero values for x not allowed ' ...
            'when dx is not structurally zero'])
 end
-    
+
 %% Determine instructions for Y
 operands=[instrX(kX)';instrdX(kdX(kX))'];
 instrY=newInstruction(obj,obj.Itypes.I_clp,[],operands(:),thisExp);

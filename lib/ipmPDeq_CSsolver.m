@@ -17,31 +17,31 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     FUNCTION__='ipmPDeq_CSsolver';
-    
+
     if nargin<2
         mu0=1;
-    end    
+    end
     if nargin<3
         maxIter=200;
     end
     if nargin<4
         saveIter=-1;
-    end    
-    
+    end
+
     function printf2(varargin)
         if obj.verboseLevel>=2
             fprintf(varargin{:});
         end
     end
-    
+
     function printf3(varargin)
         if obj.verboseLevel>=3
             fprintf(varargin{:});
         end
     end
-    
+
     iter=0;
-    
+
     initPrimal__(obj);
 
     if obj.scaleCost
@@ -60,7 +60,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         setMu__(obj,mu);
         muMin=desiredDualityGap/obj.nF/2;
     end
-    
+
     printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n',...
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.nZ,obj.nU,obj.nD,obj.nX,obj.nG,obj.nF);
     if obj.verboseLevel>=3
@@ -73,12 +73,12 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
     else
         printf3('%3d: <-maxIter       tol->%10.2e%10.2e\n',maxIter,obj.gradTolerance,obj.equalTolerance);
     end
-    
+
     dt0=clock();
-    
+
     if obj.nF>0
         initDualIneq__(obj);
-        if obj.debugConvergence 
+        if obj.debugConvergence
             [F_,l_]=getFLambda__(obj);
             k=find(F_<1/sqrt(obj.debugConvergenceThreshold));
             if ~isempty(k)
@@ -92,42 +92,42 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             end
         end
     end
-    
+
     if obj.nG>0
         initDualEq__(obj);
     end
-    
-    while (1) 
+
+    while (1)
         iter=iter+1;
         if obj.verboseLevel>=3
             if mod(iter,50)==0
-                fprintf(headers);                
+                fprintf(headers);
             end
             fprintf('%3d:',iter);
             dt1=clock();
-        end        
-        
+        end
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Check exit conditions %%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        if iter > maxIter 
+        if iter > maxIter
             printf3('maximum # iterations (%d) reached.\n',maxIter);
             status = 8;
-            break; 
+            break;
         end
 
         if obj.verboseLevel>=3 || obj.debugConvergence
             [f,g]=getfg__(obj);
         end
-        if obj.verboseLevel>=3 
+        if obj.verboseLevel>=3
             fprintf('%11.3e%11.3e',full(f),full(g));
         end
 
         norminf_grad=getNorminf_Grad__(obj);
         printf3('%10.2e',full(norminf_grad));
-        
-        if obj.debugConvergence 
+
+        if obj.debugConvergence
             if norminf_grad>obj.debugConvergenceThreshold
                 grad_=getGrad__(obj);
                 k=find(abs(grad_)>obj.debugConvergenceThreshold);
@@ -141,28 +141,28 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             end
         end
 
-        if isnan(norminf_grad) 
+        if isnan(norminf_grad)
             printf2('  -> failed to invert hessian\n');
             status = 4;
             break;
         end
-        
+
         if obj.nG>0
             norminf_eq=getNorminf_G__(obj);
             printf3('%10.2e',full(norminf_eq));
         else
             printf3('    -eq-  ');
         end
-        
+
         if obj.nF>0
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
             printf3('%10.2e%10.2e%10.2e',full(ineq),full(dual),full(gap));
-            if (ineq<=0) 
+            if (ineq<=0)
                 printf2('  -> (primal) variables violate constraints\n');
                 status = 1;
                 break;
             end
-            if (dual<=0) 
+            if (dual<=0)
                 printf2('  -> negative value for dual variables\n');
                     status = 2;
                     break;
@@ -170,7 +170,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         else
             printf3('   -ineq-    -dual-    -gap-  ');
         end
-        
+
         if norminf_grad<=obj.gradTolerance && ...
                 (obj.nF==0 || gap<=desiredDualityGap) && ...
                 (obj.nG==0 || norminf_eq<=obj.equalTolerance)
@@ -178,13 +178,13 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             status = 0;
             break;
         end
-        
+
         if obj.nF>0
             printf3('%10.2e',mu);
         else
             printf3('   -mu-   ');
         end
-        
+
         if obj.debugConvergence
             [Lfu,Lgd]=getLf1__(obj);
             [Lfuu,Lgdd]=getLf2__(obj);
@@ -200,26 +200,26 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     norm(Lfuu-Lfuu','fro'),norm(Lgdd-Lgdd','fro'),...
                     min(euu),max(euu),mpu,length(euu)-mpu-mnu,mnu,min(edd),max(edd),mpd,length(edd)-mpd-mnd,mnd);
         end
-        
-        
+
+
         if obj.nF==0
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%  NO INEQUALITY CONSTRAINTS %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
+
             setAlphaPrimal__(obj,obj.alphaMax);
             if obj.nG>0
                 setAlphaDualEq__(obj,obj.alphaMax);
             end
             printf3('  -alphaA-  -sigma- ');
             printf3('%10.2e                   ',obj.alphaMax);
-            
+
             updatePrimalDual__(obj);
         else
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%  WITH INEQUALITY CONSTRAINTS %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
+
             if obj.debugConvergence
                 [oldF,oldLambda]=getFLambda__(obj);
                 oldmu=mu;
@@ -230,52 +230,52 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %% Affine search direction %%
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                
+
                 [alphaPrimal,alphaDualIneq]=getMaxAlphas_a__(obj);
-                
+
                 alphaMax = min([obj.alphaMax,alphaPrimal,alphaDualIneq]);
-                
-                if (alphaMax >= obj.alphaMin) 
+
+                if (alphaMax >= obj.alphaMin)
                     % try max
                     alphaPrimal=alphaMax;
                     setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                    if (ineq<0) 
+                    if (ineq<0)
                         % try min
                         alphaPrimal=obj.alphaMin;
                         setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                        if (ineq>0) 
+                        if (ineq>0)
                             % try between min and max
                             alphaPrimal = alphaMax*.95;
                             while alphaPrimal >= obj.alphaMin
                                 setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                                if (ineq>=0) 
-                                    break; 
+                                if (ineq>=0)
+                                    break;
                                 end
                                 alphaPrimal=alphaPrimal/2;
                             end
-                            if (alphaPrimal < obj.alphaMin) 
+                            if (alphaPrimal < obj.alphaMin)
                                 alphaPrimal = 0;
                                 setAlphaPrimal__(obj,alphaPrimal);
                             end
-                        else 
+                        else
                             alphaPrimal = 0;
                             setAlphaPrimal__(obj,alphaPrimal);
                         end
                     end
-                else 
+                else
                     alphaPrimal = 0;
                     setAlphaPrimal__(obj,alphaPrimal);
                 end
                 setAlphaDualIneq__(obj,alphaPrimal);
                 printf3('%10.2e',full(alphaPrimal));
-                
+
                 % update mu based on sigma, but this only seems to be safe for:
                 % 1) 'long' newton steps in the affine direction
                 % 2) equality constraints fairly well satisfied (perhaps not very important)
                 % 3) small gradient
                 %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
                 th_eq=(obj.nG==0) || norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance;
-                if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad 
+                if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad
                     sigma=full(getRho__(obj));
                     if (sigma>1) sigma=1; end
                     if (sigma<0) sigma=0; end
@@ -286,16 +286,16 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     end
                     printf3('%10.2e',sigma);
                     mu = full(max(sigma*gap/obj.nF,muMin));
-                    setMu__(obj,mu); 
-                else 
+                    setMu__(obj,mu);
+                else
                     printf3('  -sigma- ');
                 end
             end  % obj.skipAffine==1
-            
+
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %% Combined search direction %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            
+
             if obj.debugConvergence
                 setAlphaPrimal__(obj,1);
                 if obj.nG>0
@@ -313,21 +313,21 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             if obj.coupledAlphas && alphaDualIneq<alphaPrimal
                 alphaPrimal=alphaDualIneq;
             end
-                
+
             alphaPrimal = .99 * alphaPrimal;
-            
+
             alphaMax = min(alphaPrimal,obj.alphaMax);
-            
-            if (alphaMax >= obj.alphaMin) 
+
+            if (alphaMax >= obj.alphaMin)
                 % try max
                 alphaPrimal=alphaMax/.99;
                 setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
-                if isnan(ineq) 
+                if isnan(ineq)
                     printf2('  -> failed to invert hessian\n');
                     status = 4;
                     break;
                 end
-                if (ineq>0) 
+                if (ineq>0)
                     % recheck just to be safe in case not convex
                     alphaPrimal = .99 * alphaPrimal;
                     setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
@@ -336,36 +336,36 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     % try min
                     alphaPrimal=obj.alphaMin/.99;
                     setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
-                    if (ineq>0) 
+                    if (ineq>0)
                         % try between min and max
                         alphaPrimal=alphaMax*.95;
                         while alphaPrimal >= obj.alphaMin
                             setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
-                            if (ineq>0) 
+                            if (ineq>0)
                                 % backtrace just a little
                                 alphaPrimal = .99 * alphaPrimal;
                                 % recheck just to be safe in case not convex
                                 setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
                                 if (ineq1>ineq/10)
-                                    break; 
+                                    break;
                                 end
                             end
                             alphaPrimal=alphaPrimal/2;
                         end
-                        if (alphaPrimal < obj.alphaMin) 
+                        if (alphaPrimal < obj.alphaMin)
                             alphaPrimal = 0;
                             setAlphaPrimal__(obj,alphaPrimal);
                         end
-                    else 
+                    else
                         alphaPrimal = 0;
                         setAlphaPrimal__(obj,alphaPrimal);
                     end
                 end
-            else 
+            else
                 alphaPrimal = 0;
                 setAlphaPrimal__(obj,alphaPrimal);
             end
-            
+
             if obj.coupledAlphas
                 alphaDualEq=alphaPrimal;
                 alphaDualIneq=alphaPrimal;
@@ -376,19 +376,19 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 end
                 alphaDualEq = obj.alphaMax;
             end
-            
+
             if obj.nG>0
                 setAlphaDualEq__(obj,alphaDualEq);
             end
             setAlphaDualIneq__(obj,alphaDualIneq);
             updatePrimalDual__(obj);
-            
+
             if obj.nG>0
                 printf3('%10.2e %10.2e %10.2e',full(alphaPrimal),full(alphaDualIneq),full(alphaDualEq));
             else
                 printf3('%10.2e %10.2e   -eq-    ',full(alphaPrimal),full(alphaDualIneq));
             end
-            
+
             if obj.skipAffine==1
                 % More aggressive if
                 % 1) 'long' newton steps in the affine direction
@@ -402,22 +402,22 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
                     %mu = max(mu*obj.muFactorAggressive,muMin);
                     mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
-                    setMu__(obj,mu); 
+                    setMu__(obj,mu);
                     printf3(' * ');
-                else 
+                else
                     if alphaPrimal<.1
                         mu=min(mu0,1.1*mu);
-                        setMu__(obj,mu); 
+                        setMu__(obj,mu);
                         initDualIneq__(obj);
                         printf3('^');
                     else
                         mu=max(mu*obj.muFactorConservative,muMin);
-                        setMu__(obj,mu); 
+                        setMu__(obj,mu);
                         printf3('v');
                     end
                     if th_grad
                         printf3('g');
-                    else 
+                    else
                         printf3(' ');
                     end
                     if th_eq
@@ -427,24 +427,24 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     end
                 end
             end
-            
+
             % if no motion, slowly increase mu
-            if (alphaPrimal<obj.alphaMin && alphaDualIneq<obj.alphaMin && alphaDualEq<obj.alphaMin) 
+            if (alphaPrimal<obj.alphaMin && alphaDualIneq<obj.alphaMin && alphaDualEq<obj.alphaMin)
                 mu = max(mu/obj.muFactorConservative,muMin);
-                setMu__(obj,mu); 
+                setMu__(obj,mu);
             end
-            
+
         end  % if obj.nF==0
-        
+
         if obj.verboseLevel>=3
             dt1=etime(clock(),dt1);
             fprintf('%8.1fms\n',dt1*1e3);
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%
         %% Debug small alpha %%
         %%%%%%%%%%%%%%%%%%%%%%%
-        
+
         if obj.debugConvergence
             if obj.nF>0 && alphaPrimal<obj.alphaMax/5 && isfinite(obj.debugConvergenceThreshold)
                 kk=find(newF_s<=0 | newLambda_s<=0);
@@ -467,7 +467,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         %%%%%%%%%%%%%%%%%%%
         %% Check scaling %%
         %%%%%%%%%%%%%%%%%%%
-        
+
         if obj.debugConvergence
             %% Check scaling for optimization variables
             [u_,d_]=getUD__(obj);
@@ -498,7 +498,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 fprintf('%3d: ATTENTION: all abs(d) < %10.2e - scale optimization variables\n',...
                         iter,1/obj.debugConvergenceThreshold);
             end
-            
+
             if obj.nG>0
                 %% Check scaling for equality constraints
                 [G_,nu_]=getGNu__(obj);
@@ -545,10 +545,10 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                     end
                 end
             end
-        end        
+        end
 
     end % while(1)
-    
+
     if obj.debugConvergence
         [Lfu,Lgd]=getLf1__(obj);
         [Lfuu,Lgdd]=getLf2__(obj);
@@ -564,13 +564,13 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
                 norm(Lfuu-Lfuu','fro'),norm(Lgdd-Lgdd','fro'),...
                 min(euu),max(euu),mpu,length(euu)-mpu-mnu,mnu,min(edd),max(edd),mpd,length(edd)-mpd-mnd,mnd);
     end
-        
+
     if status == 8
         norminf_grad=getNorminf_Grad__(obj);
-        if (norminf_grad>obj.gradTolerance) 
+        if (norminf_grad>obj.gradTolerance)
             status=bitor(status,16);
         end
-        if (obj.nG>0) 
+        if (obj.nG>0)
             norminf_eq=getNorminf_G__(obj);
             if (norminf_eq>obj.equalTolerance)
                 status=bitor(status,32);
@@ -593,7 +593,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             end
         end
     end
-    
+
     time=etime(clock(),dt0);
     if obj.verboseLevel>=2
         [f,g]=getfg__(obj);
@@ -603,7 +603,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         if obj.nF>0 && status<8 % when status>=8 this has been already been computed
             [gap,ineq,dual]=getGapMinFMinLambda__(obj);
         end
-        
+
         if (status)
             fprintf('%3d:status=0x%s ',iter,dec2hex(status));
             sep='(';
@@ -649,7 +649,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
         end
         fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end
-   
+
     if nargout==1
         varargout{1}.status=status;
         varargout{1}.iter=iter;
@@ -657,5 +657,5 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
     else
         varargout={status,iter,time};
     end
-    
+
 end

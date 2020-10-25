@@ -15,11 +15,11 @@ function [str_obj]=spy(obj,indent)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if nargin<2
         indent=0;
     end
-    
+
     str_children='';
     for i=1:length(obj.objs)
         str_children=[str_children,spy@Tcalculus(obj.objs{i},indent+1)];
@@ -37,7 +37,7 @@ function [str_obj]=spy(obj,indent)
         str_obj=sprintf('ones(%s)',index2str(obj.size));
       case {'eye'}
         str_obj=sprintf('eye(%s)',index2str(obj.size));
-        
+
       case {'constant'}
         str_obj=sprintf('constant(%s)',index2str(obj.size));
       case {'variable'}
@@ -48,16 +48,16 @@ function [str_obj]=spy(obj,indent)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
       case {'subsref'}
-        switch obj.inds.type 
+        switch obj.inds.type
           case '()',
             str_obj=sprintf('subsref(%s|%s|,?)',obj.objs{1}.type,index2str(size(obj.objs{1})));
           otherwise,
             error('subsref of type ''%s'' not implemented\n',obj.inds.type);
         end
-    
+
       case {'reshape'}
         str_obj=sprintf('reshape(%s|%s|,[%s])',obj.objs{1}.type,index2str(size(obj.objs{1})),index2str(size(obj)));
-        
+
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       %%%%             Unitary Functions/Operators                  %%%%%
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,7 +89,7 @@ function [str_obj]=spy(obj,indent)
 
       case {'pptrs','clp'}
         str_obj=sprintf('%s(%s|%s|,%s|%s|)',obj.type,obj.objs{1}.type,index2str(size(obj.objs{1})),obj.type,obj.objs{2}.type,index2str(size(obj.objs{2})));
-        
+
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       %%%%                 Multi-ary operators                      %%%%%
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -100,7 +100,7 @@ function [str_obj]=spy(obj,indent)
             if i>1
                 str_obj=[str_obj,','];
             end
-            if obj.inds{i}>0 
+            if obj.inds{i}>0
                 str_obj=sprintf('%s+%s|%s|',str_obj,obj.objs{i}.type,index2str(size(obj.objs{i})));
             else
                 str_obj=sprintf('%s-%s|%s|',str_obj,obj.objs{i}.type,index2str(size(obj.objs{i})));
@@ -115,7 +115,7 @@ function [str_obj]=spy(obj,indent)
             end
             str_obj=sprintf('%s%s|%s|',str_obj,obj.type,obj.objs{i}.type,index2str(size(obj.objs{i})));
         end
-        
+
       case {'times'}
         str_obj='';
         for i=1:length(obj.objs)
@@ -124,7 +124,7 @@ function [str_obj]=spy(obj,indent)
             end
             str_obj=sprintf('%s%s|%s|',str_obj,obj.type,obj.objs{i}.type,index2str(size(obj.objs{i})));
         end
-        
+
       case {'rdivide'}
         str_obj='';
         for i=1:length(obj.objs)
@@ -133,7 +133,7 @@ function [str_obj]=spy(obj,indent)
             end
             str_obj=sprintf('%s%s|%s|',str_obj,obj.type,obj.objs{i}.type,index2str(size(obj.objs{i})));
         end
-        
+
       case {'mldivide'}
         str_obj='';
         for i=1:length(obj.objs)
@@ -142,7 +142,7 @@ function [str_obj]=spy(obj,indent)
             end
             str_obj=sprintf('%s%s|%s|',str_obj,obj.type,obj.objs{i}.type,index2str(size(obj.objs{i})));
         end
-        
+
       case {'tprod'}
         str_obj='tprod(';
         for i=1:length(obj.objs)
@@ -152,7 +152,7 @@ function [str_obj]=spy(obj,indent)
             str_obj=sprintf('%s%s|%s|,[%s]',str_obj,obj.objs{i}.type,index2str(size(obj.objs{i})),index2str(obj.inds{i}));
         end
         str_obj=sprintf('%s)',str_obj);
-        
+
       case {'tprod_matlab'}
         str_obj='tprod_matlab(';
         for i=1:length(obj.objs)
@@ -162,18 +162,17 @@ function [str_obj]=spy(obj,indent)
             str_obj=sprintf('%s%s|%s|,[%s]',str_obj,obj.objs{i}.type,index2str(size(obj.objs{i})),index2str(obj.inds{i}));
         end
         str_obj=sprintf('%s)',str_obj);
-      
+
       case {'cat'}
         str_obj=sprintf('cat(%d',obj.inds);
         for i=1:length(obj.objs)
             str_obj=sprintf('%s,%s|%s|',str_obj,obj.objs{i}.type,index2str(size(obj.objs{i})));
         end
         str_obj=[str_obj,')'];
-      
+
       otherwise
         error('str(%s) incomplete\n',obj.type)
     end
 
     str_obj=sprintf('%s [%s]: %s\n%s',repmat('   ',1,indent),index2str(size(obj)),str_obj,str_children);
 end
-

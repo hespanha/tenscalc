@@ -19,16 +19,16 @@ function str=index2str(index,format,compress)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
-    
+
+
     if nargin<2
         format='%d';
     end
-    
+
     if nargin<3
         compress=false;
     end
-    
+
     if size(index,1)==1
         di=diff(index);
         if compress && length(index)>3 && all(di==di(1))
@@ -46,7 +46,7 @@ function str=index2str(index,format,compress)
         str=regexprep(str,',;',';');
         str=regexprep(str,',$| ','');
     end
-    
+
     % if length(index)<=1
     %     str=sprintf(format,index);
     % else

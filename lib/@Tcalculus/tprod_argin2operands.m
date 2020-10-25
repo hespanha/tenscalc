@@ -15,7 +15,7 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if mod(nargin,2)
         error('tprod: number of arguments must be even\n');
     end
@@ -28,13 +28,13 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
     for i=1:2:nargin
         objs{(i-1)/2+1}=toCalculus(varargin{i});
         ind=varargin{i+1};
-        
+
         % if any(diff(sort(ind))==0)
         %     ind
         %     warning('currently tprod does not support repeated indices: ind(%d)=[%s]\n',...
         %             (i+1)/2,index2str(ind));
         % end
-        
+
         if ~isnumeric(ind)
             ind
             error('tprod: argument %d must be numeric\n',i+1);
@@ -47,7 +47,7 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
             inds{(i-1)/2+1}=ind;
         end
         osize=size(objs{(i-1)/2+1});
-        
+
         if length(ind)~=length(osize)
             osize
             ind
@@ -66,7 +66,7 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
                     objs{(i-1)/2+1},tprod_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],(i+1)/2,j, ...
-                          tprod_size(ind(j)),osize(j)); 
+                          tprod_size(ind(j)),osize(j));
                 end
                 tprod_size(ind(j))=osize(j);
             else
@@ -79,16 +79,15 @@ function [tprod_size,sums_size,objs,inds]=tprod_argin2operands(varargin)
                     objs{(i-1)/2+1},sums_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],(i+1)/2,j, ...
-                          sums_size(-ind(j)),osize(j)); 
+                          sums_size(-ind(j)),osize(j));
                 end
                 sums_size(-ind(j))=osize(j);
             end
         end
     end
 
-    if any(isnan(tprod_size)) || any(isnan(sums_size)) 
+    if any(isnan(tprod_size)) || any(isnan(sums_size))
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
 end
-

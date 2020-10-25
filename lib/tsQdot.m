@@ -3,7 +3,7 @@ function [y,ts]=tsQdot(q1,q2,ts);
 %
 % Computes a 4-vector time-series (y,ts) that represents the product
 % of two quaternions (q1,ts), (q2,ts). Specifically,
-%    y = q1 x q2    
+%    y = q1 x q2
 % If any of the input quaternions is a 3-vector, it is assumed to be a
 % pure quaternion.
 
@@ -17,7 +17,7 @@ function [y,ts]=tsQdot(q1,q2,ts);
 %   ts [N x 1] - vector of times
 %
 % Output
-%   y [4 x N]  - values of the rotated function at the given times 
+%   y [4 x N]  - values of the rotated function at the given times
 %                (one time per column)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
 %
@@ -44,22 +44,22 @@ function [y,ts]=tsQdot(q1,q2,ts);
         ts=ts(:);
     end
 
-    if length(size(q1))~=2 || size(q1,1)<3 ||  size(q1,1)>4 
+    if length(size(q1))~=2 || size(q1,1)<3 ||  size(q1,1)>4
         error('tsQdot: first input must be a time series of 3-vectors or 4-vectors ([%s])\n',...
               index2str(size(q1)));
     end
-    
-    if length(size(q2))~=2 || size(q2,1)<3 ||  size(q2,1)>4 
+
+    if length(size(q2))~=2 || size(q2,1)<3 ||  size(q2,1)>4
         error('tsQdot: first input must be a time series of 3-vectors or 4-vectors ([%s])\n',...
               index2str(size(q2)));
     end
-    
+
     if length(ts)~=size(q1,2) || length(ts)~=size(q2,2)
         error('tsQdot: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
               length(ts),index2str(size(q1)),index2str(size(q2)));
     end
-    
-    if ~isequal(class(q1),'Tcalculus') && ~isequal(class(q2),'Tcalculus') 
+
+    if ~isequal(class(q1),'Tcalculus') && ~isequal(class(q2),'Tcalculus')
         whichtprod=@mytprod;
     else
         whichtprod=@tprod;
@@ -67,7 +67,7 @@ function [y,ts]=tsQdot(q1,q2,ts);
 
     % pq=[p0*q0-p'*q;
     %     q0*p+p0*q+cross(p,q)];
-    
+
     if size(q1,1)==4 && size(q2,1)==3
         % full x pure quaternion
         if isequal(class(q1),'Tcalculus')
@@ -110,7 +110,7 @@ function test
     theta=ts;
     q=[cos(theta/2);omega*sin(theta/2)];
     y=tsQdot(q,x,ts)
-    
+
     plot(ts,q','-x',ts,y','-+');
     legend('q1','q2','q3','q4','y1','y2','y3','y4')
 

@@ -40,9 +40,9 @@ function M=mytprod(varargin)
             return
         end
     end
-    
+
     % create expanded matrices with dimension [tprod_size,sums_size]
-    
+
     sizes=[tprod_size,sums_size];
     ind=[1:length(tprod_size),-1:-1:-length(sums_size)];
     msizes=sizes;
@@ -59,15 +59,15 @@ function M=mytprod(varargin)
         end
         fprintf('\n');
     end
-    
+
     for i=1:2:nargin
         if 0%issparse(varargin{i})
             fprintf('ATTENTION: tprod unsparsifying [%s] matrix with %d non-zero elements (%.3f%% fillin)\n',index2str(size(varargin{i})),nnz(varargin{i}),100*nnz(varargin{i})/numel(varargin{i}));
         end
-        
+
         indi=varargin{i+1};   % indices
         Mi=full(varargin{i}); % matrix;
-        
+
         % handle repeated indices -- replace Mi by diagonal & erase repeated from indi
         uindi=unique(indi);
         if length(uindi)~=length(indi)
@@ -76,7 +76,7 @@ function M=mytprod(varargin)
             while kk>k
                 % k & kk are equal
                 %indi,k,kk
-                
+
                 subs=cell(length(size(Mi)),1);
                 [subs{:}]=ind2sub(size(Mi),1:prod(size(Mi)));
                 subs=cat(1,subs{:});
@@ -84,12 +84,12 @@ function M=mytprod(varargin)
                 % find entries with matching indices
                 keq=find(subs(k,:)==subs(kk,:));
                 %subs(:,keq)
-                
+
                 % order entries (by subscript without the one to be removed)
                 [~,kx]=sortrows(subs([end:-1:kk+1,kk-1:-1:1],keq)');
                 keq=keq(kx);
                 %subs(:,keq)
-                
+
                 szMi=size(Mi);
                 szMi(kk)=[];
                 while length(szMi)<2
@@ -107,10 +107,10 @@ function M=mytprod(varargin)
                 end
             end % while
         end
-       
+
         % 1st existing indices, then missing ones (for repmat to work)
         missing=setdiff(ind,indi);
-        order=[indi,missing];   
+        order=[indi,missing];
         % sums get highest (positive indices)
         order(order<0)=length(tprod_size)-order(order<0);
         indi(indi<0)=length(tprod_size)-indi(indi<0);
@@ -153,7 +153,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [tprod_size,sums_size]=checkTprodSizes(varargin)
-    
+
     tprod_size=[];
     sums_size=[];
     for i=1:2:nargin
@@ -166,7 +166,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
              warning('currently tprod does not support repeated indices: ind(%d)=[%s]\n',...
                      (i+1)/2,index2str(ind));
         end
-        
+
 
         % remove singleton dimension at the end of column vectors
         if osize(2)==1 && length(ind)==1
@@ -176,7 +176,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
         if length(ind)>length(osize)
             osize=[osize,ones(length(ind)-length(osize),1)];
         end
-        
+
         if length(ind)~=length(osize) && ~(isempty(ind) || isempty(osize))
             fprintf('tprod: term %d has size [%s] and index [%s]\n',...
                     (i+1)/2,index2str(osize),index2str(ind));
@@ -195,7 +195,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
                     obj,tprod_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],i,j, ...
-                          tprod_size(ind(j)),size(obj,j)); 
+                          tprod_size(ind(j)),size(obj,j));
                 end
                 tprod_size(ind(j))=size(obj,j);
             else
@@ -208,14 +208,14 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
                     obj,sums_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],i,j, ...
-                          sums_size(-ind(j)),size(obj,j)); 
+                          sums_size(-ind(j)),size(obj,j));
                 end
                 sums_size(-ind(j))=size(obj,j);
             end
         end
     end
-    
-    if any(isnan(tprod_size)) || any(isnan(sums_size)) 
+
+    if any(isnan(tprod_size)) || any(isnan(sums_size))
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
@@ -223,7 +223,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
 end
 
 function test_tprod()
-    
+
     a=rand(3,4);
     b=rand(4,5);
 
@@ -231,17 +231,17 @@ function test_tprod()
     if norm(a*b-ab)>1e2*eps
         error('matrix prod');
     end
-    
+
     aT=mytprod(a,[2,1]);
     if norm(a'-aT)>1e2*eps
         error('transpose');
     end
-    
+
     ab=mytprod(a,[2,1],b,[1,3]);
     if norm(repmat(a',1,1,5).*permute(repmat(b',1,1,3),[2,3,1])-ab)>1e2*eps
         error('external prod');
     end
-    
+
     c=rand(4,4);
     dc=mytprod(c,[1,1]);
     if norm(dc-diag(c))>1e2*eps

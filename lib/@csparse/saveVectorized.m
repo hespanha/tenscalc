@@ -82,7 +82,7 @@ function saveVectorized(obj,filename)
     symio=symtypes(strcmp('io',symbols));
 
     const_funct=ftypes(strcmp('constant',functs));
-        
+
     %% open files & write magic
     [~,~,ext]=fileparts(filename);
     if ~isempty(ext)
@@ -117,7 +117,7 @@ function saveVectorized(obj,filename)
         if strcmp(type,'variable') && ~isempty(operands)
             aliases(thisExp)=operands;
         end
-    end    
+    end
 
     nFuncts=0;
     nSym=0;
@@ -127,7 +127,7 @@ function saveVectorized(obj,filename)
         operands=aliases(getOne(obj.vectorizedOperations,'operands',thisExp));
         name=getOne(obj.vectorizedOperations,'name',thisExp);
         description=getOne(obj.vectorizedOperations,'description',thisExp);
-        
+
         if ~strcmp(type,'variable')
             k=find(strcmp(type,functs));
             if isempty(k)
@@ -143,27 +143,27 @@ function saveVectorized(obj,filename)
                 fprintf('  alias: thisExp=%d, alias to=%d, name=%s\n',thisExp-1,operands-1,name);
             end
             % do nothing
-          
+
           case 'constant'
             value=getOne(obj.vectorizedOperations,'parameters',thisExp);
             var=addConstant(double(value),name,description);
             % write constant function type, constant index, output variable
             fwrite(fg,[const_funct,var,thisExp-1],intType);  % 0-based;
-            
+
           case {'zeros','ones','eye'} %% dimension
             osize=getOne(obj.vectorizedOperations,'osize',thisExp);
             var=addConstantVariable(int64(osize),'',[type,' osize']);
             % function type, 1 input (osize), 1 output
             fwrite(fg,[ftypes(k),1,1,var-1,thisExp-1],intType);  % 0-based;
-          
+
           case {'norm2','norminf','full','diag','transpose','ctranspose','lu','chol'} %% 1 tensor
             % function type, 1 input, 1 output
             fwrite(fg,[ftypes(k),1,1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case {'mldivide_l1','mldivide_u','clp','rdivide'} %% 2 tensors
             % function type, 2 inputs (LU matrix,vector), 1 output
             fwrite(fg,[ftypes(k),2,1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case 'subsref' %% list of indices + tensor
             S=getOne(obj.vectorizedOperations,'parameters',thisExp)';
             if ~strcmp(S.type,'()')
@@ -175,31 +175,31 @@ function saveVectorized(obj,filename)
             end
             % function type, n+1 inputs (index1,index2,...,obj), 1 output
             fwrite(fg,[ftypes(k),1+length(var),1,var{:},operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case {'all','min','max','sum','repmat'} %% dimension + tensor
             dim=getOne(obj.vectorizedOperations,'parameters',thisExp)';
             var=addConstantVariable(int64(dim),'',[type,' dim']);
             % function type, 2 inputs (dim,obj), 1 output
             fwrite(fg,[ftypes(k),2,1,var-1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case {'reshape'} %% size + tensor
             osize=getOne(obj.vectorizedOperations,'osize',thisExp);
             var=addConstantVariable(int64(osize),'',[type,' osize']);
             % function type, 2 inputs (size,obj), 1 output
             fwrite(fg,[ftypes(k),2,1,var-1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case {'cat'} %% dimension + list of tensors
             dim=getOne(obj.vectorizedOperations,'parameters',thisExp)';
             var=addConstantVariable(int64(dim),'',[type,' var']);
             % function type, 1+n inputs (dim,obj), 1 output
             fwrite(fg,[ftypes(k),1+length(operands),1,var-1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case 'plus' %% signs + list of tensors
             signs=getOne(obj.vectorizedOperations,'parameters',thisExp)';
             var=addConstantVariable(int64(signs),'',[type,' signs']);
             % function type, 1+n inputs (signs, terms), 1 output
             fwrite(fg,[ftypes(k),1+length(signs),1,var-1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           case 'tprod' %% tensors and indices
             osize=getOne(obj.vectorizedOperations,'osize',thisExp);
             indices=getOne(obj.vectorizedOperations,'parameters',thisExp)';
@@ -215,17 +215,17 @@ function saveVectorized(obj,filename)
                 fwrite(fg,[operands(i)-1,var{i}],intType);
             end
             fwrite(fg,thisExp-1,intType);  % 0-based;
-            
+
           case 'compose' %% fun + tensor
             fun=getOne(obj.vectorizedOperations,'parameters',thisExp)';
             var=addConstantVariable(fun,'',[type,' fun']);
             % function type, 2 inputs (fun, terms), 1 output
             fwrite(fg,[ftypes(k),2,1,var-1,operands-1,thisExp-1],intType);  % 0-based;
-          
+
           otherwise
             error('csparse/saveVectorized: missing type "%s"\n',type);
         end
-    
+
         if ~strcmp(type,'variable')
             fwrite(fs,[symfun,nFuncts,length(name),length(description)],intType); % 0-based
             fwrite(fs,[name,description],'char');
@@ -320,4 +320,3 @@ function saveVectorized(obj,filename)
     fprintf('done %d functions, %d ios, %d constants, %d symbols (%.2fms)\n',...
             nFuncts,nIOs,length(constants),nSym,1000*etime(clock,t0));
 end
-    

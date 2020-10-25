@@ -1,14 +1,14 @@
 function parameters=checkParameters(parameters)
-    
+
     if isa(parameters,'Tcalculus')
         parameters={parameters};
     end
-    
+
     if ~iscell(parameters)
         parameters
         error('parameters must be a cell array of Tcalculus variables');
     end
-    
+
     for i=1:length(parameters)
         if ~isequal(class(parameters{i}),'Tcalculus')
             parameters{i}
@@ -21,5 +21,5 @@ function parameters=checkParameters(parameters)
                   i,type(parameters{i}));
         end
     end
-    
+
 end

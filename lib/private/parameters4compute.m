@@ -2,11 +2,11 @@ function localVariables_=parameters4compute(localVariables_)
 % Declare input parameters common to the 4 tenscalc functions:
 %   cmex2compute.m
 %   class2compute.m
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% CreateGateway parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
     declareParameter(...
         'VariableName','minInstructions4loop',...
         'DefaultValue',50,...
@@ -17,7 +17,7 @@ function localVariables_=parameters4compute(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-        
+
     declareParameter(...
         'VariableName','maxInstructionsPerFunction',...
         'DefaultValue',100,...
@@ -29,17 +29,17 @@ function localVariables_=parameters4compute(localVariables_)
             'give more opportunities for compiler optimization, but can resul in very';
             'slow compilation (especially with compiler optimization turned on).';
                       });
-        
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% CreateGateway parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
     declareParameter(...
         'VariableName','csparseObject',...
         'Description', {
             'csparse object with computations to be performed.'
                        });
-    
+
     declareParameter(...
         'VariableName','classname',...
         'DefaultValue',getFromPedigree(),...
@@ -49,7 +49,7 @@ function localVariables_=parameters4compute(localVariables_)
             ' '
             'One can look "inside" this class to find the name of the cmex functions.'
                        });
-    
+
     declareParameter(...
         'VariableName','folder',...
         'DefaultValue','.',...
@@ -57,7 +57,7 @@ function localVariables_=parameters4compute(localVariables_)
             'Path to the folder where the files will be created.';
             'Needs to be in the Matlab path.'
                        });
-    
+
     declareParameter(...
         'VariableName','profiling',...
         'DefaultValue',false,...
@@ -88,7 +88,7 @@ function localVariables_=parameters4compute(localVariables_)
             'This parameter is used only when ''callType''=''dynamicLibrary''.'
             ' ';
             'This parameter is only used for C-code solvers.';
-                       }); 
+                       });
 
     declareParameter(...
         'VariableName','compilerOptimization',...
@@ -98,7 +98,7 @@ function localVariables_=parameters4compute(localVariables_)
             'Optimization flag used for compilation.'
             'Only used when compileGateways, compileLibrary, or compileStandalones'
                        });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Output parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,11 +107,11 @@ function localVariables_=parameters4compute(localVariables_)
         'Description', {
             'Name of the class created.'
                        });
-    
+
     declareOutput(...
         'VariableName','statistics',...
         'Description', {
             'Structure with various statistics, including the file sizes and compilations times'
                        });
-    
+
 end

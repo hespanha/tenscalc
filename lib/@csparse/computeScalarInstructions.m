@@ -32,7 +32,7 @@ function computeScalarInstructions(obj,ks,folder)
 %end
 
 %profile on;profile clear;
-    
+
 if nargin<3
     folder='.';
 end
@@ -94,16 +94,16 @@ for jj=1:length(ks)
               case {'lu','lu_sym'}
                 subsX=getOne(obj.vectorizedOperations,'subscripts',operands(1));
                 instrX=getOne(obj.vectorizedOperations,'instructions',operands(1));
-                
+
                 if length(osize)~=2 || osize(1)~=osize(2)
                     error('(atomic) lu operation only valid for square matrices (size=[%s])',...
                           index2str(osize));
                 end
-                
+
                 %% compute compressed-column form
                 [ji,k]=sortrows(subsX(end:-1:1,:)');
                 % http://www.mathworks.com/help/matlab/apiref/mxsetir.html
-                ir=ji(:,2)'-1; 
+                ir=ji(:,2)'-1;
                 % http://www.mathworks.com/help/matlab/apiref/mxsetjc.html
                 jc=zeros(1,osize(2)+1);
                 this=0;
@@ -169,7 +169,7 @@ for jj=1:length(ks)
                                                      thisExp,obj.fastRedundancyCheck);
                 end
 
-                
+
               otherwise
                 error('computeScalarInstructions: type ''%s'' not yet implemented as nonatomic operator & atomic children\n',type);
             end
@@ -212,7 +212,7 @@ for jj=1:length(ks)
                     disp(obj.vectorizedOperations,thisExp)
                     fprintf('\n WARNING: computeScalarInstructions for empty constant (expression %d)\n',thisExp);
                 end
-                
+
               case 'full'
                 subs1=getOne(obj.vectorizedOperations,'subscripts',operands(1));
                 inst1=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -225,23 +225,23 @@ for jj=1:length(ks)
                                                        num2cell(zeros(sum(~lia),1)),{[]},...
                                                        thisExp,obj.fastRedundancyCheck);
                 end
-                    
+
               case 'zeros'
                 subscripts=zeros(length(osize),0);
                 instructions=[];
-                
+
               case 'eye'
                 osize1=osize(1:length(osize)/2);
                 sub1=memory2subscript(osize1,1:prod(osize1));
                 subscripts=[sub1;sub1];
                 instructions=repmat(newInstructions(obj,obj.Itypes.I_load,...
                                                     {1},{[]},thisExp),prod(osize1),1);
-                
+
               case 'ones'
                 subscripts=memory2subscript(osize,1:prod(osize));
                 instructions=repmat(newInstructions(obj,obj.Itypes.I_load,...
                                                     {1},{[]},thisExp),prod(osize),1);
-                
+
               case 'reshape'
                 subscripts=getOne(obj.vectorizedOperations,'subscripts',operands(1));
                 oosize=getOne(obj.vectorizedOperations,'osize',operands(1));
@@ -252,10 +252,10 @@ for jj=1:length(ks)
                 subscripts=num2cell(subscripts,2);
                 ind=sub2ind(oosize,subscripts{:});
                 subscripts=memory2subscript(osize,ind);
-                
+
                 % no change in the instructions
                 instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));
-                
+
               case 'vec2tensor'
                 subscripts=getOne(obj.vectorizedOperations,'subscripts',operands(1));
                 pars=getOne(obj.vectorizedOperations,'parameters',thisExp);
@@ -266,122 +266,122 @@ for jj=1:length(ks)
                             subs(:,subscripts(dim,:));
                             subscripts(dim+1:end,:)];
                 % no change in the instructions
-                instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));                
+                instructions=getOne(obj.vectorizedOperations,'instructions',operands(1));
 
                 % keep subscripts in the "natural" order (sorted by row and then col)
                 [subscripts,k]=sortrows(subscripts',size(subscripts,1):-1:1);
                 subscripts=subscripts';
                 instructions=instructions(k);
-                
+
               case 'subsref'
                 [subscripts,instructions]=sparsity_subsref(obj,thisExp);
-                
+
               case 'cat'
                 [subscripts,instructions]=sparsity_cat(obj,thisExp);
-                
+
               case 'diag'
                 [subscripts,instructions]=sparsity_diag(obj,thisExp);
-                
+
               case 'min'
                 [subscripts,instructions]=sparsity_min(obj,thisExp);
-                
+
               case 'max'
                 [subscripts,instructions]=sparsity_max(obj,thisExp);
-                
+
               case 'min2'
                 [subscripts,instructions]=sparsity_min2(obj,thisExp);
-                
+
               case 'max2'
                 [subscripts,instructions]=sparsity_max2(obj,thisExp);
-                
+
               case 'plus'
                 [subscripts,instructions]=sparsity_plus(obj,thisExp);
-            
+
               case 'norm2'
                 [subscripts,instructions]=sparsity_norm2(obj,thisExp);
-            
+
               case 'norm1'
                 [subscripts,instructions]=sparsity_norm1(obj,thisExp);
-            
+
               case 'norminf'
                 [subscripts,instructions]=sparsity_norminf(obj,thisExp);
-            
+
               case 'clp'
                 [subscripts,instructions]=sparsity_clp(obj,thisExp);
-            
+
               case 'rdivide'
                 [subscripts,instructions]=sparsity_rdivide(obj,thisExp);
-            
+
               case 'tprod'
                 [subscripts,instructions]=sparsity_tprod(obj,thisExp);
-            
+
               case {'transpose','ctranspose'}
                 [subscripts,instructions]=sparsity_transpose(obj,thisExp);
-            
+
               case 'lu'
                 files=getOne(obj.vectorizedOperations,'parameters',thisExp);
                 files{3}=fullfile(folder,files{3});
                 files{4}=fullfile(folder,files{4});
                 [subscripts,instructions,p,q]=sparsity_lu(obj,thisExp,files{3},files{4});
                 set(obj.vectorizedOperations,'parameters',thisExp,{p,q,files{3},files{4}});
-            
+
               case 'ldl'
                 files=getOne(obj.vectorizedOperations,'parameters',thisExp);
                 files{3}=fullfile(folder,files{3});
                 files{4}=fullfile(folder,files{4});
                 [subscripts,instructions,p]=sparsity_ldl(obj,thisExp,files{3},files{4});
                 set(obj.vectorizedOperations,'parameters',thisExp,{p,files{3},files{4}});
-                
+
                 % case 'chol'
                 %   files=getOne(obj.vectorizedOperations,'parameters',thisExp);
                 %   files{3}=fullfile(folder,files{3});
                 %   files{4}=fullfile(folder,files{4});
                 %   [subscripts,instructions,p]=sparsity_chol(obj,thisExp,files{3},files{4});
                 %   set(obj.vectorizedOperations,'parameters',thisExp,{p,files{3},files{4}});
-                
+
               case 'mldivide_l1'
                 [subscripts,instructions]=sparsity_mldivide_l1(obj,thisExp);
-                
+
               case 'mldivide_u1'
                 [subscripts,instructions]=sparsity_mldivide_u1(obj,thisExp);
-                
+
               case 'mldivide_u'
                 [subscripts,instructions]=sparsity_mldivide_u(obj,thisExp);
-                
+
               case 'mldivide_d'
                 [subscripts,instructions]=sparsity_mldivide_d(obj,thisExp);
-                
+
               case 'lu_d'
                 [subscripts,instructions]=sparsity_lu_d(obj,thisExp);
-                
+
               case 'lu_l'
                 [subscripts,instructions]=sparsity_lu_l(obj,thisExp);
-                
+
               case 'lu_u'
                 [subscripts,instructions]=sparsity_lu_u(obj,thisExp);
-                
+
               case 'ldl_d'
                 [subscripts,instructions]=sparsity_ldl_d(obj,thisExp);
-                
+
               case 'ldl_l'
                 [subscripts,instructions]=sparsity_ldl_l(obj,thisExp);
-                
+
               case 'logdet_ldl'
                 [subscripts,instructions]=sparsity_logdet_ldl(obj,thisExp);
-                
+
               case 'logdet_lu'
                 [subscripts,instructions]=sparsity_logdet_lu(obj,thisExp);
-                
+
               case 'det_ldl'
                 [subscripts,instructions]=sparsity_det_ldl(obj,thisExp);
-                
+
               case 'det_lu'
                 [subscripts,instructions]=sparsity_det_lu(obj,thisExp);
-                
+
               case 'componentwise'
                 funs=getOne(obj.vectorizedOperations,'parameters',thisExp);
                 [subscripts,instructions]=sparsity_componentwise(obj,thisExp,funs);
-                
+
               case 'compose'
                 functions={'@(x__)log(x__)';'@(x__)1./x__';'@(x__)-1./x__.^2';
                            '@(x__)2./x__.^3';
@@ -423,7 +423,7 @@ for jj=1:length(ks)
                               @sparsity_compose;@sparsity_compose_full;@sparsity_compose;
                               @sparsity_compose;@sparsity_compose_full;@sparsity_compose_full;
                               @sparsity_compose;@sparsity_compose;@sparsity_compose};
-                
+
                 if length(functions)~=length(instruction) || length(functions)~=length(sparsityType)
                     error('computeScalarInstructions: internal inconsistency detected in compose()')
                 end
@@ -450,7 +450,7 @@ for jj=1:length(ks)
         end
       end % atomicChildren
     end % atomic
-        
+
     if ~isequal(size(subscripts,2),length(instructions)) && ... % tensor of non-trivial size
             ~(isempty(subscripts)&&length(instructions)==1)          % scalar
         % disp(obj)
@@ -459,13 +459,13 @@ for jj=1:length(ks)
         error('addTCExpression: internal error object (%s) size of subscripts [%s] does not match size of instructions [%s]\n',type,index2str(size(subscripts)),index2str(size(instructions)));
     end
 
-    if any(isnan(instructions)) 
+    if any(isnan(instructions))
         %subscripts
         %instructions
         error('computeScalarInstructions: nan instructions for type ''%s''\n',type);
     end
 
-    if any(isnan(subscripts(:))) 
+    if any(isnan(subscripts(:)))
         %subscripts
         %instructions
         error('computeScalarInstructions: nan subscripts for type ''%s''\n',type);

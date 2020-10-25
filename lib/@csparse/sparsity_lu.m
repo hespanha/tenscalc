@@ -22,10 +22,10 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 
     % profile on
 
-    verboseLevel=2;  
-    
+    verboseLevel=2;
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     subsX=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrX=getOne(obj.vectorizedOperations,'instructions',operands(1));
     % typeX=getMulti(obj.instructions,'type',instrX);
@@ -33,11 +33,11 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     % kLoad=typeX==obj.Itypes.I_load';
     osize=getOne(obj.vectorizedOperations,'osize',thisExp);
     n=osize(1);
-    
+
     if length(osize)~=2 || osize(1)~=osize(2)
         error('LU decomposition only implemented for square matrices\n');
     end
-    
+
     [uniqueInstrX,~,kuniqueInstrX]=unique(instrX); % instrX=uniqueInstrX(kuniqueInstrX);
 
     if verboseLevel>0
@@ -47,18 +47,18 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
                 thisExp,['[',index2str(osize),']'],length(instrX),length(uniqueInstrX));
     end
 
-    
+
     % compute matrix to optimize sparsity in lu factorization
     [sz,subscripts,values,A]=loadCSparse(typical_subscripts,typical_values);
 
-    if any(isnan(sz)) || ~isequal(subscripts,subsX) 
+    if any(isnan(sz)) || ~isequal(subscripts,subsX)
         fprintf('    using random values, ');
 
         s = RandStream('mt19937ar','Seed',0);
         % create random values preserving structural symmetries
         values=1+.5*rand(s,length(uniqueInstrX),1);
         values=values(kuniqueInstrX);
-        
+
         A=sparse(double(subsX(1,:)),double(subsX(2,:)),values,n,n);
     else
         fprintf('    using values from "%s"\n    ',typical_values);
@@ -66,7 +66,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         if nnan>0
             error('typical values include %d nan entries',full(nnan));
         end
-        
+
         % add some noise to remove non structural zeros (in A its the LU factorization)
         symm=isequal(A,A');
         tol=min(find(abs(A)))*eps^2;
@@ -88,20 +88,20 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     else
         fprintf('%d/%d nonzero entries of A and A'' do not match',nNonSymA,length(instrX));
     end
-    
+
     if 1
         % determine column permutation and pivoting for "optimal sparsity"
         % p = row permutation; q = column permutation
         [lp,up,p,q]=lu(A,.01,'vector');  % .01 gives more flexibility in minimizing fillin
     else
-        
+
         % compute sparsifying column permutation using colamd
         q=colamd(A);
         p=q;
         %p=1:length(q);
         [lp,up]=lu(A(p,q));
     end
-    
+
     if verboseLevel>1 && nnz(A)<prod(size(A))
         fig=get(0,'CurrentFigure');
         f=figure(101);
@@ -118,7 +118,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
             title(sprintf('asymetric A %dx%d (original)',size(A)));
         end
         hold on;
-        
+
         if n<100
             subplot(2,4,2);
             [l,u]=lu(A);
@@ -139,7 +139,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
             legend('row perm','col perm','location','southoutside');
         end
         axis ij;axis image;
-        
+
         subplot(2,4,5)
         spy(A(p,q))
         title('A (permuted)')
@@ -150,9 +150,9 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 
         drawnow
     end
- 
+
     %% Compute instructions
-    
+
     if any(instrX==0)
         error('sparsityLU: algorithm expects no instrX=0\n');
     end
@@ -162,7 +162,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     instrLU=instrLU(p,q);
     Atyp=A(p,q);
     %save 'Atyp.mat' A p q Atyp
-    
+
     rows2process=1:n;
     pp=nan(1,length(p));
     fprintf('\n');
@@ -197,7 +197,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
                                             full([instrLU(row,col),instrLU(pivot,col)]),...
                                             thisExp,obj.fastRedundancyCheck);
             %fprintf('  a: col=%d,row=%d, pivot=%d, instr=%s\n',col,row,pivot,index2str(instrLU(row,col)));
-            % Subtract scaled pivot row 
+            % Subtract scaled pivot row
             [~,cols]=find(instrLU(row,col+1:n) & instrLU(pivot,col+1:n));
             colsnz=cols+col;
             [~,cols]=find(instrLU(row,col+1:n)==0 & instrLU(pivot,col+1:n));
@@ -255,7 +255,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
     p=p(pp);
     instrLU=instrLU(pp,:);
     %    full(instrLU)
-    
+
     % keep subscripts in subsLU in the "natural" order (sorted by row and then col)
     [i,j,instrLU]=find(instrLU);
     [subsLU,k]=sortrows([uint64(i),uint64(j)],2:-1:1);
@@ -266,7 +266,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
         LU=sparse(double(subsLU(1,:)),...
                   double(subsLU(2,:)),...
                   ones(1,size(subsLU,2)),n,n);
-        
+
         figure(f);
         subplot(2,4,7)
         spy(LU);
@@ -300,10 +300,10 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
             end
         end
     end
-    
+
     % profile off
     % profile viewer
-    
+
     obj.statistics.lu{end+1,1}=struct(...
         'sizeA',osize,...
         'nnzA',length(instrX),...
@@ -324,7 +324,7 @@ function [subsLU,instrLU,p,q]=sparsity_lu(obj,thisExp,typical_subscripts,typical
 end
 
 function nNonSym=symmetric(obj,subsX,instrX)
-    
+
     subsXt=subsX([2,1],:);
     [~,k1]=sortrows(subsX');
     [~,k2]=sortrows(subsXt');
@@ -332,17 +332,17 @@ function nNonSym=symmetric(obj,subsX,instrX)
     %[subsX(:,k1)',subsXt(:,k2)']
     %[instrX(k1),instrX(k2)]
     k=find(any(subsX(:,k1)~=subsXt(:,k2),1)' | instrX(k1)~=instrX(k2));
-     
+
     if false %~isempty(k)
         [subsX(:,k1(k))',instrX(k1(k)),subsX(:,k2(k))',instrX(k2(k)),k]
-        
+
         i=1;
         fprintf('%d:\n',instrX(k1(k(i))));
         showInstruction(obj,instrX(k1(k(i))),2)
         fprintf('%d:\n',instrX(k2(k(i))));
         showInstruction(obj,instrX(k2(k(i))),2)
     end
-    
+
     nNonSym=length(k);
 end
 
@@ -359,16 +359,16 @@ function test()
         n=size(LU,1);
     else
         load Atyp;
-    
+
         [lp,up,pA,qA]=lu(A,.01,'vector');
         LU=A(pA,qA);
-        
+
         norm(Atyp-LU,'fro');
         k=find(abs(Atyp-LU)>1);
         format shorte
         disp(full([Atyp(k),LU(k)]))
     end
-    
+
     % without pivoting
     for col=1:n
         fprintf('  %4d pivot(%4d,%4d)=%g\n',col,col,col,full(LU(col,col)));
@@ -393,8 +393,8 @@ function test()
     end
     p=pp;
     LU=LU(p,:)
-    
-    
+
+
     [i,j,v]=find(LU);
     k=i>j;
     L=full(sparse(i(k),j(k),v(k),n,n)+speye(n));
@@ -407,6 +407,5 @@ function test()
 
     X
     L*U
-    
-end
 
+end

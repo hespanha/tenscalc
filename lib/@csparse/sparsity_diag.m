@@ -39,7 +39,7 @@ if size(subsX,1)~=1
 end
 subsY=[subsX;subsX];
 instrY=instrX;
-    
+
 if verboseLevel>0
     fprintf('  sparsify_diag(%3d): Y  ndim=%d, nnz=%d,  new instr=%4d (%d..%d) (%.2f sec)\n',...
             thisExp,size(subsY,1),length(instrY),...

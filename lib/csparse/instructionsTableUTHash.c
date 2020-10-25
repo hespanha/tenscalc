@@ -107,7 +107,7 @@ MEXfunction writeAsmInstructionsC
 Cfunction writeAsmInstructionsC
 include instructionsTableFunctions.h
 
-inputs 
+inputs
       char  filename [1,nameLength]
       int64 indices [nInstructions]
       int64 memoryLocations [NInstructions]
@@ -123,9 +123,9 @@ inputs
 #include <time.h>
 #include <math.h>
 
-//  generate a fair miss rate may benefit from the built-in Bloom filter support 
+//  generate a fair miss rate may benefit from the built-in Bloom filter support
 #define HASH_BLOOM 28
-  
+
 #ifdef __linux__
 #include <unistd.h>
 #elif __APPLE__
@@ -134,7 +134,7 @@ inputs
 #include <stdint.h>
 #include <windows.h>
 #endif
-        
+
 // Using UTHash
 
 /* The Bernstein hash function, used in Perl prior to v5.6. Note (x<<5+x)=x*33. */
@@ -180,7 +180,7 @@ do {                                                                            
 
 #define MAX_INSTRUCTIONS_PER_TABLE  5000000LL
 #define MAX_PARAMETERS_PER_TABLE   20000000LL // lasso2 example needs very large
-#define MAX_OPERANDS_PER_TABLE     50000000LL 
+#define MAX_OPERANDS_PER_TABLE     50000000LL
 
 #define MAX_TERMS_PERLINE 100
 
@@ -200,12 +200,12 @@ typedef struct instructionsTable_s {
   // instructions array
   instruction_t instructionsBuffer[MAX_INSTRUCTIONS_PER_TABLE]; // buffer to store instructions
   int64_t       nInstructions;  // # of instructions currently in the instructions buffer
-  
-  // parameters buffer 
+
+  // parameters buffer
   double        parametersBuffer[MAX_PARAMETERS_PER_TABLE];    // buffer to store parameters
   int64_t       nParameters;     // # of parameters currently in the parameters buffer
 
-  // operands buffer 
+  // operands buffer
   int64_t       operandsBuffer[MAX_OPERANDS_PER_TABLE];    // buffer to store operands
   int64_t       nOperands;     // # of operands currently in the operands buffer
 
@@ -223,24 +223,24 @@ typedef struct instructionsTable_s {
 #define printf0(...) printf(__VA_ARGS__)
 #else
 #define printf0(...) mexPrintf(__VA_ARGS__)
-#endif 
+#endif
 
 #if verboseLevel>=1
 #define printf1(...) printf(__VA_ARGS__)
 #else
-#define printf1(...) 
+#define printf1(...)
 #endif
 
 #if verboseLevel>=2
 #define printf2(...) printf(__VA_ARGS__)
 #else
-#define printf2(...) 
+#define printf2(...)
 #endif
 
 #if verboseLevel>=3
 #define printf3(...) printf(__VA_ARGS__)
 #else
-#define printf3(...) 
+#define printf3(...)
 #endif
 
 // Using mexPrintf in destructor causes matlab to crash upon exit if dynamic library is not unloaded
@@ -295,7 +295,7 @@ EXPORT instruction_t *instructionsTable_hash=NULL; // initialize hash table
 // Using mexPrintf in destructor causes matlab to crash upon exit if dynamic library is not unloaded
 EXPORT void initInstructionsTable()
 {
-  // Currently the instruction table is a global variable, 
+  // Currently the instruction table is a global variable,
   // but it could be dynamically allocated using malloc.
 
   if (instructionsTable_hash==NULL) {
@@ -317,7 +317,7 @@ EXPORT void initInstructionsTable()
 *******************************************************************************/
 EXPORT int64_t instructionsTableHeight()
 {
-  // Currently the instruction table is a global variable, 
+  // Currently the instruction table is a global variable,
   // but it could be dynamically allocated using malloc.
 
   return instructionsTable.nInstructions;
@@ -327,7 +327,7 @@ EXPORT int64_t instructionsTableHeight()
 EXPORT void instructionsTableHeight4MEX(/* outputs */
 				  int64_t *height)
 {
-  
+
   (*height)=instructionsTableHeight();
 }
 #endif
@@ -339,7 +339,7 @@ EXPORT void instructionsTableHeight4MEX(/* outputs */
 * faster (by first comparing the hash value and only then making a
 * full comparison
 *
-* Returns -1 if any of buffers is full. 
+* Returns -1 if any of buffers is full.
 *******************************************************************************/
 #if verboseLevel<3
 inline
@@ -356,19 +356,19 @@ void instruction2buffer(instruction_t *ptr,
 
   // clear structure
   memset(ptr, 0, sizeof(instruction_t));
-  
+
   // copy instruction index
   ptr->index=index;
-  
+
   // copy instruction type table
   ptr->type=type;
-  
+
   // Save parameters to parametersBuffer
   if (nParameters>0){
     double *destination=instructionsTable.parametersBuffer+instructionsTable.nParameters,
       *source=parameters;
     for (j=nParameters-1;j>=0;j--) {
-      *(destination++)=*(source++); }; 
+      *(destination++)=*(source++); };
     // save parameters, nParameters
     ptr->parameters=instructionsTable.nParameters;
     ptr->nParameters=nParameters;
@@ -377,17 +377,17 @@ void instruction2buffer(instruction_t *ptr,
     ptr->parameters=0;
     ptr->nParameters=0;
   }
-  
+
   // Save operands to operandsBuffer
   if (nOperands>0) {
     int64_t *destination=instructionsTable.operandsBuffer+instructionsTable.nOperands,
       *source=operands;
     for (j=nOperands-1;j>=0;j--) {
-      *(destination++)=*(source++); }; 
+      *(destination++)=*(source++); };
     // save operands, nOperands
     ptr->operands=instructionsTable.nOperands;
     ptr->nOperands=nOperands;
-    instructionsTable.nOperands += nOperands; 
+    instructionsTable.nOperands += nOperands;
   } else {
     ptr->operands=0;
     ptr->nOperands=0;
@@ -430,18 +430,18 @@ EXPORT int64_t appendInstruction(instructionType_t type,
 	    instructionsTable.nOperands+nOperands,MAX_OPERANDS_PER_TABLE);
     return -1;
   }
-  
+
   int64_t index=instructionsTable.nInstructions++;
   instruction_t *ptr=instructionsTable.instructionsBuffer+index;
 
   instruction2buffer(ptr,index,type,nParameters,parameters,nOperands,operands);
-  
+
   HASH_ADD(hh,instructionsTable_hash,type,
 	   offsetof(instruction_t, nParameters)  // offset of last key field
 	   + sizeof(int64_t)                    // size of last key field
 	   - offsetof(instruction_t, type),     // offset of first key field
 	   ptr);
-  
+
   printf3("appendInstruction: appended instruction %"PRId64", type %d, nParameters %"PRId64", nOperands %"PRId64" (nInstructions=%"PRId64",nParameters=%"PRId64",nOperands=%"PRId64")\n",
 	  index,type,
 	  nParameters,
@@ -451,7 +451,7 @@ EXPORT int64_t appendInstruction(instructionType_t type,
   instructionsTable.sortedIndices[index]=index;
   instructionsTable.isSorted=false;
 
-  return index+1;  // 1-based indexing  
+  return index+1;  // 1-based indexing
 }
 
 
@@ -491,17 +491,17 @@ EXPORT int compareInstructions(int64_t *index1,
     return -1;
   else if (ptr1->type>ptr2->type)
     return 1;
-  
+
   if (ptr1->nOperands<ptr2->nOperands)
     return -1;
   else if (ptr1->nOperands>ptr2->nOperands)
     return 1;
-  
+
   if (ptr1->nParameters<ptr2->nParameters)
     return -1;
   else if (ptr1->nParameters>ptr2->nParameters)
     return 1;
-  
+
   // printf3("same header... ");
 
   { double
@@ -516,7 +516,7 @@ EXPORT int compareInstructions(int64_t *index1,
 	return 1;
     }
   }
-    
+
   //printf3("same parameters... ");
 
   { int64_t
@@ -531,7 +531,7 @@ EXPORT int compareInstructions(int64_t *index1,
 	return 1;
     }
   }
-  
+
   printf3("equal... ");
 
   return 0;
@@ -539,8 +539,8 @@ EXPORT int compareInstructions(int64_t *index1,
 
 
 /*******************************************************************************
- * Search for instruction, if already in the table, return index, 
- * otherwise append at the end of the table and return the index of the new instruction. 
+ * Search for instruction, if already in the table, return index,
+ * otherwise append at the end of the table and return the index of the new instruction.
  * Returns -1 is either buffer is full.
 *******************************************************************************/
 EXPORT int64_t appendUniqueInstruction(instructionType_t type,
@@ -550,7 +550,7 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
 				       int64_t *operands)
 {
   // save values, prior to adding instruction
-  int64_t 
+  int64_t
     oldP=instructionsTable.nParameters,
     oldO=instructionsTable.nOperands;
 
@@ -563,7 +563,7 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
 	    instructionsTable.nOperands+nOperands,MAX_OPERANDS_PER_TABLE);
     return -1;
   }
-  
+
   int64_t index=instructionsTable.nInstructions++;
   instruction_t
     *ptrNew=instructionsTable.instructionsBuffer+index,
@@ -574,16 +574,16 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
 	  nParameters,
 	  nOperands,
 	  instructionsTable.nInstructions,instructionsTable.nParameters,instructionsTable.nOperands);
-  
+
   instruction2buffer(ptrNew,index,type,nParameters,parameters,nOperands,operands);
-  
+
   HASH_FIND(hh,instructionsTable_hash,
 	    &ptrNew->type,
 	    offsetof(instruction_t, nParameters)  // offset of last key field
 	    + sizeof(int64_t)                    // size of last key field
 	    - offsetof(instruction_t, type),     // offset of first key field
 	    ptrSearch);
-  
+
   // Check if HASH_FIND was fooled by same key, but not same parameters/operators
   if (ptrSearch) {
     if (compareInstructions(&index,&ptrSearch->index)!=0) {
@@ -627,7 +627,7 @@ EXPORT int64_t appendUniqueInstruction(instructionType_t type,
     instructionsTable.isSorted=false;
     printf3("new (%"PRId64")\n",index);
   }
-  return index+1;  // 1-based indexing  
+  return index+1;  // 1-based indexing
 }
 
 #ifndef IGNORE_MEX
@@ -702,7 +702,7 @@ EXPORT void getInstruction4MEX(  /* inputs */
   int64_t *ptrOperands;
   double *ptrParameters;
   int64_t nParameters,nOperands;
-  
+
   int64_t rc=getInstruction(*index,(instructionType_t*)type,
 			    &nParameters,&ptrParameters,&nOperands,&ptrOperands);
   printf3("getInstruction4MEX(%"PRId64"): type=%d, nParameters=%"PRId64", nOperands=%"PRId64"\n",
@@ -713,12 +713,12 @@ EXPORT void getInstruction4MEX(  /* inputs */
   if (rc>=0) {
     { mwSize dims[]={1,nParameters};
       (*parameters)=mxCreateNumericArray(2,dims,mxDOUBLE_CLASS,mxREAL);
-      double *ptr=mxGetData(*parameters); 
+      double *ptr=mxGetData(*parameters);
       memcpy(ptr,ptrParameters,sizeof(*ptrParameters)*nParameters); }
 
     { mwSize dims[]={1,nOperands};
       (*operands)=mxCreateNumericArray(2,dims,mxINT64_CLASS,mxREAL);
-      int64_t *ptr=mxGetData(*operands); 
+      int64_t *ptr=mxGetData(*operands);
       memcpy(ptr,ptrOperands,sizeof(*ptrOperands)*nOperands); }
   } else {
     printf0("getInstruction: invalid index\n");
@@ -747,7 +747,7 @@ EXPORT void findInstructionsByType4MEX(/* inputs */
 {
   mwSize dims[]={instructionsTable.nInstructions,1};
   (*isOfType)=mxCreateNumericArray(2,dims,mxINT8_CLASS,mxREAL);
-  int8_t *ptr=mxGetData(*isOfType); 
+  int8_t *ptr=mxGetData(*isOfType);
   findInstructionsByType(*type,ptr);
 }
 #endif
@@ -767,15 +767,15 @@ EXPORT void getDependencies(int64_t *children,       // array of children (depen
       if (++n>instructionsTable.nOperands) {
 	printf0("\ngetDependencies: error too many dependencies!\n");
       } else {
-	*(children++)=instr; 
+	*(children++)=instr;
 	*(parents++)=*(operands++); }
     }
   }
-    
+
   if (n!=instructionsTable.nOperands) {
     printf0("\ngetDependencies: error wrong number of dependencies (%"PRId64", expected %"PRId64")\n",n,instructionsTable.nOperands);
   }
-  
+
   return;
 }
 
@@ -786,9 +786,9 @@ EXPORT void getDependencies4MEX(/* outputs */
 {
   mwSize dims[]={instructionsTable.nOperands,1};
   (*children)=mxCreateNumericArray(2,dims,mxINT64_CLASS,mxREAL);
-  int64_t *pChildren=mxGetData(*children); 
+  int64_t *pChildren=mxGetData(*children);
   (*parents)=mxCreateNumericArray(2,dims,mxINT64_CLASS,mxREAL);
-  int64_t *pParents=mxGetData(*parents); 
+  int64_t *pParents=mxGetData(*parents);
   getDependencies(pChildren,pParents);
 }
 #endif
@@ -806,19 +806,19 @@ EXPORT int writeCinstructionsC(/* inputs */
 			                                      // all instructions
 			       int64_t *minInstructions4Loop, // minimum number of instructions
 			                                      // implemented as a loop
-			       
+
                                /* outputs */
                                int64_t *countFlops,           // array with instruction counts
 
-                               /* sizes */			       
+                               /* sizes */
 			       mwSize nameLength,             // filename length
 			       mwSize nInstructions,          // # of instructions to write
 			       mwSize NInstructions)          // total # of instructions
 {
   instructionType_t type,nextType;
-  int64_t nParameters,nextNparameters; 
+  int64_t nParameters,nextNparameters;
   double  *parameters,*nextParameters;
-  int64_t nOperands,nextNoperands;   
+  int64_t nOperands,nextNoperands;
   int64_t *operands,*nextOperands,*lastOperands,deltaOperands[MAX_DELTA_OPERANDS];
   int64_t nextI,*nextIndices,deltaIndices;
   int64_t odiv;
@@ -848,25 +848,25 @@ EXPORT int writeCinstructionsC(/* inputs */
 // indices to scratchbook array
 #define INIT_RESULT fprintf(fid,"int64_t r=%"PRId64";\n\t ",memoryLocations[indices[0]-1]-1)
 #define PRINT_RESULT      fprintf(fid,"m[r]");
-      
+
 #define INIT_OPERAND(i) fprintf(fid,"int64_t op%d=%"PRId64";\n\t ",i,memoryLocations[operands[i]-1]-1)
 #define PRINT_OPERAND(i)      fprintf(fid,"m[op%d]",i)
 #elif 0
 // all pointers to scratchbook array
 #define INIT_RESULT fprintf(fid,"SCRATCHBOOK_TYPE *r=m+%"PRId64";\n\t ",memoryLocations[indices[0]-1]-1)
 #define PRINT_RESULT      fprintf(fid,"*r");
-      
+
 #define INIT_OPERAND(i) fprintf(fid,"SCRATCHBOOK_TYPE *op%d=m+%"PRId64";\n\t ",i,memoryLocations[operands[i]-1]-1)
 #define PRINT_OPERAND(i)      fprintf(fid,"(*op%d)",i)
 #else
 // mixed -- seems to be the fastest
 #define INIT_RESULT fprintf(fid,"int64_t r=%"PRId64";\n\t ",memoryLocations[indices[0]-1]-1)
 #define PRINT_RESULT      fprintf(fid,"m[r]");
-      
+
 #define INIT_OPERAND(i) fprintf(fid,"SCRATCHBOOK_TYPE *op%d=m+%"PRId64";\n\t ",i,memoryLocations[operands[i]-1]-1)
 #define PRINT_OPERAND(i)      fprintf(fid,"(*op%d)",i)
 #endif
-      
+
 #define NEXT_RESULT     if (deltaIndices==1)     fprintf(fid,",r++");      else if (deltaIndices==-1)     fprintf(fid,",r--");      else if (deltaIndices!=0)     fprintf(fid,",r+=(%"PRId64")",deltaIndices);
 #define NEXT_OPERAND(i) if (deltaOperands[i]==1) fprintf(fid,",op%d++",i); else if (deltaOperands[i]==-1) fprintf(fid,",op%d--",i); else if (deltaOperands[i]!=0) fprintf(fid,",op%d+=(%"PRId64")",i,deltaOperands[i])
 
@@ -879,7 +879,7 @@ EXPORT int writeCinstructionsC(/* inputs */
   if (!fid) {
     printf0("writeCinstructionsC: unable to open file \"%s\",(errno=%d, %s)\n",filename,errno,strerror(errno));
     return -1;
-  }    
+  }
 
   printf1("writeCinstructionsC: nInstructions=%lu\n",nInstructions);
 
@@ -892,7 +892,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 
     // Check repeated instructions
     nextI=i+1;
-    nextIndices=indices+1;    
+    nextIndices=indices+1;
     if (nextI<nInstructions) {
       int rc=getInstruction(nextIndices[0],&nextType,&nextNparameters,&nextParameters,&nextNoperands,&nextOperands);
       if (rc<0) return rc;
@@ -958,7 +958,7 @@ EXPORT int writeCinstructionsC(/* inputs */
     if (nextI-i>=500) {
       printf2("writeCinstructions: %d-%d (%d) of type %d, n pars=%d, n ops=%d\n",i,nextI-1,nextI-i,type,nParameters,nOperands);
     }
-    
+
     switch (type) {
 
     case I_set:
@@ -972,7 +972,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       if (nextI-i < *minInstructions4Loop) {
 	// one instruction at a time
 	countFlops_nsum  += (nOperands-1);
-	
+
 	fprintf(fid,"\tm[%"PRId64"]=",memoryLocations[indices[0]-1]-1);
 	while (nOperands-->0)
 	  fprintf(fid,(*parameters++>0)?"+m[%"PRId64"]":"-m[%"PRId64"]",
@@ -1010,15 +1010,15 @@ EXPORT int writeCinstructionsC(/* inputs */
 	printf0("\nERROR: I_sumprod with 0 prods\n");
 	break;
       }
-      
+
       if (nextI-i < *minInstructions4Loop) {
 	// one instruction at a time
 	countFlops_nsum  += (parameters[1]-1);
 	countFlops_nprod += (parameters[0]-1)*parameters[1];
-	
+
 	fprintf(fid,"\tm[%"PRId64"]=",memoryLocations[indices[0]-1]-1);
 	int64_t s=parameters[1];
-	nSums=0;	
+	nSums=0;
 	do {
 	  int64_t p=parameters[0];
 	  do {
@@ -1029,7 +1029,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	  } while (1);
 	  if (--s>0) {
 	    // one large line breaks compiler, so break line every few +'s
-	    if ((nSums+=parameters[0])<MAX_TERMS_PERLINE) 
+	    if ((nSums+=parameters[0])<MAX_TERMS_PERLINE)
 	      fprintf(fid,"+");
 	    else {
 	      nSums=0;
@@ -1043,7 +1043,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	// loop of consecutive instruction at a time
 	countFlops_nsum  += (parameters[1]-1)*(nextI-i);
 	countFlops_nprod += (parameters[0]-1)*parameters[1]*(nextI-i);
-	
+
 	fprintf(fid,"\t{");
 	INIT_RESULT;
 	for (int i=0;i<nOperands;i++)
@@ -1068,7 +1068,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	  } while (1);
 	  if (--s>0) {
 	    // one large line breaks compiler, so break line every few +'s
-	    if ((nSums+=parameters[0])<MAX_TERMS_PERLINE) 
+	    if ((nSums+=parameters[0])<MAX_TERMS_PERLINE)
 	      fprintf(fid,"+");
 	    else {
 	      nSums=0;
@@ -1089,7 +1089,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       countFlops_nsum  += (nOperands-1)/2;
       countFlops_nprod += (nOperands-1)/2;
       countFlops_ndiv  ++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]-(",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[(*(operands++))-1]-1);
       odiv=memoryLocations[(*(operands++))-1]-1;
@@ -1132,7 +1132,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       } while (1);
       fprintf(fid,")/m[%"PRId64"];//plus-dot-div(%"PRId64")\n",odiv,indices[0]);
       break;
-      
+
     case I_plus_minus_dot:
       countFlops_nsum  += (nOperands-1)/2;
       countFlops_nprod += (nOperands-1)/2;
@@ -1175,7 +1175,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       } while (1);
       fprintf(fid,");//minus-dot(%"PRId64")\n",indices[0]);
       break;
-      
+
     case I_div:
       if (nextI-i < *minInstructions4Loop) {
 	// one instruction at a time
@@ -1200,7 +1200,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 	PRINT_OPERAND(0);
 	fprintf(fid,"/");
 	PRINT_OPERAND(1);
-	fprintf(fid,";} }//div(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);	
+	fprintf(fid,";} }//div(%"PRId64") x %"PRId64"\n",indices[0],nextI-i);
 	i=nextI-1;
 	indices=nextIndices-1;
       }
@@ -1221,7 +1221,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       } while (1);
       fprintf(fid,";//plus-sqr(%"PRId64")\n",indices[0]);
       break;
-      
+
     case I_plus_abs:
       countFlops_nsum  += (nOperands-1);
       countFlops_nabs  += nOperands;
@@ -1236,11 +1236,11 @@ EXPORT int writeCinstructionsC(/* inputs */
       } while (1);
       fprintf(fid,";//plus-abs(%"PRId64")\n",indices[0]);
       break;
-      
+
     case I_min:
       countFlops_nsum += (nOperands-1);
       countFlops_nif  += (nOperands-1);
-      
+
       fprintf(fid,"\tm[%"PRId64"]=m[%"PRId64"];\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[(*(operands++))-1]-1);
       nOperands--;
@@ -1258,7 +1258,7 @@ EXPORT int writeCinstructionsC(/* inputs */
     case I_min0:
       countFlops_nsum += nOperands;
       countFlops_nif  += nOperands;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=0;\n",memoryLocations[indices[0]-1]-1);
       if (nOperands<=0) {
 	printf0("\nERROR: I_min0 with <=0 value\n");
@@ -1274,7 +1274,7 @@ EXPORT int writeCinstructionsC(/* inputs */
     case I_max:
       countFlops_nsum += (nOperands-1);
       countFlops_nif  += (nOperands-1);
-      
+
       fprintf(fid,"\tm[%"PRId64"]=m[%"PRId64"];\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[(*(operands++))-1]-1);
       nOperands--;
@@ -1292,7 +1292,7 @@ EXPORT int writeCinstructionsC(/* inputs */
     case I_max0:
       countFlops_nsum += nOperands;
       countFlops_nif  += nOperands;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=0;\n",memoryLocations[indices[0]-1]-1);
       if (nOperands<=0) {
 	printf0("\nERROR: I_max0 with 0 values\n");
@@ -1309,7 +1309,7 @@ EXPORT int writeCinstructionsC(/* inputs */
       countFlops_nsum += (nOperands-1);
       countFlops_nif  += (nOperands-1);
       countFlops_nabs += nOperands;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=fabs(m[%"PRId64"]);\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[(*(operands++))-1]-1);
       nOperands--;
@@ -1326,7 +1326,7 @@ EXPORT int writeCinstructionsC(/* inputs */
 
     case I_clp:
       countFlops_nclp += nOperands;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=DBL_MAX;\n",memoryLocations[indices[0]-1]-1);
       if (nOperands<=0) {
 	printf0("\nERROR: I_clp with 0 values\n");
@@ -1344,10 +1344,10 @@ EXPORT int writeCinstructionsC(/* inputs */
 
     case I_componentwise:
       countFlops_ncpwise++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=",memoryLocations[indices[0]-1]-1);
       while (nParameters-- > 0) {
-	if (parameters[0]) 
+	if (parameters[0])
 	  fprintf(fid,"%c",(char)parameters[0]);
 	else
 	  fprintf(fid,"m[%"PRId64"]",memoryLocations[operands[0]-1]-1);
@@ -1355,34 +1355,34 @@ EXPORT int writeCinstructionsC(/* inputs */
       }
       fprintf(fid,";//componentwise(%"PRId64")\n",indices[0]);
       break;
-      
+
     case I_round:
       countFlops_nround++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=round(m[%"PRId64"]);//round(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_ceil:
       countFlops_nceil++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=ceil(m[%"PRId64"]);//ceil(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_floor:
       countFlops_nfloor++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=floor(m[%"PRId64"]);//floor(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_abs:
       countFlops_nabs++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=fabs(m[%"PRId64"]);//abs(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_sign:
       countFlops_nsign++;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>=0)?1:-1;//sign(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
@@ -1443,14 +1443,14 @@ EXPORT int writeCinstructionsC(/* inputs */
     break;
     case I_minus_inv_sqr:
       countFlops_ndiv ++;
-      countFlops_nprod++;      
+      countFlops_nprod++;
       fprintf(fid,"\tm[%"PRId64"]=-1/(m[%"PRId64"]*m[%"PRId64"]);//-inv sqr(%"PRId64") x %"PRId64"\n",
 	      memoryLocations[indices[0]-1]-1,
 	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0],nextI-i);
     break;
     case I_2_inv_cube:
       countFlops_ndiv++;
-      countFlops_nprod+=2;      
+      countFlops_nprod+=2;
       fprintf(fid,"\tm[%"PRId64"]=2/(m[%"PRId64"]*m[%"PRId64"]*m[%"PRId64"]);//2inv cube(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,
 	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
@@ -1537,14 +1537,14 @@ EXPORT int writeCinstructionsC(/* inputs */
       break;
     case I_relu:
       countFlops_nif  += 1;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>0)?m[%"PRId64"]:0;//relu(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,
 	      memoryLocations[operands[0]-1]-1,memoryLocations[operands[0]-1]-1,indices[0]);
       break;
     case I_heaviside:
       countFlops_nif  += 1;
-      
+
       fprintf(fid,"\tm[%"PRId64"]=(m[%"PRId64"]>0)?1:0;//heaviside(%"PRId64")\n",
 	      memoryLocations[indices[0]-1]-1,
 	      memoryLocations[operands[0]-1]-1,indices[0]);
@@ -1565,7 +1565,7 @@ fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"
 	      (uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1,(uint64_t)parameters[0]-1);
       fprintf(fid,"\tumfpack_dl_free_symbolic(&Symbolic[%"PRId64"]);\n",(uint64_t)parameters[0]-1);
       fprintf(fid,"\tm[%"PRId64"]=%"PRId64";\n",memoryLocations[indices[0]-1]-1,(uint64_t)parameters[0]-1);
-      break;  
+      break;
 
     case I_luS2Asym:
       countFlops_numfpack++;
@@ -1587,7 +1587,7 @@ fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"
       //fprintf(fid,"\tprintf(\"umfpack_dl_numeric rc=%%d (OK=%%d)\\n\",rc,UMFPACK_OK);\n");
       fprintf(fid,"\tumfpack_dl_free_symbolic(&Symbolic[%"PRId64"]);\n",(uint64_t)parameters[0]-1);
       fprintf(fid,"\tm[%"PRId64"]=%"PRId64";\n",memoryLocations[indices[0]-1]-1,(uint64_t)parameters[0]-1);
-      break;  
+      break;
 
     case I_mldivideA2F1:
       countFlops_numfpack++;
@@ -1597,13 +1597,13 @@ fprintf(fid,"\t(void)umfpack_dl_symbolic(%"PRId64",%"PRId64",Ap[%"PRId64"],Ai[%"
       fprintf(fid,"\t(void)umfpack_dl_solve(UMFPACK_A,Ap[atomicID],Ai[atomicID],Ax[atomicID],x[atomicID],b[atomicID],Numeric[atomicID],null,null);\n");
       fprintf(fid,"\tm[%"PRId64"]=x[atomicID][0]; }\n",memoryLocations[indices[0]-1]-1);
       break;
-      
+
     case I_mldivideA2Fn:
       countFlops_numfpack++;
       fprintf(fid,"\tm[%"PRId64"]=x[(long)m[%"PRId64"]][%"PRId64"];\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1,(uint64_t)parameters[0]-1);
       break;
-      
+
     default:
       fprintf(fid,"\t//unknown instructions type %d\n",type);
       printf0("instructionsTable: unknown instructions type %d\n",type);
@@ -1634,9 +1634,9 @@ EXPORT int writeAsmInstructionsC(/* inputs */
 				 mwSize NInstructions)          // total # of instructions
 {
   instructionType_t type;
-  int64_t nParameters; 
+  int64_t nParameters;
   double  *parameters;
-  int64_t nOperands;   
+  int64_t nOperands;
   int64_t *operands;
   int64_t odiv,oplus,ic=0;
   int anyConstant=0;
@@ -1646,7 +1646,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
   if (!fid) {
     printf0("writeAsmInstructionsC: unable to open file (errno=%d, %s)\n",errno,strerror(errno));
     return -1;
-  }    
+  }
 
   //printf0("writeAsmInstructionsC: nInstructions=%"PRId64"\n",nInstructions);
 
@@ -1659,7 +1659,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
     if (rc<0) {
       return rc; }
     if (type==I_load) {
-      if ((anyConstant++)) 
+      if ((anyConstant++))
 	fprintf(fid,",%.20e",parameters[0]);
       else
 	fprintf(fid," double c[]={%.20e",parameters[0]);
@@ -1701,10 +1701,10 @@ EXPORT int writeAsmInstructionsC(/* inputs */
 #define DIVREG1BYSCRAP2REG1(index)    fprintf(fid,"divsd %"PRId64"(%%[m]),%%%%xmm1;",SIZE*(index))
 #define DIVREG1BYREG22REG1()          fprintf(fid,"divsd %%%%xmm2,%%%%xmm1;");
 
-#define MINSCRAP2REG0(index)          fprintf(fid,"minsd %"PRId64"(%%[m]),%%%%xmm0;",SIZE*(index)) 
-#define MAXSCRAP2REG0(index)          fprintf(fid,"maxsd %"PRId64"(%%[m]),%%%%xmm0;",SIZE*(index)) 
+#define MINSCRAP2REG0(index)          fprintf(fid,"minsd %"PRId64"(%%[m]),%%%%xmm0;",SIZE*(index))
+#define MAXSCRAP2REG0(index)          fprintf(fid,"maxsd %"PRId64"(%%[m]),%%%%xmm0;",SIZE*(index))
 #define MINREG12REG0()                fprintf(fid,"minsd %%%%xmm1,%%%%xmm0;");
-#define MAXREG12REG0()                fprintf(fid,"maxsd %%%%xmm1,%%%%xmm0;") 
+#define MAXREG12REG0()                fprintf(fid,"maxsd %%%%xmm1,%%%%xmm0;")
 
 #define CMPREG22REG1()                fprintf(fid,"ucomisd %%%%xmm2,%%%%xmm1;")
 #define CMPREG22REG0()                fprintf(fid,"ucomisd %%%%xmm2,%%%%xmm0;")
@@ -1763,7 +1763,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
       };
       MOVEREG02SCRAP(memoryLocations[indices[0]-1]-1,"sumprod");
       break;
-      
+
     case I_plus_minus_dot_div:
       NEWINSTRUCTION();
       oplus=memoryLocations[(*(operands++))-1]-1;
@@ -1837,7 +1837,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
 	ADDREG12REG0(); }
       MOVEREG02SCRAP(memoryLocations[indices[0]-1]-1,"plus_sqr");
       break;
-      
+
     case I_min:
       NEWINSTRUCTION();
       MOVESCRAP2REG0(memoryLocations[(*(operands++))-1]-1);
@@ -1905,14 +1905,14 @@ EXPORT int writeAsmInstructionsC(/* inputs */
 	fprintf(fid,"jae %"PRId64"%"PRId64"f;",SIZE*(memoryLocations[indices[0]-1]-1),++label);
 	SUBREG12REG2();  // REG2=-REG1
 	MOVESCRAP2REG1(memoryLocations[*(operands)-1]-1);
-	DIVREG1BYREG22REG1(); 
+	DIVREG1BYREG22REG1();
 	MINREG12REG0();
 	operands+=2;
       } while ((nOperands-=2) >0);
       fprintf(fid,"\\\n\t\t%"PRId64"%"PRId64":",SIZE*(memoryLocations[indices[0]-1]-1),label);
       MOVEREG02SCRAP(memoryLocations[indices[0]-1]-1,"clp");
       break;
-      
+
     case I_abs:
       fprintf(fid,"\tm[%"PRId64"]=fabs(m[%"PRId64"]);//abs\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1);
@@ -1962,7 +1962,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
       fprintf(fid,"\tm[%"PRId64"]=exp(m[%"PRId64"]);//exp\n",
 	      memoryLocations[indices[0]-1]-1,memoryLocations[operands[0]-1]-1);
     break;
-    
+
 
     default:
       fprintf(fid,"\t//unknown instructions type %d\n",type);
@@ -1971,15 +1971,15 @@ EXPORT int writeAsmInstructionsC(/* inputs */
     }
   }
 
-  if (anyConstant) 
+  if (anyConstant)
     fprintf(fid,"\t::[m] \"r\" (scratchbook), [dbl_max] \"m\" (dbl_max), [c] \"r\" (c) :\"xmm0\",\"xmm1\",\"xmm2\");\n\t};\n");
   else
     fprintf(fid,"\t::[m] \"r\" (scratchbook), [dbl_max] \"m\" (dbl_max) :\"xmm0\",\"xmm1\",\"xmm2\");\n\t};\n");
-  
+
   //printf0("writeAsmInstructionsC: done\n");
 
   fclose(fid);
-  
+
   return 0;
 }
 
@@ -1988,7 +1988,7 @@ EXPORT int writeAsmInstructionsC(/* inputs */
  *******************************************************************************/
 
 // ! gcc -I/Applications/MATLAB_R2016b.app/extern/include -Ofast -DIGNORE_MEX instructionsTableUTHash.c
-	       
+
 int main()
 {
   /*
@@ -2027,13 +2027,13 @@ int main()
       nOperands=floor((double)(maxNoperands+1)*((double)rand()/RAND_MAX));
       for (j=0;j<nOperands;j++)
 	operands[j]=floor((double)(maxOperands+1)*((double)rand()/RAND_MAX));
-      // 
+      //
       j=appendInstruction(type,nParameters,parameters,nOperands,operands);
     }
     printf0("Called appendInstruction       %12"PRId64" times: table size =%12"PRId64", %.3f ms, %.3f us/call\n",
 	    Ncalls,instructionsTableHeight(),((double)clock()-t0)/CLOCKS_PER_SEC*1e3,((double)clock()-t0)/CLOCKS_PER_SEC*1e6/Ncalls);
   }
-  
+
   /* Time appendUniqueInstruction */
   if (1) {
     initInstructionsTable();
@@ -2047,7 +2047,7 @@ int main()
       nOperands=floor((double)(maxNoperands+1)*((double)rand()/RAND_MAX));
       for (j=0;j<nOperands;j++)
 	operands[j]=floor((double)(maxOperands+1)*((double)rand()/RAND_MAX));
-      // 
+      //
       j=appendUniqueInstruction(type,nParameters,parameters,nOperands,operands);
     }
     printf0("Called appendUniqueInstruction %12"PRId64" times: table size =%12"PRId64", %.3f ms, %.3f us/call\n",

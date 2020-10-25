@@ -17,7 +17,7 @@ classdef Tcalculus
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-        
+
     properties (GetAccess = {},SetAccess = 'immutable')
         tprod_implementation='mytprod'; % mytprod, Ctprod, mdsptprod
         update_file_line=false;
@@ -26,13 +26,13 @@ classdef Tcalculus
     properties (GetAccess = {?csparse},SetAccess = 'immutable')
     %properties (GetAccess = {?csparse},SetAccess = 'private')
         TCindex    % Index of symbolic expression in the table of
-                   % symbolic expressions 
+                   % symbolic expressions
         osize      % size for quick access without reading the table
     end
 
     % properties (GetAccess = {?csparse},SetAccess = {})
     % end
-    
+
     % properties (GetAccess = {},SetAccess = 'private');
     % end
 
@@ -45,11 +45,11 @@ classdef Tcalculus
             TCsymbolicExpressions=[];
             TCsymbolicExpressionsHash=[];
         end
-            
+
         function [ops,inds]=tprod_sort_operands(objs,inds)
         % sort: 1st eye, 2nd ones, 3rd constanst, ... , last variables & by TCindex
         % order seems to make a difference in terms of code size (?)
-             
+
             ops=cellfun(@(x)x.TCindex,objs);
             p=[zeros(length(objs),1),ops];
             for i=1:length(objs)
@@ -71,7 +71,7 @@ classdef Tcalculus
             ops=ops(k);
          end
     end
-    
+
     methods
         function obj=Tcalculus(type,osize,parameters,operands,op_parameters,file_line,nowarningsamesize,nowarningever)
         % Add entry to table TCsymbolicExpressions of symbolic expressions with fields:
@@ -88,11 +88,11 @@ classdef Tcalculus
         %            method   for type='Xinterpolate'
         %            struct('type',...,'subs',...) for type='subsref'
         %            struct('typical_subscripts',...,'typical_values,...)
-        %                for type='chol','lu','ldl' 
+        %                for type='chol','lu','ldl'
         % operands - column array of operands
         % op_parameters - cell array (indices for tprod
         %                             signs for plus)
-        % file_line - string with file/line number where created 
+        % file_line - string with file/line number where created
         %             when called with a double the file and line
         %             number is retrieved from dbstack():
         %             0  - file_line from function that called  addTC2table
@@ -107,7 +107,7 @@ classdef Tcalculus
                 obj.osize=osize;
                 return
             end
-            
+
             global TCsymbolicExpressions
 
             if ~isempty(TCsymbolicExpressions) && ~isstruct(TCsymbolicExpressions)
@@ -123,20 +123,20 @@ classdef Tcalculus
                 obj.osize=TCsymbolicExpressions(type).osize;
                 return
             end
-            
+
             if nargin==0
                 error('Tcalculus cannot be created without arguments (nargin=%d, nargout=%d)',...
                       nargin,nargout);
             end
-            
+
             if nargin<7
                 nowarningsamesize=false;
             end
-            
+
             if nargin<8
                 nowarningsever=false;
             end
-            
+
             if ~ischar(file_line)
                 if obj.update_file_line
                     st=dbstack();
@@ -153,7 +153,7 @@ classdef Tcalculus
 
             % add new entry to TCsymbolicExpressions
 
-            if isempty(osize) 
+            if isempty(osize)
                 % make size uniform to make sure isequal works when
                 % comparing size (technically not needed since we
                 % use myisequal)
@@ -164,7 +164,7 @@ classdef Tcalculus
                 operands
                 error('internal error, operands should be numeric');
             end
-                
+
             global TCsymbolicExpressionsHash
 
             % slower
@@ -212,7 +212,7 @@ classdef Tcalculus
             obj.TCindex=TCindex;
             obj.osize=osize;
         end
-        
+
         function updateFile2table(obj,file_line)
             if ~ischar(file_line)
                 if obj.update_file_line
@@ -231,11 +231,11 @@ classdef Tcalculus
             global TCsymbolicExpressions;
             TCsymbolicExpressions(obj.TCindex).file_line=file_line;
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                          Display                         %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function disp(obj,tprod2mat,maxDepth)
         % disp - Display Tcalculus formula
         %   disp(x) displays the formula x
@@ -254,7 +254,7 @@ classdef Tcalculus
             s=str(obj,tprod2mat,maxDepth);
             fprintf('%s\n%s',s);
         end
-        
+
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                       Get properties                     %%%%%
@@ -262,22 +262,22 @@ classdef Tcalculus
 
         function type=type(obj)
         % type - type of the (top) symbolic operation
-        %   
+        %
         %   type(x), for a Tcalculus symbolic tensor, returns the type
         %   of the (top) symbolic operation as a character string.
-            
+
             global TCsymbolicExpressions;
             type=TCsymbolicExpressions(obj.TCindex).type;
         end
-        
+
         function parameters=parameters(obj)
             global TCsymbolicExpressions;
             parameters=TCsymbolicExpressions(obj.TCindex).parameters;
         end
-        
+
         function parameters=name(obj)
         % name - name of a symbolic variable
-        %   
+        %
         %   name(x), for a Tcalculus symbolic variable, returns the
         %   name of the variable as a character string.
             global TCsymbolicExpressions;
@@ -287,75 +287,75 @@ classdef Tcalculus
             end
             parameters=TCsymbolicExpressions(obj.TCindex).parameters;
         end
-        
+
         function operands=operands(obj)
             global TCsymbolicExpressions;
             operands=TCsymbolicExpressions(obj.TCindex).operands;
         end
-        
+
         function op_parameters=op_parameters(obj)
             global TCsymbolicExpressions;
             op_parameters=TCsymbolicExpressions(obj.TCindex).op_parameters;
         end
-        
+
         function file_line=file_line(obj)
             global TCsymbolicExpressions;
             file_line=TCsymbolicExpressions(obj.TCindex).file_line;
         end
-        
+
         function derivatives_cache=derivatives_cache(obj)
             global TCsymbolicExpressions;
             derivatives_cache=TCsymbolicExpressions(obj.TCindex).derivatives_cache;
         end
-        
+
         function add2derivatives_cache(obj,var,grad)
             global TCsymbolicExpressions;
             TCsymbolicExpressions(obj.TCindex).derivatives_cache(end+1,:)=[var.TCindex,grad.TCindex];
         end
-        
+
         function tprod2matlab_cache=tprod2matlab_cache(obj)
             global TCsymbolicExpressions;
             tprod2matlab_cache=TCsymbolicExpressions(obj.TCindex).tprod2matlab_cache;
         end
-        
+
         function add2tprod2matlab_cache(obj,exp)
             global TCsymbolicExpressions;
             TCsymbolicExpressions(obj.TCindex).tprod2matlab_cache(end+1,:)=exp.TCindex;
         end
-        
+
         function substitute_cache=substitute_cache(obj)
             global TCsymbolicExpressions;
             substitute_cache=TCsymbolicExpressions(obj.TCindex).substitute_cache;
         end
-        
+
         function add2substitute_cache(obj,var,expIn,expOut)
             global TCsymbolicExpressions;
             TCsymbolicExpressions(obj.TCindex).substitute_cache(end+1,:)=[var.TCindex,expIn.TCindex,expOut.TCindex];
         end
-        
+
         function [children,depth]=children(obj,maxDepth)
         % children - returns the children of a Tcalculus object
-        %   
+        %
         %   [children,depth]=children(obj), returns all the children
         %   (i.e. operands) of a Tcalculos symbolic object.
-            
+
         %   [children,depth]=children(obj,maxDepth), returns the children of a
         %   Tcalculos symbolic object up to a depth determine by
         %   'maxDepth'.
 
             global TCsymbolicExpressions;
-            
+
             if nargin<2
                 maxDepth=inf;
             end
-            
+
             depth=inf*ones(1,length(TCsymbolicExpressions));
             depth(obj.TCindex)=0;
             order=inf*ones(1,length(TCsymbolicExpressions));
             order(obj.TCindex)=0;
             added=true;
             k=1;
-            while added 
+            while added
                 added=false;
                 for i=find(isfinite(depth))
                     children=TCsymbolicExpressions(i).operands;
@@ -376,34 +376,34 @@ classdef Tcalculus
             children=find(isfinite(depth));
             depth=depth(children);
             order=order(children);
-                
+
             [order,k]=sort(order);
             depth=depth(k);
             children=children(k);
             %[order,children]=sort(order);
             %depth=depth(children);
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                       Get sizes                          %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function varargout=size(obj,dim)
-        % size - Size of a tensor 
-        %   
+        % size - Size of a tensor
+        %
         %   m=size(X), for a tensor X with d dimensions, returns the
         %   size of the tensor X as a row vector with d elements
-        %   
+        %
         %   [m1,m2,...,mk]=size(X), for a tensor X with d dimensions,
         %   returns the size of the tensor X in each dimension (up to
         %   k<=d) as separate variables. An error results if X has
         %   less dimensions than the number of outputs (d<k).
-        %   
+        %
         %   m=size(X,dim), for a tensor X with d dimensions, returns
         %   the number of elements of X in the dimensions specified by
         %   dim. dim can be a scalar or a vector, in the latter case, m
         %   has the same size as d.
-        
+
             if 0
                 global TCsymbolicExpressions
                 osize=TCsymbolicExpressions(obj.TCindex).osize;
@@ -423,10 +423,10 @@ classdef Tcalculus
                 varargout{1}=osize;
             end
         end
-        
+
         function len=ndims(obj)
         % ndims - Number of dimensions in a tensor
-        %   
+        %
         %   ndims(X) returns the number of dimensiona in the tensor X,
         %   defined to be length(size(X)).
         %
@@ -437,7 +437,7 @@ classdef Tcalculus
 
         function len=length(obj)
         % length - Length of a tensor
-        %   
+        %
         %   length(X) returns the length of the tensor x, defined to
         %   be max(size(X)).
         %
@@ -448,10 +448,10 @@ classdef Tcalculus
 
         function len=numel(obj)
         % numel - Number of elements in a tensor
-        %   
+        %
         %   numel(X) returns the number of elements of X, i.e.,
         %   prod(size(X)).
-        %    
+        %
         % Note that a scalar (which has size = []) always has 1
         % element
             len=prod(size(obj));
@@ -459,7 +459,7 @@ classdef Tcalculus
 
         function msize=msize(obj,dim)
         % msize - Matlab-compatible size
-        %   
+        %
         %   msize(obj,dim), similar to size(obj,dim), except that it
         %   uses matlab's convention that that scalars and n-vectors
         %   are really 1x1 or nx1 matrices.
@@ -483,18 +483,18 @@ classdef Tcalculus
                 varargout{1}=msize;
             end
         end
-        
+
         function bool=isempty(obj)
         % isempty - true for an empty tensor
-        %   
+        %
         %   isempty(X) returns true if X is a tensor with zero
         %   elements.
-        %   
+        %
         % Note that a scalar (which has size = []) always has 1
         % elements, so it is never empty.
             bool=any(size(obj)==0);
         end
-        
+
         function ind=end(obj,k,n)
         % see help end
             osize=size(obj);
@@ -503,15 +503,15 @@ classdef Tcalculus
             end
             ind=osize(k);
         end
-            
-            
+
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Referencing, rashaping                 %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function n=numArgumentsFromSubscript(obj,s,indexingContent)
         % see help numArgumentsFromSubscript
-            if isequal(s.type,'.') 
+            if isequal(s.type,'.')
                 n=1;
             else
                 error('indexing ''%s'' not valid for Tcalculus objects',s.type);
@@ -520,22 +520,22 @@ classdef Tcalculus
 
         function obj=subsref(obj1,S)
         % subsref - subcript reference
-        %   
+        %
         %   X(i,j,k,...) returns a subtensor formed by the elements of
         %   X with subscripts vectors i,j,k,... The resulting tensor
         %   has the same number of dimensions as X, with lengths along
         %   each dimension given by length(i), length(j), length(k),
         %   etc.  A colon ":" can be used as a subscript to indicate
         %   all subscripts on that particular dimensiuon.
-        %   
+        %
         %   subsref(X,S) with a subscript reference structure S
         %   behaves as in regular matlab.
         %
         % Attention: subcripts of the cell type {.} and of the field
         % type .field are not valid for Tcalculus objects.
-            
+
             % very ineficient since this method is called for every obj.osize, obj.objs, etc.
-            if length(S)==1 && isequal(S.type,'()') 
+            if length(S)==1 && isequal(S.type,'()')
                 if ismember(obj1.type,{'plus','tprod','sum','compose','repmat'})
                     %warning('subsref of ''%s'' should be optimized\n',obj1.type)
                 end
@@ -590,15 +590,15 @@ classdef Tcalculus
                 obj=builtin('subsref',obj1,S);
             end
         end
-        
+
         function obj=reshape(obj1,varargin)
         % reshape - reshape tensor
-        %    
+        %
         %   reshape(X,n1,n2,...,nd) or reshape(X,[n1,n2,...,nd])
         %   returns a tensor with size [n1,n2,n3,...] whose elements
         %   are taken from X. An error results in the number of
         %   elements of X is not prod([n1,n2,n3,...]).
-        % 
+        %
         % Attention: unlike matlab's regular reshape,
         % Tcalculus/reshape does not support using [] as one of the
         % dimensions.
@@ -610,7 +610,7 @@ classdef Tcalculus
                 error('reshape require more than one argument\n');
             end
             osize1=size(obj1);
-            
+
             if prod(osize)~=prod(osize1)
                 error(['reshape cannot change the number of elements ' ...
                        '(from numel([%s])=%d to numel([%s])=%d)\n'],...
@@ -639,16 +639,16 @@ classdef Tcalculus
 
         function obj=repmat(obj1,varargin)
         % repmat - repicate and tile a tensor
-        %   
+        %
         %   B=repmat(A,n1,n2,...,nd) or B=repmat(A,[n1,n2,...,nd]),
         %   given a tensor A with d dimensions, returns a large tensor
         %   B obtained by tiling copies of A n1 times along the 1st
         %   dimension, n2 times along the 2nd dimension, etc. The
         %   resulting array B has the same number of dimensions as A,
-        %   but size 
+        %   but size
         %
         %         [n1*size(A,1), n2*size(A,2), ... ]
-        %   
+        %
 
             if nargin>2
                 sz=[varargin{:}];
@@ -667,12 +667,12 @@ classdef Tcalculus
                 error(['repmat''s 2nd argument must match size of object ' ...
                        'length (%d~=%d)'],length(sz),length(osize1))
             end
-            if strcmp(type(obj1),'zeros') 
+            if strcmp(type(obj1),'zeros')
                 obj=Tzeros(osize1.*sz);
                 updateFile2table(obj,1);
                 return
             end
-            if strcmp(type(obj1),'ones') 
+            if strcmp(type(obj1),'ones')
                 obj=Tones(osize1.*sz);
                 updateFile2table(obj,1);
                 return
@@ -692,21 +692,21 @@ classdef Tcalculus
 
         function obj=vec2tensor(obj1,sz,subs,dim)
         % vec2tensor - Expands a vector to a sparse tensor
-        %   
-        %   vec2tensor(X,sz,subs), given 
+        %
+        %   vec2tensor(X,sz,subs), given
         %     * Tcalculus n-vector X (tensor with size [n]) a
         %     * vector sz with d integers
         %     * nxd matrix subs of subscripts
-        %   returns 
+        %   returns
         %     * Tcalculus tensor Y with size sz, with the nonzero
         %       entries taken from X, with
         %          Y(subs(i,:))=X(i) for i=1:n
         %
-        %   vec2tensor(X,sz,subs,dim), given 
+        %   vec2tensor(X,sz,subs,dim), given
         %     * Tcalculus tensor X with size(X,dim)=n
         %     * vector sz with d integers
         %     * nxd matrix subs of subscripts
-        %   returns 
+        %   returns
         %     * Tcalculus tensor Y with size similar to that of X, but
         %       the dim dimension expanded to the sizes in sz, and the nonzero
         %       entries taken from X, with
@@ -716,32 +716,32 @@ classdef Tcalculus
             if nargin<4
                 dim=1;
             end
-            
+
             if ndims(obj1)<1
                 error('vec2tensor can only be used for tensors with 1 or more dimensions')
             end
-            
+
             if length(dim)~=1
                 disp(dim)
                 error('vec2tensorc''s 3rd argument must be a scalar')
             end
-            
+
             if dim>ndims(obj1)
                 error('vec2tensor''s 3rd argument subs (%d) must be no larger than number of tensor dimensions [%s]\n',...
                       dim,index2str(size(obj1)))
             end
-            
+
             if length(sz)~=size(subs,2)
                 error('vec2tensor: length of 2nd argument sz (%d) must match number of columns of 3rd argument subs ([%s])',...
                       length(sz),index2str(subs));
             end
-            
+
             osize1=size(obj1);
             if size(subs,1)~=osize1(dim)
                 error('vec2tensor: number of rows of 3rd argument subs (size(subs)=[%s]) must match size(X[%s],dim=%d)',...
                       index2str(size(subs)),index2str(osize1),dim);
             end
-            
+
             if size(subs,1)~=size(unique(subs,'rows'),1)
                 error('vec2tensor: the number of rows of subs must be unique (%d rows, but only %d unique\n',...
                       size(subs,1),size(unique(subs,'rows'),1));
@@ -755,7 +755,7 @@ classdef Tcalculus
                     error('vec2tensor: subscript in dimension %d exceeds tensor dimension (%d)\n',i,sz(i))
                 end
             end
-            
+
             osize=[osize1(1:dim-1),sz(:)',osize1(dim+1:end)];
             % subscripts are stores in the transposed form, which is more
             % compatible with tenscalc's internal representation
@@ -768,34 +768,34 @@ classdef Tcalculus
 
         function obj=uplus(obj1)
         % + unary plus
-        %   
+        %
         %   +X for tensors is just X
             %obj=plus(obj1,nan,1,nan);
             obj=obj1;
             updateFile2table(obj,1);
         end
-        
+
         function obj=uminus(obj1)
         % - unary minus
-        %   
+        %
         %   -X returns the symmetric of X
             obj=plus(obj1,nan,-1,nan);
             updateFile2table(obj,1);
         end
-        
+
         function obj=norm(obj1,p)
         % norm - Vector, matrix, or tensor norm
-        % 
+        %
         %    norm(x) or norm(x,2) returns the 2-norm of the vector x
-        %   
+        %
         %    norm(x,1) returns the 1-norm of the vector or matrix x
-        %   
+        %
         %    norm(x,inf) returns the infinity norm of the vector or matrix x
-        %   
+        %
         %    norm(x,'fro') returns the Frobenius norm of the tensor x
-        %    
-        % Attention:   
-        % 
+        %
+        % Attention:
+        %
         % The 1-norm should be avoided in optimization criteria
         % because it is not differentiable at points where the optimum
         % often lies. This can be done by introducing slack variables
@@ -803,7 +803,7 @@ classdef Tcalculus
         %      min { norm(x,1) : x in R^n , F(x)>= 0 \}
         % can be reformulates as
         %      min { sum(v) : v,x in R^n , -v <=x<= v, F(x)>= 0 \}
-        % 
+        %
         % The infinity norm should also be avoided in optimization
         % criteria for similar reasons. This can be done by
         % introducing slack variables and constraints. For example, a
@@ -811,16 +811,16 @@ classdef Tcalculus
         %      min { norm(x,inf) : x in R^n , F(x)>= 0 \}
         % can be reformulates as
         %      min { v : v in R ,x in R^n , -v <=x<= v, F(x)>= 0 \}
-            
+
             if nargin<2
                 p=2;
             end
-            
+
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
             end
-            
+
             switch p
               case 2
                 switch ndims(obj1)
@@ -828,7 +828,7 @@ classdef Tcalculus
                     obj=abs(obj1);
                   case 1
                     obj=sqrt(norm2(obj1));
-                    %obj=Tcalculus('normEuclidean',[],[],obj1.TCindex,{},1);                    
+                    %obj=Tcalculus('normEuclidean',[],[],obj1.TCindex,{},1);
                   otherwise
                     error('2-norm only available for Tcalculus vectors, not [%s]-tensors',index2str(size(obj1)));
                 end
@@ -869,12 +869,12 @@ classdef Tcalculus
                     error('second argument for norm(.) must be 1,2,inf,''fro'',or a scalar');
                 end
             end
-            
+
         end
-                
+
         function obj=norm1(obj1)
         % norm1 - Sum of absolute values of tensor entries
-        %   
+        %
         %   norm1(x) returns the sum of the absolute value of all
         %   entries of the tensor x, which for vectors corresponds to
         %   the 1-norm of x.
@@ -882,8 +882,8 @@ classdef Tcalculus
         %   norm1(x) is similar to sum(abs(x),'all'), but the former
         %   computes derivatives more efficiently.
         %
-        % Attention:   
-        % 
+        % Attention:
+        %
         % norm1 should be avoided in optimization criteria because
         % it is not differentiable at points where the optimum often
         % lies. This can be done by introducing slack variables and
@@ -891,7 +891,7 @@ classdef Tcalculus
         %      min { norm1(x) : x in R^n , F(x)>= 0 \}
         % can be reformulates as
         %      min { sum(v,'all') : v,x in R^n , -v <=x<= v, F(x)>= 0 \}
-            
+
             if strcmp(type(obj1),'zeros')
                 obj=Tzeros([]);
                 updateFile2table(obj,1);
@@ -902,12 +902,12 @@ classdef Tcalculus
         end
 
         function obj=norm2(obj1,S)
-        % norm2 - Squared quadratic norm 
-        %   
+        % norm2 - Squared quadratic norm
+        %
         %   norm2(x) returns the sum of the square of all entries of
         %   the tensor x, which for matrices corresponds to the square
         %   of the Frobenius norm of x.
-        %   
+        %
         %   norm2(x) is similar to sum(x.^2,'all'), but the former
         %   computes derivatives more efficiently.
         %
@@ -933,10 +933,10 @@ classdef Tcalculus
                 end
             end
         end
-        
+
         function obj=norminf(obj1)
         % norminf - Maximum absolute value of tensor entries
-        %   
+        %
         %   norminf(x) returns the largest absolute value of all
         %   entries of the tensor x, which for vectors corresponds to
         %   the infinity-norm of x.
@@ -944,8 +944,8 @@ classdef Tcalculus
         %   norminf(x) is similar to max(abs(x),[],'all'), but the former
         %   computes derivatives more efficiently.
         %
-        % Attention:   
-        % 
+        % Attention:
+        %
         % norminf() should be avoided in optimization criteria because
         % it is not differentiable at points where the optimum often
         % lies. This can be done by introducing slack variables and
@@ -960,22 +960,22 @@ classdef Tcalculus
                 obj=Tcalculus('norminf',[],[],obj1.TCindex,{},1);
             end
         end
-        
+
         function obj=full(obj1)
         % full - convert sparse tensor to full
-        %   
+        %
         %   Y=full(X) converts a sparse tensor X to a full tensor
         %   Y. No entry of the tensor is changed, but subsequent
         %   computations will not take advantage of the information
         %   that some entries are know to be zero.
-        %   
+        %
         %   The main use of this function is to force the results of a
         %   computation to be returned in a linear memory structure
         %   with all the zeros filled in appropriately. This is
         %   generally required to return n-dimensional tensors to
         %   matlab with n>2, since matlab does not support sparse
         %   arrays with more than 2 dimensions.
-       
+
 
             if isequal(type(obj1),'full')
                 obj=obj1;
@@ -983,15 +983,15 @@ classdef Tcalculus
                 obj=Tcalculus('full',size(obj1),[],obj1.TCindex,{},1);
             end
         end
-        
+
         function obj=sum(obj1,dimension,sum2tprod)
         % sum - sum of tensor entries
-        %   
+        %
         %   s=sum(X,vecdim) sums the entries of the tenasor X along
         %   the dimensions specified in vecdim, resulting in a tensor
         %   with the same size as X, but with the dimensions in vecdim
         %   removed.
-        %   
+        %
         %   s=sum(X,'all') sums the entries of X along all its
         %   dimensions, resulting in a scalar. Performs similarly to
         %   sum(X,1:ndims(X))
@@ -999,7 +999,7 @@ classdef Tcalculus
             if nargin<3
                 sum2tprod=true;
             end
-            if nargin<2 
+            if nargin<2
                 switch length(size(obj1))
                   case 0
                     dimension=[];
@@ -1028,7 +1028,7 @@ classdef Tcalculus
                 obj=Tcalculus('sum',ssize,dimension,obj1.TCindex,{},1);
             end
         end
-        
+
         function obj=reduce(obj1,dimension,type)
         % used by min,max,all,any
             if myisequal(dimension,'all')
@@ -1038,7 +1038,7 @@ classdef Tcalculus
             osize(dimension)=[];
             obj=Tcalculus(type,osize,dimension,obj1.TCindex,{},2);
         end
-        
+
         function obj=compare(obj1,obj2,type)
         % used by (binary) min and max
             [obj1,obj2]=toCalculus(obj1,obj2);
@@ -1055,15 +1055,15 @@ classdef Tcalculus
             osize=size(obj1);
             obj=Tcalculus(type,osize,[],[obj1.TCindex;obj2.TCindex],{},2);
         end
-        
-            
+
+
         function obj=min(obj1,obj2,dimension)
         % min - minimum elements of a tensor
-        %   
+        %
         %   M=min(X), for a tensor X with d dimensions, returns a
         %   tensor M with d-1 dimensions whose entries are the
         %   smallest entries of X, taken along the 1st dimension.
-        %   
+        %
         %   M=min(X,Y), for two tensors X and Y with the same size,
         %   returns a tensor M also with the same size, but with
         %   entries taken from X or Y, depending on which entry is
@@ -1071,68 +1071,68 @@ classdef Tcalculus
         %   and its entries are the smallest of the corresponding
         %   entry of Y or the (only) entry of X. Similarly if Y is a
         %   scalar.
-        %   
+        %
         %   M=min(X,[],vecdim) takes the minimum over all entries in
         %   the dimensions specified by vecdim, resulting in a tensor
         %   with the same size as X, but with the dimensions in vecdim
         %   removed. The simplest form min(X) performs similarly to
         %   min(X,[],1).
-        %   
+        %
         %   M=min(X,[],'all') returns a scalar with the smallest entry
         %   of X. Performs similarly to min(X,[],1:ndims(X))
-            
-            if nargin==1 
+
+            if nargin==1
                 obj=reduce(obj1,1,'min');
             elseif nargin==3 && isempty(obj2)
                 obj=reduce(obj1,dimension,'min');
             elseif nargin==2
                 %error('min2 not implemented');
                 obj=compare(obj1,obj2,'min2');
-            end 
+            end
         end
         function obj=max(obj1,obj2,dimension)
         % max - maximum elements of a tensor
-        %   
+        %
         %   M=max(X), for a tensor X with d dimensions, returns a
         %   tensor M with d-1 dimensions whose entries are the
         %   largest entries of X, taken along the 1st dimension.
-        %   
+        %
         %   M=max(X,Y), for two tensors X and Y with the same size,
         %   returns a tensor M also with the same size, but with
         %   entries taken from X or Y, depending on which entry is
         %   largest. If X is a scalar, then M has the same size as Y
         %   and its entries are the largest of the corresponding entry
         %   of Y or the (only) entry of X. Similarly if Y is a scalar.
-        %   
+        %
         %   M=max(X,[],vecdim) takes the maximum over all entries in
         %   the dimensions specified by vecdim, resulting in a tensor
         %   with the same size as X, but with the dimensions in vecdim
         %   removed. The simplest form max(X) performs similarly to
         %   max(X,[],1).
-        %   
+        %
         %   M=max(X,[],'all') returns a scalar with the largest entry
         %   of X. Performs similarly to max(X,[],1:ndims(X))
-            
-            if nargin==1 
+
+            if nargin==1
                 obj=reduce(obj1,1,'max');
             elseif nargin==3 && isempty(obj2)
                 obj=reduce(obj1,dimension,'max');
             elseif nargin==2
                 %error('max2 not implemented');
                 obj=compare(obj1,obj2,'max2');
-            end 
+            end
         end
-        
+
         function obj=all(obj1,dimension)
         % all - Check if all tensor entries are nonzero
-        %   
+        %
         %   b=all(X,vecdim) checks if the entries of the tensor X are
         %   nonzero and performs the Boolean operation 'and' along the
         %   dimensions specified in vecdim, producing the logical
         %   value true if all entries are nonzero. The result is a
         %   tensor with the same size as X, but with the dimensions in
         %   vecdim removed.
-        %   
+        %
         %   b=all(X,'all') operates over all entries of the tensor X,
         %   resulting in a scalar that is equal to true if all entries
         %   are nonzero. Performs similarly to all(X,1:ndims(X))
@@ -1140,35 +1140,35 @@ classdef Tcalculus
         end
         function obj=any(obj1,dimension)
         % any - Check if any tensor entries are nonzero
-        %   
+        %
         %   b=any(X,vecdim) checks if the entries of the tensor X are
         %   nonzero and performs the Boolean operation 'or' along the
         %   dimensions specified in vecdim, producing the logical
         %   value true if at least one entry is nonzero. The result is
         %   a tensor with the same size as X, but with the dimensions
         %   in vecdim removed.
-        %   
+        %
         %   b=any(X,'all') operates over all entries of the tensor X,
         %   resulting in a scalar that is equal to true if at least
         %   one entry is nonzero. Performs similarly to
         %   any(X,1:ndims(X))
             obj=reduce(obj1,dimension,'any');
         end
-            
+
         function obj=diag(obj1,k)
         % diag - Diagonal matrices and diagonals of a matrix.
-        %   
+        %
         %   diag(v,k) when v is an n-vector, returns a square matrix
         %   with n+abs(k) rows/columns, with the k-th diagonal equal
         %   to v. k=0 corresponds to the main diagonal, k>0 above the
-        %   main diagonal and k<0 below. 
-        %   
+        %   main diagonal and k<0 below.
+        %
         %   diag(v) when v is an n-vector, returns the same as
         %   diag(v,0) and puts v in the main diagonal
-        %   
+        %
         %   diag(A) when A is an n-by-n a matrix, returns an n`-vector
         %   with the main diagonal of A.
-        %   
+        %
         % Attention: diag(A) with A a matrix doe *not* support a
         % second argument specifying a diagonal other than the main
         % diagonal.
@@ -1179,14 +1179,14 @@ classdef Tcalculus
             if length(osize1)==1
                 % vector->matrix
                 %obj=tprod(obj1,1,Teye([osize1,osize1]),[1,2]); % only for k=0
-                
+
                 % in principle more efficient since it will never require
                 % multiplications, but tprod is also pretty good at
                 % handling multiplication by Teye;
                 if k>=0
-                    obj=vec2tensor(obj1,[osize1+k,osize1+k],[1:osize1;k+1:k+osize1]'); 
+                    obj=vec2tensor(obj1,[osize1+k,osize1+k],[1:osize1;k+1:k+osize1]');
                 else
-                    obj=vec2tensor(obj1,[osize1-k,osize1-k],[1-k:osize1-k;1:osize1]'); 
+                    obj=vec2tensor(obj1,[osize1-k,osize1-k],[1-k:osize1-k;1:osize1]');
                 end
                 updateFile2table(obj,1);
             elseif length(osize1)==2 && osize1(1)==osize1(2)
@@ -1202,20 +1202,20 @@ classdef Tcalculus
                 error('ambigous Tcalculus/diag()');
             end
         end
-        
+
         function obj=trace(obj1)
         % trace - Sum of diagonal elements.
-        %   
+        %
         %  trace(A) is the sum of the diagonal elements of A, which is
         %  also the sum of the eigenvalues of A.
-        %  
+        %
         %  For more general tensors n-dimensional tensors, one must
         %  have size(A,1)==size(A,2), and trace returns a (n-2)-dimensional
         %  tensor obtained by summing over the same entries
         %  of the 1st two dimensions, as in
         %       Y(i,k,l)=sum_i A(i,i,j,k,l,...)
-        %  
-            
+        %
+
             osize1=size(obj1);
             if length(osize1)>=2 && osize1(1)==osize1(2)
                 obj=tprod(obj1,[-1,-1,1:length(osize1)-2]);
@@ -1224,20 +1224,20 @@ classdef Tcalculus
                 error('ambigous Tcalculus/trace()');
             end
         end
-        
+
         function obj=transpose(obj1)
         % .' or transpose - transpose of a real-values tensor
-        %  
+        %
         % Attention: TensCalc does not support complex-valued
         % variables and therefore transpose() and ctranspose() return
         % the same values.
             obj=ctranspose(obj1);
             updateFile2table(obj,1);
         end
-        
+
         function obj=ctranspose(obj1)
         % ' or ctranspose - transpose of a real-values tensor
-        %  
+        %
         % Attention: TensCalc does not support complex-valued
         % variables and therefore transpose() and ctranspose() return
         % the same values.
@@ -1262,7 +1262,7 @@ classdef Tcalculus
                 obj=Tcalculus(operands(obj1));
             elseif ismember(type1,{'diag','eye'})
                 obj=obj1;
-            elseif strcmp(type1,'zeros') 
+            elseif strcmp(type1,'zeros')
                 obj=Tzeros(osize1(end:-1:1));
                 updateFile2table(obj,1);
             elseif strcmp(type1,'ones')
@@ -1272,12 +1272,12 @@ classdef Tcalculus
                 obj=Tcalculus('ctranspose',osize1(end:-1:1),[],obj1.TCindex,{},1);
             end
         end
-        
+
         function obj=permute(obj1,order)
             osize1=size(obj1);
             obj=tprod(obj1,order);
         end
-        
+
         function obj=permute_matlab(obj1,order)
             osize1=size(obj1);
             obj=Tcalculus('permute_matlab',osize1(order),order,obj1.TCindex,{},1);
@@ -1299,23 +1299,23 @@ classdef Tcalculus
                         'typical_values',typical_values);
             obj=Tcalculus(type,osize1,pars,obj1.TCindex,{},1);
         end
-        
-        
+
+
         function obj=chol(obj1,varargin)
             obj=factor(obj1,'chol',varargin{:});
         end
         function obj=ldl(obj1,varargin)
         % ldl - LDL factorization of a symmetric matrix
-        %    
+        %
         %   ldl(A) computes the LDL factorization of a symmetric
         %   matrix (n-by-n tensor).
-        %   
+        %
         %   ldl(A) actually uses "pychologically lower triangular
         %   matrices", i.e., matrices that are diagonal/triangular up
         %   to a permutation, with permutations selected to minimize
         %   the fill-in for sparse matrices and reduce computation
         %   time (see documentation for lu with sparse matrices).
-        %   
+        %
         %   The LDL factorization used requires all elements of the
         %   main diagonal to be nonzero, if this is not the case the
         %   lu() factorization should be used.
@@ -1324,7 +1324,7 @@ classdef Tcalculus
         %   and assumed to be equal to the one below the main diagonal,
         %   *without performing any test regarding of whether or not
         %   this is true*.
-        %    
+        %
         % Attention: The output of this function includes the whole
         % factorization as a single entity, in a format that can be
         % passed to functions that require factorizations (such as
@@ -1333,32 +1333,32 @@ classdef Tcalculus
         % as an input. See ldl_l() and ldl_d() to get the factors.
             obj=factor(obj1,'ldl',varargin{:});
         end
-        
+
         function obj=ldl_d(obj1)
         % ldl_d - Diagonal matrix of an LDL factorization
-        %      
+        %
         %   ldl_d(ldl(A)) return the main diagonal of the diagonal
         %   matrix in an LDL factorization
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized with ldl(). 
-        %   
+        %   been factorized with ldl().
+        %
         %   ldl(A) actually uses "pychologically lower triangular
         %   matrices", i.e., matrices that are diagonal/triangular up
         %   to a permutation, with permutations selected to minimize
         %   the fill-in for sparse matrices and reduce computation
         %   time (see documentation for lu with sparse matrices).
-        %    
+        %
         %   The LDL factorization used requires all elements of the
         %   main diagonal to be nonzero, if this is not the case the
         %   lu() factorization should be used.
-            
+
         %   When an the LDL factorization is used, all entries of A
         %   above the main diagonal are ignored and assumed to be
         %   equal to the one below the main diagonal, without
         %   performing any test regarding of whether or not this is
         %   true.
-            
+
             if ~strcmp(type(obj1),'ldl')
                 error('ldl_d can only be called for LDL factorizations (not ''%s'')',type(obj1))
             end
@@ -1368,23 +1368,23 @@ classdef Tcalculus
 
         function obj=ldl_l(obj1)
         % ldl_l - Lower-trangular matrix of an LDL factorization
-        %   
+        %
         %   ldl_l(ldl(A)) return the lower-triangiular matrix in an
         %   LDL factorization
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized with ldl(). 
-        %   
+        %   been factorized with ldl().
+        %
         %   ldl(A) actually uses "pychologically lower triangular
         %   matrices", i.e., matrices that are diagonal/triangular up
         %   to a permutation, with permutations selected to minimize
         %   the fill-in for sparse matrices and reduce computation
         %   time (see documentation for lu with sparse matrices).
-        %    
+        %
         %   The LDL factorization used requires all elements of the
         %   main diagonal to be nonzero, if this is not the case the
         %   lu() factorization should be used.
-            
+
         %   When an the LDL factorization is used, all entries of A
         %   above the main diagonal are ignored and assumed to be
         %   equal to the one below the main diagonal, without
@@ -1396,32 +1396,32 @@ classdef Tcalculus
             osize1=size(obj1);
             obj=Tcalculus('ldl_l',osize1,[],obj1.TCindex,{},1);
         end
-        
+
         function obj=lu_l(obj1)
         % lu_l - Lower-trangular matrix of an LU factorization
-        %      
+        %
         %   lu_l(lu(A)) return the lower-triangular matrix in an LU
         %   factorization (which is guaranteed to be nonsingular)
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized with lu(). 
-        %   
+        %   been factorized with lu().
+        %
         %   lu(A) actually uses "pychologically upper/lower triangular
         %   matrices", i.e., matrices that are diagonal/triangular up
         %   to a permutation, with permutations selected to minimize
         %   the fill-in for sparse matrices and reduce computation
         %   time (see documentation for lu with sparse matrices).
-        %    
+        %
         %   The LU factorization used requires all elements of the
         %   main diagonal to be nonzero, if this is not the case the
         %   lu() factorization should be used.
-            
+
         %   When an the LDL factorization is used, all entries of A
         %   above the main diagonal are ignored and assumed to be
         %   equal to the one below the main diagonal, without
         %   performing any test regarding of whether or not this is
         %   true.
-            
+
             if ~strcmp(type(obj1),'lu')
                 error('lu_l can only be called for LU factorizations (not ''%s'')',type(obj1))
             end
@@ -1431,23 +1431,23 @@ classdef Tcalculus
 
         function obj=lu_u(obj1)
         % lu_u - Upper-trangular matrix of an LU factorization
-        %   
+        %
         %   lu_u(lu(A)) return the upper-triangiular matrix in an LU
         %   factorization
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized with lu(). 
-        %   
+        %   been factorized with lu().
+        %
         %   lu(A) actually uses "pychologically upper/lower triangular
         %   matrices", i.e., matrices that are diagonal/triangular up
         %   to a permutation, with permutations selected to minimize
         %   the fill-in for sparse matrices and reduce computation
         %   time (see documentation for lu with sparse matrices).
-        %    
+        %
         %   The LDL factorization used requires all elements of the
         %   main diagonal to be nonzero, if this is not the case the
         %   lu() factorization should be used.
-            
+
         %   When an the LDL factorization is used, all entries of A
         %   above the main diagonal are ignored and assumed to be
         %   equal to the one below the main diagonal, without
@@ -1459,37 +1459,37 @@ classdef Tcalculus
             osize1=size(obj1);
             obj=Tcalculus('lu_u',osize1,[],obj1.TCindex,{},1);
         end
-        
+
         function obj=lu_d(obj1)
         % lu_d - Diagonal matrix of the U matrix in an LU factorization
-        %      
+        %
         %   lu_d(lu(A)) return the main diagonal of the
         %   upper-triangular matrix in an LU factorization. The main
         %   diagonal of the L matrix is equal to 1.
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized with lu(). 
-            
+        %   been factorized with lu().
+
             if ~strcmp(type(obj1),'lu')
                 error('lu_d can only be called for LU factorizations (not ''%s'')',type(obj1))
             end
             osize1=size(obj1,1);
             obj=Tcalculus('lu_d',osize1,[],obj1.TCindex,{},1);
         end
-        
+
         function obj=lu(obj1,varargin)
         % lu - LU factorization
-        %    
+        %
         %    lu(A) computes the LU factorization of a matrix (tensor
         %    with 2 dimensions).
-        %    
+        %
         %    lu(A) actually uses "pychologically upper/lower
         %    triangular matrices", i.e., matrices that are triangular
         %    up to a permutation, with permutations selected to
         %    minimize the fill-in for sparse matrices and reduce
         %    computation time (see documentation for lu with sparse
         %    matrices).
-        %    
+        %
         % Attention: The output of this function includes the whole
         % factorization as a single entity, in a format that can be
         % passed to functions that require factorizations (such as
@@ -1500,31 +1500,31 @@ classdef Tcalculus
         end
         function obj=lu_sym(obj1,varargin)
         % lu - LU factorization of a symmetric matrix
-        %    
+        %
         %    lu(A) computes the LU factorization of a symmetric matrix
         %    (tensor with 2 dimensions).
-        %    
+        %
         %    lu(A) actually uses "pychologically lower triangular
         %    matrices", i.e., matrices that are triangular up to a
         %    permutation, with permutations selected to minimize the
         %    fill-in for sparse matrices and reduce computation time
         %    (see documentation for lu with sparse matrices).
-        %    
+        %
         %    All entries of ``A`` above the main diagonal are ignored
         %    and assumed to be equal to the one below the main diagonal,
         %    *without performing any test regarding of whether or not
         %    this is true*.
-        %    
+        %
         % Attention: The output of this function includes the whole
         % factorization as a single entity, in a format that can be
         % passed to functions that require factorizations (such as
         % mldivide, inv, det, logdet, traceinv), but should *not* be
         % used by functions that are not expecting a factorized matrix
         % as an input.
-            
+
             obj=factor(obj1,'lu_sym',varargin{:});
         end
-        
+
         function obj=pptrs(obj1,obj2)
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
@@ -1544,7 +1544,7 @@ classdef Tcalculus
             end
             obj=Tcalculus('pptrs',osize1,[],[obj1.TCindex;obj2.TCindex],{},1);
         end
-        
+
         % function obj=det(obj1)
         %     %obj1=toCalculus(obj1);
         %     osize1=size(obj1);
@@ -1606,16 +1606,16 @@ classdef Tcalculus
         %         obj=Tcalculus('det',[],[],obj1.TCindex,{},1);
         %     end
         % end
-            
+
         function obj=det(obj1)
         % det - Determinant of a factorized matrix
-        %      
+        %
         %   det(lu(A)) or det(ldl(A)) return the determinant of the
         %   square matrix A.
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized by lu() or ldl(). 
-        %   
+        %   been factorized by lu() or ldl().
+        %
         %   The ldl() factorization should only be used for symmetric
         %   matrices with nonzero elements in the main diagonal.
         %
@@ -1637,22 +1637,22 @@ classdef Tcalculus
             end
             obj=Tcalculus('det',[],[],obj1.TCindex,{},1);
         end
-            
+
         function obj=logdet(obj1)
         % logdet - Natural logarithm of the determinant of a factorized matrix
         %          (with positive determinant)
-        %      
+        %
         %   logdet(lu(A)) or logdet(ldl(A)) return the natural
         %   logarithm of the determinant of the square matrix A.
-        %   
+        %
         %   This function results in the same value as log(det(A)),
         %   but in the context of optimizations, it is more efficient
         %   to use ``logdet(A)`` because the latter simplifies the
         %   computation derivatives.
-        %   
+        %
         %   logdet() can only be applied to a matrix that has been
         %   factorized by lu() or ldl().
-        %   
+        %
         %   The ldl() factorization should only be used for symmetric
         %   matrices with nonzero elements in the main diagonal.
         %
@@ -1661,7 +1661,7 @@ classdef Tcalculus
         %   equal to the one below the main diagonal, without
         %   performing any test regarding of whether or not this is
         %   true.
-        %   
+        %
         %   |tenscalc| assumes that det(A)>0 and actually returns
         %   log(abs(det(A))), but ignores the abs() operation when
         %   computing derivatives of logdet.
@@ -1679,21 +1679,21 @@ classdef Tcalculus
             end
             obj=Tcalculus('logdet',[],[],obj1.TCindex,{},1);
         end
-            
+
         function obj=traceinv(obj1)
         % traceinv - Trace of the inverse of a factorized matrix
-        %      
+        %
         %   traceinv(lu(A)) or traceinv(ldl(A)) return the natural
         %   logarithm of the determinant of the square matrix A.
-        %   
+        %
         %   This function results in the same value as trace(inv(A)),
         %   but in the context of optimizations, it is more efficient
         %   to use ``traceinv(A)`` because the latter simplifies the
         %   computation of derivatives.
-        %   
+        %
         %   traceinv() can only be applied to a matrix that has been
         %   factorized by lu() or ldl().
-        %   
+        %
         %   The ldl() factorization should only be used for symmetric
         %   matrices with nonzero elements in the main diagonal.
         %
@@ -1715,15 +1715,15 @@ classdef Tcalculus
             end
             obj=Tcalculus('traceinv',[],[],obj1.TCindex,{},1);
         end
-            
+
         function obj=inv(obj1)
         % inv - Inverse of a factorized matrix
-        %      
+        %
         %   inv(lu(A)) or inv(ldl(A)) return the inverse of the square matrix A.
-        %   
+        %
         %   This function can only be applied to a matrix that has
-        %   been factorized by lu() or ldl(). 
-        %   
+        %   been factorized by lu() or ldl().
+        %
         %   The ldl() factorization should only be used for symmetric
         %   matrices with nonzero elements in the main diagonal.
         %
@@ -1748,15 +1748,15 @@ classdef Tcalculus
 
         function obj=componentwise(obj1,fun,cfun,varargin)
         % y=componentwise(x,fun,cfun,derivative1,derivative2)
-        % 
+        %
         % Returns a tensor with the same size of ''x'' that results
         % from applying the function ''fun'' to each entry of ''x'':
         %       y_{ijk} = fun(x_{ijk})
         % ''fun'' should be a function handle.
-        % 
+        %
         % The string ''cfun'' provides code that can be used to
         % evaluate the function when '%s' is replaced the entry:
-        % 
+        %
         % The optional argument ''derivative'' is a handle to a matlab
         % function that returns a Tcalculus tensor with the 1st
         % derivative. Typically, this handle includes a call to
@@ -1766,11 +1766,11 @@ classdef Tcalculus
         %                                   @(x)-componentwise(x,@sin,'sin(%s)')));
         % but it may not, as in the example
         %   componentwise(x,@(x)2*x,'2*%s',@(x)2*Tones(size(x)),@(x)Tzeros(size(x)));
-            
+
             if ~isa(fun,'function_handle')
                 error('componentwise 2nd argument must be a function handle, class ''%s'' instead\n',class(fun))
             end
-                
+
             if ~ischar(cfun)
                 error('componentwise 3rd argument must be a character string, class ''%s'' instead\n',class(cfun))
             end
@@ -1781,8 +1781,8 @@ classdef Tcalculus
                 end
             end
             obj=Tcalculus('componentwise',size(obj1),{fun,cfun,varargin{:}},obj1.TCindex,{},1);
-        end            
-        
+        end
+
         function obj=exp(obj1)
         % Exponential of tensor entries.
             obj=componentwise(obj1,@exp,'exp(%s)',@exp);
@@ -1841,13 +1841,13 @@ classdef Tcalculus
         end
         function obj=power(obj1,p)
         % power - Power of tensor entries
-        %    
+        %
         %    X.^Y or power(x,y) returns the element-wise X raised to
-        %    the power Y. 
-        %    
+        %    the power Y.
+        %
         %    The power Y must be a regular numeric scalar, *not* a
         %    Tcalculus symbolic expression
-        %    
+        %
         % Attention: unlike in matlab's regular power(), the power Y must
         % be a scalar.
         %
@@ -1883,7 +1883,7 @@ classdef Tcalculus
         end
         function obj=round(obj1)
         % round - Rounds tensor entries to the nearest integer
-        %    
+        %
         %    round(X) returns as tensor with the same size as X, with
         %    every entry of X rounded to the nearest integer.
         %
@@ -1895,7 +1895,7 @@ classdef Tcalculus
         end
         function obj=ceil(obj1)
         % ceil - Rounds tensor entries to the nearest integer towards +inf
-        %    
+        %
         %    ceil(X) returns as tensor with the same size as X, with
         %    every entry of X rounded to the nearest integer towards
         %    +inf.
@@ -1904,7 +1904,7 @@ classdef Tcalculus
         end
         function obj=floor(obj1)
         % floor - Rounds tensor entries to the nearest integer towards -inf
-        %    
+        %
         %    floor(X) returns as tensor with the same size as X, with
         %    every entry of X rounded to the nearest integer towards
         %    -inf.
@@ -1918,7 +1918,7 @@ classdef Tcalculus
         end
         function obj=sign(obj1)
         % sign - Signum function.
-        %    
+        %
         %    sign(X) returns as tensor with the same size as X, with
         %    an entry equal to 1, 0, or -1, depending on whether the
         %    corresponding entry of X is positive, zero, or negative,
@@ -1928,17 +1928,17 @@ classdef Tcalculus
         end
         function obj=heaviside(obj1)
         % heaviside - Step or heaviside function applied to the tensor entries.
-        %    
+        %
         %    heaviside(X) returns as tensor with the same size as X, with
         %    an entry equal to 1, .5, or 0, depending on whether the
         %    corresponding entry of X is positive, zero, or negative,
         %    respectively.
             obj=componentwise(obj1,@heaviside,'(%s>0)?1:((%s<0)?0:.5)',@(x)Tzeros(size(x)));
             updateFile2table(obj,1);
-        end        
+        end
         function obj=relu(obj1)
         % relu - Rectified linear unit activation function.
-        %    
+        %
         %    relu(X) returns a tensor with the same size as X, with
         %    each entry equal the the corresponding entry of X or 0,
         %    depending on whether the entry is positive or not. Same
@@ -1948,7 +1948,7 @@ classdef Tcalculus
         end
         function obj=srelu(obj1)
         % srelu - Soft rectified linear unit activation function.
-        %    
+        %
         %    srelu(X) returns a tensor with the same size as X, with
         %    the "soft" rectified linear unit activation function of
         %    the entries of X. Same as log(1+exp(x)) or
@@ -1958,7 +1958,7 @@ classdef Tcalculus
         end
         function obj=sheaviside(obj1)
         % sheaviside - Soft heaviside function.
-        %    
+        %
         %    sheaviside(X) returns a tensor with the same size as X,
         %    with the "soft" heaviside function of the entries of
         %    X. Same as 1./(1+exp(-x))
@@ -1967,7 +1967,7 @@ classdef Tcalculus
         end
         function obj=dsheaviside(obj1)
         % dsheaviside - Derivative of the soft heaviside function.
-        %    
+        %
         %    dsheaviside(X) returns a tensor with the same size as X,
         %    with the derivative of the "soft" heaviside function of
         %    the entries of X. Same as 1./(2+exp(x)+exp(-x))
@@ -1976,10 +1976,10 @@ classdef Tcalculus
         end
         function obj=normpdf(obj1)
         % normpdf - Normal probability density function (pdf).
-        %    
+        %
         %    normpdf(X) returns the pdf of the standard normal
         %    distribution evaluated at the values in X.
-        %    
+        %
         % Attention: unlike in ragular matlab, this function does
         % *not* support second and third arguments specifying a mean
         % and standard deviation different than 0 and 1,
@@ -1991,10 +1991,10 @@ classdef Tcalculus
             obj=componentwise(obj1,@(x)log(gamma(x)),'lngamma(%s)',@digamma);
             updateFile2table(obj,1);
         end
-        
+
         function obj=compose(obj1,varargin)
         % y=compose(x,fun,fun1,fun2)
-        % 
+        %
         % Returns a tensor that results from applying the function
         % ''fun'' to each entry of ''obj'', e.g.,:
         %       y_{ijk} = fun(x_{ijk})
@@ -2002,14 +2002,14 @@ classdef Tcalculus
         % is itself a tensor, the dimensions of fun are appended to the
         % end of the dimensions of x, e.g.,:
         %       y_{ijklm} = fun(x_{ijk})_{lmn}
-        % 
+        %
         % The optional argument ''fun1'' is a handle to a matlab
         % function that returns a Tcalculus tensors with the 1st
-        % derivatives. 
+        % derivatives.
         %
         % The optional argument ''fun2'' is a handle to a matlab
         % function that returns a Tcalculus tensors with the 2nd
-        % derivatives. 
+        % derivatives.
         %
         % Attention: compose can handle nonscalar functions, which
         % componentwise cannot.
@@ -2027,7 +2027,7 @@ classdef Tcalculus
             end
             obj=Tcalculus('compose',[size(obj1),fsize],varargin,obj1.TCindex,{},1);
         end
-        
+
         % function obj=sqr(obj1)
         %     obj=compose(obj1,@(x__)x__.^2,@(x__)2*x__,@(x__)2*ones(size(x__)));
         %     updateFile2table(obj,1);
@@ -2105,29 +2105,29 @@ classdef Tcalculus
         %                 @(x__)1./(1+exp(-x__)),@(x__)1./(2+exp(-x__)+exp(x__)));
         %     updateFile2table(obj,1);
         % end
-            
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                 Binary operators                         %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function obj=plus(obj1,obj2,ind1,ind2)
         % + or plus
-        %   
+        %
         %   X+Y or plus(X,Y) add entry-by-entry tensors of the same
         %   size or a scalar (tensor with 0 dimensions) with a tensor
         %   of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular plus(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            
+
             global TCsymbolicExpressions;
 
             if nargin<3
                 ind1=1;
                 ind2=1;
             end
-            
+
             if nargin>1 && ~isnan(ind2)
                 [obj1,obj2]=toCalculus(obj1,obj2);
                 osize1=size(obj1);
@@ -2141,7 +2141,7 @@ classdef Tcalculus
                 %     obj2=reshape(obj2,[]);
                 %     osize2=[];
                 % end
-                
+
                 % add scalar? multiply by ones of appropriate size
                 if isempty(osize1) && ~isempty(osize2)
                     obj1=growScalar(obj1,osize2);
@@ -2150,13 +2150,13 @@ classdef Tcalculus
                     obj2=growScalar(obj2,osize1);
                     osize2=size(obj2);
                 end
-                
+
                 if  ~myisequal(osize1,osize2)
                     obj1,obj2
                     error('can only add objects of the same size: [%s] ~= [%s]\n',...
                           index2str(osize1),index2str(osize2))
                 end
-                
+
                 objs={obj1;obj2};
                 inds={ind1;ind2};
             else
@@ -2166,7 +2166,7 @@ classdef Tcalculus
             end
 
             ops=cellfun(@(x)x.TCindex,objs);
-            
+
             %% merge nested sums and remove zeros
             for i=length(ops):-1:1
                 if strcmp(TCsymbolicExpressions(ops(i)).type,'zeros')
@@ -2179,7 +2179,7 @@ classdef Tcalculus
                     inds(i)=[];
                 end
             end
-            
+
             %% sort with plus before minus & by TCindex
             [~,k]=sortrows([-[inds{:}]',ops(:)]);
             ops=ops(k);
@@ -2196,15 +2196,15 @@ classdef Tcalculus
 
         function obj=minus(obj1,obj2)
         % - or minus - Minus
-        %   
+        %
         %   X-Y or minus(X,Y) subtract entry-by-entry tensors of the
         %   same size or a scalar (tensor with 0 dimensions) with a
         %   tensor of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular minus(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            
+
             obj=plus(obj1,obj2,1,-1);
             updateFile2table(obj,1);
         end
@@ -2215,103 +2215,103 @@ classdef Tcalculus
             updateFile2table(obj3,2);
             obj=Tcalculus(type,size(obj3),[],obj3.TCindex,{},2);
         end
-            
+
         function obj=eq(obj1,obj2)
         % == or eq -  Equal
-        %   
+        %
         %   X==Y performs an entry-by-entry equality comparison of
         %   tensors of the same size or a scalar (tensor with 0
         %   dimensions) with a tensor of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular eq(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            obj=relational(obj1,obj2,'iszero');  
+            obj=relational(obj1,obj2,'iszero');
         end
 
         function obj=ge(obj1,obj2)
         % >= or ge - Greater than or equal to
-        %   
+        %
         %   X<=Y performs an entry-by-entry greater than or equal to
         %   comparison of tensors of the same size or a scalar (tensor
         %   with 0 dimensions) with a tensor of arbitrary size.
-        %   
+        %
         %   From the perspective of a constrained optimization
         %   numerical solver, due to finite numerical precision, X>=Y
         %   and X>Y represent the same constraint.
-        %   
+        %
         % Attention: unlike matlab's regular ge(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            obj=relational(obj1,obj2,'ispositive');  
+            obj=relational(obj1,obj2,'ispositive');
         end
 
         function obj=gt(obj1,obj2)
         % > or gt - Greater than
-        %   
+        %
         %   X<=Y performs an entry-by-entry greater than comparison of
         %   tensors of the same size or a scalar (tensor with 0
         %   dimensions) with a tensor of arbitrary size.
-        %   
+        %
         %   From the perspective of a constrained optimization
         %   numerical solver, due to finite numerical precision, X>=Y
         %   and X>Y represent the same constraint.
-        % 
+        %
         % Attention: unlike matlab's regular gt(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            obj=relational(obj1,obj2,'ispositive');  
+            obj=relational(obj1,obj2,'ispositive');
         end
 
         function obj=le(obj2,obj1)
         % <= or le - Smaller than or equal to
-        %   
+        %
         %   X<=Y performs an entry-by-entry smaller than or equal to
         %   comparison of tensors of the same size or a scalar (tensor
         %   with 0 dimensions) with a tensor of arbitrary size.
-        %   
+        %
         %   From the perspective of a constrained optimization
         %   numerical solver, due to finite numerical precision, X<=Y
         %   and X<Y represent the same constraint.
-        % 
+        %
         % Attention: unlike matlab's regular le(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            obj=relational(obj1,obj2,'ispositive');  
+            obj=relational(obj1,obj2,'ispositive');
         end
 
         function obj=lt(obj2,obj1)
         % < or lt - Smaller than
-        %   
+        %
         %   X<=Y performs an entry-by-entry smaller than comparison of
         %   tensors of the same size or a scalar (tensor with 0
         %   dimensions) with a tensor of arbitrary size.
-        %   
+        %
         %   From the perspective of a constrained optimization
         %   numerical solver, due to finite numerical precision, X<=Y
         %   and X<Y represent the same constraint.
-        % 
+        %
         % Attention: unlike matlab's regular lt(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
-            obj=relational(obj1,obj2,'ispositive');  
+            obj=relational(obj1,obj2,'ispositive');
         end
 
         function obj=mge(obj1,obj2)
-            obj=relational(obj1,obj2,'ispositivedefinite');  
+            obj=relational(obj1,obj2,'ispositivedefinite');
         end
-            
+
         function obj=mle(obj1,obj2)
-            obj=relational(obj2,obj1,'ispositivedefinite');  
+            obj=relational(obj2,obj1,'ispositivedefinite');
         end
-            
+
         function obj=times(obj1,obj2,times2tprod)
         % .* or times - Element-wise tensor multiply
-        %   
+        %
         %   X.*Y or times(X,Y) multiply entry-by-entry tensors of the
         %   same size or a scalar (tensor with 0 dimensions) with a
         %   tensor of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular times(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
@@ -2319,7 +2319,7 @@ classdef Tcalculus
             if nargin<3
                 times2tprod=true;
             end
-            
+
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
@@ -2329,14 +2329,14 @@ classdef Tcalculus
                 error('can only element-wise multiply objects of the same size: [%s] ~= [%s]\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
+
             if times2tprod
                 obj=tprod(obj1,1:length(osize1),obj2,1:length(osize2));
                 updateFile2table(obj,1);
             else
                 if strcmp(type(obj1),'zeros') || strcmp(type(obj2),'zeros')
                     obj=obj1;
-                elseif strcmp(type(obj1),'ones') 
+                elseif strcmp(type(obj1),'ones')
                     obj=obj2;
                 elseif strcmp(type(obj2),'ones')
                     obj=obj1;
@@ -2348,7 +2348,7 @@ classdef Tcalculus
 
         function obj=mtimes(obj1,obj2,mtimes2tprod)
         % * or mtimes - Matrix multiply
-        %   
+        %
         %   X*Y is the matrix product of X and Y, which adapts to the
         %   size of the operands as follows:
         %   * regular matrix multiplication when X and Y are both
@@ -2364,7 +2364,7 @@ classdef Tcalculus
         %     with 1 dimension) with size(X,1)==size(Y,1)
         %   * entry-by-entry multiplication with either X or Y are
         %     scalars (tensor with 0 dimensions).
-        %     
+        %
         % Attention: Depending on the sizes of the parameters, this
         % operation may behave quite differently from MATLAB©’s matrix
         % multiplication mtimes().
@@ -2372,7 +2372,7 @@ classdef Tcalculus
             if nargin<3
                 mtimes2tprod=true;
             end
-            
+
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
@@ -2385,18 +2385,18 @@ classdef Tcalculus
                     % A * x
                     obj=tprod(obj1,[1,-1],obj2,[-1]);
                 elseif length(osize1)==1 && length(osize2)==2 && osize1==osize2(1)
-                    % x' * A 
+                    % x' * A
                     obj=tprod(obj1,[-1],obj2,[-1,1]);
                 elseif length(osize1)==1 && length(osize2)==2 && osize2(1)==1
-                    % x * A 
+                    % x * A
                     obj=tprod(reshape(obj1,[osize1,1]),[1,-1],obj2,[-1,2]);
                 elseif length(osize1)==1 && length(osize2)==1
                     % x .* y (inner product)
                     obj=tprod(obj1,[-1],obj2,[-1]);
-                elseif isempty(osize1)  
+                elseif isempty(osize1)
                     % scalar * A
                     obj=tprod(obj1,[],obj2,1:length(osize2));
-                elseif isempty(osize2)  
+                elseif isempty(osize2)
                     % A * scalar
                     obj=tprod(obj2,[],obj1,1:length(osize1));
                 % following not okay because it changes the size of the result
@@ -2424,7 +2424,7 @@ classdef Tcalculus
                     end
                     osize=osize1(1);
                 elseif length(osize1)==1 && length(osize2)==2
-                    % x' * A 
+                    % x' * A
                     if osize1(1)~=osize2(1)
                         disp(obj1,0,1)
                         disp(obj2,0,1)
@@ -2439,10 +2439,10 @@ classdef Tcalculus
                         error('Inner matrix dimensions must agree: %d ~= %d\n',osize1(1),osize2(1))
                     end
                     osize=[];
-                elseif isempty(osize1)  
+                elseif isempty(osize1)
                     % scalar * A
                     osize=osize2;
-                elseif isempty(osize2)  
+                elseif isempty(osize2)
                     % A * scalar
                     osize=osize1;
                 else
@@ -2455,9 +2455,9 @@ classdef Tcalculus
                     obj=obj1;
                 elseif strcmp(type(obj1),'ones') && myisequal(osize1,[1,1])
                     obj=obj2;
-                elseif strcmp(type(obj2),'ones') && osize2(1)==1 && osize2(2)>1 
+                elseif strcmp(type(obj2),'ones') && osize2(1)==1 && osize2(2)>1
                     obj=repmat(obj1,[1,osize2(2)]);
-                elseif strcmp(type(obj1),'ones') && osize1(2)==1 && osize1(1)>1 
+                elseif strcmp(type(obj1),'ones') && osize1(2)==1 && osize1(1)>1
                     obj=repmat(obj2,[osize1]); % needed for ones(100,1)*rand(1,36)
                 elseif (strcmp(type(obj1),'ones') || strcmp(type(obj2),'ones')) &&...
                         ~isempty(osize1) && ~isempty(osize2)
@@ -2471,11 +2471,11 @@ classdef Tcalculus
 
         function obj=rdivide(obj1,obj2)
         % ./ or rdivide - Right tensor divide
-        %   
+        %
         %   X./Y or rdividde(X,Y) right-divide entry-by-entry tensors
         %   of the same size or a scalar (tensor with 0 dimensions)
         %   with a tensor of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular times(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
@@ -2498,8 +2498,8 @@ classdef Tcalculus
                 error('can only element-wise divide objects of the same size, divide by scalar, or divide scalar: [%s] ~= [%s]\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
-            if strcmp(type(obj1),'zeros') 
+
+            if strcmp(type(obj1),'zeros')
                 obj=obj1;
             else
                 if isempty(osize1)
@@ -2514,11 +2514,11 @@ classdef Tcalculus
 
         function obj=ldivide(obj1,obj2)
         % .\ or ldivide - Left tensor divide
-        %   
+        %
         %   X.\Y or ldividde(X,Y) left-divide entry-by-entry tensors
         %   of the same size or a scalar (tensor with 0 dimensions)
         %   with a tensor of arbitrary size.
-        % 
+        %
         % Attention: unlike matlab's regular times(), expansion upon
         % singleton dimensions is not performed automatically to match
         % the tensors' sizes.
@@ -2526,7 +2526,7 @@ classdef Tcalculus
             obj=rdivide(obj2,obj1);
             updateFile2table(obj,1);
         end
-        
+
         function obj=mrdivide(obj1,obj2)
         % Code generation not (yet) implemented
             [obj1,obj2]=toCalculus(obj1,obj2);
@@ -2538,22 +2538,22 @@ classdef Tcalculus
                 updateFile2table(obj,1);
                 return
             end
-            
+
             if (length(osize2) ~= 2 && length(osize2) ~= 0)
                 obj1,obj2
                 error('mrdivide takes scalar/1-vector/2-matrix (not [%s]) and scalar/2-matrix (not [%s])\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
+
             if length(osize2)==2 && osize2(2)~=osize1(1)
                 obj1,obj2
                 error('Inner matrix dimensions must agree: [%s] ~= [%s]\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
+
             msize=osize1;
 
-            if strcmp(type(obj1),'zeros') 
+            if strcmp(type(obj1),'zeros')
                 obj=Tzeros(msize);
                 updateFile2table(obj,1);
             else
@@ -2563,10 +2563,10 @@ classdef Tcalculus
 
         function obj=mldivide(obj1,obj2)
         % \ or mldivide - Left matrix divide.
-        %   
+        %
         %   A\B is the matrix division of A into B, which is rougly
         %   the same as inv(A)*B
-        %   
+        %
         %   A must be a square matrix, but B can be a more genarl tensor,
         %   as long as its 1st dimension matches the size of A.
             [obj1,obj2]=toCalculus(obj1,obj2);
@@ -2578,22 +2578,22 @@ classdef Tcalculus
                 updateFile2table(obj,1);
                 return
             end
-            
+
             if length(osize1) ~= 0 && (length(osize1) ~= 2 || osize1(1)~=osize1(2) ) %|| length(osize2) > 2
                 obj1,obj2
                 error('1st argument of mldivide must be a square matrix (not [%s]))\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
+
             if length(osize1)==2 && osize1(2)~=osize2(1)
                 obj1,obj2
                 error('Inner matrix dimensions must agree: [%s] ~= [%s]\n',...
                       index2str(osize1),index2str(osize2))
             end
-            
+
             msize=osize2;
 
-            if strcmp(type(obj2),'zeros') 
+            if strcmp(type(obj2),'zeros')
                 obj=Tzeros(msize);
                 updateFile2table(obj,1);
             else
@@ -2603,26 +2603,26 @@ classdef Tcalculus
 
         function obj=clp(obj1,obj2)
         % Canonical LP: For a given obj1 with all entries >=0 ,
-        % computes the scalar 
+        % computes the scalar
         %     max { alpha >0 : obj1 + alpha obj2 >= 0 }
-        % obj1 and obj2 must have the same size. 
+        % obj1 and obj2 must have the same size.
         % Used by ipm Newton solvers to determine the step size.
-            
+
             [obj1,obj2]=toCalculus(obj1,obj2);
-            
+
             if  ~myisequal(size(obj1),size(obj2))
                 obj1,obj2
                 error('can only element-wise multiply objects of the same size: [%s] ~= [%s]\n',...
                       index2str(size(obj1)),index2str(size(obj2)))
             end
-        
+
             obj=Tcalculus('clp',[],[],[obj1.TCindex;obj2.TCindex],{},1);
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                 Multi-ary operators                      %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         % function obj=tprod(varargin) - in separate file
 
         function obj=tprod_matlab(varargin)
@@ -2632,7 +2632,7 @@ classdef Tcalculus
                 obj=Tzeros(tprod_size);
                 return
             end
-            
+
             %% Compile operands in 'objs' and 'inds' cells
             objs={};
             inds={};
@@ -2641,7 +2641,7 @@ classdef Tcalculus
                 indi=varargin{i+1};
                 objs{end+1,1}=obji;
                 inds{end+1,1}=indi;
-            end              
+            end
             ops=cellfun(@(x)x.TCindex,objs);
             obj=Tcalculus('tprod_matlab',tprod_size,sums_size,ops,inds,1);
         end
@@ -2650,15 +2650,15 @@ classdef Tcalculus
             obj=cat(1,varargin{:});
             updateFile2table(obj,1);
         end
-        
+
         function obj=horzcat(varargin)
             obj=cat(2,varargin{:});
             updateFile2table(obj,1);
         end
-        
+
         function obj=cat(dim,varargin)
         % cat - Concatenate tensors.
-        %   
+        %
         %   Y=cat(dim,A,B,C,...) concatenates the tensors
         %   A,B,C,... along the dimension dim. All the input tensors
         %   A,B,C,... should have similar sizes, except for the
@@ -2666,7 +2666,7 @@ classdef Tcalculus
         %   place. The resulting tensor Y will also have a similar
         %   size, except for the dimension dim, for which we will have
         %        size(Y,dim)=size(A,dim)+size(B,dim)+...
-            
+
             [varargin{:}]=toCalculus(varargin{:});
             k=cellfun(@(x)prod(x.msize)==0,varargin);
             varargin(k)=[];
@@ -2678,7 +2678,7 @@ classdef Tcalculus
                 % single input cat
                 obj=varargin{1};
                 updateFile2table(obj,1);
-            else        
+            else
                 isZeros=true;
                 isOnes=true;
                 k=[];
@@ -2740,11 +2740,11 @@ classdef Tcalculus
 
         function obj=interpolate(obj1,obj2,obj3,obj4,method,convert)
             warning('interpolate not tested');
-        
+
             if nargin<6
                 convert=false;
             end
-        
+
             [obj1,obj2,obj3,obj4]=toCalculus(obj1,obj2,obj3,obj4);
 
             osize1=size(obj1);
@@ -2767,7 +2767,7 @@ classdef Tcalculus
                 obj4,
                 error('S must be a scalar ([%s] instead)\n',index2str(osize4))
             end
-            
+
             if convert
                 X=Tvariable('DUMMY_',osize1);
                 alpha=length(osize1);
@@ -2791,14 +2791,14 @@ classdef Tcalculus
                               [obj1.TCindex;obj2.TCindex;obj3.TCindex;obj4.TCindex],{},1);
             end
         end
-        
+
         function obj=Ginterpolate(obj1,obj2,obj3,obj4,method,convert)
             warning('Ginterpolate not tested');
-        
+
             if nargin<6
                 convert=false;
             end
-        
+
             [obj1,obj2,obj3,obj4]=toCalculus(obj1,obj2,obj3,obj4);
 
             osize1=size(obj1);
@@ -2821,7 +2821,7 @@ classdef Tcalculus
                 obj4,
                 error('S must be a scalar ([%s] instead)\n',index2str(osize4))
             end
-            
+
             if convert
                 X=Tvariable('DUMMY_',osize1);
                 alpha=length(osize1);
@@ -2847,15 +2847,15 @@ classdef Tcalculus
                               [obj1.TCindex;obj2.TCindex;obj3.TCindex;obj4.TCindex],{},1);
             end
         end
-            
-            
+
+
         function obj=Hinterpolate(obj1,obj2,obj3,obj4,method,convert)
             warning('Hinterpolate not tested');
 
             if nargin<6
                 convert=false;
             end
-        
+
             [obj1,obj2,obj3,obj4]=toCalculus(obj1,obj2,obj3,obj4);
 
             osize1=size(obj1);
@@ -2878,7 +2878,7 @@ classdef Tcalculus
                 obj4,
                 error('S must be a scalar ([%s] instead)\n',index2str(osize4))
             end
-            
+
             if convert
                 X=Tvariable('DUMMY_',osize1);
                 alpha=length(osize1);
@@ -2911,52 +2911,52 @@ classdef Tcalculus
                 obj=Tcalculus('Hinterpolate',osize,method,...
                               [obj1.TCindex;obj2.TCindex;obj3.TCindex;obj4.TCindex],{},1);
             end
-            
+
         end
-            
-            
+
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Derivatives                            %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         % function grad=gradient(obj,var) - in separate file
-        
+
         function [hess,grad]=hessian(obj,var1,var2)
         % hessian - Hessian of a tensor-values symbolic expression with
         %          respect to a pair of tensor-valued symbolic variables
-        %    
+        %
         %    [h,g]=hessian(f,x), returns a tensor g with the partial
         %    derivatives of the entries of f with respect to the
         %    entries of the variable x, and a tensor h with the
         %    partial second derivatives of the entries of f with
         %    respect to the entries of the variable x
         %
-        %      When f is a tensor with size 
-        %        [n1,n2,...,nN] 
+        %      When f is a tensor with size
+        %        [n1,n2,...,nN]
         %      and x a tensor-valued variable (created with Tvariable) with size
         %        [m1,m2,...,mM]
         %      then
-        %        h=hessian(f,x) 
+        %        h=hessian(f,x)
         %      results in a tensor h with size
         %        [n1,n2,...,nN,m1,m2,...,mM,m1,m2,...,mM]
         %      with
         %        h(i1,i2,...,iN,j1,j2,...,jM,k1,k2,....,kM)
         %             =d2 f(i1,i2,...,iN) / d x(j1,j2,...,jM)d x(k1,k2,...,kM)
-        %    
+        %
         %    [h,g]=hessian(f,x,y), returns a tensor g with the partial
         %    derivatives of the entries of f with respect to the
         %    entries of the variable x, and a tensor with the partial
         %    second derivatives of the entries of f with respect to
         %    the entries of the variables x and y
         %
-        %      When f is a tensor with size 
-        %        [n1,n2,...,nN] 
+        %      When f is a tensor with size
+        %        [n1,n2,...,nN]
         %      and x a tensor-valued variable (created with Tvariable) with size
         %        [m1,m2,...,mM]
         %      and x a tensor-valued variable (created with Tvariable) with size
         %        [l1,l2,...,lL]
         %      then
-        %        h=hessian(f,x,y) 
+        %        h=hessian(f,x,y)
         %      results in a tensor y with size
         %        [n1,n2,...,nN,m1,m2,...,mM,l1,l2,...,lL]
         %      with
@@ -2964,7 +2964,7 @@ classdef Tcalculus
         %             =d2 f(i1,i2,...,iN) / d x(j1,j2,...,jM) d y(k1,k2,...,kL)
         %
         % Copyright 2012-2017 Joao Hespanha
-            
+
             if nargin<3
                 var2=var1;
             end
@@ -2977,26 +2977,29 @@ classdef Tcalculus
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%%%                   Substitution                           %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function obj=substitute(obj,var,obj1)
         % obj=substitute(obj,var,obj1)
         %
         % Searches for any occurences of the variable 'var' in the expression 'obj'
-        % and replaces 'var' by the expression 'obj1'. 'var' and 'obj1' should have the 
+        % and replaces 'var' by the expression 'obj1'. 'var' and 'obj1' should have the
         % same size.
         %
         % When 'obj' is a cell array, the substitution is applied to every expression
         % in the cell array.
         %
+        % When 'obj' is a structure, the substitution is applied to every elements
+        % of the structure
+        %
         % When 'var' is a cell array, obj1 should be a 1-dimensional vector that will
         % be broken into pieces, each with the same size as one of the variables.
         % Each variable is the replaced by the corresponding piece
         % of obj1.
-            
+
             if isnumeric(obj)
                 return
             end
-            
+
             if iscell(obj)
                 % Apply substitution to each element of cell array 'obj'
                 for k=1:length(obj)
@@ -3004,7 +3007,16 @@ classdef Tcalculus
                 end
                 return
             end
-            
+
+            if isstruct(obj)
+                % Apply substitution to each element of structure 'obj'
+                fn=fieldnames(obj);
+                for k=1:length(fn)
+                    obj.(fn{k})=substitute(toCalculus(obj.(fn{k})),var,obj1);
+                end
+                return
+            end
+
             if iscell(var)
                 % Substitute each variable in call array 'var' by a
                 % piece of the 1-d tensor obj1
@@ -3028,17 +3040,17 @@ classdef Tcalculus
                 end
                 return
             end
-            
+
             if ~isa(var,'Tcalculus')
                 error('2nd argument of substitute must be a Tcalculus object');
             end
-            
+
             if isa(obj,'Tcalculus')
                 obj=substituteRecursive(obj,var,obj1);
             end
 
         end
-        
+
         function obj=substituteRecursive(obj,var,obj1)
         % obj=substituteRecursive(obj,var,obj1)
         %
@@ -3055,12 +3067,12 @@ classdef Tcalculus
                 error('substitute_cache has repeated entries\n');
             end
             originalObj=obj;
-    
+
             if ~isequal(type(var),'variable')
                 var
                 error('Can only substitute variables (not %s)',var(type));
             end
-            
+
             if ~myisequal(size(var),size(obj1))
                 var
                 obj1
@@ -3076,7 +3088,7 @@ classdef Tcalculus
                     % variable to be replaced
                     obj=obj1;
                 end
-            else                
+            else
                 % replace operands
                 ops=operands(obj);
                 for i=1:length(ops)
@@ -3089,13 +3101,13 @@ classdef Tcalculus
                                   ops,op_parameters(obj),1);
                 end
             end
-            
+
             %% Add to the cache
             add2substitute_cache(originalObj,var,obj1,obj);
-        end            
-                                
+        end
+
     end
-    
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -3107,7 +3119,7 @@ function obj2=growScalar(obj1,osize)
 %
 % given a scalar-valued obj1, returns a tensor with size osize,
 % with all entries equal to the scalar
-    
+
     if strcmp(type(obj1),'zeros')
         obj2=Tzeros(osize);
     elseif strcmp(type(obj1),'ones')
@@ -3124,5 +3136,3 @@ function obj2=growScalar(obj1,osize)
         updateFile2table(obj2,2);
     end
 end
-
-

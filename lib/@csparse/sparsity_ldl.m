@@ -22,10 +22,10 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
 
     % profile on
 
-    verboseLevel=2;  
-    
+    verboseLevel=2;
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     subsX=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrX=getOne(obj.vectorizedOperations,'instructions',operands(1));
     % typeX=getMulti(obj.instructions,'type',instrX);
@@ -33,11 +33,11 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     % kLoad=typeX==obj.Itypes.I_load';
     osize=getOne(obj.vectorizedOperations,'osize',thisExp);
     n=osize(1);
-    
+
     if length(osize)~=2 || osize(1)~=osize(2)
         error('LDL decomposition only implemented for square matrices\n');
     end
-    
+
     [uniqueInstrX,~,kuniqueInstrX]=unique(instrX); % instrX=uniqueInstrX(kuniqueInstrX);
 
     if verboseLevel>0
@@ -47,18 +47,18 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
                 thisExp,['[',index2str(osize),']'],length(instrX),length(uniqueInstrX));
     end
 
-    
+
     % compute matrix to optimize sparsity in ldl factorization
     [sz,subscripts,values,A]=loadCSparse(typical_subscripts,typical_values);
 
-    if any(isnan(sz)) || ~isequal(subscripts,subsX) 
+    if any(isnan(sz)) || ~isequal(subscripts,subsX)
         fprintf('    using random values, ');
 
         s = RandStream('mt19937ar','Seed',0);
         % create random values preserving structural symmetries
         values=1+.5*rand(s,length(uniqueInstrX),1);
         values=values(kuniqueInstrX);
-        
+
         A=sparse(double(subsX(1,:)),double(subsX(2,:)),values,n,n);
     else
         fprintf('    using values from "%s", ',typical_values);
@@ -66,7 +66,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         if nnan>0
             error('typical values include %d nan entries',full(nnan));
         end
-        
+
         % add some noise to remove non structural zeros (in A its the LU factorization)
         tol=min(find(abs(A)))*eps^2;        A=A+sparse(double(subscripts(1,:)),double(subscripts(2,:)),tol*randn(size(subscripts,2),1));
         % preserve symmetry
@@ -85,9 +85,9 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         fprintf('%d/%d nonzero entries of A and A'' DO NOT MATCH - LOWER ONES USED\n',...
                 nNonSymA,length(instrX));
     end
-    
+
     % determine column permutation for "optimal sparsity"
-    
+
     if 0
         % sometimes does not guarantee existance of LDL with D
         % diagonal (instead of block diagonal)
@@ -100,7 +100,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     elseif 1
         % larger threshold (default 10) for dense (slower, but more accurate)
         % smvm(30): 27335 nnz A/15016 unique nnz L/102766 unique instructions
-        p=symamd((A+A')/2,[1000,0]); 
+        p=symamd((A+A')/2,[1000,0]);
         %p=symamd((A+A')/2,[1000,1]); % verbose
     elseif 0
         % faster than symamd, but seems to lead to a little more fillin
@@ -108,7 +108,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         % larger threshold (default 10) for dense (slower, but more accurate)
         p=amd((A+A')/2,struct('dense',1000,'aggressive',true));
     end
-        
+
     if verboseLevel>1 && nnz(A)<prod(size(A))
         fig=get(0,'CurrentFigure');
         f=figure(101);
@@ -142,7 +142,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         plot(1:length(p),p,'r.');
         legend('row/col  perm');
         axis ij;axis image;
-        
+
         subplot(2,3,4)
         spy(A(p,p))
         title('A (permuted)');
@@ -152,13 +152,13 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         end
         drawnow
     end
- 
+
     %% Compute instructions
-    
+
     if any(instrX==0)
         error('sparsityLDL: algorithm expects no instrX=0\n');
     end
-    
+
     % permute X
     instrXp=sparse(double(subsX(1,:)),...
                    double(subsX(2,:)),...
@@ -169,12 +169,12 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
     % initialize LDL
     instrLDL=sparse([],[],[],n,n);
     instrD=zeros(1,n);
-    
+
     for col=1:n
         % v=nan(col-1,1);
-        % for i=1:col-1 
+        % for i=1:col-1
         %     v(i)=LDL(col,i)*D(i);
-        % end 
+        % end
         instrV=zeros(1,col-1);
         is=find(instrLDL(col,1:col-1) & instrD(1:col-1));
         if ~isempty(is)
@@ -204,8 +204,8 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
                                        operands,...
                                        thisExp,obj.fastRedundancyCheck);
         end
-        
-        
+
+
         % for row=col+1:n
         %     LDL(row,col)=( A(row,col)- LDL(row,1:col-1)*v ) / D(col) ;
         %     LDL(col,row)=LDL(row,col); % not needed, but just to get L'
@@ -215,7 +215,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         for row=col+rows
             is=find(instrLDL(row,1:col-1) & instrV);
             if instrXp(row,col)
-                if isempty(is) 
+                if isempty(is)
                     operands=full([instrXp(row,col),instrD(col)]);
                     instrLDL(row,col)=newInstruction(obj,obj.Itypes.I_div,[],operands,...
                                                      thisExp,obj.fastRedundancyCheck);
@@ -231,18 +231,18 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
             end
             instrLDL(col,row)=instrLDL(row,col);
         end
-    end    
+    end
 
     % put diagonal back in place
     instrLDL=spdiags(instrD',0,instrLDL);
     %full(instrLDL)
-    
+
     % keep subscripts in subsLDL in the "natural" order (sorted by row and then col)
     [i,j,instrLDL]=find(instrLDL);
     if isempty(i)
         error('sparsity: trying to do an LDL factorization on a zero matrix');
     end
-    
+
     [subsLDL,k]=sortrows([uint64(i),uint64(j)],2:-1:1);
     subsLDL=subsLDL';
     instrLDL=instrLDL(k);
@@ -255,7 +255,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
         LD=sparse(double(subsLDL(1,k)),...
                   double(subsLDL(2,k)),...
                   instrLDL(k),n,n);
-        
+
         figure(f);
         subplot(2,3,5)
         plot(1:n,1:n,'r.');
@@ -295,10 +295,10 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
             end
         end
     end
-    
+
     % profile off
     % profile viewer
-    
+
     obj.statistics.ldl{end+1,1}=struct(...
         'sizeA',osize,...
         'nnzA',length(instrX),...
@@ -317,7 +317,7 @@ function [subsLDL,instrLDL,p]=sparsity_ldl(obj,thisExp,typical_subscripts,typica
 end
 
 function nNonSym=symmetric(obj,subsX,instrX)
-    
+
     subsXt=subsX([2,1],:);
     [~,k1]=sortrows(subsX');
     [~,k2]=sortrows(subsXt');
@@ -325,17 +325,17 @@ function nNonSym=symmetric(obj,subsX,instrX)
     %[subsX(:,k1)',subsXt(:,k2)']
     %[instrX(k1),instrX(k2)]
     k=find(any(subsX(:,k1)~=subsXt(:,k2),1)' | instrX(k1)~=instrX(k2));
-     
+
     if false %~isempty(k)
         [subsX(:,k1(k))',instrX(k1(k)),subsX(:,k2(k))',instrX(k2(k)),k]
-        
+
         i=1;
         fprintf('%d:\n',instrX(k1(k(i))));
         showInstruction(obj,instrX(k1(k(i))),2)
         fprintf('%d:\n',instrX(k2(k(i))));
         showInstruction(obj,instrX(k2(k(i))),2)
     end
-    
+
     nNonSym=length(k);
 end
 
@@ -344,16 +344,16 @@ function test()
     n=6;
     A=randn(n,n);
     A=A*diag(randn(n,1))*A';
-    
+
     LDL=nan(n);
     D=nan(n,1);
-    
+
     % without pivoting
-    for col=1:n 
+    for col=1:n
         v=nan(col-1,1);
-        for i=1:col-1 
+        for i=1:col-1
             v(i)=LDL(col,i)*D(i);
-        end 
+        end
         D(col)=A(col,col)- LDL(col,1:col-1)*v(1:col-1);
         if D(col)==0
             error('needs pivoting');
@@ -363,7 +363,7 @@ function test()
             LDL(row,col)=( A(row,col)- LDL(row,1:col-1)*v(1:col-1) ) / D(col) ;
             LDL(col,row)=LDL(row,col); % not needed, but just to get L'
         end
-        
+
     end
 
     LDL
@@ -371,8 +371,7 @@ function test()
     D=diag(D)
 
     L*D*L'-A
-    
-    
-    
-end
 
+
+
+end

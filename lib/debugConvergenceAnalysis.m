@@ -23,7 +23,7 @@ function debugConvergenceAnalysis(debugInfo,status,iter,time,z,nu,lambda,dZ,dNu,
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
 % study scaling of z
-    
+
     zBlocks=[cellfun(@(x)prod(size(x)),debugInfo.P1optimizationVariables),...
              cellfun(@(x)prod(size(x)),debugInfo.P2optimizationVariables)];
     k1=cellfun(@(x)strcmp(x.type,'iszero'),debugInfo.P1constraints);
@@ -34,7 +34,7 @@ function debugConvergenceAnalysis(debugInfo,status,iter,time,z,nu,lambda,dZ,dNu,
     k2=cellfun(@(x)strcmp(x.type,'ispositive'),debugInfo.P2constraints);
     FBlocks=[cellfun(@(x)prod(size(x.objs{1})),debugInfo.P1constraints(k1)),...
              cellfun(@(x)prod(size(x.objs{1})),debugInfo.P2constraints(k2))];
-             
+
     fig=55;
 
     figure(fig);set(gcf,'name','Dispersion');fig=fig+1;
@@ -44,7 +44,7 @@ function debugConvergenceAnalysis(debugInfo,status,iter,time,z,nu,lambda,dZ,dNu,
                  nu(:,end),GBlocks,'nu: final',...
                  lambda(:,1),FBlocks,'lambda - ineq constr. mult.: initial',...
                  lambda(:,end),FBlocks,'lambda: final');
-        
+
     fprintf('Problem: alpha -> 0\n');
     fprintf('Possibly solution: large dispersion in values of optimization varibles (or in \n');
     fprintf('                   dual variables), causing very large steps in some variables\n');
@@ -60,7 +60,7 @@ function debugConvergenceAnalysis(debugInfo,status,iter,time,z,nu,lambda,dZ,dNu,
     fprintf('  If this is not the case, rescale the equality constraints appropriately\n');
     fprintf('  (multiplying both side of equality by X, divides nu by X).\n');
     fprintf('. smallest final value close to zero means that there are dependent equalities.\n');
-    
+
     fprintf('Rules regarding dispersion of inequality constraints multipliers (lambda):\n');
     fprintf('. largest final values should not be much larger than 1000.\n');
     fprintf('  If this is not the case, rescale the equality constraints appropriately\n');
@@ -69,10 +69,10 @@ function debugConvergenceAnalysis(debugInfo,status,iter,time,z,nu,lambda,dZ,dNu,
     fprintf('Problem: gradient and/equality do not -> 0\n');
     fprintf('Possibly solution: ?\n');
 
-end 
+end
 
 function checkScaling(varargin)
-    
+
     clf
     nPlots=length(varargin)/3;
     s=1;
@@ -93,7 +93,7 @@ function checkScaling(varargin)
             blockNdx(k:k+blocks(i)-1)=1:blocks(i);
             k=k+blocks(i);
         end
-        
+
         subplot(2,nPlots,s);s=s+nPlots;
         semilogy(abs(data));
         grid on
@@ -102,7 +102,7 @@ function checkScaling(varargin)
         semilogy(sort(abs(data)),'.')
         grid on
         title(sprintf('%s - sorted magnitudes',name))
-        
+
         fprintf(sprintf('Dispersion of %s\n',name));
 
         % find extreme entries
@@ -114,7 +114,7 @@ function checkScaling(varargin)
         fprintf('   . max ratio = %10.2g -> between entries %3d (entry %3d in block %2d = %10.2g) and %3d (%3d entry in block %2d = %10.2g)\n',M/m,...
                 kSmall,blockNdx(kSmall),blockID(kSmall),data(kSmall),...
                 kLarge,blockNdx(kLarge),blockID(kLarge),data(kLarge));
-        
+
         if 0
             % find gap between entries
             [ds,ks]=sort(abs(data));
@@ -123,11 +123,10 @@ function checkScaling(varargin)
             [maxGapFactor,km]=max(r);
             kSmall=ks(km);
             kLarge=ks(km+1);
-            
+
             fprintf('   . max gap   = %10.2g -> between entries %3d (entry %3d in block %2d = %10.2g) and %3d (%3d entry in block %2d = %10.2g)\n',maxGapFactor,...
                     kSmall,blockNdx(kSmall),blockID(kSmall),data(kSmall),...
                     kLarge,blockNdx(kLarge),blockID(kLarge),data(kLarge));
         end
     end
 end
-    

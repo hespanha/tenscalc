@@ -20,24 +20,24 @@
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
 classdef storeExpressions < handle
-    
+
     properties
         prefix='';
         functions={};
         expressions={};
         constants={};
     end
-    
+
     methods
-        
+
         function obj=storeExpressions(prefix)
             if nargin>0
                 obj.prefix=prefix;
             end
         end
-        
+
         function fname=storeConstant(store,fun)
-            
+
             for i=1:size(store.constants,1)
                 if strcmp(store.constants{i,2},fun)
                     fname=store.constants{i,1};
@@ -46,11 +46,11 @@ classdef storeExpressions < handle
             end
             fname=sprintf('%sc%d',store.prefix,size(store.constants,1));
             store.constants(end+1,:)={fname,fun};
-            
+
         end
 
         function fname=storeExpression(store,fun)
-            
+
             for i=1:size(store.expressions,1)
                 if strcmp(store.expressions{i,2},fun)
                     fname=store.expressions{i,1};
@@ -59,7 +59,7 @@ classdef storeExpressions < handle
             end
             fname=sprintf('%se%d',store.prefix,size(store.expressions,1));
             store.expressions(end+1,:)={fname,fun};
-            
+
         end
 
         function [strConstants,strExpressions]=str(store)
@@ -74,7 +74,7 @@ classdef storeExpressions < handle
                             store.expressions{i,1},store.expressions{i,2});
             end
         end
-        
+
         function str=strExpression(store,first)
             str=[];
             if nargin<2
@@ -85,7 +85,7 @@ classdef storeExpressions < handle
                             store.expressions{i,1},store.expressions{i,2});
             end
         end
-        
+
         function disp(store)
             [strConstants,strExpressions]=str(store);
             if ~isempty(strConstants)

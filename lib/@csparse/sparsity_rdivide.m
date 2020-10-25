@@ -2,7 +2,7 @@ function [subsY,instrY,instructions]=sparsity_rdivide(obj,thisExp)
 %   Computes the sparsity pattern for an elementary expression
 %   'thisExp' of type 'rdivide', allocates the required memory, and
 %   determines the instructions needed to compute each of its nonzero
-%   elements. 
+%   elements.
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -44,7 +44,7 @@ if isempty(osize2)
     subsY=subsX1;
     %% Determine instructions for Y
     operands=[instrX1';instrX2*ones(1,length(instrX1))];
-elseif isempty(osize1)  
+elseif isempty(osize1)
     % scalar divided by
     %fprintf('sparsity_rdivide: scalar divided by\n');
     if isempty(instrX2)
@@ -59,7 +59,7 @@ elseif myisequal(osize1,osize2)
     if size(subsX2,2)~=prod(osize)
         error('sparsity_rdivide: structurally zero values for x2 not allowed in x1./x2')
     end
-    [kX2,kX1]=ismember(subsX2',subsX1','rows');    
+    [kX2,kX1]=ismember(subsX2',subsX1','rows');
     subsY=subsX1(:,kX1(kX2));
     %% Determine instructions for Y
     operands=[instrX1(kX1(kX2))';instrX2(kX2)'];

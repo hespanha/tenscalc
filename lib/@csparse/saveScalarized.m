@@ -105,7 +105,7 @@ function saveScalarized(obj,filename)
         end
     end
     %iTypes
-    
+
     %% compute scalar instructions
     fprintf('  computeScalarInstructions... ');t0=clock;
     checkVariableSets(obj);
@@ -183,7 +183,7 @@ function saveScalarized(obj,filename)
             % function type, n inputs, 1 output
             fwrite(fg,[iTypes(type),length(operands),1,operands-1,thisExp-1],intType);  % 0-based;
             %[iTypes(type),length(operands),operands-1,thisExp-1]
-          
+
           case {obj.Itypes.I_sum,...
                 obj.Itypes.I_sumprod...
                 }
@@ -191,17 +191,17 @@ function saveScalarized(obj,filename)
             % function type, 1+n inputs, 1 output
             fwrite(fg,[iTypes(type),1+length(operands),1,var-1,operands-1,thisExp-1],intType);  % 0-based;
             %[iTypes(type),1+length(operands),[var-1,operands-1],thisExp-1]
-            
+
           case obj.Itypes.I_set
             % do nothing
             nFuncts=nFuncts-1;
-          
+
           case obj.Itypes.I_load
             var=addConstant(double(parameters),'','load');
             % write constant function type, constant index, output variable
             fwrite(fg,[const_funct,var,thisExp-1],intType);  % 0-based;
             %[const_funct,var-1,thisExp-1]
-            
+
           otherwise
             error('csparse/saveScalarized: missing type %d\n',type);
         end
@@ -224,7 +224,7 @@ function saveScalarized(obj,filename)
             % scalar-to-full tensor function type, 1+n inputs, 1 output
             fwrite(fg,[s2ft_funct,1+length(instructions),1,var-1,instructions'-1,newvars(j)-1],intType);  % 0-based;
             nFuncts=nFuncts+1;
-        end        
+        end
 
         % io type, # gets, variables
         fwrite(fio,[ioget,length(obj.gets(i).source),newvars],intType);  % 0-based;
@@ -247,7 +247,7 @@ function saveScalarized(obj,filename)
             % full tensor-to-scalar function type, 1 inputs, n outputs
             fwrite(fg,[ft2s_funct,1,length(instructions),newvars(j)-1,instructions'-1],intType);  % 0-based;
             nFuncts=nFuncts+1;
-        end        
+        end
 
         % io type, # sets, variables
         fwrite(fio,[ioset,length(obj.sets(i).destination),newvars],intType);  % 0-based;
@@ -264,17 +264,17 @@ function saveScalarized(obj,filename)
                                          'subscripts',obj.copies(i).destination(k));
             iD=getOne(obj.vectorizedOperations,'instructions',obj.copies(i).destination(k));
             instructionsDestination=[instructionsDestination;iD];
-            
+
             subscriptsSource=getOne(obj.vectorizedOperations,'subscripts',obj.copies(i).source(k));
             iS=getOne(obj.vectorizedOperations,'instructions',obj.copies(i).source(k));
             instructionsSource=[instructionsSource;iS];
-            
+
             if ~isequal(subscriptsDestination,subscriptsSource)
                 subscriptsDestination,subscriptsSource
                 error('saveScalarized: source and destination for Copy command with different sparsity structures\n');
             end
         end
-        
+
         % io type, # copies, source variables, destination variables
         fwrite(fio,[iocopy,length(instructionsSource),...
                     instructionsSource'-1,instructionsDestination'-1],intType);  % 0-based;
@@ -335,4 +335,3 @@ function saveScalarized(obj,filename)
     fprintf('done %d functions, %d ios, %d constants, %d symbols (%.2fms)\n',...
             nFuncts,nIOs,length(constants),nSym,1000*etime(clock,t0));
 end
-    

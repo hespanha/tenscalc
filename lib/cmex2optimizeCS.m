@@ -1,4 +1,4 @@
-function varargout=cmex2optimizeCS(varargin)	
+function varargout=cmex2optimizeCS(varargin)
 % To get help, type cmex2optimizeCS('help')
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -16,7 +16,7 @@ function varargout=cmex2optimizeCS(varargin)
 % General Public License for more details.
 %
 % You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.    
+% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     %% Function global help
     declareParameter(...
@@ -53,14 +53,14 @@ function varargout=cmex2optimizeCS(varargin)
             'fail with the message ''ldl needs pivoting''. If this happens';
             'either set |useLDL=false| or use a nonzero value for |addEye2Hessian|.';
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Retrieve parameters and inputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     [stopNow,params]=setParameters(nargout,varargin);
     if stopNow
-        return 
+        return
     end
 
     %% transfer any folder in classname into folder
@@ -73,15 +73,15 @@ function varargout=cmex2optimizeCS(varargin)
             error('Unable to create folder ''%s''\n',folder)
         end
     end
-    
+
     rmpath(folder);
     addpath(folder);
-    
+
     %% Fix class when gotten from pedigree
     classname=regexprep(classname,'+TS=','_TS_');
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
-    
+
     debugConvergence=false; % not implemented for cmex
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,9 +130,9 @@ function varargout=cmex2optimizeCS(varargin)
 
     fprintf('cmex2optimizeCS:... ');
     t_cmexCS=clock();
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Declare the problem-specific variables 
+    %% Declare the problem-specific variables
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     t_csparse=clock();
@@ -144,7 +144,7 @@ function varargout=cmex2optimizeCS(varargin)
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
     classhelp={'Create object';
                sprintf('obj=%s();',classname)};
-    
+
     % template for createGateway
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
@@ -195,8 +195,8 @@ function varargout=cmex2optimizeCS(varargin)
 
     [G,F,nus,lambdas,outputExpressions,tpl]=...
         parseConstraints(code,classname,constraints,outputExpressions);
-    template=[template;tpl];    
-    
+    template=[template;tpl];
+
     %% Pack primal variables
     [u,whereVariables,~,~,objective,outputExpressions,F,G]...
         =packVariables(optimizationVariables,'x_',objective,outputExpressions,F,G);
@@ -227,7 +227,7 @@ function varargout=cmex2optimizeCS(varargin)
 
     %% Get indices of sensitivity variables
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
-    
+
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
     Tout=ipmPD_CS(code,objective,u,lambda,nu,F,G,isSensitivity,...
@@ -236,16 +236,16 @@ function varargout=cmex2optimizeCS(varargin)
                   useLDL,useUmfpack,...
                   classname,allowSave,debugConvergence);
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
-    
+
     % Replace solver variables into output expression
     fn=fields(Tout);
     for i=1:length(fn)
         varname=sprintf('%s_',fn{i});
         outputExpressions=substitute(outputExpressions,...
                                      Tvariable(varname,size(Tout.(fn{i})),true),Tout.(fn{i}));
-    end    
-    
-    %% Declare ipm solver 
+    end
+
+    %% Declare ipm solver
     classhelp{end+1}='Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
@@ -268,7 +268,7 @@ function varargout=cmex2optimizeCS(varargin)
         fprintf('class classFolder @%s does not exist, creating it... ',classname);
         mkdir(classFolder);
     end
-    
+
     defines.saveNamePrefix=['"',fsfullfile(classFolder,classname),'"'];
     defines.nU=size(u,1);
     defines.nG=size(G,1);
@@ -297,7 +297,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.debugConvergenceThreshold=debugConvergenceThreshold;
     defines.profiling=double(profiling);
     defines.verboseLevel=solverVerboseLevel;
-    
+
     pth=fileparts(which('cmex2optimizeCS.m'));
     declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.c'),'ipmPD_CSsolver',...
                     defines,template(end).inputs,template(end).outputs,template(end).method);
@@ -324,7 +324,7 @@ function varargout=cmex2optimizeCS(varargin)
 
     code.statistics.time.csparse=etime(clock,t_csparse);
     code.statistics.defines=defines;
-    
+
     fprintf('  done creating csparse object (%.3f sec)\n',etime(clock,t_csparse));
 
     %% Compile code
@@ -360,7 +360,7 @@ function varargout=cmex2optimizeCS(varargin)
         end
     end
     code.statistics.time.compile2C=etime(clock,t_compile2C);
-    
+
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
     classhelp{end+1}='Delete object';
@@ -368,7 +368,7 @@ function varargout=cmex2optimizeCS(varargin)
 
     t_createGateway=clock();
     %% Create gateway & compile library
-    switch (callType) 
+    switch (callType)
       case 'dynamicLibrary'
         statistics=createGateway('template',template,...
                                  'CfunctionsSource',fsfullfile(classFolder,sprintf('%s.c',classname)),...
@@ -401,7 +401,7 @@ function varargout=cmex2optimizeCS(varargin)
     end
     code.statistics.time.createGateway=etime(clock,t_createGateway);
     code.statistics.createGateway=statistics;
-    
+
     fprintf('  done creating & compiling gateways & library (%.2f sec)\n',...
             etime(clock,t_createGateway));
 
@@ -434,17 +434,17 @@ function varargout=cmex2optimizeCS(varargin)
     end
 
     %% debug info to be passed to debugConvergenceAnalysis
-    
+
     debugInfo.optimizationVariables=optimizationVariables;
     debugInfo.constraints=constraints;
-    
+
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done cmex2optimizeCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     varargout=setOutputs(nargout,params);
 
 end

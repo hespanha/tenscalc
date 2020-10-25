@@ -1,6 +1,6 @@
 function m = serialize(v, n)
-% SERIALIZE create matlab code from a variable 
-%  
+% SERIALIZE create matlab code from a variable
+%
 %   matcode = SERIALIZE(x) generates matlab code of x
 %   matcode = SERIALIZE(x, n) generates matlab code of x retaining n digits
 %   of precision
@@ -9,19 +9,19 @@ function m = serialize(v, n)
 %   SERIALIZE should be able to create matlab code of the following data types:
 %   - matrices, vectors, and scalars of any class and dimension
 %   - strings
-%   - structs, arrays of structs with up to six dimensions 
+%   - structs, arrays of structs with up to six dimensions
 %   - cell arrays
 %   - matlab objects with a copy constructor implemented (Not Java)
 %   - empty values of any class
 %   - any combinations hereof
-%  
+%
 %   The value of x can be obtained by
 %     eval(matcode)
 %
-%   Examples 
+%   Examples
 %     x = [1 2 3; 3 4 5];
 %     serialize(x)
-%     
+%
 %     x = uint8(rand(10)*5);
 %     matcode = serialize(x)
 %
@@ -30,11 +30,11 @@ function m = serialize(v, n)
 %
 %   See also mat2str, num2str, int2str, sprintf, class, eval
 
-%% AUTHOR    : Jøger Hansegård 
-%% $DATE     : 29-Jun-2006 17:37:49 $ 
-%% $Revision : 1.00 $ 
-%% DEVELOPED : 7.2.0.232 (R2006a) 
-%% FILENAME  : serialize.m 
+%% AUTHOR    : Jøger Hansegård
+%% $DATE     : 29-Jun-2006 17:37:49 $
+%% $Revision : 1.00 $
+%% DEVELOPED : 7.2.0.232 (R2006a)
+%% FILENAME  : serialize.m
 switch nargin
   case 0
     selftest()
@@ -66,7 +66,7 @@ end
 
 %
 % Serialize a string
-% 
+%
 function val = serializestring(v,n)
 val              = ['sprintf(''' v ''')'];
 doConvertToUint8 = false;
@@ -75,7 +75,7 @@ try
 catch
   doConvertToUint8 = true;
 end
-if doConvertToUint8 || ~isequal(eval(val), v) 
+if doConvertToUint8 || ~isequal(eval(val), v)
   val = ['char(' serializevalue(uint8(v), n) ')'];
 end
 
@@ -178,7 +178,7 @@ dotest('Char matrix',   charmatrix);
 a.x{1}    = sprintf('%s', teststr1);
 a.x{2}    = teststr1;
 a.teststr = teststr2;
-a.b.anotherteststr = teststr3; 
+a.b.anotherteststr = teststr3;
 a.c{2}    = cell(10,10,8, 2);
 dotest('Structs and cells', a);
 

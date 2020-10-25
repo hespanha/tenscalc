@@ -1,4 +1,4 @@
-function varargout=cmex2equilibriumLatentCS(varargin)	
+function varargout=cmex2equilibriumLatentCS(varargin)
 % To get help, type cmex2equilibriumLatentCS('help')
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -113,7 +113,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             '        for player 1 and 2 (in the order that they appear and with the same size';
             '        as the corresponding constraints).';
             '* |P1nu1_|,|P1nu2_|,... ,|P2nu1_|,|P2nu2_|,...'
-            '* |P1xnu1_|,|P1xnu2_|,... ,|P2xnu1_|,|P2xnu2_|,...'    
+            '* |P1xnu1_|,|P1xnu2_|,... ,|P2xnu1_|,|P2xnu2_|,...'
             '      - Lagrangian multipliers associated with the equality constraints';
             '        for player 1 and 2 (in the order that they appear and with the same size'
             '        as the corresponding constraints). The P1x and P2x variables correspond';
@@ -137,14 +137,14 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             '[Should be avoided since does not seem to have a good justification for Nash'
             'equilibria.]'
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Retrieve parameters and inputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     [stopNow,params]=setParameters(nargout,varargin);
     if stopNow
-        return 
+        return
     end
 
     %% transfer any folder in classname into folder
@@ -157,10 +157,10 @@ function varargout=cmex2equilibriumLatentCS(varargin)
             error('Unable to create folder ''%s''\n',folder)
         end
     end
-    
+
     rmpath(folder);
     addpath(folder);
-    
+
     %% Fix class when gotten from pedigree
     classname=regexprep(classname,'+TS=','_TS_');
     classname=regexprep(classname,'-','_');
@@ -261,9 +261,9 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     fprintf('cmex2equilibriumLatentCS: ...');
     t_cmexCS=clock();
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %% Declare the problem-specific variables 
+    %% Declare the problem-specific variables
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     fprintf(' declaring sets for parameters and primal variables... ');
@@ -277,7 +277,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
     classhelp={'% Create object';
                sprintf('obj=%s();',classname)};
-    
+
     % template for createGateway
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
@@ -340,7 +340,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         classhelp{end+1}=sprintf('setV_%s(obj,{[%s] matrix});',...
                                  name(latentVariables{i}),index2str(msize));
     end
-    
+
     %% Define constraints, dual variables, and declare 'sets' for initializing dual variables
 
     if verboseLevel>0
@@ -350,27 +350,27 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     % Player 1
     [Gu,Fu,P1nus,P1lambdas,outputExpressions,tpl]=...
         parseConstraints(code,classname,P1constraints,outputExpressions,'P1');
-    template=[template;tpl];    
-    
-    
+    template=[template;tpl];
+
+
     % Player 2
     [Gd,Fd,P2nus,P2lambdas,outputExpressions,tpl]=...
         parseConstraints(code,classname,P2constraints,outputExpressions,'P2');
-    template=[template;tpl];    
+    template=[template;tpl];
 
     % Latent constraints (only one H, but two sets of dual variables)
     [H,~,P1xnus,err,outputExpressions,tpl]=...
         parseConstraints(code,classname,latentConstraints,outputExpressions,'P1x');
-    template=[template;tpl];    
+    template=[template;tpl];
     [H,~,P2xnus,err,outputExpressions,tpl]=...
         parseConstraints(code,classname,latentConstraints,outputExpressions,'P2x');
-    template=[template;tpl];    
+    template=[template;tpl];
 
     if ~isempty(err)
         latentConstraints
         error('latent constraints cannot be inequalities\n');
     end
-        
+
     %% Pack constraints
 
     if verboseLevel>1
@@ -401,11 +401,11 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     else
         x=Tzeros(0);
     end
-    
+
     if length(H)~=length(x)
         error('number of latent variables (=%d) must match number of latent (equality) constraints (=%d) so that latent variables are uniquely defined',length(x),length(H));
     end
-    
+
     declareCopy(code,dst,src,'initPrimal__');
 
     %% Pack dual variables
@@ -469,8 +469,8 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
     outputExpressions=substitute(outputExpressions,...
                                  Tvariable('Hess_',size(Hess__),true),Hess__);
-    
-    %% Declare ipm solver 
+
+    %% Declare ipm solver
     nZ=size(u,1)+size(d,1)+size(x,1);
     nG=size(Gu,1)+size(Gd,1)+size(H,1);
     nF=size(Fu,1)+size(Fd,1);
@@ -505,7 +505,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         fprintf('class classFolder @%s does not exist, creating it... ',classname);
         mkdir(classFolder);
     end
-    
+
     defines.saveNamePrefix=['"',fsfullfile(classFolder,classname),'"'];
     defines.nZ=size(u,1)+size(d,1)+size(x,1);
     defines.nU=size(u,1);
@@ -534,11 +534,11 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     defines.debugConvergenceThreshold=debugConvergenceThreshold;
     defines.profiling=double(profiling);
     defines.verboseLevel=solverVerboseLevel;
-    
+
     pth=fileparts(which('cmex2equilibriumLatentCS.m'));
     declareFunction(code,fsfullfile(pth,'ipmPDeq_CSsolver.c'),'ipmPDeq_CSsolver',...
                     defines,template(end).inputs,template(end).outputs,template(end).method);
-    
+
     %% Declare 'gets' for output expressions
     classhelp{end+1}='Get outputs';
     classhelp{end+1}='';
@@ -558,7 +558,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     code.statistics.time.csparse=etime(clock,t_csparse);
     code.statistics.defines=defines;
-    
+
     fprintf('  done creating csparse object (%.3f sec)\n',etime(clock,t_csparse));
 
     %% Compile code
@@ -594,7 +594,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         end
     end
     code.statistics.time.compile2C=etime(clock,t_compile2C);
-    
+
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
     classhelp{end+1}='Delete object';
@@ -602,7 +602,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     t_createGateway=clock();
     %% Create gateway & compile library
-    switch (callType) 
+    switch (callType)
       case 'dynamicLibrary'
         statistics=createGateway('template',template,...
                       'CfunctionsSource',fsfullfile(classFolder,sprintf('%s.c',classname)),...
@@ -633,7 +633,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     end
     code.statistics.time.createGateway=etime(clock,t_createGateway);
     code.statistics.createGateway=statistics;
-    
+
     fprintf('  done creating & compiling gateways & library (%.2f sec)\n',...
             etime(clock,t_createGateway));
 
@@ -666,19 +666,19 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     end
 
     %% debug info to be passed to debugConvergenceAnalysis
-    
+
     debugInfo.P1optimizationVariables=P1optimizationVariables;
     debugInfo.P2optimizationVariables=P2optimizationVariables;
     debugInfo.P1constraints=P1constraints;
     debugInfo.P2constraints=P2constraints;
-    
+
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done cmex2equilibriumLatentCS (%.3f sec)\n',etime(clock,t_cmexCS));
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Set outputs
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     varargout=setOutputs(nargout,params);
 
 end

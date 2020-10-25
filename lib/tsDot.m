@@ -9,11 +9,11 @@ function [y,ts]=tsDot(x1,x2,ts);
 %                (one time per column)
 %   x2 [n x N] - values of the 2nd time series at the given times
 %                (one time per column)
-%   ts [N x 1] - vector of times 
+%   ts [N x 1] - vector of times
 %                (for TC variables size(ts)=N)
 %
 % Output
-%   y [1 x N]  - values of the dot product at the given times 
+%   y [1 x N]  - values of the dot product at the given times
 %                (for TC variables size(y)=N)
 %                (one time per column)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
@@ -45,19 +45,19 @@ function [y,ts]=tsDot(x1,x2,ts);
         error('tsDot: inputs must be time series of vectors ([%s],[%s])\n',...
               index2str(size(x1)),index2str(size(x2)));
     end
-    
+
     if length(ts)~=size(x1,2) || length(ts)~=size(x2,2)
         error('tsDot: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
               length(ts),index2str(size(x1)),index2str(size(x2)));
     end
-    
-    if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus') 
+
+    if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus')
         y=tprod(x1,[-1,1],x2,[-1,1]);
     else
         %y=sum(x1.*x2,1);
         y=mytprod(x1,[-1,1],x2,[-1,1])';
     end
-    
+
 end
 
 function test
@@ -65,7 +65,7 @@ function test
     ts=pi/2:pi/10:4*pi+pi/2;
     x=[sin(ts).*cos(ts);cos(ts).*cos(ts);sin(ts)];
     y=tsDot(x,x,ts);
-    
+
     plot(ts,x','-x',ts,y','-+');
     legend('x1','x2','x3','y')
 

@@ -26,7 +26,7 @@ function obj=Teye(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if nargin==1
         osize=varargin{1};
     else
@@ -35,7 +35,7 @@ function obj=Teye(varargin)
     if mod(length(osize),2)~=0
         osize
         error('eye matrix must have an even number of indices');
-    end        
+    end
     if ~isempty(osize)
         ind1=1:length(osize)/2;
         ind2=ind1(end)+1:length(osize);

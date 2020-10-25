@@ -20,23 +20,23 @@ function constraint=tsODE(x,uZOH,uC,ts,fun,method)
 %                uC(t) is assumed continuous until the next
 %                sampling time
 %                Can be an emptuy vector if no such input is needed.
-%   ts [N x 1] - vector of times 
+%   ts [N x 1] - vector of times
 %    or
 %   ts [1 x 1] - (constant) sample interval
-%   fun        - handle to a function that computes 
+%   fun        - handle to a function that computes
 %                    f(x,uZOH,uC,t)
-%   method     - ODE integration method: 
+%   method     - ODE integration method:
 %                  'forwardEuler'  - explicit forward Euler method
 %                  'backwardEuler' - implicit forward Euler method
 %                  'midPoint'      - implicit mid-point method
 %                The mid-point method typically leads to the best
 %                accuracy (for a similar integration step).
-%                HOWEVER, it often leads to numerical problems 
+%                HOWEVER, it often leads to numerical problems
 %                when optimizing for the control input.
 [n,N]=size(x);
 switch method
   case 'forwardEuler'
-    if length(ts)>1 
+    if length(ts)>1
         constraint=(x(:,2:end)==x(:,1:end-1)...
                     +tprod(ts(2:end)-ts(1:end-1),2,...
                            fun(x(:,1:end-1),uZOH(:,1:end-1),uC(:,1:end-1),ts(1:end-1)),[1,2]));
@@ -45,7 +45,7 @@ switch method
                     +ts*fun(x(:,1:end-1),uZOH(:,1:end-1),uC(:,1:end-1),ts*(0:N-1)'));
     end
   case 'backwardEuler'
-    if length(ts)>1 
+    if length(ts)>1
         constraint=(x(:,2:end)==x(:,1:end-1)...
                     +tprod(ts(2:end)-ts(1:end-1),2,...
                            fun(x(:,2:end),uZOH(:,1:end-1),uC(:,2:end),ts(2:end)),[1,2]));
@@ -69,7 +69,7 @@ switch method
     else
         uu=uZOH;
     end
-    if length(ts)>1 
+    if length(ts)>1
         rhs=fun(x,uZOH,uC,ts);
     else
         rhs=fun(x,uZOH,uC,ts*(1:N)');

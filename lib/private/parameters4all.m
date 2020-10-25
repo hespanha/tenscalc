@@ -42,7 +42,7 @@ function localVariables_=parameters4all(localVariables_)
             'terminates at the end of the first Newton step for which'
             'the duality gap becomes smaller than this value.'
                       });
-    
+
     declareParameter(...
         'VariableName','maxIter',...
         'DefaultValue',200,...
@@ -53,7 +53,7 @@ function localVariables_=parameters4all(localVariables_)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point Scaling parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     declareParameter(...
         'VariableName','scaleInequalities',...
         'AdmissibleValues',{false,true},...
@@ -73,11 +73,11 @@ function localVariables_=parameters4all(localVariables_)
                       });
 
     evalin('caller','scaleEqualities=false;');
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point solver parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     % declareParameter(...
     %     'VariableName','method',...
     %     'DefaultValue','primalDual',...
@@ -123,7 +123,7 @@ function localVariables_=parameters4all(localVariables_)
             'This is known as the ''affine search direction step''.';
             'This step (obtained by setting to |skipAffine|=|false|) can significantly'
             'speed up convergence by rapidly decreasing the barrier parameter.'
-            'However, it can be fragile for tough non-convex problems.'     
+            'However, it can be fragile for tough non-convex problems.'
                       });
 
     declareParameter(...
@@ -144,7 +144,7 @@ function localVariables_=parameters4all(localVariables_)
             'Minimum value for the scalar gain in Newton''s method line search,'
             'below which a search direction is declared to have failed.'
                       });
-    
+
     declareParameter(...
         'VariableName','alphaMax',...
         'DefaultValue',1,...
@@ -152,7 +152,7 @@ function localVariables_=parameters4all(localVariables_)
             'Maximum value for the scalar gain in Newton''s method line search.'
             'Should only be set lower than 1 for very poorly scaled problems.'
                       });
-    
+
     declareParameter(...
         'VariableName','coupledAlphas',...
         'DefaultValue',true,...
@@ -176,7 +176,7 @@ function localVariables_=parameters4all(localVariables_)
             'However, often the smaller matrix is not as sparse so the computation'
             'may actually increase.'
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Debugging parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -195,7 +195,7 @@ function localVariables_=parameters4all(localVariables_)
             '* >3 - the solver produces several (somewhat unreadable) outputs'
             '       at each iteration step'
                       });
-    
+
     declareParameter(...
         'VariableName','debugConvergence',...
         'DefaultValue',false,...
@@ -206,7 +206,7 @@ function localVariables_=parameters4all(localVariables_)
             'ATTENTION: Not implementd in cmex2optimizeCS().'
             '           debugConvergence should be used in class2optimizeCS().'
                       });
-    
+
     declareParameter(...
         'VariableName','debugConvergenceThreshold',...
         'DefaultValue',1e5,...
@@ -214,7 +214,7 @@ function localVariables_=parameters4all(localVariables_)
             'Threshold above which solver warns about large values.';
             'Only used when |debugConvergence=true|';
                       });
-    
+
     declareParameter(...
         'VariableName','allowSave',...
         'DefaultValue',false,...
@@ -243,7 +243,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Code generation parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -315,7 +315,7 @@ function localVariables_=parameters4all(localVariables_)
             'The folder will be created if it does not exist and it will be added';
             'to the begining of the path if not there already.'
                        });
-    
+
     declareParameter(...
         'VariableName','simulinkLibrary',...
         'DefaultValue','',...
@@ -384,7 +384,7 @@ function localVariables_=parameters4all(localVariables_)
                 'This parameter is only used for C-code solvers.';
                           });
     end
-    
+
     declareParameter(...
         'VariableName','scratchbookType',...
         'DefaultValue','double',...
@@ -405,7 +405,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-    
+
     declareParameter(...
         'VariableName','minInstructions4loop',...
         'DefaultValue',50,...
@@ -416,7 +416,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-        
+
     declareParameter(...
         'VariableName','maxInstructionsPerFunction',...
         'DefaultValue',100,...
@@ -430,7 +430,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-        
+
     declareParameter(...
         'VariableName','useUmfpack',...
         'DefaultValue',false,...
@@ -443,7 +443,7 @@ function localVariables_=parameters4all(localVariables_)
             ' ';
             'This parameter is only used for C-code solvers.';
                       });
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Compilation/linking parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -544,7 +544,7 @@ function localVariables_=parameters4all(localVariables_)
             'This parameter is used only when ''callType''=''dynamicLibrary''.'
             ' ';
             'This parameter is only used for C-code solvers.';
-                       }); 
+                       });
 
     declareParameter(...
         'VariableName','serverProgramName',...
@@ -574,7 +574,7 @@ function localVariables_=parameters4all(localVariables_)
             'This parameter is only used for C-code solvers.';
                        });
 
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Output parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -597,5 +597,5 @@ function localVariables_=parameters4all(localVariables_)
                 'Data to be passed to debugConvergenceAnalysis.'
                           });
     end
-    
+
 end

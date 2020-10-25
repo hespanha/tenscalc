@@ -17,7 +17,7 @@ function writeCasmLBinstructions(obj,fid,ks)
 % - gnu extended ams
 % - Intel-x86
 % - scratchbook is double
-% - temporary register used: xmm0 (double) 
+% - temporary register used: xmm0 (double)
 %
 % Copyright 2012-2017 Joao Hespanha
 
@@ -211,7 +211,7 @@ for i=1:length(ks)
         obj.Itypes
         error('instruction %d not implemented\n',type)
     end
-    
+
 end
 if isempty(constants)
     fprintf(fid,'\t::[m] "r" (scratchbook), [dbl_max] "m" (dbl_max) :"xmm0","xmm1","xmm2");\n');
@@ -219,4 +219,3 @@ else
     fprintf(fid,'\t::[m] "r" (scratchbook), [dbl_max] "m" (dbl_max), [c] "r" (c) :"xmm0","xmm1","xmm2");\n');
 end
 fprintf(fid,'\t};\n');
-

@@ -47,7 +47,7 @@ reuseLocalMemory=false;
 
 nInstructions=double(instructionsTableHeight());
 
-%% Get dependencies from csparse/instructionsTable.c cmex functions 
+%% Get dependencies from csparse/instructionsTable.c cmex functions
 [children,parents]=getDependencies();
 obj.dependencyGraph=sparse(double(children),double(parents),...
                            ones(size(children)),...
@@ -120,7 +120,7 @@ end
 dependencies=dependencies';
 fprintf(' %.2f sec) determining groups',etime(clock,t0));
 
-%% Determine unique dependency groups 
+%% Determine unique dependency groups
 groups=zeros(nInstructions,1);
 % I_set instructions do not perform any action, so should be ignored
 k=~findInstructionsByType(obj.Itypes.I_set);
@@ -189,7 +189,7 @@ if verboseLevel>2
         fprintf('Group %d [%s]: %s\n',...
                 i,index2str(dependencyGroups(i,:)),index2str(find(groups==i)));
     end
-    
+
     fprintf('Before re-ordering:\n');
     for i=1:length(computeOrder)
         fprintf('Group %d [%s]: %s\n',computeOrder(i),index2str(dependencyGroups(computeOrder(i),:)),index2str(find(groups==computeOrder(i))));
@@ -247,10 +247,10 @@ if true
     nonLocalInstructions=false(1,size(gT,1));
     for g=1:nGroups
         k=(groups==g);
-        
+
         childrenOutsideGroup=obj.dependencyGraph(~k,k);
         parentsOutsideGroup=gT(~k,k);   % faster than using obj.dependencyGraph(k,~k);
-        
+
         k=find(k);
 
         obj.groupInputInstructions{g}=union(k(any(parentsOutsideGroup,1)),...
@@ -311,7 +311,7 @@ if findUnusedMemory
     k=find((groups==0) & ~findInstructionsByType(obj.Itypes.I_set));
     nUnused=length(k);
     obj.memoryLocations(k)=NaN;
-    
+
     if verboseLevel>0
         fprintf('\n  dependencyGroups: %d instructions not used\n',nUnused);
     end
@@ -319,21 +319,21 @@ end
 
 nReuses=0;
 nLocalVariables=0;
-if reuseMemory  
+if reuseMemory
     fprintf(' reuse-within-group');
     %% look for variables internal to the group, and reuse memory when possible
     nGroups=size(dependencyGroups,1);
     for g=1:nGroups
         k=(groups==g);
-        
+
         childrenOutsideGroup=obj.dependencyGraph(~k,k);
         k=find(k);
 
         % local variables used by group -- no children outside group
-        localVariables=k(~any(childrenOutsideGroup,1)); 
+        localVariables=k(~any(childrenOutsideGroup,1));
         % and not outputs
         localVariables=setdiff(localVariables,outputInstructions);
-        
+
         % last time each local variable is used
         if ~isempty(localVariables)
             usedBy=obj.dependencyGraph(:,localVariables);   % 1 if used
@@ -349,7 +349,7 @@ if reuseMemory
             localMemory=obj.memoryLocations(localVariables);
             lastUsedMemory=lastUsedVariable;
         end
-        
+
         if verboseLevel>1
             fprintf(' group %3d [%6d..%6d] has %4d/%4d local variables',...
                     g,min(k),max(k),...
@@ -358,7 +358,7 @@ if reuseMemory
                 fprintf('\n');
             end
         end
-        
+
         for j=1:length(localVariables)
             if verboseLevel>2
                 fprintf('  instruction %d, last used by %d\n',...
@@ -393,7 +393,7 @@ if reuseMemory
                 nReuses=nReuses+1;
             end
         end
-        
+
         nLocalVariables=nLocalVariables+length(localVariables);
         if verboseLevel>1
             if verboseLevel>2

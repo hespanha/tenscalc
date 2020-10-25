@@ -5,7 +5,7 @@ function [subsX,instrX]=sparsity_lu_u(obj,thisExp)
 %   elements.
 %
 % lu_l(LDL):
-% 1) computes U by 
+% 1) computes U by
 %    . extracting the lower diagonal entries of LU (including main diagonal)
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -26,9 +26,9 @@ function [subsX,instrX]=sparsity_lu_u(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLU=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLU=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLU=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -40,7 +40,7 @@ function [subsX,instrX]=sparsity_lu_u(obj,thisExp)
     else
         n=double(osizeLU(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -52,10 +52,10 @@ function [subsX,instrX]=sparsity_lu_u(obj,thisExp)
     k=find(subsLU(1,:)<=subsLU(2,:)); % find below diagonal
     subsX=[subsLU(1,k);subsLU(2,k)];
     instrX=instrLU(k);
-    
+
     % apply q permutation to columns
     subsX(2,:)=q(subsX(2,:));
-        
+
     % keep subsX in the natural order
     [subsX,k]=sortrows(subsX');
     subsX=subsX';

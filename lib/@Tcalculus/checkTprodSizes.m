@@ -15,7 +15,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if mod(nargin,2)
         error('tprod: number of arguments must be even\n');
     end
@@ -30,7 +30,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
             error('tprod: argument %d must be numeric\n',i+1);
         end
         osize=size(obj);
-        
+
         if length(ind)~=length(osize)
             fprintf('tprod(');
             for i=1:2:nargin
@@ -55,7 +55,7 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
                     obj,tprod_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],i,j, ...
-                          tprod_size(ind(j)),osize(j)); 
+                          tprod_size(ind(j)),osize(j));
                 end
                 tprod_size(ind(j))=osize(j);
             else
@@ -68,16 +68,15 @@ function [tprod_size,sums_size]=checkTprodSizes(varargin)
                     obj,sums_size
                     error(['incompatible sizes found in object ' ...
                            '%d, dimension %d (%d~=%d)\n'],i,j, ...
-                          sums_size(-ind(j)),osize(j)); 
+                          sums_size(-ind(j)),osize(j));
                 end
                 sums_size(-ind(j))=osize(j);
             end
         end
     end
-    
-    if any(isnan(tprod_size)) || any(isnan(sums_size)) 
+
+    if any(isnan(tprod_size)) || any(isnan(sums_size))
         tprod_size,sums_size
         error('tprod has no size for some indices/summations\n',i)
     end
 end
-

@@ -19,44 +19,44 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     properties
         % system dynamics:
         % . for a continous time system \dot x = f(x,u,t)
         % . for a discrete time system  x(k+1) = f(x(k),u(k),k)
-        f=NaN; 
+        f=NaN;
 
         % output equation: y=g(x,u,t)
         g=NaN;
 
         % discrete or continuous time?
         discrete=true;
-        
+
         % Initial condition/last value of the state
         x0=[]; % column vector
         t0=[];
-        
+
         % State variable name
         stateName='x';
-        
+
         % sizes
         nStates=NaN;
         nInputs=NaN;
         nOutputs=NaN;
-        
+
     end % properties
-    
+
     methods
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Object creation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function obj=nlss(f,g,discrete,stateName,varargin)
-        % obj=nlss(f,g,discrete,stateName,x0,t0) 
+        % obj=nlss(f,g,discrete,stateName,x0,t0)
         %
         % Creates a non-linear state-space dynamical system with
-        %  . dynamics defined by the functions f and g 
+        %  . dynamics defined by the functions f and g
         %    (output g is optional)
         %  . discrete-time when discrete=true, continous-time otherwise
         %  . initial condition x(t0)=x0 (column vector)
@@ -74,7 +74,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         %
         % The input u, state x, and output y are should be column vectors,
         % but the function f & g must be vectorzed in the sense that
-        % they should be able to take as inputs matrices 
+        % they should be able to take as inputs matrices
         %     x [n x N], u [k x N], t [N x 1]
         % and
         %     f(x,u,t) must return an [n x N] matrix with the ith column
@@ -85,7 +85,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         % For example, for a time-invariant linear system one would set
         %     f=@(x,u,t)A*x+B*u;
         %     g=@(x,u,t)C*x+D*u;
-            
+
             obj.f=f;
             if nargin>=2
                 obj.g=g;
@@ -99,28 +99,28 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
             if nargin>=5 && ~isempty(varargin{1})
                 setInitialState(obj,varargin{:});
             end
-            
+
             if false % obj.discrete==false
                 error('continuout-time has bugs')
             end
-            
+
         end % function nlss()
-            
+
         function sz=size(obj,dim)
         % sz=size(obj,dim)
-        % 
+        %
         % returns a row vectors containing: [# outputs, # inputs, # states]
-        % 
+        %
         % sz=size(obj,dim)
-        % 
+        %
         % returns entry 'dim' of the row evctor above.
-            
+
             sz=[obj.nOutputs,obj.nInputs,obj.nStates];
             if nargin>1
                 sz=sz(dim);
             end
         end
-            
+
         function setInitialState(obj,x0,t0)
         % setInitialState(obj,x0,t0)
         % Sets the initial state of a non-linear state-space dynamical
@@ -146,11 +146,11 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                 end
             end
         end % function setInitialState()
-            
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Object display
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function s=char(obj)
         % char(obj)
         % Produces a string describing a non-linear state-space
@@ -174,22 +174,22 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                 s=sprintf('%s  x0=Tcalculus(%s);\n',s,str(obj.x0));
             end
         end % function char()
-        
+
         function disp(obj)
         % disp(obj)
         % Displays a non-linear state-space dynamical system.
             disp(char(obj))
         end % function disp()
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %% Simulation
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
+
         function [y,x,constraint]=sim(obj,u,t,x0)
         % [y,x,constraint]=sim(obj,u,t,x0)
         % Simulates the time response of a non-linear state-space
         % dynamical system for
-        %   t  [N] or [N x 1] = times at which the input was sampled 
+        %   t  [N] or [N x 1] = times at which the input was sampled
         %   u  [k x N]   = input vector samples at times t(1), t(2), ..., t(end)
         %   x0 [n x 1]   = initial value of the state at time t(1) (optional)
         % provides
@@ -218,7 +218,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                 error('sim: inconsistent sizes of time [%s] and input [%s]\n',...
                       index2str(size(t)),index2str(size(u)));
             end
-            
+
             %% Update/check size of input
             if isnan(obj.nInputs)
                 obj.nInputs=size(u,1);
@@ -231,7 +231,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                 end
             end
 
-            
+
             %% set initial condition
             if nargin>=4
                 setInitialState(obj,x0,t(1));
@@ -255,14 +255,14 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                     obj.x0=xall(:,end);
                     obj.t0=t(end)+1;
                 else
-                    %% symbolic 
+                    %% symbolic
                     x=Tvariable(obj.stateName,[size(obj.x0,1),nT]);
                     xpre=[obj.x0,x(:,1:end-1)];
                     constraint=(x==obj.f(xpre,u,t));
                     if strcmp(class(obj.g),'function_handle')
                         y=obj.g(xpre,u,t);
                     end
-                end           
+                end
             else
                 %% Continuous-time Simulation
                 if isnumeric(obj.x0) && isnumeric(u)
@@ -278,7 +278,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                         % end
                         fode=@(tt,xx)obj.f(xx,fhold(tt,u,t),t);
                         [tout,x]=ode23(fode,t,obj.x0);
-                        if length(t)==2 
+                        if length(t)==2
                             % if T has only 2 elements, ode23
                             % assumes it is just start and final
                             % times and provides intermediate points
@@ -320,7 +320,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                     end
                 end
             end
-            
+
             %% Update/check size of input
             if isnan(obj.nOutputs)
                 obj.nOutputs=size(y,1);
@@ -334,13 +334,13 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
             end
 
         end % function sim()
-        
+
     end % methods
 
 end % classdef
 
 function test()
-    
+
     clear all
     A=[0,1;0,0];
     B=[0;1];
@@ -352,7 +352,7 @@ function test()
 
     u=(-2).^(1:5);
     t=(1:4)';
-    
+
     x0=[.45;.54];
     t0=0;
     [y,t,x]=sim(sys,u,t,x0,t0)

@@ -5,7 +5,7 @@ function [subsY,instrY]=sparsity_det_ldl(obj,thisExp)
 %   elements.
 %
 % det_ldl(LDL):
-% 1) computes det(D) by 
+% 1) computes det(D) by
 %    . computing the product of the main diagonal entries of LDL
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -26,9 +26,9 @@ function [subsY,instrY]=sparsity_det_ldl(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -38,7 +38,7 @@ function [subsY,instrY]=sparsity_det_ldl(obj,thisExp)
     else
         n=double(osizeLDL(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -49,12 +49,12 @@ function [subsY,instrY]=sparsity_det_ldl(obj,thisExp)
     % find instructions for diagonal
     k=find(subsLDL(1,:)==subsLDL(2,:)); % find diagonal elements
     instrX=instrLDL(k);
-    
+
     subsY=zeros(0,1);
     if length(instrX)==n
         instrY=newInstruction(obj,obj.Itypes.I_sumprod,[length(instrX),1],instrX(:)',thisExp);
     else
         error('sparsity_det_ldl: LDL structurally singular in det_ldl(LDL)\n');
     end
-    
+
 end

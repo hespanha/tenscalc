@@ -20,7 +20,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% See ../doc/ipm.tex for an explanation of the formulas used here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,7 +31,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     szHess_=TcheckVariable('Hess_');
 
 %profile on
-    
+
     if smallerNewtonMatrix
         fprintf('\n  Starting ipmPDeqlat_CS symbolic computations (smallNewtonMatrix)...\n');
     else
@@ -39,7 +39,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     end
 
     t1=clock();
-    
+
     %% Define all sizes
     nU=length(u);
     nD=length(d);
@@ -53,7 +53,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     nFd=length(Fd);
     nF=nFu+nFd;
     fprintf('    # primal vars = %d, # equal constr = %d, # inequal constr = %d...\n',nZ,nG,nF);
-    
+
     %% Scaling
     if scaleInequalities
         src={};
@@ -106,7 +106,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         nu=[nu;P2xnu];
     end
     gap=lambda*F;
-    
+
     if debugConvergence
         declareGet(code,{u,d},'getUD__');
         if nG>0
@@ -115,8 +115,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         if nF>0
             declareGet(code,{F,lambda},'getFLambda__');
         end
-    end 
-    
+    end
+
     %% Declare gets for exit condition and output
     if nF>0
         mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
@@ -130,7 +130,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     if nG>0
         declareGet(code,norminf(G),'getNorminf_G__');
     end
-    
+
     %% Automatic initialization of the lambda variable
     if 0
         declareCopy(code,{nu,lambda},{Tones(nG+nH),mu*Tones(nF)./F},'initDual__');
@@ -168,7 +168,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             declareCopy(code,dst,src,'initDualIneq__');
         end
     end
-    
+
     %% Construct the "Hessian" matrix
     Lf=f;
     Lg=g;
@@ -188,7 +188,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         Lf=Lf+P1xnu*H;
         Lg=Lg+P2xnu*H;
     end
-    
+
     alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize,nowarningever);
     declareSet(code,alphaPrimal,'setAlphaPrimal__');
     alphaDualEq=Tvariable('alphaDualEq__',[],nowarningsamesize,nowarningever);
@@ -204,50 +204,50 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         Lf_x=gradient(Lf,x);
         Lg_x=gradient(Lg,x);
         % for exit condition
-        declareGet(code,norminf(Lf_u)+norminf(Lf_x)+norminf(Lg_d)+norminf(Lg_x),'getNorminf_Grad__'); 
+        declareGet(code,norminf(Lf_u)+norminf(Lf_x)+norminf(Lg_d)+norminf(Lg_x),'getNorminf_Grad__');
         % declareGet(code,norminf([gradient(f+P1nu*Gu+P1xnu*H,u);
         %                       gradient(f+P1nu*Gu+P1xnu*H,x);
         %                       gradient(g+P2nu*Gd+P2xnu*H,d);
-        %                       gradient(g+P2nu*Gd+P2xnu*H,x);]),'getNorminf_Grad__'); 
+        %                       gradient(g+P2nu*Gd+P2xnu*H,x);]),'getNorminf_Grad__');
     else
         Lf_x=Tzeros(0);
         Lg_x=Tzeros(0);
         % for exit condition
-        declareGet(code,norminf(Lf_u)+norminf(Lg_d),'getNorminf_Grad__'); 
+        declareGet(code,norminf(Lf_u)+norminf(Lg_d),'getNorminf_Grad__');
     end
 
     fprintf('(%.2f sec)\n    2nd derivatives...',etime(clock(),t2));
     t2=clock();
-    
+
     % Derivatives needed to compute WW
     if nX>0
         Lf_uz=gradientVector(Lf_u,{u,d,x});
         Lf_xz=gradientVector(Lf_x,{u,d,x});
         Lg_dz=gradientVector(Lg_d,{u,d,x});
         Lg_xz=gradientVector(Lg_x,{u,d,x});
-        
+
         Lf_ul=gradientVector(Lf_u,{P1lambda,P2lambda});
         Lf_xl=gradientVector(Lf_x,{P1lambda,P2lambda});
         Lg_dl=gradientVector(Lg_d,{P1lambda,P2lambda});
         Lg_xl=gradientVector(Lg_x,{P1lambda,P2lambda});
-        
+
         Lf_un=gradientVector(Lf_u,{P1nu,P1xnu,P2nu,P2xnu});
         Lf_xn=gradientVector(Lf_x,{P1nu,P1xnu,P2nu,P2xnu});
         Lg_dn=gradientVector(Lg_d,{P1nu,P1xnu,P2nu,P2xnu});
         Lg_xn=gradientVector(Lg_x,{P1nu,P1xnu,P2nu,P2xnu});
-        
+
         F_z=gradientVector(F,{u,d,x});
         G_z=gradientVector(G,{u,d,x});
     else
         Lf_uz=gradientVector(Lf_u,{u,d});
         Lg_dz=gradientVector(Lg_d,{u,d});
-        
+
         Lf_ul=gradientVector(Lf_u,{P1lambda,P2lambda});
         Lg_dl=gradientVector(Lg_d,{P1lambda,P2lambda});
-        
+
         Lf_un=gradientVector(Lf_u,{P1nu,P1xnu,P2nu,P2xnu});
         Lg_dn=gradientVector(Lg_d,{P1nu,P1xnu,P2nu,P2xnu});
-        
+
         F_z=gradientVector(F,{u,d});
         G_z=gradientVector(G,{u,d});
     end
@@ -264,12 +264,12 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         out.Lg_dx=Lg_d;
         out.Lg_dxdx=gradient(Lg_d,d);
     end
-    
+
     if debugConvergence
         declareGet(code,{out.Lf_ux,out.Lg_dx},'getLf1__');
         declareGet(code,{out.Lf_uxux,out.Lg_dxdx},'getLf2__');
     end
-    
+
     if nF>0
         LFF=tprod(lambda./F,1,F_z,[1,2]); %LFF=diag(lambda./F)*F_z;
 
@@ -277,7 +277,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         t2=clock();
         LFF=declareAlias(code,LFF,'LFF__',false,nowarningsamesize,nowarningever);
     end
-    
+
     fprintf('(%.2f sec)\n    WW & b...',etime(clock(),t2));
     t2=clock();
     if smallerNewtonMatrix
@@ -302,7 +302,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             Hess_=WW;
 
             %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
-            
+
             ff=f;
             gg=g;
             if nGu>0
@@ -315,7 +315,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 ff=ff+P1xnu*H;
                 gg=gg+P2xnu*H;
             end
-            
+
             b_a=-[gradient(ff,u);
                   gradient(gg,d);
                   gradient(ff,x);
@@ -349,7 +349,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                         Lg_dz],[Lf_un;Lg_dn];
                        G_z,Tzeros([nG,nG])];
             end
-            
+
             ff=f;
             gg=g;
             if nGu>0
@@ -362,11 +362,11 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             %     ff=ff+P1xnu*H;
             %     gg=gg+P2xnu*H;
             % end
-            
+
             b_a=-[gradient(ff,u);
                   gradient(gg,d);
                   G];
-            
+
             b_s=b_a;
             if nF>0
                 b_s=b_s-[Lf_ul*(muOnes./F);
@@ -374,12 +374,12 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                          Tzeros(nG)];
             end
         end
-        
+
         fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
         t2=clock();
 
         WW=declareAlias(code,WW,'WW__',false,nowarningsamesize,nowarningever);
-        
+
         if debugConvergence
             declareGet(code,{full([u;d]),full(nu),full(lambda)},'getZNL__');
             declareGet(code,{full(F),full(G)},'getFG__');
@@ -397,13 +397,13 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             fprintf('(%.2f sec)\n    affine direction...',etime(clock(),t2));
             t2=clock();
-            
+
             dZNu_a=lu_ww\b_a;
-            
+
             fprintf('(%.2f sec)\n    updated vectores...',etime(clock(),t2));
             t2=clock();
-            
-            dZNu_a=declareAlias(code,dZNu_a,'dZNu_a__',false,nowarningsamesize,nowarningever);		    
+
+            dZNu_a=declareAlias(code,dZNu_a,'dZNu_a__',false,nowarningsamesize,nowarningever);
             dU_a=dZNu_a(1:nU);
             dD_a=dZNu_a(nU+1:nU+nD);
             dZ_a=dZNu_a(1:nZ);
@@ -413,20 +413,20 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 dX_a=dZNu_a(nU+nD+1:nZ);
                 newX_a=x+alphaPrimal*dX_a;
             end
-            
+
             if nF>0
                 dLambda_a=-lambda-LFF*dZ_a;
                 newLambda_a=lambda+alphaDualIneq*dLambda_a;
-                
+
                 newF_a=substitute(F,u,newU_a);
                 newF_a=substitute(newF_a,d,newD_a);
                 if nX>0
                     newF_a=substitute(newF_a,x,newX_a);
                 end
-                
+
                 maxAlphaPrimal_a=clp(F,F_z*dZ_a);
                 maxAlphaDualIneq_a=clp(lambda,dLambda_a);
-                
+
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./F;
                 if nX>0
@@ -440,69 +440,69 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                              Lg_dl*Mehrotra;
                              Tzeros(nG)];
                 end
-                
+
                 rho=(newF_a*newLambda_a)./gap;
-                
+
                 declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,[],1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% combined search direction  
+        %% combined search direction
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%
         fprintf('(%.2f sec)\n    combined direction...',etime(clock(),t2));
         t2=clock();
-        
+
         dZNu_s=lu_ww\b_s;
-        
-        
+
+
         fprintf('(%.2f sec)\n    add direction...',etime(clock(),t2));
         t2=clock();
-        
-        dZNu_s=declareAlias(code,dZNu_s,'dZNu_s__',false,nowarningsamesize,nowarningever);		    
-        
+
+        dZNu_s=declareAlias(code,dZNu_s,'dZNu_s__',false,nowarningsamesize,nowarningever);
+
         fprintf('(%.2f sec)\n    increment primal...',etime(clock(),t2));
         t2=clock();
-        
+
         dU_s=dZNu_s(1:nU);
         dD_s=dZNu_s(nU+1:nU+nD);
         dZ_s=dZNu_s(1:nZ);
-        
+
         fprintf('(%.2f sec)\n    increment dual...',etime(clock(),t2));
         t2=clock();
-        
+
         if nX>0
             dX_s=dZNu_s(nU+nD+1:nZ);
         end
-        
+
         dNu_s=dZNu_s(nZ+1:end);
         dNuU_s=dZNu_s(nZ+1:nZ+nGu);
         dNuD_s=dZNu_s(nZ+nGu+nH+1:nZ+nGu+nH+nGd);
         dNuUx_s=dZNu_s(nZ+nGu+1:nZ+nGu+nH);
         dNuDx_s=dZNu_s(nZ+nGu+nH+nGd+1:end);
-        
+
         if nF>0
             dLambda_s=-lambda-LFF*dZ_s+muOnes./F;
         else
             dLambda_s=[];
         end
-        
+
         if ~skipAffine && nF>0
             % Mehrotra correction
             dLambda_s=dLambda_s-Mehrotra;
         end
-        
+
         fprintf('(%.2f sec)\n    new vectores...',etime(clock(),t2));
         t2=clock();
-        
+
         newU_s=u+alphaPrimal*dU_s;
         newD_s=d+alphaPrimal*dD_s;
         if nX>0
             newX_s=x+alphaPrimal*dX_s;
         end
-        
+
         if nF>0
             maxAlphaPrimal_s=clp(F,F_z*dZ_s);
             maxAlphaDualIneq_s=clp(lambda,dLambda_s);
@@ -518,7 +518,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
             end
         end
-        
+
     else % smallerNewtonMatrix
         %%%%%%%%%%%%%%%%%%
         %% Large matrix %%
@@ -540,7 +540,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                     G_z,Tzeros([nG,nG+nH])];
             end
             Hess_=WW;
-            
+
             if nF>0
                 b_a=[-Lf_u;
                      -Lg_d;
@@ -591,12 +591,12 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 b_s=b_a;
             end
         end
-        
+
         fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
         t2=clock();
 
         WW=declareAlias(code,WW,'WW__',false,nowarningsamesize,nowarningever);
-        
+
         if debugConvergence
             declareGet(code,{full([u;d]),full(nu),full(lambda)},'getZNL__');
             declareGet(code,{full(F),full(G)},'getFG__');
@@ -606,7 +606,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         if atomicFactorization
             lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
         end
-        
+
         if ~skipAffine
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %% affine scaling direction
@@ -628,26 +628,26 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
             else
                 dLambda_a=Tzeros(nF);
             end
-            
+
             newU_a=u+alphaPrimal*dU_a;
             newD_a=d+alphaPrimal*dD_a;
             if nX>0
                 dX_a=dx_a(nU+nD+1:nZ);
                 newX_a=x+alphaPrimal*dX_a;
             end
-            
+
             if nF>0
                 newLambda_a=lambda+alphaDualIneq*dLambda_a;
-                
+
                 newF_a=substitute(F,u,newU_a);
                 newF_a=substitute(newF_a,d,newD_a);
                 if nX>0
                     newF_a=substitute(newF_a,x,newX_a);
                 end
-                
+
                 maxAlphaPrimal_a=clp(F,F_z*dZ_a);
                 maxAlphaDualIneq_a=clp(lambda,dLambda_a);
-                
+
                 % Mehrotra correction
                 Mehrotra=(F_z*dZ_a).*dLambda_a./lambda;
                 b_s=[-Lf_u;
@@ -656,21 +656,21 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                      -Lg_x;
                      -G;
                      -F-Mehrotra+muOnes./lambda];
-                
+
                 rho=(newF_a*newLambda_a)./gap;
-                
+
                 declareGet(code,{maxAlphaPrimal_a,maxAlphaDualIneq_a},'getMaxAlphas_a__');
                 declareGet(code,min(newF_a,[],1),'getMinF_a__');
                 declareGet(code,rho,'getRho__');
             end
         end
-        
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %% combined search direction  
+        %% combined search direction
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%
         fprintf('(%.2f sec)\n    combined direction...',etime(clock(),t2));
         t2=clock();
-        
+
         dx_s=lu_ww\b_s;
         dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
 
@@ -679,7 +679,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         dZ_s=dx_s(1:nZ);
         if nX>0
             dX_s=dx_s(nU+nD+1:nZ);
-        end        
+        end
         dNu_s=dx_s(nZ+1:nZ+nG+nH);
         dNuU_s=dx_s(nZ+1:nZ+nGu);
         dNuD_s=dx_s(nZ+nGu+nH+1:nZ+nGu+nH+nGd);
@@ -691,16 +691,16 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         else
             dLambda_s=Tzeros(nF);
         end
-        
+
         fprintf('(%.2f sec)\n    new vectores...',etime(clock(),t2));
         t2=clock();
-        
+
         newU_s=u+alphaPrimal*dU_s;
         newD_s=d+alphaPrimal*dD_s;
         if nX>0
             newX_s=x+alphaPrimal*dX_s;
         end
-        
+
         if nF>0
             maxAlphaPrimal_s=clp(F,F_z*dZ_s);
             maxAlphaDualIneq_s=clp(lambda,dLambda_s);
@@ -716,18 +716,18 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 declareGet(code,{newF_s,newLambda_s},'getFLambda_s__');
             end
         end
-        
+
     end % smallerNewtonMatrix
 
     if debugConvergence
         fprintf('(%.2f sec)\n    getGrad()...',etime(clock(),t2));
         t2=clock();
-        
+
         declareGet(code,full([gradient(f,u);
                             gradient(-P1lambda*Fu,u);
                             gradient(+P1nu*Gu,u);
                             gradient(f-P1lambda*Fu+P1nu*Gu,u)]),'getGrad__');
-        
+
         % not latent stuff
         % WWW=[Lf_uz,Lf_un,Lf_ul;
         %      Lg_dz,Lg_dn,Lg_dl;
@@ -743,7 +743,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         declareGet(code,full(dNu_s),'getDnu_s__');
         declareGet(code,full(dLambda_s),'getDlambda_s__');
     end
-    
+
     fprintf('(%.2f sec)\n    updatePrimalDual()...',etime(clock(),t2));
     t2=clock();
     dst={u,d};
@@ -776,7 +776,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     end
 
     declareCopy(code,dst,src,'updatePrimalDual__');
-    
+
     % declareSave after lu's to make sure previous "typical" values
     % are used by lu, prior to being overwritten by declareSave
     if allowSave
@@ -797,10 +797,9 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
     fprintf(' done ipmPDeqlat_CS symbolic computations (%.3f sec)\n',etime(clock(),t1));
-    
+
     %profile off
     %profile viewer
-    
-    
-end
 
+
+end

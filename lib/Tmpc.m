@@ -1,5 +1,5 @@
 classdef Tmpc < handle
-% Get help with 
+% Get help with
 %   Tmpc help;
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -20,16 +20,16 @@ classdef Tmpc < handle
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     properties (SetAccess = 'immutable');
-        
+
         % properties set by constructor
-        
+
         sampleTimeName=''  % When sampleTime is a symbolic
                            % variable, this holds the name of the
                            % variable; otherwise empty string.
         stateDerivativeFunction  % anonymous function with the
                                  % nominal state derivative
         controlDelay       % controlDelay (in sampleTime units) before a control can be applied
-        
+
         solverName         % name of solver class
         solverObject       % solver object
         parameters         % solver symbolic parameters
@@ -42,13 +42,13 @@ classdef Tmpc < handle
         nStates            % length of state vector
         nControls          % length of control input vector
         nHorizon           % length of foward horizon
-        
+
         parameterNames={}  % cell array with the names of all the parameters
         stateName=''       % name of symbolic state variable
         delayedControlName='' % name of symbolic past control variable
         futureControlName=''  % name of symbolic future control variable
 
-        currentStateName   % name of symbolic variable with the current state 
+        currentStateName   % name of symbolic variable with the current state
         delayedControls    % symbolic variable with the future controls
                            % that cannot be modified (only for controlDelay>0)
         optimizedControls  % symbolic variable with the future controls
@@ -57,10 +57,10 @@ classdef Tmpc < handle
         times2add=1000;    % number of times to add to history
                            % matrices, for each call to extendHistory
     end
-        
+
     properties %(GetAccess = {},SetAccess = 'immutable');
         history=struct('time',{[]},...      % vector of time instants
-                       'state',{[]},...     % matrix with state history 
+                       'state',{[]},...     % matrix with state history
                                     ...     % (one state per row, one time instant per column)
                        'control',{[]},...   % matrix with control history
                                       ...   % (one control per row, one time instant per column);
@@ -77,27 +77,27 @@ classdef Tmpc < handle
                          %   status/iter/stime have valid data from
                          %                (:,1:currentIndex+controlDelay-1)
                          %   status/iter/stime indices match the index of the computed control
-        
+
         parameterValues={};
         parametersSet=[];
         controlSet=false;
         stateSet=false;
         sampleTimeValue=NaN % numerical value for sampling time;
-        
+
     end
-    
+
     methods
-    
+
         %%%%%%%%%%%%%%%%%%%%%%%
         %% Class constructor %%
         %%%%%%%%%%%%%%%%%%%%%%%
-        
-        function obj=Tmpc(varargin)	
+
+        function obj=Tmpc(varargin)
         % Creates a matlab class for
         % 1) creating a Tcalculus solver for an MPC controller
         % 2) running the MPC optimization
         % 3) simulating the MPC controller
-                    
+
             declareParameter(...
                 'Help', {
                     'Creates a matlab class for';
@@ -124,14 +124,14 @@ classdef Tmpc < handle
                     'that are scheduled to be applied before u(t+controlDelay*Ts).'
 
                         });
-            
+
             %% Declare input parameters
             declareParameter(...
                 'VariableName','solverClassname',...
                 'Description',{
                     'Name of the solver class to be created.';
                               });
-            
+
             declareParameter(...
                 'VariableName','solverType',...
                 'DefaultValue','matlab',...
@@ -148,7 +148,7 @@ classdef Tmpc < handle
                     'that was called with the same input parameters.';
                     'In this case, a unique suffix is appended to the solverClassname';
                               });
-            
+
             declareParameter(...
                 'VariableName','sampleTime',...
                 'Description',{
@@ -255,7 +255,7 @@ classdef Tmpc < handle
                     'constraints. Both equality and inequality constraints';
                     'are allowed.';
                               });
-            
+
             declareParameter(...
                 'VariableName','parameters',...
                 'DefaultValue',{},...
@@ -277,14 +277,14 @@ classdef Tmpc < handle
                     'solver generator.'
                       });
 
-            
+
             %% Retrieve parameters and inputs
-            
+
             [stopNow,params]=setParameters(nargout,varargin);
             if stopNow
-                return 
+                return
             end
-            
+
             %% Constructor body
 
             if ~iscell(parameters)
@@ -351,7 +351,7 @@ classdef Tmpc < handle
                 error('sampleTime must be a double or a Tcalculus object');
             end
             % check sample time
-                
+
             extendHistory(obj)
 
             %% Save names of parameters, control, and state
@@ -373,7 +373,7 @@ classdef Tmpc < handle
             end
             obj.stateName=name(stateVariable);
             obj.parameters=parameters;
-            
+
             %% create dynamics
             % currentState      = x(t)
             % stateVariable     = [x(t+Ts) x(t+Ts) ... x(t+T*Ts) ]
@@ -409,8 +409,8 @@ classdef Tmpc < handle
             obj.currentStateName=name(currentState);
             obj.parameterNames{end+1}=name(currentState);
             obj.parametersSet(end+1)=false;
-            
-            try 
+
+            try
                 if 1
                     %% Trapesoidal integration for u with ZOH
                     %    (x_{k+1} - x_k)/Ts == (f(x_{k+1},u_k)+f(x_k,u_k))/2
@@ -422,13 +422,13 @@ classdef Tmpc < handle
                                                  thisControl,...
                                                  parameters{:}));
                 else
-                    %% Forward Euler integration 
+                    %% Forward Euler integration
                     dynamics=(stateVariable==thisState+...
                               sampleTime*stateDerivativeFunction(thisState,...
                                                                  thisControl,...
                                                                  parameters{:}));
                 end
-                
+
                 % add output expressions for debug
                 % outputExpressions{end+1}=thisState;
                 % outputExpressions{end+1}=stateDerivativeFunction(stateVariable,...
@@ -439,11 +439,11 @@ classdef Tmpc < handle
                 fprintf('error in appyling ''stateDerivativeFunction'' to symbolic variables\n');
                 rethrow(me);
             end
-                
-                
+
+
             % add dynamics to constraints
             constraints(end+1)={dynamics};
-                         
+
             % add state & control to outputs
             obj.nOutputExpressions=length(outputExpressions);
             outputExpressions=[outputExpressions,{obj.optimizedControls,stateVariable,obj.objective}];
@@ -457,13 +457,13 @@ classdef Tmpc < handle
               otherwise
                 error('unknown solver type "%s"',solverType);
             end
-            
+
             if reuseSolver
                 executeScript='asneeded';
             else
                 executeScript='yes';
             end
-            
+
             if ~isempty(solverParameters)
                 if ~iscell(solverParameters)
                     solverParameters,
@@ -493,18 +493,18 @@ classdef Tmpc < handle
 
             obj.solverName=getValue(classname);
             obj.solverObject=feval(obj.solverName);
-            
+
         end
-        
+
         %%%%%%%%%%%%%%%%%%%
         %% Other methods %%
         %%%%%%%%%%%%%%%%%%%
-        
+
         function extendHistory(obj)
         % extendHistory(obj)
         %
         % adds time-steps to the History matrices
-            
+
             obj.history.time=[obj.history.time;nan(obj.times2add,1)];
             obj.history.state=[obj.history.state,nan(obj.nStates,obj.times2add)];
             obj.history.control=[obj.history.control,nan(obj.nControls,obj.times2add)];
@@ -513,7 +513,7 @@ classdef Tmpc < handle
             obj.history.iter=[obj.history.iter;nan(obj.times2add,1)];
             obj.history.stime=[obj.history.stime;nan(obj.times2add,1)];
         end
-    
+
         function setParameter(obj,name,value)
         % setParameter(obj,name,value);
         %
@@ -546,7 +546,7 @@ classdef Tmpc < handle
                 end
             end
         end
-    
+
         function setSolverInputStart(obj,value)
         % setSolverInputStart(obj,value)
         %
@@ -554,33 +554,33 @@ classdef Tmpc < handle
         % the solver.
         %
         % A warm start from the previous MPC optimization often helps.
-            
+
             feval(['setV_',obj.futureControlName],obj.solverObject,...
                   value(:,obj.controlDelay+1:end));
             obj.controlSet=true;
         end
-        
+
         function setSolverStateStart(obj,value)
         % setSolverStateStart(obj,value)
         %
         % Sets the value for the state that will be used to
-        % initialize the solver. 
+        % initialize the solver.
         %
         % A warm start compatible with the value given to
         % |setInputStart| often helps.
 
-            
+
             feval(['setV_',obj.stateName],obj.solverObject,value(:,2:end));
             obj.stateSet=true;
         end
-        
-    
+
+
         function setInitialState(obj,tinit,xinit,uinit);
-        % setInitialState(obj,tinit,xinit);  
+        % setInitialState(obj,tinit,xinit);
         %  or
         % setInitialState(obj,tinit,xinit,uinit);
         %
-        % Initilizes the system with 
+        % Initilizes the system with
         %   tinit - initial time
         %   xinit - state at time tinit
         %   uinit - control at times tinit..tinit+Ts*(controlDelay-1)
@@ -603,18 +603,18 @@ classdef Tmpc < handle
             obj.history.control(:,1:obj.controlDelay)=uinit;
             obj.history.currentIndex=1;
         end
-        
+
         function state=setSolverWarmStart(obj,control)
         % state=setSolverWarmStart(obj,control)
         %
-        % Given 
+        % Given
         %    control = Sequence of future controls (past the delay).
         %            Should be a matrix with size
         %                  # controls x (horizon length - controlDelay)
         %            with values
         %                 [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
         %            where t is the current time and u(s) is applied from time s to time s+Ts
-        % Computes 
+        % Computes
         %    state = Sequence of future states.
         %            Should be a matrix with size
         %                  # states x (horizon length)
@@ -682,7 +682,7 @@ classdef Tmpc < handle
         %              (see class2optimizeCS/cmex2optimizeCS)
         % Calls the solver and returns:
         %   solution.control  - optimal control signals (past controlDelay)
-        %   solution.state  - optimal state 
+        %   solution.state  - optimal state
         %   solution.status - solver exit status
         %   solution.iter   - number of solver iterations
         %   solution.time   - time taken by solver
@@ -700,14 +700,14 @@ classdef Tmpc < handle
             if ~obj.stateSet
                 error('must set initial value for state before calling solver');
             end
-            
+
             [solution.status,solution.iter,solution.time]=...
                 solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter));
-            
+
             varargout=cell(obj.nOutputExpressions,1);
             [varargout{:},solution.control,solution.state,solution.objective]=getOutputs(obj.solverObject);
         end
-        
+
         function [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
         % [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
         %
@@ -718,12 +718,12 @@ classdef Tmpc < handle
         % . time for the first state value for the next MPC optimization
         %   (usefull to set up reference signals)
         % . warm start for the next MPC optimization,
-        %   inserting the control 'ufinal' at the end of the interval. 
+        %   inserting the control 'ufinal' at the end of the interval.
 
             if (nargin<4)
                 stateDerivativeFunctionReal=obj.stateDerivativeFunction;
             end
-            
+
             t=obj.history.time(obj.history.currentIndex);
             u_applied=solution.control(:,1);
             t=t+obj.sampleTimeValue;
@@ -764,18 +764,18 @@ classdef Tmpc < handle
                 fprintf('error in appyling ''stateDerivativeFunctionReal'' to numerical values\n');
                 rethrow(me);
             end
-            
+
             u0_warm=[solution.control(:,2:end),ufinal*ones(1,1)];
             t=t+obj.sampleTimeValue;
-            
+
             obj.stateSet=false;
             obj.controlSet=false;
-            
+
         end
 
         function history=getHistory(obj);
         % [t,x,u,status,iter,stime]=getHistory(obj);
-        %        
+        %
         % Returns the history of
         %    history.t      - sampling times
         %    history.u      - control values
@@ -783,7 +783,7 @@ classdef Tmpc < handle
         %    history.status - solver status
         %    history.iter   - # of solver iterations
         %    history.stime  - solver times
-            
+
             history.t=obj.history.time(1:obj.history.currentIndex-1);
             history.u=obj.history.control(:,1:obj.history.currentIndex-1);
             history.x=obj.history.state(:,1:obj.history.currentIndex-1);

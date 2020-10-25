@@ -1,7 +1,7 @@
 function obj=tprod_simplify(obj)
 % obj=tprod_simplify(obj)
 %
-% Simplify tprod object by 
+% Simplify tprod object by
 % 1) removing operands of type transpose, ctranspose
 % 2) removing operands of type eye, zero
 % 3) removing operands of ones
@@ -29,11 +29,11 @@ function obj=tprod_simplify(obj)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     if ~strcmp(type(obj),'tprod')
         return
     end
-    
+
     %% Compile operatos in indices into cell arrays
     ops=operands(obj);
     inds=op_parameters(obj);
@@ -45,13 +45,13 @@ function obj=tprod_simplify(obj)
         obj
         error('trying to simplify tprod with empty arguments\n');
     end
-            
+
     for i=1:length(ops)
         objs{i}=Tcalculus(ops(i));
     end
 
     msg='';
-    
+
     %% Process transpose() - exchange indices
     for i=length(objs):-1:1
         if ismember(type(objs{i}),{'ctranspose','transpose'})
@@ -79,7 +79,7 @@ function obj=tprod_simplify(obj)
                 if ind1>=ind2
                     continue
                 end
-                if ind1<0 
+                if ind1<0
                     % one summation (most negative) must disappear,
                     % but first...  add a Tones with the size of the
                     % index removed to make sure index will not
@@ -208,7 +208,7 @@ function obj=tprod_simplify(obj)
         msg='';
         return
     end
-    
+
     %% Break away operands just with positive indices (no sums) -- not fully tested
     noSums=cellfun(@(x)all(x>0),inds);
     if ~all(noSums) && any(noSums)
@@ -226,12 +226,12 @@ function obj=tprod_simplify(obj)
         outer_inds=inds(noSums);
         outer_tprod_size=tprod_size;
         outer_sums_size=[];
-        
+
         inner_objs=objs(~noSums);
         inner_inds=inds(~noSums);
         inner_tprod_size=tprod_size;
         inner_sums_size=sums_size;
-        
+
         % check if some indices not in inner tprod
         exist_inner=false(size(tprod_size));
         for i=1:length(inner_inds)
@@ -247,18 +247,18 @@ function obj=tprod_simplify(obj)
         for i=1:length(old)
             inner_inds=replaceIndex(inner_inds,old(i),new(i));
         end
-        
+
         % create inner tprod
         [ops,inner_inds]=Tcalculus.tprod_sort_operands(inner_objs,inner_inds);
         obj_inner=Tcalculus('tprod',inner_tprod_size,inner_sums_size,ops,inner_inds,1);
-        
+
         outer_objs{end+1,1}=obj_inner;
         outer_inds{end+1,1}=old;
         objs=outer_objs;
         inds=outer_inds;
         sums_size=outer_sums_size;
     end
-    
+
     % convert objects to TCindex and sort them
     [ops,inds]=Tcalculus.tprod_sort_operands(objs,inds);
 
@@ -276,13 +276,13 @@ function obj=tprod_simplify(obj)
         % all operands were removed and simply "adding" 1s
         obj=Tconstant(prod(sums_size))*Tones(tprod_size);
     end
-    
+
     if ~isempty(msg) && verboseLevel>0
         fprintf(msg)
         disp(obj)
     end
 end
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Auxiliary functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -293,4 +293,3 @@ function inds=replaceIndex(inds,old,new)
         inds{j}(inds{j}==old)=new;
     end
 end
-

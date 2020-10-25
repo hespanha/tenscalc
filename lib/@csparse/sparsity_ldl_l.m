@@ -5,7 +5,7 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
 %   elements.
 %
 % ldl_l(LDL):
-% 1) computes L by 
+% 1) computes L by
 %    . extracting the lower diagonal entries of LDL
 %    . adding ones in the main diagonal
 %
@@ -27,9 +27,9 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -41,7 +41,7 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
     else
         n=double(osizeLDL(1));
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -53,20 +53,20 @@ function [subsX,instrX]=sparsity_ldl_l(obj,thisExp)
     k=find(subsLDL(1,:)>subsLDL(2,:)); % find below diagonal
     subsX=[subsLDL(1,k);subsLDL(2,k)];
     instrX=instrLDL(k);
-    
+
     % add ones to diagonal
     subsX=[subsX,[1:osizeLDL(1);1:osizeLDL(1)]];
     instrX=[instrX;repmat(newInstructions(obj,obj.Itypes.I_load,...
                                           {1},{[]},thisExp),osizeLDL(1),1)];
-    
+
     % apply q permutation to rows
     subsX(1,:)=q(subsX(1,:));
-        
+
     % keep subsX in the natural order
     [subsX,k]=sortrows(subsX');
     subsX=subsX';
     instrX=instrX(k);
-    
+
     if verboseLevel>0
         fprintf('  sparsify_ldl_d (%3d): D     size=%-10s, nnz=%d,                          # new instr=%4d (%d..%d) (%.2f sec)\n',...
                 thisExp,['[',index2str(osizeLDL(1)),']'],length(instrX),...

@@ -18,8 +18,8 @@ function outStr=str(obj,verboseLevel)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
-    
+
+
     if nargin<2
         verboseLevel=0;
     end
@@ -98,7 +98,7 @@ function outStr=str(obj,verboseLevel)
         for i=1:length(obj.sets)
             outStr=[outStr,sprintf('    %20s(%10s(%2d)=...)          ',obj.sets(i).functionName,...
                              getOne(obj.vectorizedOperations,'name',obj.sets(i).destination),...
-                             obj.sets(i).destination)]; 
+                             obj.sets(i).destination)];
             if ~isempty(obj.sets(i).childrenGroups)
                 outStr=[outStr,sprintf(', children groups = %-20s',index2str(obj.sets(i).childrenGroups))];
             end
@@ -110,7 +110,7 @@ function outStr=str(obj,verboseLevel)
         for i=1:length(obj.gets)
             outStr=[outStr,sprintf('    %20s(...=%10s(%2d))          ',obj.gets(i).functionName,...
                              getOne(obj.vectorizedOperations,'name',obj.gets(i).source),...
-                             obj.gets(i).source)]; 
+                             obj.gets(i).source)];
             if ~isempty(obj.gets(i).parentGroups)
                 outStr=[outStr,sprintf(', parent groups = %-20s',index2str(obj.gets(i).parentGroups))];
             end
@@ -120,13 +120,13 @@ function outStr=str(obj,verboseLevel)
     if ~isempty(obj.copies)
         outStr=[outStr,sprintf('  copies:\n')];
         for i=1:length(obj.copies)
-            outStr=[outStr,sprintf('    %20s(',obj.copies(i).functionName)]; 
+            outStr=[outStr,sprintf('    %20s(',obj.copies(i).functionName)];
             for j=1:length(obj.copies(i).destination)
                 outStr=[outStr,sprintf('    %10s(%2d)=%10s(%2d),',...
                                  getOne(obj.vectorizedOperations,'name',obj.copies(i).destination(j)),...
                                  obj.copies(i).destination(j),...
                                  getOne(obj.vectorizedOperations,'name',obj.copies(i).source(j)),...
-                                 obj.copies(i).source(j))]; 
+                                 obj.copies(i).source(j))];
             end
             outStr=[outStr(1:end-1),')'];
             if ~isempty(obj.copies(i).childrenGroups)
@@ -143,7 +143,7 @@ function outStr=str(obj,verboseLevel)
     if verboseLevel>0
         for i=1:instructionsTableHeight()
             [type,parameters,operands]=getInstruction(int64(i));
-            
+
             if strcmp(obj.typeInstructions,'matlab') && ~isempty(parameters)
                 parameters=getArrayFromByteStream(uint8(parameters));
                 if ~isnumeric(parameters)
@@ -162,4 +162,3 @@ function outStr=str(obj,verboseLevel)
         end
     end
 end
-

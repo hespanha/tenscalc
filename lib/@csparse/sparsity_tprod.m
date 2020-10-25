@@ -31,7 +31,7 @@ t0=clock;
 
 operands=getOne(obj.vectorizedOperations,'operands',thisExp);
 parameters=getOne(obj.vectorizedOperations,'parameters',thisExp);
-parameters=parameters(2:end); % only keep indices 
+parameters=parameters(2:end); % only keep indices
 
 if verboseLevel>0
     fprintf('  sparsify_tprod(%3d): tprod(',thisExp);
@@ -54,14 +54,14 @@ for i=1:length(operands)
         fprintf('  Operand %d: size=[%s], nnz=%d, indices=[%s]\n',...
                 i,index2str(osizeX{i}),length(instrX{i}),index2str(parameters{i}));
     end
-    
+
     if verboseLevel>2
         fprintf('    Subscripts (pre)\n');
         disp(subsX{i})
     end
-    
+
     % handle repeated indices:
-    % 1) replace operand by diagonal 
+    % 1) replace operand by diagonal
     % 2) erase repeated indiced from parameters{i}
     uindi=unique(parameters{i});
     if length(uindi)~=length(parameters{i})
@@ -74,7 +74,7 @@ for i=1:length(operands)
             % find entries with matching indices
             keq=find(subsX{i}(k,:)==subsX{i}(kk,:));
             %subsX{i}(:,keq)
-            
+
             % order entries (by subscript without the one to be removed)
             [~,kx]=sortrows(subsX{i}([end:-1:kk+1,kk-1:-1:1],keq)');
             keq=keq(kx);
@@ -90,7 +90,7 @@ for i=1:length(operands)
                 fprintf('  instrX{i} =\n');
                 disp(instrX{i}');
             end
-           
+
             subsX{i}=subsX{i}(:,keq);
             subsX{i}(kk,:)=[];
             instrX{i}=instrX{i}(keq);
@@ -118,13 +118,13 @@ for i=1:length(operands)
             end
         end % while
         nnzX{i}=length(instrX{i});
-        
+
         if verboseLevel>1
             fprintf('  Operand %d: size=[%s], nnz=%d, indices=[%s]\n',...
                     i,index2str(osizeX{i}),length(instrX{i}),index2str(parameters{i}));
         end
     end
-    
+
     % get subs in the right order for CStprodindices_raw
     % (least-to-most significant index)
     % UNCLEAR IF NEEDED NOW THAT WE DO NOT USE CStprodindices_raw
@@ -137,13 +137,13 @@ for i=1:length(operands)
             disp(subsX{i})
         end
     end
-    
+
     dimY=max([dimY,parameters{i}]);
     nSums=max([nSums,-parameters{i}]);
 end
 
 dimYS=dimY+nSums;
-    
+
 %% Set parameters with all indices starting from 1, starting with the Sums
 %% Compute sizes of each indice
 indSum=1:nSums;
@@ -299,4 +299,3 @@ if verboseLevel>1
 end
 
 end
-

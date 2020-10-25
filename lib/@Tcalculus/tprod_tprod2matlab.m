@@ -19,15 +19,15 @@ function obj=tprod_tprod2matlab(obj)
     verboseLevel=1;
 
     %% Check if already in the cache
-    obj_tprod2matlab_cache=tprod2matlab_cache(obj); 
-    
+    obj_tprod2matlab_cache=tprod2matlab_cache(obj);
+
     if ~isempty(obj_tprod2matlab_cache)
         obj=Tcalculus(obj_tprod2matlab_cache);
         return
     else
         originalObj=obj;
     end
-    
+
     global TCsymbolicExpressions;
 
     % directly access osize to improve performance
@@ -36,11 +36,11 @@ function obj=tprod_tprod2matlab(obj)
 
     %% collects operands and convert nested tprods
 
-   
+
     % directly access operands to improve performance
     %ops=operands(obj);
     ops=TCsymbolicExpressions(obj.TCindex).operands;
-    
+
     objs=cell(length(ops),1);
     changed=false;
     for i=1:length(ops)
@@ -53,7 +53,7 @@ function obj=tprod_tprod2matlab(obj)
             ops(i)=objs{i}.TCindex;
         end
     end
-    
+
     % directly access type to improve performance
     %if ~strcmp(type(obj),'tprod')
     if ~strcmp(TCsymbolicExpressions(obj.TCindex).type,'tprod')
@@ -69,7 +69,7 @@ function obj=tprod_tprod2matlab(obj)
         add2tprod2matlab_cache(originalObj,obj);
         return
     end
-            
+
     inds=op_parameters(obj);
     %% sort indices
     [inds,objs]=sortIndices(inds,objs);
@@ -78,7 +78,7 @@ function obj=tprod_tprod2matlab(obj)
     %tprod_size=size(obj);
     tprod_size=obj.osize;
     sums_size=parameters(obj);
-         
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Collapse (positive) dimensions
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -92,7 +92,7 @@ function obj=tprod_tprod2matlab(obj)
         potentialCollapse=[potentialCollapse;i,j];
         [i,j]=ind2sub([maxk,maxk],find(tril(true(maxk),-1)));
         potentialCollapse=[potentialCollapse;i,j];
-    end   
+    end
     if mink<-1
         [i,j]=ind2sub([-mink,-mink],find(triu(true(-mink),1)));
         potentialCollapse=[potentialCollapse;-i,-j];
@@ -120,7 +120,7 @@ function obj=tprod_tprod2matlab(obj)
                 collapse=potentialCollapse(k,1):potentialCollapse(k,2);
             else
                 collapse=potentialCollapse(k,1):-1:potentialCollapse(k,2);
-            end            
+            end
         end
         for i=1:length(inds)
             ndx=inds{i};
@@ -146,7 +146,7 @@ function obj=tprod_tprod2matlab(obj)
             break
         end
     end
-    
+
     if ~isempty(collapse)
         for i=1:length(inds)
             if verboseLevel>4
@@ -240,7 +240,7 @@ function obj=tprod_tprod2matlab(obj)
     end
 
     % only gets here is no change
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % take out repeated indices by using .*
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -264,7 +264,7 @@ function obj=tprod_tprod2matlab(obj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find trivial tprods
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     if length(objs)==1 && isequal(inds{1},1:length(inds{1}))
         obj=objs{1};
         if ~myisequal(size(obj),old_size)
@@ -273,7 +273,7 @@ function obj=tprod_tprod2matlab(obj)
         add2tprod2matlab_cache(originalObj,obj);
         return
     end
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find multiplication by scalars - LEVEL 1 BLAS (_SCAL)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -320,7 +320,7 @@ function obj=tprod_tprod2matlab(obj)
     for sumind=nsums:-1
         ks=[];
         for i=1:length(objs)
-            if ismember(sumind,inds{i}) 
+            if ismember(sumind,inds{i})
                 if sum(inds{i}==sumind)==1 && isempty(ks)
                     ks=i;
                     continue
@@ -348,8 +348,8 @@ function obj=tprod_tprod2matlab(obj)
             add2tprod2matlab_cache(originalObj,obj);
             return
         end
-    end        
-    
+    end
+
     %disp('tprod_tprod2matlab 1:');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -359,7 +359,7 @@ function obj=tprod_tprod2matlab(obj)
     for sumind=nsums:-1
         ks=[];
         for i=1:length(objs)
-            if ismember(sumind,inds{i}) 
+            if ismember(sumind,inds{i})
                 if sum(inds{i}==sumind)==1 && length(inds{i})==1 && length(ks)<2
                     ks=[ks,i];
                     continue
@@ -388,14 +388,14 @@ function obj=tprod_tprod2matlab(obj)
             return
         end
     end
-    
+
     %disp('tprod_tprod2matlab 2:')
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % find matrix-vector products - LEVEL 2 BLAS (_TRMV)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     i2=[];
-    for i1=1:length(objs) 
+    for i1=1:length(objs)
         if length(inds{i1})==1 && inds{i1}<0
             sumind=inds{i1};
             i2=[];
@@ -454,7 +454,7 @@ function obj=tprod_tprod2matlab(obj)
         add2tprod2matlab_cache(originalObj,obj);
         return
     end
-    
+
     %disp('tprod_tprod2matlab 3:');
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -464,7 +464,7 @@ function obj=tprod_tprod2matlab(obj)
     for sumind=nsums:-1
         ks=[];
         for i=1:length(objs)
-            if ismember(sumind,inds{i}) 
+            if ismember(sumind,inds{i})
                 if sum(inds{i}==sumind)==1 && length(inds{i})==2 && length(ks)<2
                     ks=[ks,i];
                     continue
@@ -504,7 +504,7 @@ function obj=tprod_tprod2matlab(obj)
             return
         end
     end
-    
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % EXPANSION RULES - MEMORY CONSUMING
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -546,13 +546,13 @@ function obj=tprod_tprod2matlab(obj)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % CUSTOM LIBRARY
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+
     library={;
     % length(size(obj)), { obj.inds{1}, obje/inds{2}, ...}, function hadle;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 0D-vector output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
          % y_{}=A_{k2k3k1}(2,2,9) * B_{k3k1}(2,9) * C_{k2k1}(2,9)
          %0, {[-2,-3,-1],[-3,-1],[-2,-1]},      '' ;
-             
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 1D-vector output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{i}=A_{k1k2i} * B_{k1k2}
         1, {[-1,-2,1],[-1,-2]},      @(A,B) reshape(A,A.size(1)*A.size(2),A.size(3))'*reshape(B,prod(B.size));
@@ -560,7 +560,7 @@ function obj=tprod_tprod2matlab(obj)
         1, {[-2,-1,1],[-2,-1]},      @(A,B) reshape(A,A.size(1)*A.size(2),A.size(3))'*reshape(B,prod(B.size));
         % y_{i}=A_{k1k2i} * B_{k2k1} * C_{k1k2}
         1, {[-1,-2,1],[-2,-1],[-1,-2]},      @(A,B,C) tprod(A,[-1,-2,1],times(B',C,0),[-1,-2]);
-        
+
         % y_{i}=A_{k1k2i}(2,7,54) * B_{k1k2}(2,7) * c_{k2}(7)
         %1, {[-1,-2,1],[-1,-2],[-2]},      '' ;
 
@@ -568,7 +568,7 @@ function obj=tprod_tprod2matlab(obj)
         %1, {[-2,-3,-1],[-2,-1,1],[-3,-1]},      '' ;
         % y_{i}=A_{k3k1i}(2,9,54) * B_{k2k3k1}(2,2,9) * C_{k2k1}(2,9)
         %1, {[-3,-1,1],[-2,-3,-1],[-2,-1]},      '' ;
-             
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 2D-matrix output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{ij}=A_{ji}
         2, {[2,1]},      @(A) A';
@@ -580,7 +580,7 @@ function obj=tprod_tprod2matlab(obj)
         2, {[-1,1],[-1,2],[-1]},      @(A,B,c) mtimes(A',timesrep(B,c),0);
         % y_{ij}=A_{k1j} * B_{ik1} * c_{k1}
         2, {[-1,2],[1,-1],[-1]},      @(A,B,c) mtimes(B,timesrep(A,c));
-        
+
         % y_{ij}=A_{k1k2i} * B_{k1k2j}
         2, {[-1,-2,1],[-1,-2,2]},      @(A,B) reshape(A,A.size(1)*A.size(2),A.size(3))'*reshape(B,B.size(1)*B.size(2),B.size(3));
         % y_{ij}=A_{k2k1i} * B_{k2k1j}
@@ -591,7 +591,7 @@ function obj=tprod_tprod2matlab(obj)
         2, {[-3,-1,2],[-2,-1,1],[-3,-2]},      @(A,B,C) tprod(reshape(C'*reshape(A,A.size(1),A.size(2)*A.size(3)),C.size(2),A.size(2),A.size(3)),[-2,-1,2],B,[-2,-1,1]);
         % y_{ij}=A_{k2k3k1} * B_{k2k3j} * C_{k1i}
         2, {[-2,-3,-1],[-2,-3,2],[-1,1]},      @(A,B,C) tprod(reshape(reshape(A,prod(A.size(1:2)),A.size(3))*C,A.size(1),A.size(2),C.size(2)),[-1,-2,1],B,[-1,-2,2]);
-        
+
         % y_{ij}=A_{ik1j} * B_{ik1}
         %2, {[1,-1,2],[1,-1]},      '';
         % y_{ij}=A_{k1k2j}(2,1,54) * B_{ik1k2}(1,2,1)
@@ -610,7 +610,7 @@ function obj=tprod_tprod2matlab(obj)
         %           reshape(repmat(reshape(B,[B.size,1]),[1,A.size(2),1]),[A.size(1),A.size(2)*A.size(3)]),[-1,1]),...
         %     A.size(2),A.size(3));
         % y_{ij}=A_{k1k2ij}(2,1,1000,2) * B_{k1k2i}(2,1,1000)
-        %2, {[-1,-2,1,2],[-1,-2,1]},   '';   
+        %2, {[-1,-2,1,2],[-1,-2,1]},   '';
         %     @(A,B) reshape(...
         %     tprod_matlab(reshape(A,A.size(1)*A.size(2),A.size(3)*A.size(4)),[-1,1],...
         %           reshape(repmat(reshape(B,[B.size,1]),[1,1,1,A.size(4)]),A.size(1)*A.size(2),A.size(3)*A.size(4)),[-1,1]),...
@@ -621,8 +621,8 @@ function obj=tprod_tprod2matlab(obj)
         %2, {[-1,-2,1],[-1,-2,2],[-2]},      '' ;
 
         2, {[1,-1,2],[-1]},            @(A,B)tprod(permute(A,[1,3,2]),[1,2,-1],B,-1);
-        2, {[-2,-1,2],[-1,-2,1]},      @(A,B)tprod(permute(A,[2,1,3]),[-1,-2,2],B,[-1,-2,1]);     
-             
+        2, {[-2,-1,2],[-1,-2,1]},      @(A,B)tprod(permute(A,[2,1,3]),[-1,-2,2],B,[-1,-2,1]);
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 3D-matrix output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{ijk}=A_{k1jk} * B_{ik1} * c_{i}
         3, {[-1,2,3],[1,-1],[1]},      @(A,B,c) tprod(reshape(B*reshape(A,A.size(1),A.size(2)*A.size(3)),B.size(1),A.size(2),A.size(3)),[1,2,3],c,1);
@@ -649,23 +649,23 @@ function obj=tprod_tprod2matlab(obj)
         %3, {[-1,-2,1,2],[-1,-2,1,3]},      '' ;
 
         % y_{ijk}=A_{k1k2k}(200,200,202) * B_{k2j}(200,200) * C_{ik1}(200,200)
-        3, {[-1,-2,3],[-2,2],[1,-1]},      @(A,B,C) tprod(tprod(A,[-1,2,3],C,[1,-1]),[1,-1,3],B,[-1,2]);    
-             
+        3, {[-1,-2,3],[-2,2],[1,-1]},      @(A,B,C) tprod(tprod(A,[-1,2,3],C,[1,-1]),[1,-1,3],B,[-1,2]);
+
         3, {[1,-1,2],[-1,3]},      @(A,B) tprod(permute(A,[2,1,3]),[-1,1,2],B,[-1,3]); % does not really help
         3, {[-1,1,3],[-1,2]},      @(A,B) permute_matlab(tprod(A,[-1,1,2],B,[-1,3]),[1,3,2]);
         % permutations
         3, {[1,3,2]},      @(A)permute_matlab(A,[1,3,2]);
         3, {[2,1,3]},      @(A)permute_matlab(A,[2,1,3]);
-             
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 4D-matrix output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{ijkl}=A_{k1k2ij} * B_{k1k2kl}
         %4, {[-1,-2,1,2],[-1,-2,3,4]},      @(A,B) reshape(tprod(reshape(A,prod(A.size(1:2)),prod(A.size(3:4))),[-1,1],reshape(B,prod(B.size(1:2)),prod(B.size(3:4))),[-1,2]),A.size(3),A.size(4),B.size(3),B.size(4));
-        
+
         4, {[1,3],[2,4]},      '';
         4, {[1,2,4],[1,3]},      '';
         4, {[1,3,2,4]},         @(A)permute_matlab(A,[1,3,2,4]);
-        4, {[-1,2,4],[-1,1,3]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[3,1,4,2]);             
-        4, {[-1,1,3],[-1,2,4]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[1,3,2,4]);             
+        4, {[-1,2,4],[-1,1,3]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[3,1,4,2]);
+        4, {[-1,1,3],[-1,2,4]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[1,3,2,4]);
             };
 
     % disp('tprod_tprod2matlab - start')
@@ -689,7 +689,7 @@ function obj=tprod_tprod2matlab(obj)
                     break
                 end
             end
-            if found 
+            if found
                 break
             end
         end
@@ -769,7 +769,7 @@ function obj=tprod_tprod2matlab(obj)
         obj=Tcalculus('tprod_matlab',size(obj),parameters(obj),ops,op_parameters(obj),file_line(obj));
     end
     add2tprod2matlab_cache(originalObj,obj);
-end  
+end
 
 function Z=timesrep(X,y)
     if length(y.size)==1

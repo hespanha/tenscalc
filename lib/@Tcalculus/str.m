@@ -15,14 +15,14 @@ function s=str(obj,tprod2mat,maxDepth)
 %
 % You should have received a copy of the GNU General Public License
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-    
+
     if nargin<2
         tprod2mat=false;
     end
     if nargin<3
         maxDepth=inf;
     end
-    
+
     if tprod2mat
         obj=tprod_tprod2matlab(obj);
     end

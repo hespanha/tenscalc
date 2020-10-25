@@ -5,11 +5,11 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
 %   elements.
 %
 % mldivide_u1(LDL,b):
-% 1) computes U by 
+% 1) computes U by
 %    . extracting the strictly upper-triangular entries of LDL
 %    . adding 1 to the diagonal
 % 2) solves U x = b
-% 3) applies any required column-permutation to x 
+% 3) applies any required column-permutation to x
 %    (from the LDL factorization)
 %
 % Copyright 2012-2017 Joao Hespanha
@@ -30,9 +30,9 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
 % along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
 
     verboseLevel=0;
-    
+
     operands=getOne(obj.vectorizedOperations,'operands',thisExp);
-    
+
     osizeLDL=getOne(obj.vectorizedOperations,'osize',operands(1));
     subsLDL=getOne(obj.vectorizedOperations,'subscripts',operands(1));
     instrLDL=getOne(obj.vectorizedOperations,'instructions',operands(1));
@@ -44,11 +44,11 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
     else
         n=double(osizeLDL(1));
     end
-    
+
     osizeB=getOne(obj.vectorizedOperations,'osize',operands(2));
     subsB=getOne(obj.vectorizedOperations,'subscripts',operands(2));
     instrB=getOne(obj.vectorizedOperations,'instructions',operands(2));
-    
+
     if length(osizeB)==1
         subsB=[subsB;ones(1,size(subsB,2))];
         m=1;
@@ -59,12 +59,12 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
         size(subsB),osizeB
         error('mldivide: in (I+U)\\B, B must be a vector or a (2D) matrix with the same number of rows as U\n');
     end
-    
+
     if verboseLevel<=1 && m*n>1e6
         verboseLevel=2;
         fprintf('    computing instructions for (large) mldivide:\n');
     end
-    
+
     if verboseLevel>0
         t0=clock();
         n0=instructionsTableHeight();
@@ -76,10 +76,10 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
     % Reconstruct instructions of U
     k=find(subsLDL(1,:)<subsLDL(2,:));
     instrU=sparse(double(subsLDL(1,k)),double(subsLDL(2,k)),double(instrLDL(k)),n,n);
-    
+
     instrB=sparse(double(subsB(1,:)),double(subsB(2,:)),double(instrB),n,m);
-    
-    
+
+
     %% Compute instructions
     instrX=instrB;
     instrXTranspose=instrX';
@@ -92,12 +92,12 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
                 if any(cond2)
                         k=find(cond1 & cond2)+row;
                         if ~isempty(k)
-                            if instrXTranspose(col,row) 
+                            if instrXTranspose(col,row)
                                 operands=[instrU(row,k);instrXTranspose(col,k)];
                                 operands=full([instrXTranspose(col,row),operands(:)']);
                                 instrXTranspose(col,row)=newInstructions(obj,obj.Itypes.I_plus_minus_dot,...
                                                                          {[]},num2cell(operands,2),thisExp);
-                            elseif instrXTranspose(col,row)==0 
+                            elseif instrXTranspose(col,row)==0
                                 operands=[instrU(row,k);instrXTranspose(col,k)];
                                 operands=full(operands(:)');
                                 instrXTranspose(col,row)=newInstructions(obj,obj.Itypes.I_minus_dot,...
@@ -123,7 +123,7 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
         subsX=subsX';
     end
     instrX=instrX(k);
-    
+
     if verboseLevel>0
         fprintf('  sparsify_mldivide_u1 (%3d): U\\B     size=%-10s, nnz=%d, # new instr=%4d (%d..%d) (%.2f sec)\n',...
                 thisExp,['[',index2str(osizeB),']'],length(instrX),...
@@ -133,16 +133,16 @@ function [subsX,instrX]=sparsity_mldivide_u1(obj,thisExp)
 end
 
 function test()
-    
+
     n=3;
     m=2
     LDL=rand(n,n);
     B=rand(n,m);
-    
+
     [i,j,v]=find(LDL);
     k=find(i<j);
     U=sparse(i(k),j(k),v(k),n,n)+eye(n);
-   
+
     X=B;
     for col=1:m
         for row=n:-1:1
@@ -151,5 +151,5 @@ function test()
     end
     X
     U\B
-    
+
 end
