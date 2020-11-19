@@ -1,5 +1,5 @@
 function [subsX,instrX]=sparsity_mldivide_u(obj,thisExp)
-`%   Computes the sparsity pattern for an elementary expression
+%   Computes the sparsity pattern for an elementary expression
 %   'thisExp' of type 'mldivide_u', allocates the required memory, and
 %   determines the instructions needed to compute each of its nonzero
 %   elements.
