@@ -22,17 +22,21 @@ function y=vec2tensor(obj1,sz,subs,dim)
 %       where the ... denote indices of the dimensions before and
 %       after dim
 
+    if nargin<4
+        dim=[];
+    end
+    
     if ndims(obj1)<1
         error('vec2tensor can only be used for tensors with 1 or more dimensions')
     end
 
-    if length(dim)~=1
+    if ~isempty(dim) && length(dim)~=1
         disp(dim)
-        error('vec2tensorc''s 3rd argument must be a scalar')
+        error('vec2tensorc''s 4rd argument dim must be a scalar')
     end
 
-    if dim>ndims(obj1)
-        error('vec2tensor''s 3rd argument subs (%d) must be no larger than number of tensor dimensions [%s]\n',...
+    if ~isempty(dim) && dim>ndims(obj1)
+        error('vec2tensor''s 4th argument dim (%d) must be no larger than number of tensor dimensions [%s]\n',...
               dim,index2str(size(obj1)))
     end
 
@@ -60,19 +64,30 @@ function y=vec2tensor(obj1,sz,subs,dim)
     if osize1(end)==1
         osize1(end)=[];
     end
-
+    
     osize=[osize1(1:dim-1),sz(:)',osize1(dim+1:end)];
     k=find(obj1);
     v=obj1(k);
     subscripts=memory2subscript(osize1,k);
-    subscripts=[subscripts(1:dim-1,:);
-                subs(subscripts(dim,:),:)';
-                subscripts(dim+1:end,:)];
+    if ~isempty(dim)
+        subscripts=[subscripts(1:dim-1,:);
+                    subs(subscripts(dim,:),:)';
+                    subscripts(dim+1:end,:)];
+    else
+        subscripts=subs';
+    end
     if size(subscripts,1)==2
         y=sparse(double(subscripts(1,:)),double(subscripts(2,:)),v,osize(1),osize(2));
     else
         k=subscript2memory(osize,subscripts);
-        y=zeros(osize);
-        y(k)=v;
+        % accumulate repeated subscripts
+        vv=sparse(k,ones(1,numel(k),class(k)),v);
+        kk=find(vv);
+        vv=vv(kk);
+        msize=osize;
+        while length(msize)<2
+            msize(end+1)=1;
+        y=zeros(msize);
+        y(kk)=vv;
     end
 end
