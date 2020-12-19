@@ -207,10 +207,10 @@ EXPORT void ipmPD_CSsolver(
 #endif
   printf3(header);
 #if nF>0
-  printf3("%4d:<-mx des.->%8.1e%8.1e               %8.1e%8.1e",
+  printf3("%4d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e",
 	  *maxIter,gradTolerance,equalTolerance,desiredDualityGapVar,muMin);
 #else
-  printf3("%4d:<-mx tol.->%8.1e%8.1e                                ",*maxIter,gradTolerance,equalTolerance);
+  printf3("%4d:<-mx tol.->%8.1e%8.1e                                 ",*maxIter,gradTolerance,equalTolerance);
 #endif
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   printf3("%8.1e        %5d%5d\n",addEye2Hessian1tolerance,mpDesired,mnDesired);
@@ -240,7 +240,7 @@ EXPORT void ipmPD_CSsolver(
     if ((*iter) % 50 ==0)
       printf3(header);
     dt1=clock();
-    printf3("%3d:",*iter);
+    printf3("%34:",*iter);
 #endif
 
     if ((*iter) > (*maxIter)) {
@@ -340,7 +340,7 @@ EXPORT void ipmPD_CSsolver(
       int change=0;
       for (int ii=0;ii<20;ii++) {
 	if ((mp<mpDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
-	  printf4("%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
+	  printf4("%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                                ",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
 	  if (addEye2Hessian1<addEye2HessianMAX) {
 	    addEye2Hessian1=MIN(10*addEye2Hessian1,addEye2HessianMAX);
 	    setAddEye2Hessian1__(&addEye2Hessian1);
@@ -352,7 +352,7 @@ EXPORT void ipmPD_CSsolver(
 	    change=1;
 	  }
 	} else if ((mn<mnDesired) && (addEye2Hessian1<addEye2HessianMAX || addEye2Hessian2<addEye2HessianMAX)) {
-	  printf4("%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
+	  printf4("%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                                ",addEye2Hessian1,addEye2Hessian2,mp,mn,derr);
 	  if (addEye2Hessian1<addEye2HessianMAX) {
 	    addEye2Hessian1=MIN(2*addEye2Hessian1,addEye2HessianMAX);
 	    setAddEye2Hessian1__(&addEye2Hessian1);

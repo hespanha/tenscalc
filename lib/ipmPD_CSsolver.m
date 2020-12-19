@@ -107,10 +107,10 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
         fprintf(headers);
         if obj.nF>0
-            fprintf('%4d:<-mx des.->%8.1e%8.1e               %8.1e%8.1e',...
+            fprintf('%4d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e',...
                     maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
         else
-            fprintf('%4d:<-mx tol.->%8.1e%8.1e                                ',maxIter,obj.gradTolerance,obj.equalTolerance);
+            fprintf('%4d:<-mx tol.->%8.1e%8.1e                                 ',maxIter,obj.gradTolerance,obj.equalTolerance);
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL
             fprintf('%8.1e        %5d%5d\n',obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
@@ -153,7 +153,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             if mod(iter,50)==0
                 fprintf(headers);
             end
-            fprintf('%3d:',iter);
+            fprintf('%4d:',iter);
             dt1=clock();
         end
 
@@ -248,7 +248,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     end
                     if mp<mpDesired && (addEye2Hessian1<addEye2Hessian1MAX || addEye2Hessian2<addEye2Hessian2MAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                                ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                         end
                         if addEye2Hessian1<addEye2Hessian1MAX
                             addEye2Hessian1= min(10*addEye2Hessian1,addEye2Hessian1MAX);
@@ -262,7 +262,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         end
                     elseif mn<mnDesired && (addEye2Hessian1<addEye2Hessian1MAX || addEye2Hessian2<addEye2Hessian2MAX)
                         if obj.verboseLevel>=4
-                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                               ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
+                            fprintf('%8.1e%8.1e%5.0f%5.0f%8.1e\n                                                                ',addEye2Hessian1,addEye2Hessian2,full(mp),full(mn),full(derr));
                         end
                         if addEye2Hessian1<addEye2Hessian1MAX
                             addEye2Hessian1= min(2*addEye2Hessian1,addEye2Hessian1MAX);
