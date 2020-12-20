@@ -622,7 +622,7 @@ function obj=tprod_tprod2matlab(obj)
 
         2, {[1,-1,2],[-1]},            @(A,B)tprod(permute(A,[1,3,2]),[1,2,-1],B,-1);
         2, {[-2,-1,2],[-1,-2,1]},      @(A,B)tprod(permute(A,[2,1,3]),[-1,-2,2],B,[-1,-2,1]);
-
+             
     %%%%%%%%%%%%%%%%%%%%%%%%%%%% 3D-matrix output %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % y_{ijk}=A_{k1jk} * B_{ik1} * c_{i}
         3, {[-1,2,3],[1,-1],[1]},      @(A,B,c) tprod(reshape(B*reshape(A,A.size(1),A.size(2)*A.size(3)),B.size(1),A.size(2),A.size(3)),[1,2,3],c,1);
@@ -666,6 +666,8 @@ function obj=tprod_tprod2matlab(obj)
         4, {[1,3,2,4]},         @(A)permute_matlab(A,[1,3,2,4]);
         4, {[-1,2,4],[-1,1,3]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[3,1,4,2]);
         4, {[-1,1,3],[-1,2,4]}, @(A,B)permute_matlab(tprod(A,[-1,1,2],B,[-1,3,4]),[1,3,2,4]);
+
+        4, {[-1,2,4],[1,-1,3]}, @(A,B)tprod(A,[-1,2,4],permute_matlab(B,[2,1,3]),[-1,1,3]);
             };
 
     % disp('tprod_tprod2matlab - start')
