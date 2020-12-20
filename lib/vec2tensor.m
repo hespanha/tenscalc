@@ -76,6 +76,7 @@ function y=vec2tensor(obj1,sz,subs,dim)
     else
         subscripts=subs';
     end
+
     if size(subscripts,1)==2
         y=sparse(double(subscripts(1,:)),double(subscripts(2,:)),v,osize(1),osize(2));
     else
@@ -87,6 +88,7 @@ function y=vec2tensor(obj1,sz,subs,dim)
         msize=osize;
         while length(msize)<2
             msize(end+1)=1;
+        end
         y=zeros(msize);
         y(kk)=vv;
     end
