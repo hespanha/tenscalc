@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>4. Operations on symbolic expressions &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -32,7 +33,8 @@
         <li class="right" >
           <a href="basics.html" title="3. Basics"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Operations on symbolic expressions</a></li> 
       </ul>
     </div>  
 
@@ -61,12 +63,12 @@ MATLAB©, in most cases using the same or a very similar syntax.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X + Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="plus">
 <code class="sig-name descname">plus</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#plus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -78,12 +80,12 @@ scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X - Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="minus">
 <code class="sig-name descname">minus</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#minus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -95,12 +97,12 @@ of a scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X .* Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="times">
 <code class="sig-name descname">times</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#times" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -112,12 +114,12 @@ of a scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X * Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="mtimes">
 <code class="sig-name descname">mtimes</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#mtimes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -145,12 +147,12 @@ are scalars (tensor with 0 dimensions).</p></li>
 behave quite differently from MATLAB©’s matrix multiplication
 <code class="docutils literal notranslate"><span class="pre">mtimes()</span></code>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X ./ Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="rdivide">
 <code class="sig-name descname">rdivide</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#rdivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -162,12 +164,12 @@ or of a scalar with a tensor of arbitrary size.</p></td>
 singleton dimensions is not performed automatically to match
 matrix sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
-<code class="sig-name descname">X .\ Y</code></dt>
+<code class="sig-name descname">X .\\ Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="ldivide">
 <code class="sig-name descname">ldivide</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#ldivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -179,12 +181,12 @@ of a scalar with a tensor of arbitrary size.</p></td>
 singleton dimensions is not performed automatically to match
 matrix sizes.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="sum">
 <code class="sig-name descname">sum</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">vecdim</em><span class="sig-paren">)</span><a class="headerlink" href="#sum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">sum</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -196,17 +198,17 @@ dimensions. Resulting in a vector with the same size as <code class="docutils li
 but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
 <td><p>Similar syntax to MATLAB©</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="max">
 <code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">vecdim</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -218,7 +220,7 @@ along all dimensions (3rd form).</p></td>
 <td><p>Similar syntax to MATLAB©, with the exception that it does not
 return a second output with indices.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">max</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -232,17 +234,17 @@ corresponding entry of Y or the (only) entry of X. Similarly if
 Y is a scalar.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="min">
 <code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#min" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">vecdim</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -254,7 +256,7 @@ along all dimensions (3rd form).</p></td>
 <td><p>Similar syntax to MATLAB©, with the exception that it does not
 return a second output with indices.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">min</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -268,7 +270,7 @@ corresponding entry of Y or the (only) entry of X. Similarly if
 Y is a scalar.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="full">
 <code class="sig-name descname">full</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#full" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -284,7 +286,7 @@ required to return <code class="docutils literal notranslate"><span class="pre">
 <code class="docutils literal notranslate"><span class="pre">n&gt;2</span></code>, since MATLAB© does not support sparse arrays with
 more than 2 dimensions.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="tprod">
 <code class="sig-name descname">tprod</code><span class="sig-paren">(</span><em class="sig-param">A1</em>, <em class="sig-param">index1</em>, <em class="sig-param">A2</em>, <em class="sig-param">index2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#tprod" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -304,7 +306,7 @@ and/or columns <a class="reference internal" href="#sum" title="sum"><code class
 extracting a matrix main diagonal <a class="reference internal" href="#diag" title="diag"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">diag()</span></code></a>, computing the Euclidean norm
 of a vectors <a class="reference internal" href="#norm" title="norm"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norm()</span></code></a>; as well as generalizations of all these
 operations to <code class="docutils literal notranslate"><span class="pre">n</span></code>-dimensional tensors:</p>
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">tprod</code><span class="sig-paren">(</span><em class="sig-param">A</em>, <em class="sig-param">a</em>, <em class="sig-param">B</em>, <em class="sig-param">b</em>, <em class="sig-param">C</em>, <em class="sig-param">c</em>, <em class="sig-param">...</em><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
@@ -392,12 +394,12 @@ optimization constraints.</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X==Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="eq">
 <code class="sig-name descname">eq</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#eq" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -409,12 +411,12 @@ or of a scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X&gt;=Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="ge">
 <code class="sig-name descname">ge</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#ge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -430,12 +432,12 @@ solver, due to finite numerical precision, X&gt;=Y and X&gt;Y
 represent the same constraint.</p>
 </td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X&gt;Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="gt">
 <code class="sig-name descname">gt</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#gt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -447,12 +449,12 @@ size or of a scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X&lt;=Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="le">
 <code class="sig-name descname">le</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#le" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -468,12 +470,12 @@ solver, due to finite numerical precision, X&lt;=Y and X&lt;Y
 represent the same constraint.</p>
 </td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X&lt;Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="lt">
 <code class="sig-name descname">lt</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#lt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -485,12 +487,12 @@ size or of a scalar with a tensor of arbitrary size.</p></td>
 dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="all">
 <code class="sig-name descname">all</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span><a class="headerlink" href="#all" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">all</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -504,12 +506,12 @@ are nonzero. The result is a tensor with the same size as X,
 but with the dimensions in <code class="docutils literal notranslate"><span class="pre">vecdim</span></code> removed.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="any">
 <code class="sig-name descname">any</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">dim</em><span class="sig-paren">)</span><a class="headerlink" href="#any" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">any</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">'all'</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -543,7 +545,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="exp">
 <code class="sig-name descname">exp</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#exp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -552,7 +554,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Exponential of tensor entries.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="log">
 <code class="sig-name descname">log</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#log" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -561,7 +563,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Natural logarithm of tensor entries.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="sin">
 <code class="sig-name descname">sin</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -570,7 +572,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Sine of tensor entries in radians.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="cos">
 <code class="sig-name descname">cos</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#cos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -579,7 +581,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Cosine of tensor entries in radians.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="tan">
 <code class="sig-name descname">tan</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#tan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -588,7 +590,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Tangent of tensor entries in radians.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="atan">
 <code class="sig-name descname">atan</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#atan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -597,7 +599,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Inverse tangent in radians of tensor entries.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="sqr">
 <code class="sig-name descname">sqr</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sqr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -606,7 +608,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Square of tensor entries.</p></td>
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^2</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="cube">
 <code class="sig-name descname">cube</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#cube" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -615,12 +617,12 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Cube of tensor entries.</p></td>
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^3</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">X.^Y</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="power">
 <code class="sig-name descname">power</code><span class="sig-paren">(</span><em class="sig-param">X</em>, <em class="sig-param">Y</em><span class="sig-paren">)</span><a class="headerlink" href="#power" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -631,7 +633,7 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <code class="docutils literal notranslate"><span class="pre">Y</span></code> to be a regular numeric scalar, <em>not</em> a matrix/vector nor
 Tcalculus symbolic expression.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="sqrt">
 <code class="sig-name descname">sqrt</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sqrt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -640,7 +642,7 @@ Tcalculus symbolic expression.</p></td>
 <td><p>Square root of tensor entries.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="round">
 <code class="sig-name descname">round</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#round" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -651,7 +653,7 @@ Tcalculus symbolic expression.</p></td>
 a second argument specifying a desired number of digits for
 rounding to a decimal.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="ceil">
 <code class="sig-name descname">ceil</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#ceil" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -660,7 +662,7 @@ rounding to a decimal.</p></td>
 <td><p>Round to nearest integer towards +infinity.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="floor">
 <code class="sig-name descname">floor</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#floor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -669,7 +671,7 @@ rounding to a decimal.</p></td>
 <td><p>Round to nearest integer towards -infinity.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="sign">
 <code class="sig-name descname">sign</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#sign" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -680,7 +682,7 @@ rounding to a decimal.</p></td>
 positive, zero, or negative.</p></td>
 <td><p>Similar syntax to MATLAB©,</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="heaviside">
 <code class="sig-name descname">heaviside</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#heaviside" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -691,7 +693,7 @@ to 1, 0.5, or 0, depending on whether the corresponding entry
 of <code class="docutils literal notranslate"><span class="pre">X</span></code> is positive, zero, or negative.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="abs">
 <code class="sig-name descname">abs</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -700,7 +702,7 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Absolute value of tensor entries.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="relu">
 <code class="sig-name descname">relu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -709,7 +711,7 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Rectified linear unit activation function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></td>
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">max(X,0)</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="srelu">
 <code class="sig-name descname">srelu</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -718,7 +720,7 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Smooth rectified linear unit activation function applied to the entries <code class="docutils literal notranslate"><span class="pre">X</span></code>.</p></td>
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">log(1+exp(X))</span></code> or <code class="docutils literal notranslate"><span class="pre">x+log(1+exp(-x))</span></code>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="normpdf">
 <code class="sig-name descname">normpdf</code><span class="sig-paren">(</span><em class="sig-param">X</em><span class="sig-paren">)</span><a class="headerlink" href="#normpdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -823,17 +825,17 @@ matrices).</p>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="diag">
 <code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">v</em>, <em class="sig-param">k</em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">v</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">diag</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -851,7 +853,7 @@ main diagonal and <code class="docutils literal notranslate"><span class="pre">k
 a second argument specifying a diagonal other than the main
 diagonal, when <code class="docutils literal notranslate"><span class="pre">A</span></code> is a matrix.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="trace">
 <code class="sig-name descname">trace</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -861,22 +863,22 @@ diagonal, when <code class="docutils literal notranslate"><span class="pre">A</s
 which is also the sum of the eigenvalues of <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">A.'</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">A'</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="transpose">
 <code class="sig-name descname">transpose</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="ctranspose">
 <code class="sig-name descname">ctranspose</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -887,7 +889,7 @@ which is also the sum of the eigenvalues of <code class="docutils literal notran
 support complex-valued variables and therefore <code class="docutils literal notranslate"><span class="pre">transpose</span></code>
 and <code class="docutils literal notranslate"><span class="pre">ctranspose</span></code> return the same values.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="lu">
 <code class="sig-name descname">lu</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -904,7 +906,7 @@ that require factorizations (such as mldivide, inv, det,
 logdet, traceinv), but should <em>not</em> be used by functions that
 are not expecting a factorized matrix as an input.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="ldl">
 <code class="sig-name descname">ldl</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -926,22 +928,22 @@ that require factorizations (such as mldivide, inv, det,
 logdet, traceinv), but should <em>not</em> be used by functions that
 are not expecting a factorized matrix as an input.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
-<code class="sig-name descname">lu(A) \ B</code></dt>
+<code class="sig-name descname">lu(A) \\ B</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="mldivide">
 <code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em>, <em class="sig-param">B</em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
-<code class="sig-name descname">ldl(A) \ B</code></dt>
+<code class="sig-name descname">ldl(A) \\ B</code></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">mldivide</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em>, <em class="sig-param">B</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -949,9 +951,8 @@ are not expecting a factorized matrix as an input.</p></td>
 </th>
 <td><p>Left matrix division, which is the solution to the system of
 equations <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> where <code class="docutils literal notranslate"><span class="pre">A</span></code> must be a nonsingular square
-matrix (tensor with 2 dimensions) and <code class="docutils literal notranslate"><span class="pre">B</span></code> may either be a
-vector (tensor with 1 dimension) or a matrix (tensor with 2
-dimensions) with <code class="docutils literal notranslate"><span class="pre">size(A,1)==size(A,2)==size(B,1)</span></code>.</p></td>
+matrix (tensor with 2 dimensions) and <code class="docutils literal notranslate"><span class="pre">B</span></code> a tensor such
+that <code class="docutils literal notranslate"><span class="pre">size(A,1)==size(A,2)==size(B,1)</span></code>.</p></td>
 <td><p>MATLAB© allows for non-square and possibly singular matrices
 <code class="docutils literal notranslate"><span class="pre">A</span></code>, in which case the least-squares solution to <code class="docutils literal notranslate"><span class="pre">A*X=B</span></code> is
 returned. Currently, TensCalc requires <code class="docutils literal notranslate"><span class="pre">A</span></code> to be square
@@ -962,12 +963,12 @@ the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="inv">
 <code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">inv</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -981,12 +982,12 @@ the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="det">
 <code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">det</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1000,18 +1001,19 @@ the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="logdet">
 <code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">logdet</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
-<td><p>Natural logarithm of the determinant of a square matrix.</p></td>
+<td><p>Natural logarithm of the determinant of a square matrix with
+positive determinant.</p></td>
 <td><p>Results in the same value <code class="docutils literal notranslate"><span class="pre">log(det(A))</span></code>, but in the
 context of optimizations, it is <em>more efficient to use
 ``logdet(A)`` because the latter simplifies the computation of
@@ -1020,14 +1022,17 @@ the derivative.</em></p>
 above the main diagonal are ignored and assumed to be equal to
 the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
+<p>TensCalc assumes that <code class="docutils literal notranslate"><span class="pre">det(A)&gt;0</span></code> and actually returns
+<code class="docutils literal notranslate"><span class="pre">log(abs(det(A)))</span></code> but ignores the <code class="docutils literal notranslate"><span class="pre">abs()</span></code> operation when
+computing derivatives of <code class="docutils literal notranslate"><span class="pre">logdet</span></code></p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="traceinv">
 <code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">lu(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">traceinv</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1044,12 +1049,12 @@ the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="ldl_l">
 <code class="sig-name descname">ldl_l</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="ldl_d">
 <code class="sig-name descname">ldl_d</code><span class="sig-paren">(</span><em class="sig-param">ldl(A)</em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1071,17 +1076,17 @@ the one below the main diagonal, <em>without performing any test
 regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="lu_l">
 <code class="sig-name descname">lu_l</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="lu_u">
 <code class="sig-name descname">lu_u</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_u" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="lu_d">
 <code class="sig-name descname">lu_d</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#lu_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1101,12 +1106,12 @@ matrices).</p>
 <td><p>These functions can only be applied to a matrix that has been
 factorized with <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="norm">
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">2</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1119,7 +1124,7 @@ it is not differentiable at the origin. See <a class="reference internal" href="
 on how to overcome this issue.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">1</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1130,7 +1135,7 @@ on how to overcome this issue.</p>
 it is not differentiable at points where the optimum often
 lies.  See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt>
 <code class="sig-name descname">norm</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">inf</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1142,12 +1147,12 @@ because it is not differentiable at points where the optimum
 often lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this
 issue.</p></td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="norm2">
 <code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt>
 <code class="sig-name descname">norm2</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">S</em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
@@ -1163,7 +1168,7 @@ dimension) and <code class="docutils literal notranslate"><span class="pre">S</s
 <td><p><code class="docutils literal notranslate"><span class="pre">norm2(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">norm(x,2)^2</span></code> and also to
 <code class="docutils literal notranslate"><span class="pre">sum(x.^2,'all')</span></code>, but computes derivatives more efficiently.</p></td>
 </tr>
-<tr class="row-even"><th class="stub"><dl class="function">
+<tr class="row-even"><th class="stub"><dl class="mat function">
 <dt id="norm1">
 <code class="sig-name descname">norm1</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1171,14 +1176,13 @@ dimension) and <code class="docutils literal notranslate"><span class="pre">S</s
 </th>
 <td><p>returns the sum of the absolute value of all entries of the
 tensor <code class="docutils literal notranslate"><span class="pre">x</span></code>, which for vectors corresponds to the 1-norm of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">norm1(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">sum(abs(x),'all')</span></code>, but the former
-computes derivatives more efficiently.</p>
+<td><p><code class="docutils literal notranslate"><span class="pre">norm1(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">sum(abs(x),'all')</span></code>.</p>
 <p><a class="reference internal" href="#norm1" title="norm1"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norm1()</span></code></a> should be avoided in optimization criteria because it
 is not differentiable at points where the optimum often
 lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p>
 </td>
 </tr>
-<tr class="row-odd"><th class="stub"><dl class="function">
+<tr class="row-odd"><th class="stub"><dl class="mat function">
 <dt id="norminf">
 <code class="sig-name descname">norminf</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1186,10 +1190,7 @@ lies. See <a class="reference internal" href="#smoothness"><span class="std std-
 </th>
 <td><p>returns the largest absolute value of all entries of the tensor
 <code class="docutils literal notranslate"><span class="pre">x</span></code>, which for vectors corresponds to the infinity-norm of <code class="docutils literal notranslate"><span class="pre">x</span></code>.</p></td>
-<td><dl class="simple">
-<dt><code class="docutils literal notranslate"><span class="pre">norminf(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">max(abs(x),[],'all')</span></code>, but the</dt><dd><p>former computes derivatives more efficiently.</p>
-</dd>
-</dl>
+<td><p><code class="docutils literal notranslate"><span class="pre">norminf(x)</span></code> is similar to <code class="docutils literal notranslate"><span class="pre">max(abs(x),[],'all')</span></code>.</p>
 <p><a class="reference internal" href="#norminf" title="norminf"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norminf()</span></code></a> should be avoided in optimization criteria because it
 is not differentiable at points where the optimum often
 lies. See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p>
@@ -1256,7 +1257,7 @@ smooth, without losing convexity.</p>
 <p>The following function computes the partial derivatives of a symbolic
 expression with respect to the entries of a tensor-valued symbolic
 variable:</p>
-<dl class="function">
+<dl class="mat function">
 <dt id="gradient">
 <code class="sig-name descname">gradient</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="headerlink" href="#gradient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -1291,7 +1292,7 @@ matrix (with size <code class="docutils literal notranslate"><span class="pre">[
 \[h(i,j)=\frac{d\,g(i)}{d x(j)} = \frac{d^2\,f}{d x(i)\,d x(j)}\]</div>
 <p>The computation of first and second derivatives can be
 streamlined using the following function:</p>
-<dl class="function">
+<dl class="mat function">
 <dt id="hessian">
 <code class="sig-name descname">hessian</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">x</em><span class="optional">[</span>, <em class="sig-param">y</em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hessian" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
@@ -1338,6 +1339,7 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -1401,12 +1403,13 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
         <li class="right" >
           <a href="basics.html" title="3. Basics"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">4. </span>Operations on symbolic expressions</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2020, Joao Pedro Hespanha.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>

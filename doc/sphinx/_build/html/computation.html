@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>6. Code generation for computations &#8212; Tenscalc Users&#39; Guide</title>
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -28,7 +29,8 @@
         <li class="right" >
           <a href="optimization.html" title="5. Constrained optimization"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>Code generation for computations</a></li> 
       </ul>
     </div>  
 
@@ -50,12 +52,12 @@ roots (input variables) and leaves (output expressions).</p>
 </div></blockquote>
 <div class="section" id="defining-a-computation">
 <h2><span class="section-number">6.1. </span>Defining a computation<a class="headerlink" href="#defining-a-computation" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="mat class">
 <dt id="csparse">
 <em class="property">class </em><code class="sig-name descname">csparse</code><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
+<dl class="mat method">
 <dt>
 <code class="sig-name descname">cs=csparse()</code></dt>
 <dd><p>Creates an empty computation tree</p>
@@ -66,7 +68,7 @@ roots (input variables) and leaves (output expressions).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="mat method">
 <dt id="declareSet">
 <code class="sig-name descname">declareSet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destination</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an input variable to the tree</p>
@@ -81,7 +83,7 @@ roots (input variables) and leaves (output expressions).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="mat method">
 <dt id="declareGet">
 <code class="sig-name descname">declareGet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds output expressions to the tree</p>
@@ -96,7 +98,7 @@ roots (input variables) and leaves (output expressions).</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="mat method">
 <dt id="declareCopy">
 <code class="sig-name descname">declareCopy</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destinations</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the value of input variables, based on the value of output
@@ -116,12 +118,12 @@ expressions</p>
 </div>
 <div class="section" id="code-generation">
 <h2><span class="section-number">6.2. </span>Code generation<a class="headerlink" href="#code-generation" title="Permalink to this headline">¶</a></h2>
-<dl class="function">
+<dl class="mat function">
 <dt id="cmex2compute">
 <code class="sig-name descname">cmex2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="function">
+<dl class="mat function">
 <dt id="class2compute">
 <code class="sig-name descname">class2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate code to set values of input variables, get values of
@@ -146,6 +148,7 @@ output expressions, and copy output expressions to input variables.</p>
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -193,12 +196,13 @@ output expressions, and copy output expressions to input variables.</p>
         <li class="right" >
           <a href="optimization.html" title="5. Constrained optimization"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Tenscalc Users&#39; Guide</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><span class="section-number">6. </span>Code generation for computations</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2020, Joao Pedro Hespanha.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.4.4.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
     </div>
   </body>
 </html>
