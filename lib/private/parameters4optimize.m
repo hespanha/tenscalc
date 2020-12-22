@@ -111,7 +111,7 @@ function localVariables_=parameters4optimize(localVariables_)
         'AdmissibleValues',{false,true},...
         'Description',{
             'When |true|, the values of the parametes |addEye2Hessian1| and |addEye2Hessian2|';
-            'are adjusted in rwal-time by the solver.';
+            'are adjusted in real-time by the solver.';
             ' '
             'This is only possivle when using LDL factorization (|useLDL| set to true) and will result';
             'slightly slower solvers. Ideally, one would try a few test runs with |adjustAddEye2Hessian|';

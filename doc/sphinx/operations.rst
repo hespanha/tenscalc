@@ -717,8 +717,7 @@ matrices).
    * - .. function:: norm1(x)
      - returns the sum of the absolute value of all entries of the
        tensor ``x``, which for vectors corresponds to the 1-norm of ``x``.
-     - ``norm1(x)`` is similar to ``sum(abs(x),'all')``, but the former
-       computes derivatives more efficiently.
+     - ``norm1(x)`` is similar to ``sum(abs(x),'all')``.
 
        |norm1| should be avoided in optimization criteria because it
        is not differentiable at points where the optimum often
@@ -727,8 +726,7 @@ matrices).
    * - .. function:: norminf(x)
      - returns the largest absolute value of all entries of the tensor
        ``x``, which for vectors corresponds to the infinity-norm of ``x``.
-     - ``norminf(x)`` is similar to ``max(abs(x),[],'all')``, but the
-        former computes derivatives more efficiently.
+     - ``norminf(x)`` is similar to ``max(abs(x),[],'all')``.
 
        |norminf| should be avoided in optimization criteria because it
        is not differentiable at points where the optimum often
