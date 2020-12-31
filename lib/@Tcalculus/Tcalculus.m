@@ -260,6 +260,10 @@ classdef Tcalculus
         %%%%                       Get properties                     %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        function bool=isTcalculus(obj)
+            bool=true;
+        end
+        
         function type=type(obj)
         % type - type of the (top) symbolic operation
         %
