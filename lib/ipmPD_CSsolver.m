@@ -97,12 +97,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL
-            headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig-  d.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
+                headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  eig+ eig-  d.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
         else
             if obj.setAddEye2Hessian
-                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
+                headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
             else
-                headers='Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
+                headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap     mu    alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
             end
         end
         fprintf(headers);

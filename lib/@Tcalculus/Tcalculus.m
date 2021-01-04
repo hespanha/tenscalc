@@ -1258,7 +1258,10 @@ classdef Tcalculus
                 obj=obj1;
                 return
             end
-            if length(osize1)~=2
+            if length(osize1)<2
+                error('Tcalculus: Transpose on scalar (0D-array) or vector (1D-array) not allowed nothing\n');
+            end
+            if length(osize1)>2
                 obj1
                 error('Transpose on ND array is not defined\n');
             end
