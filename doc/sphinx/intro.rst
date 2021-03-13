@@ -46,7 +46,6 @@ Which optimizations is |tenscalc| best at?
 
 In the context of optimizations, |tenscalc| is mostly aimed at
 generating solvers for optimizations with up to a few thousands of
-
 optimization variables/constraints and solve times up to a few
 milliseconds. The variables to be optimized can be multi-dimensional
 arrays of any dimension (tensors) and the cost functions and
