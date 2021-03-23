@@ -240,7 +240,7 @@ EXPORT void ipmPD_CSsolver(
     if ((*iter) % 50 ==0)
       printf3(header);
     dt1=clock();
-    printf3("%34:",*iter);
+    printf3("%4d:",*iter);
 #endif
 
     if ((*iter) > (*maxIter)) {
