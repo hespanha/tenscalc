@@ -464,5 +464,12 @@ The function |vec2tensor| is very useful to create structured matrices from vect
     Tvariable v length(k0)+length(kl);
     A=vec2tensor([v;v(1:length(kl))],[N,N],[i(kl),j(kl);i(k0),j(k0);j(kl),i(kl)]);
 
+* Matrix with the same sparsity structure as a known matrix::
+
+    % Creates a matrix with the sparsity structure of S
+    [i,j]=find(S);
+    Tvariable v length(i);
+    A=vec2tensor(v,size(S),[i,j]);
+    
 In all these examples, one would set ``v`` to be an optimization
 variable, that implicitly represents the structured matrix.
