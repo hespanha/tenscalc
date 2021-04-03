@@ -69,7 +69,7 @@ classdef Tcalculus
             [~,k]=sortrows(p);
             inds=inds(k);
             ops=ops(k);
-         end
+        end
     end
 
     methods
@@ -260,10 +260,14 @@ classdef Tcalculus
         %%%%                       Get properties                     %%%%%
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+        function bool= isnan(obj)
+            bool=false(msize(obj));
+        end
+
         function bool=isTcalculus(obj)
             bool=true;
         end
-        
+
         function type=type(obj)
         % type - type of the (top) symbolic operation
         %
@@ -550,7 +554,7 @@ classdef Tcalculus
                     error(['subsref: mismatch between object length (%d) and ' ...
                            'subscript length (%d)'],length(osize),length(S.subs));
                 end
-                trivial=true;
+                wholeTensor=true;
                 for i=1:length(S.subs)
                     if ischar(S.subs{i}) && S.subs{i}==':'
                         S.subs{i}=1:osize(i);
@@ -576,7 +580,7 @@ classdef Tcalculus
                             error('subsref: subscript in dimension %d exceeds tensor dimension (%d)\n',i,osize(i))
                         end
                         if ~myisequal(S.subs{i}(:)',1:osize(i))
-                            trivial=false;
+                            wholeTensor=false;
                         end
                     end
                     osize(i)=length(S.subs{i});
@@ -584,7 +588,7 @@ classdef Tcalculus
                 if isequal(obj1.type,'zeros')
                     obj=Tzeros(osize);
                     updateFile2table(obj,1);
-                elseif trivial
+                elseif wholeTensor
                     obj=obj1;
                     updateFile2table(obj,1);
                 else
@@ -592,6 +596,84 @@ classdef Tcalculus
                 end
             else
                 obj=builtin('subsref',obj1,S);
+            end
+        end
+
+        function obj=subsasgn(obj1,S,obj2)
+        % obj1=subsasgn(obj1,S,obj2) is called for obj1(I)=obj2,
+        % where the structure S represents the index I
+            if length(S)==1 && isequal(S.type,'()')
+                [obj1,obj2]=toCalculus(obj1,obj2);
+
+                osize=size(obj1);
+                if length(S.subs)~=length(osize)
+                    S.subs
+                    osize
+                    error(['subsref: mismatch between object length (%d) and ' ...
+                           'subscript length (%d)'],length(osize),length(S.subs));
+                end
+                wholeTensor=true;
+                emptyTensor=false;
+                for i=1:length(S.subs)
+                    if ischar(S.subs{i}) && S.subs{i}==':'
+                        S.subs{i}=1:osize(i);
+                    else
+                        if size(S.subs{i},1)>1 && size(S.subs{i},2)>1
+                            S.subs{i}
+                            error('subsref: indices must have a single dimension (index %d has size [%s] instead)\n',...
+                                  i,index2str(size(S.subs{i})));
+                        end
+                        if islogical(S.subs{i})
+                            if length(S.subs{i})==osize(i)
+                                S.subs{i}=find(S.subs{i});
+                            else
+                                error('subsref: subscript in dimension %d using logical array with length %d that does not match tensor size %d\n',i,length(S.subs{i}),osize(i))
+                            end
+                        end
+                        if any(S.subs{i}<1)
+                            S.subs{i}
+                            error('subsref: subscript in dimension %d smaller than 1\n',i)
+                        end
+                        if any(S.subs{i}>osize(i))
+                            S.subs{i}
+                            error('subsref: subscript in dimension %d exceeds tensor dimension (%d)\n',i,osize(i))
+                        end
+                        if ~myisequal(S.subs{i}(:)',1:osize(i))
+                            wholeTensor=false;
+                        end
+                        if isempty(S.subs{i}(:)')
+                            emptyTensor=true;
+                        end
+                    end
+                end
+                if wholeTensor
+                    % trivial subsasgn
+                    obj=obj2;
+                    updateFile2table(obj,1);
+                    return
+                end
+
+                % convert S to subscripts
+                Isubscripts=S.subs{1}(:);
+                for i=2:length(S.subs)
+                    % expand next dimension
+                    s=S.subs{i}(:);
+                    Isubscripts=[kron(ones(length(s),1),Isubscripts),...
+                                 kron(s,ones(size(Isubscripts,1),1))];
+                end
+                %Isubscripts
+                allSubscripts=memory2subscript(osize,1:prod(osize))';
+                [notIsubscripts,kNot]=setdiff(allSubscripts,Isubscripts,'rows');
+                obj1not=reshape(obj1,numel(obj1));
+                 % must use explicit subsref to revert to Tcalculas/subsref
+                obj1not=subsref(obj1not,struct('type','()','subs',{{kNot}}));
+                obj=vec2tensor([reshape(obj2,numel(obj2));
+                                obj1not],...
+                               osize,...
+                               [Isubscripts;
+                                notIsubscripts]);
+            else
+                obj=builtin('subsasgn',obj1,S,obj2);
             end
         end
 
@@ -689,6 +771,7 @@ classdef Tcalculus
                 for i=1:length(sz)
                     subs{i}=repmat(1:osize1(i),1,sz(i));
                 end
+                % must use explicit subsref to revert to Tcalculas/subsref
                 S=struct('type','()','subs',{subs});
                 obj=subsref(obj1,S);
             end
@@ -761,7 +844,7 @@ classdef Tcalculus
             end
 
             osize=[osize1(1:dim-1),sz(:)',osize1(dim+1:end)];
-            % subscripts are stores in the transposed form, which is more
+            % subscripts are stored in the transposed form, which is more
             % compatible with tenscalc's internal representation
             obj=Tcalculus('vec2tensor',osize,{dim,sz,subs'},obj1.TCindex,{},1);
         end
@@ -3035,6 +3118,7 @@ classdef Tcalculus
                 nx=0;
                 for k=1:length(var)
                     osize=size(var{k});
+                    % must use explicit subsref to revert to Tcalculas/subsref
                     xk=reshape(subsref(obj1,struct('type','()',...
                                                    'subs',{{nx+1:nx+prod(osize)}})),...
                                osize);
@@ -3134,6 +3218,7 @@ function obj2=growScalar(obj1,osize)
     else
         obj2=reshape(obj1,ones(1,length(osize)));
         updateFile2table(obj2,2);
+        % must use explicit subsref to revert to Tcalculas/subsref
         S.type='()';
         S.subs=cell(1,length(osize));
         for i=1:length(osize)
