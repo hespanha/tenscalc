@@ -13,15 +13,15 @@
 ## Description
 
 The *TensCalc* *Matlab* toolbox provides an environments for
-performing nonlinear constrained optimization. 
+performing nonlinear constrained optimization.
 
 The variables to be optimized can be multi-dimensional arrays of any
 dimension (tensors) and the cost functions and inequality constraints
-are specified using *Matlab*-like formulas. 
+are specified using *Matlab*-like formulas.
 
 Interior point methods are used for the numerical optimization, which
 uses formulas for the gradient and the hessian matrix that are
-computed symbolically in an automated fashion. 
+computed symbolically in an automated fashion.
 
 The package can either produce optimized *Matlab* code or C code. The
 former is preferable for very large problems, whereas the latter for
@@ -33,7 +33,7 @@ applications. No libraries are required for the standalone code.
 __*TensCalc*'s user guide can be found online at https://tenscalc.readthedocs.io__
 
 A technical description of the algorithms behind *TensCalc* can be found at
-	https://www.ece.ucsb.edu/~hespanha/published/tenscalc_imp-20170630.pdf	
+	https://www.ece.ucsb.edu/~hespanha/published/tenscalc_imp-20170630.pdf
 
 ## Installation
 
@@ -59,7 +59,7 @@ To install
 	   ```sh
 	   svn checkout https://github.com/hespanha/tenscalc.git
 	   ```
-	  
+
 	3. checking out this repository with Git, e.g., using the shell command
 	   ```sh
 	   git clone https://github.com/hespanha/tenscalc.git
@@ -97,7 +97,7 @@ To install
 	sls
 	l1l2estimationCS
 	```
-	
+
 	A few Model Predictive Control (MPC) examples can be found on
     `tenscalc/examples/mpcmhe`, such as
 
@@ -156,7 +156,7 @@ compilation functions thus always ask you to specify input
 parameters. Much more on *TensCalc*’s compilations tools can be found
 in CSparse’s documentation.
 
-### Creating STVEs. 
+### Creating STVEs.
 
 The following sequence of *TensCalc* command can be used to declare an STVE to be
 used in a simple least-squares optimization problem.
@@ -166,7 +166,7 @@ N=100; n=8;
 Tvariable A [N,n];
 Tvariable b N;
 Tvariable x n;
-y=A*x-b; 
+y=A*x-b;
 J=norm2(y)
 ```
 
@@ -273,12 +273,12 @@ do this
   `make library LDFLAGS='-L/Users/hespanha/GitHub/tenscalc/SuiteSparse/lib -L/opt/local/lib'`
 
 * Install the package UMFPACK/MATLAB, by entering the UMFPACK/MATLAB
-  folder and executing ``umfpack_make`` at the matlab prompt. 
-  
+  folder and executing ``umfpack_make`` at the matlab prompt.
+
 * Make sure your installation succeeded by executing ``umfpack_demo``
-  
+
 * Add UMFPACK/MATLAB to your matlab path and save the path.
-  
+
 ## Issues
 
 * While most *Matlab* scripts are agnostic to the underlying operating
@@ -289,7 +289,7 @@ do this
   least under OSX, linux, and Microsoft Windows. However, most of our
   testing was done under OSX so one should expect some bugs under the
   other OSs. Sorry about that.
-  
+
 * Currently the compilation of *TensCalc* solvers under Microsoft
   Windows 10 seems to be very slow. It is not clear what causes this.
 
@@ -299,8 +299,8 @@ do this
 
 * *TensCalc* gives very obscure error messages that make it pretty
   hard to for users to figure out what is wrong with their
-  optimizations. 
-  
+  optimizations.
+
   E.g., if the cost function does not depend on one of the
   optimization variables, the error message complains that "sparse
   gradients are not supported" Why? because if the cost function does
@@ -323,7 +323,7 @@ Joao Hespanha (hespanha@ece.ucsb.edu)
 http://www.ece.ucsb.edu/~hespanha
 
 University of California, Santa Barbara
-	
+
 ## License Information
 
 Copyright 2010-2017 Joao Hespanha
