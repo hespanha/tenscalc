@@ -63,6 +63,6 @@ function obj=Tconstant(value,osize)
         obj=Teye(osize);
         updateFile2table(obj,1);
     else
-        obj=Tcalculus('constant',osize,value,[],{},1);
+        obj=Tcalculus('constant',osize,double(value),[],{},1);
     end
 end
