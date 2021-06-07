@@ -1,5 +1,5 @@
 .. Packages, etc.
-   
+
 .. |tenscalc| replace:: TensCalc
 .. |funpartools| replace:: FunParTools
 .. |cmextools| replace:: CmexTools
@@ -7,11 +7,11 @@
 
 
 .. Languages
-   
+
 .. |matlab| replace:: MATLAB©
 .. |C| replace:: C
 
-.. Classes		 
+.. Classes
 
 .. |tcalculus| replace:: :class:`Tcalculus`
 .. |csparse| replace:: :class:`csparse`
@@ -34,7 +34,7 @@
 .. |vertcat| replace:: :func:`vertcat`
 .. |horzcat| replace:: :func:`horzcat`
 .. |vec2tensor| replace:: :func:`vec2tensor`
-		      
+
 .. |sqrt| replace:: :func:`sqrt`
 .. |abs| replace:: :func:`abs`
 .. |max| replace:: :func:`max`
@@ -69,5 +69,3 @@
 .. |class2compute| replace:: :func:`class2compute`
 
 .. |Tvars2optimizeCS| replace:: :func:`Tvars2optimizeCS`
-			     
-

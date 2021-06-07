@@ -4,6 +4,10 @@ function parameters=checkParameters(parameters)
         parameters={parameters};
     end
 
+    if isa(parameters,'struct')
+        parameters=struct2cell(parameters);
+    end
+
     if ~iscell(parameters)
         parameters
         error('parameters must be a cell array of Tcalculus variables');
