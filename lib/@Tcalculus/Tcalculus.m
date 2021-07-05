@@ -2766,7 +2766,14 @@ classdef Tcalculus
                 updateFile2table(obj,1);
             elseif length(varargin)==1
                 % single input cat
-                obj=varargin{1};
+                sizei=size(varargin{1});
+                if length(sizei)<dim
+                    % add singleton dimensions to reach desired size
+                    sizei=[sizei,ones(1,dim-length(sizei))];
+                    obj=reshape(varargin{1},sizei);
+                else
+                    obj=varargin{1};
+                end
                 updateFile2table(obj,1);
             else
                 isZeros=true;
@@ -2787,8 +2794,8 @@ classdef Tcalculus
                     sizei=size(obji);
                     isZeros=isZeros && isequal(typei,'zeros');
                     isOnes=isOnes && isequal(typei,'ones');
-                    % add singleton dimensions to reach desired size
                     if length(sizei)<nd
+                        % add singleton dimensions to reach desired size
                         sizei=[sizei,ones(1,nd-length(sizei))];
                         obji=reshape(obji,sizei);
                         updateFile2table(obji,1);
