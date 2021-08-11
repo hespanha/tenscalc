@@ -10,22 +10,10 @@ function computeScalarInstructions(obj,ks,folder)
 % Any information about the instructions will be written in the
 % given folder
 %
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
 %if nargin<2
 %    ks=1:height(obj.vectorizedOperations);
@@ -453,7 +441,6 @@ for jj=1:length(ks)
 
     if ~isequal(size(subscripts,2),length(instructions)) && ... % tensor of non-trivial size
             ~(isempty(subscripts)&&length(instructions)==1)          % scalar
-        % disp(obj)
         subscripts
         instructions
         error('addTCExpression: internal error object (%s) size of subscripts [%s] does not match size of instructions [%s]\n',type,index2str(size(subscripts)),index2str(size(instructions)));

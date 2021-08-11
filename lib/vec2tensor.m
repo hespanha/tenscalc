@@ -21,6 +21,11 @@ function y=vec2tensor(obj1,sz,subs,dim)
 %          Y(...,subs(i,:),...)=X(...,i,...) for i=1:n
 %       where the ... denote indices of the dimensions before and
 %       after dim
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     if nargin<4
         dim=[];

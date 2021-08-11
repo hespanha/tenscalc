@@ -4,6 +4,11 @@ function localVariables_=parameters4all(localVariables_)
 %   class2optimizeCS.m
 %   cmex2equilibriumLatentCS.m
 %   class2equilibriumLatentCS.m
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     declareParameter(...
         'VariableName','parameters',...

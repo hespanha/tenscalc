@@ -2,22 +2,10 @@ function writeMatlabInstructions(obj,fid,ks)
 % Type of code produced:
 %    ''Matlab'' - all computations done pure matlab code.
 %
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     for i=1:length(ks)
         k=ks(i);
@@ -376,10 +364,9 @@ fprintf(fid,'\t\tobj.m%d=sum(log(abs(diag(obj.m%d.U).*diag(obj.m%d.d))))+log(abs
             fprintf(fid,'\t\tobj.m%d=prod(diag(obj.m%d.U).*diag(obj.m%d.d))*det(obj.m%d.P)*det(obj.m%d.Q); %% op %d: [%s]\n',...
                     obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),k,index2str(osize));
 
-      otherwise
-        instructionTypes
-        error('writeMatlabInstructions: instruction %d not implemented (see instructionTypes)\n',type);
+          otherwise
+            instructionTypes
+            error('writeMatlabInstructions: instruction %d not implemented (see instructionTypes)\n',type);
+        end
     end
-end
-
 end

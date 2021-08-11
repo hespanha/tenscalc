@@ -12,22 +12,10 @@ function y=tsIntegral(x,ts);
 %   y  [n x 1] - integral of the function from ts(1) to ts(N)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
 %
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     osize=size(x);
     if length(osize)<1 || length(osize)>2
@@ -54,7 +42,6 @@ function y=tsIntegral(x,ts);
         dt=[.5*ts;ts*ones(osize(end)-2,1);.5*ts];
         y=whichtprod(dt,-1,x,[1:length(osize)-1,-1]);
     end
-
 end
 
 function test
@@ -70,5 +57,4 @@ function test
     % Symbolic
     Tvariable x [2,length(ts)]
     y=tsIntegral(x,ts)
-
 end

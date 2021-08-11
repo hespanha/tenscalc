@@ -1,9 +1,13 @@
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
 %% Unload previous library
 if libisloaded('instructionsTable')
     unloadlibrary('instructionsTable');
 elseif exist('instructionsTable_load','file')
-    instructionsTable_load(0);    
+    instructionsTable_load(0);
 end
 
 %% Go to csparse folder
@@ -51,8 +55,8 @@ try
                       'verboseLevel',1);
     end
     %!nm -a instructionsTable.dylib
-    %!otool -Tvt instructionsTable.dylib 
-    
+    %!otool -Tvt instructionsTable.dylib
+
     cd(thisDir)
 catch me
     cd(thisDir)
@@ -61,6 +65,3 @@ end
 
 %% Load new library
 [notfound,warnings]=loadlibrary('instructionsTable');
-
-
-

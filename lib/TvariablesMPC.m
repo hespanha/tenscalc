@@ -33,6 +33,11 @@ function [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,var
 %            which will be important to when calling the corresponding
 %                setV_... and setP_...
 %            functions prior to calling the solver
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     Tvariable Ts     [];
 

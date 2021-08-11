@@ -4,17 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>6. Code generation for computations &#8212; Tenscalc Users&#39; Guide</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -54,12 +52,12 @@ roots (input variables) and leaves (output expressions).</p>
 <h2><span class="section-number">6.1. </span>Defining a computation<a class="headerlink" href="#defining-a-computation" title="Permalink to this headline">¶</a></h2>
 <dl class="mat class">
 <dt id="csparse">
-<em class="property">class </em><code class="sig-name descname">csparse</code><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">csparse</span></code><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat method">
 <dt>
-<code class="sig-name descname">cs=csparse()</code></dt>
+<code class="sig-name descname"><span class="pre">cs=csparse()</span></code></dt>
 <dd><p>Creates an empty computation tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -70,7 +68,7 @@ roots (input variables) and leaves (output expressions).</p>
 
 <dl class="mat method">
 <dt id="declareSet">
-<code class="sig-name descname">declareSet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destination</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">declareSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destination</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an input variable to the tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -85,7 +83,7 @@ roots (input variables) and leaves (output expressions).</p>
 
 <dl class="mat method">
 <dt id="declareGet">
-<code class="sig-name descname">declareGet</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">declareGet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds output expressions to the tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -100,7 +98,7 @@ roots (input variables) and leaves (output expressions).</p>
 
 <dl class="mat method">
 <dt id="declareCopy">
-<code class="sig-name descname">declareCopy</code><span class="sig-paren">(</span><em class="sig-param">cs</em>, <em class="sig-param">destinations</em>, <em class="sig-param">sources</em>, <em class="sig-param">functionName</em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">declareCopy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destinations</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the value of input variables, based on the value of output
 expressions</p>
 <dl class="field-list simple">
@@ -120,12 +118,12 @@ expressions</p>
 <h2><span class="section-number">6.2. </span>Code generation<a class="headerlink" href="#code-generation" title="Permalink to this headline">¶</a></h2>
 <dl class="mat function">
 <dt id="cmex2compute">
-<code class="sig-name descname">cmex2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cmex2compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
 <dt id="class2compute">
-<code class="sig-name descname">class2compute</code><span class="sig-paren">(</span><em class="sig-param">parameter1</em>, <em class="sig-param">value1</em>, <em class="sig-param">parameter2</em>, <em class="sig-param">values2</em>, <em class="sig-param">...</em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">class2compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate code to set values of input variables, get values of
 output expressions, and copy output expressions to input variables.</p>
 <dl class="field-list simple">
@@ -201,8 +199,8 @@ output expressions, and copy output expressions to input variables.</p>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright © 2020, Joao Pedro Hespanha.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.1.1.
+        &#169; Copyright © 2012-2020, Joao Pedro Hespanha.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
     </div>
   </body>
 </html>

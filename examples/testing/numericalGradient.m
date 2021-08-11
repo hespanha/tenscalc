@@ -1,4 +1,9 @@
 function grad=numericalGradient(f,x,h)
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
     
     sizef=size(f(x));
     sizex=size(x);

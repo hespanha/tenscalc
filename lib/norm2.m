@@ -8,6 +8,11 @@ function obj=norm2(obj1,S)
 %   norm2(x,S) returns the value of the quadratic form <x,Sx>. This
 %   form is only applicable when x is a vector (tensor with 1
 %   dimension) and S a square matrix (tensor with 2 dimensions).
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
 if nargin<2
     obj=sum(obj1(:).^2);

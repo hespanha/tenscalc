@@ -1,5 +1,10 @@
 function isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables)
 % find indices of sensitivity variables in u
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     isSensitivity=false(length(u),1);
 

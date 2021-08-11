@@ -1,5 +1,4 @@
-function [G,F,nus,lambdas,outputExpressions,template]=...
-    parseConstraints(code,classname,constraints,outputExpressions,prefix)
+function [G,F,nus,lambdas,outputExpressions,template]=parseConstraints(code,classname,constraints,outputExpressions,prefix)
 % [G,F,nus,lambdas,template,outputExpressions]=...
 %    parseConstraints(code,classname,constraints,outputExpressions,prefix)
 %
@@ -41,116 +40,101 @@ function [G,F,nus,lambdas,outputExpressions,template]=...
 %          initialize all dual variables (nus and lambdas)
 %          (this output argument is optional)
 %
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
-createSets4Duals=false;
+    createSets4Duals=false;
 
-nowarningsamesize=true;
-nowarningever=true;
+    nowarningsamesize=true;
+    nowarningever=true;
 
-verboseLevel=0;
+    verboseLevel=0;
 
-if verboseLevel>0
-    global substituteCounter;
-    substituteCounter=0;
-end
-
-
-if nargin<5
-    prefix='';
-end
-
-if nargout>=6
-    % template for createGateway
-    template=cmextoolsTemplate();
-end
-
-Gcells={};
-Fcells={};
-nus={};
-lambdas={};
-for k=1:length(constraints)
-    if ~isa(constraints{k},'Tcalculus')
-        disp(constraints{k})
-        error('constraint %d is not a Tcalculus expression\n',k);
+    if verboseLevel>0
+        global substituteCounter;
+        substituteCounter=0;
     end
-    switch (type(constraints{k}))
-      case {'iszero'}
-        % remove iszero
-        op1=Tcalculus(operands(constraints{k}));
-        Gcells{end+1}=op1;
-        % create appropriate nu
-        vname=sprintf('%snu%d_',prefix,length(nus)+1);
-        nus{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize,nowarningever);
-        if nargout>=6 && createSets4Duals
-            template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(nus{end}));
-            template(end).Cfunction=sprintf('%s_set_%s',classname,name(nus{end}));
-            template(end).method=sprintf('setD_%s',name(nus{end}));
-            template(end).inputs =struct('type','double',...
-                                         'name',name(nus{end}),...
-                                         'sizes',size(nus{end}));
-        end
-        declareSet(code,nus{end},sprintf('%s_set_%s',classname,name(nus{end})));
-        if ~isempty(outputExpressions)
-            if verboseLevel>1
-                fprintf('substitute: %s -> nus{%d}\n',vname,length(nus));
-            end
-            outputExpressions=substitute(outputExpressions,...
-                                         Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
-                                         nus{end});
-        end
-      case {'ispositive'}
-        % remove ispositive
-        op1=Tcalculus(operands(constraints{k}));
-        Fcells{end+1}=op1;
-        % create appropriate lambda;
-        vname=sprintf('%slambda%d_',prefix,length(lambdas)+1);
-        lambdas{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize,nowarningever);
-        if nargout>=6 && createSets4Duals
-            template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
-            template(end).Cfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
-            template(end).method=sprintf('setD_%s',name(lambdas{end}));
-            template(end).inputs =struct('type','double',...
-                                         'name',name(lambdas{end}),...
-                                         'sizes',size(lambdas{end}));
-        end
-        declareSet(code,lambdas{end},sprintf('%s_set_%s',classname,name(lambdas{end})));
-        if ~isempty(outputExpressions)
-            if verboseLevel>1
-                fprintf('substitute: %s -> lambdas{%d}\n',vname,length(lambdas));
-            end
-            outputExpressions=substitute(outputExpressions,...
-                                         Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
-                                         lambdas{end});
-        end
-      otherwise
-        error('constraint of type ''%s'' not implemented\n',type(constraints{k}));
+
+
+    if nargin<5
+        prefix='';
     end
-end
 
-%% Pack constraints
-G=packExpressions(Gcells);
-F=packExpressions(Fcells);
+    if nargout>=6
+        % template for createGateway
+        template=cmextoolsTemplate();
+    end
 
+    Gcells={};
+    Fcells={};
+    nus={};
+    lambdas={};
+    for k=1:length(constraints)
+        if ~isa(constraints{k},'Tcalculus')
+            disp(constraints{k})
+            error('constraint %d is not a Tcalculus expression\n',k);
+        end
+        switch (type(constraints{k}))
+          case {'iszero'}
+            % remove iszero
+            op1=Tcalculus(operands(constraints{k}));
+            Gcells{end+1}=op1;
+            % create appropriate nu
+            vname=sprintf('%snu%d_',prefix,length(nus)+1);
+            nus{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize,nowarningever);
+            if nargout>=6 && createSets4Duals
+                template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(nus{end}));
+                template(end).Cfunction=sprintf('%s_set_%s',classname,name(nus{end}));
+                template(end).method=sprintf('setD_%s',name(nus{end}));
+                template(end).inputs =struct('type','double',...
+                                             'name',name(nus{end}),...
+                                             'sizes',size(nus{end}));
+            end
+            declareSet(code,nus{end},sprintf('%s_set_%s',classname,name(nus{end})));
+            if ~isempty(outputExpressions)
+                if verboseLevel>1
+                    fprintf('substitute: %s -> nus{%d}\n',vname,length(nus));
+                end
+                outputExpressions=substitute(outputExpressions,...
+                                             Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
+                                             nus{end});
+            end
+          case {'ispositive'}
+            % remove ispositive
+            op1=Tcalculus(operands(constraints{k}));
+            Fcells{end+1}=op1;
+            % create appropriate lambda;
+            vname=sprintf('%slambda%d_',prefix,length(lambdas)+1);
+            lambdas{end+1}=Tvariable([vname,'_'],size(op1),nowarningsamesize,nowarningever);
+            if nargout>=6 && createSets4Duals
+                template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
+                template(end).Cfunction=sprintf('%s_set_%s',classname,name(lambdas{end}));
+                template(end).method=sprintf('setD_%s',name(lambdas{end}));
+                template(end).inputs =struct('type','double',...
+                                             'name',name(lambdas{end}),...
+                                             'sizes',size(lambdas{end}));
+            end
+            declareSet(code,lambdas{end},sprintf('%s_set_%s',classname,name(lambdas{end})));
+            if ~isempty(outputExpressions)
+                if verboseLevel>1
+                    fprintf('substitute: %s -> lambdas{%d}\n',vname,length(lambdas));
+                end
+                outputExpressions=substitute(outputExpressions,...
+                                             Tvariable(vname,size(op1),nowarningsamesize,nowarningever),...
+                                             lambdas{end});
+            end
+          otherwise
+            error('constraint of type ''%s'' not implemented\n',type(constraints{k}));
+        end
+    end
 
-if verboseLevel>0
-    fprintf('  parseConstraints: %d substitutions\n',substituteCounter);
-end
+    %% Pack constraints
+    G=packExpressions(Gcells);
+    F=packExpressions(Fcells);
 
-
+    if verboseLevel>0
+        fprintf('  parseConstraints: %d substitutions\n',substituteCounter);
+    end
 end

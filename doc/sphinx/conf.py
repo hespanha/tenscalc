@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../lib/'))
 
+sys.path.insert(0, os.path.abspath('../../lib/'))
 
 # -- Project information -----------------------------------------------------
 
 project = 'tenscalc'
-copyright = u'© 2020, Joao Pedro Hespanha'
+copyright = u'© 2012-2020, Joao Pedro Hespanha'
 author = 'Joao Pedro Hespanha'
 
 # The full version, including alpha/beta/rc tags
@@ -31,12 +31,12 @@ release = '0.1a'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-              'sphinx.ext.mathjax',
-              'sphinx.ext.autodoc',
-              'sphinxcontrib.matlab',
-              'sphinx.ext.autosectionlabel', 
-              'sphinx.ext.napoleon',
-              ]
+    'sphinx.ext.mathjax',
+    'sphinx.ext.autodoc',
+    'sphinxcontrib.matlab',
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.napoleon',
+]
 matlab_src_dir = os.path.abspath(os.path.join('..', '..'))
 primary_domain = 'mat'
 
@@ -68,12 +68,11 @@ master_doc = 'index'
 #html_theme = 'cloud'
 html_theme = 'classic'
 
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = { 
-	#"rightsidebar" : False,
+html_theme_options = {
+    #"rightsidebar" : False,
     #"stickysidebar" : True,
     #"collapsiblesidebar" : True,
 }
@@ -102,7 +101,6 @@ html_title = "Tenscalc Users' Guide"
 # so a file named "default.css" will overwrite the builtin "default.css".
 #html_static_path = ['_static']
 html_static_path = []
-
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {'**':['localtoc.html','relations.html','sourcelink.html','getpdf.html','searchbox.html']}
@@ -140,20 +138,19 @@ html_show_sourcelink = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'tenscalcDoc'
 
-
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
     'papersize': 'letterpaper',
-	'pointsize': '11pt',
+    'pointsize': '11pt',
     #'preamble': '\\usepackage{jphmacros2e}',
-    }
+}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'tenscalc.tex', u"Tencalc Users' Guide",
-   u'Joao Pedro Hespanha', 'manual'),
+    ('index', 'tenscalc.tex', u"Tencalc Users' Guide", u'Joao Pedro Hespanha',
+     'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -176,19 +173,15 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_domain_indices = True
 
-
 # -- Options for manual page output --------------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    ('index', 'tenscalc', u"Tenscalc Users' Guide",
-     [u'Joao Pedro Hespanha'], 1)
-]
+man_pages = [('index', 'tenscalc', u"Tenscalc Users' Guide",
+              [u'Joao Pedro Hespanha'], 1)]
 
 # If true, show URL addresses after external links.
 #man_show_urls = False
-
 
 # -- Options for Texinfo output ------------------------------------------------
 
@@ -196,9 +189,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'tenscalc', u'Tenscalc Documentation',
-   u'Joao Pedro Hespanha', 'tenscalc', 'A toolbox to generate specialized optimization solvers',
-   'Optimization'),
+    ('index', 'tenscalc', u'Tenscalc Documentation', u'Joao Pedro Hespanha',
+     'tenscalc', 'A toolbox to generate specialized optimization solvers',
+     'Optimization'),
 ]
 
 # Documents to append as an appendix to all manuals.

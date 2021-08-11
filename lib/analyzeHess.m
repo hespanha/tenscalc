@@ -1,4 +1,8 @@
 function analyzeHess(Hess,Grad,optimizationVariables,constr,threshold,u,G,F,nu,lambda,mu,dx_s,b_s)
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     if nargin<5
         threshold=.1;

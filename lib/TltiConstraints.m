@@ -23,61 +23,51 @@ function [stateConstraints,y,z]=TltiConstraints(A,B,C,D,G,H,x0,x,u,Ty,Tz);
 % z  - nz by Tz matrix with outputs          y(0), y(1), ..., y(Tz-1)
 %      (only returned is G is not empty)
 %
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
-if ismember(class(B),{'Tvariable','Tcalculus'})
-    nx=msize(B,1);
-    nu=msize(B,2);
-else
-    nx=size(B,1);
-    nu=size(B,2);
-end
-if ismember(class(u),{'Tvariable','Tcalculus'})
-    Tu=msize(u,2);
-else
-    Tu=size(u,2);
-end
-
-u=reshape(u,[nu,Tu]);
-A=reshape(A,[nx,nx]);
-B=reshape(B,[nx,nu]);
-stateConstraints=(x==A*[x0,x(:,1:Tu-1)]+B*u);
-
-
-if ~isempty(C)
-    if ismember(class(C),{'Tvariable','Tcalculus'})
-        ny=msize(C,1);
+    if ismember(class(B),{'Tvariable','Tcalculus'})
+        nx=msize(B,1);
+        nu=msize(B,2);
     else
-        ny=size(C,1);
+        nx=size(B,1);
+        nu=size(B,2);
     end
-    C=reshape(C,[ny,nx]);
-    D=reshape(D,[ny,nu]);
-    y=C*[x0,x(:,1:Ty-1)]+D*u(:,1:Ty);
-end
-
-
-if ~isempty(G)
-    if ismember(class(G),{'Tvariable','Tcalculus'})
-        nz=msize(G,1);
+    if ismember(class(u),{'Tvariable','Tcalculus'})
+        Tu=msize(u,2);
     else
-        nz=size(G,1);
+        Tu=size(u,2);
     end
-    G=reshape(G,[nz,nx]);
-    H=reshape(H,[nz,nu]);
-    z=G*[x0,x(:,1:Tz-1)]+H*u(:,1:Tz);
+
+    u=reshape(u,[nu,Tu]);
+    A=reshape(A,[nx,nx]);
+    B=reshape(B,[nx,nu]);
+    stateConstraints=(x==A*[x0,x(:,1:Tu-1)]+B*u);
+
+
+    if ~isempty(C)
+        if ismember(class(C),{'Tvariable','Tcalculus'})
+            ny=msize(C,1);
+        else
+            ny=size(C,1);
+        end
+        C=reshape(C,[ny,nx]);
+        D=reshape(D,[ny,nu]);
+        y=C*[x0,x(:,1:Ty-1)]+D*u(:,1:Ty);
+    end
+
+
+    if ~isempty(G)
+        if ismember(class(G),{'Tvariable','Tcalculus'})
+            nz=msize(G,1);
+        else
+            nz=size(G,1);
+        end
+        G=reshape(G,[nz,nx]);
+        H=reshape(H,[nz,nu]);
+        z=G*[x0,x(:,1:Tz-1)]+H*u(:,1:Tz);
+    end
+
 end

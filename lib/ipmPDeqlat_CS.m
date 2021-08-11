@@ -4,33 +4,19 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                                scaleInequalities,scaleCost,scaleEqualities,...
                                atomicFactorization,...
                                cmexfunction,allowSave,debugConvergence,profiling)
-% Copyright 2012-2017 Joao Hespanha
-
+% See tenscalc/doc/ipm.tex for an explanation of the formulas used here
+%
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% See ../doc/ipm.tex for an explanation of the formulas used here
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     nowarningsamesize=true;
     nowarningever=true;
 
     szHess_=TcheckVariable('Hess_');
 
-%profile on
+    %profile on
 
     if smallerNewtonMatrix
         fprintf('\n  Starting ipmPDeqlat_CS symbolic computations (smallNewtonMatrix)...\n');

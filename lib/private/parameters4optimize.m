@@ -2,6 +2,11 @@ function localVariables_=parameters4optimize(localVariables_)
 % Declare input parameters common to the 4 tenscalc functions:
 %   cmex2optimizeCS.m
 %   class2optimizeCS.m
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     %% Declare input parameters
     declareParameter(...

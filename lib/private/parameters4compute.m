@@ -2,6 +2,11 @@ function localVariables_=parameters4compute(localVariables_)
 % Declare input parameters common to the 4 tenscalc functions:
 %   cmex2compute.m
 %   class2compute.m
+%
+% This file is part of Tencalc.
+%
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% CreateGateway parameters

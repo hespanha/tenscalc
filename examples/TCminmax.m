@@ -1,19 +1,7 @@
-% Copyright 2012-2017 Joao Hespanha
-
 % This file is part of Tencalc.
 %
-% TensCalc is free software: you can redistribute it and/or modify it
-% under the terms of the GNU General Public License as published by the
-% Free Software Foundation, either version 3 of the License, or (at your
-% option) any later version.
-%
-% TensCalc is distributed in the hope that it will be useful, but
-% WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-% General Public License for more details.
-%
-% You should have received a copy of the GNU General Public License
-% along with TensCalc.  If not, see <http://www.gnu.org/licenses/>.
+% Copyright (C) 2012-21 The Regents of the University of California
+% (author: Dr. Joao Hespanha).  All rights reserved.
 
 % Many ways to skin a cat...
 %
@@ -28,14 +16,14 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%l%%%%%%%%%%
 if 1
     clear all;
-    
+
     N1=50;
     N2=20;
-    
+
     Tvariable A1 [N1,N2];
     Tvariable u N1;
     Tvariable d N2;
-    
+
     J1=tprod(u,[-1],A1,[-1,-2],d,[-2]);
 
     fprintf('%dx%d matrix game saddle point\n',N1,N2);
@@ -50,14 +38,14 @@ if 1
                                        'parameters',{A1},...
                                        'compilerOptimization','-O0',...
                                        'solverVerboseLevel',3);
-    
+
     s = RandStream('mt19937ar','Seed',0);
     RandStream.setGlobalStream(s);
-    
+
     obj=feval(classname);
-    
+
     thisA1=rand(N1,N2);
-    
+
     % Set parameters
     setP_A1(obj,thisA1);
     % Initialize primal variables
@@ -73,12 +61,12 @@ if 1
     [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
     % Get outputs
     [u1,d1,j1]=getOutputs(obj);
-    
+
     j1
     %u1'
     %d1'
     status
-    
+
     if 0
         disp('Verification using linprog')
         [v2,u2,d2]=saddle_mnmx(thisA1);
@@ -96,15 +84,15 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if 1
     clear all;
-    
+
     N1=50;
     N2=20;
-    
+
     Tvariable A1 [N1,N2];
     Tvariable A2 [N1,N2];
     Tvariable u N1;
     Tvariable d N2;
-    
+
     J1=tprod(u,[-1],A1,[-1,-2],d,[-2]);
     J2=tprod(u,[-1],A2,[-1,-2],d,[-2]);
 
@@ -120,16 +108,16 @@ if 1
                                        'parameters',{A1,A2},...
                                        'compilerOptimization','-O0',...
                                        'solverVerboseLevel',3);
-    
+
     s = RandStream('mt19937ar','Seed',0);
     RandStream.setGlobalStream(s);
-    
+
     obj=feval(classname);
-    
+
     thisA1=rand(N1,N2);
     thisA2=-thisA1;
     thisA2=rand(N1,N2);
-    
+
     % Set parameters
     setP_A1(obj,thisA1);
     setP_A2(obj,thisA2);
@@ -146,12 +134,12 @@ if 1
     [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
     % Get outputs
     [u1,d1,j1,j2]=getOutputs(obj);
-    
+
     j1,j2
     %u1'
     %d1'
     status
-    
+
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -160,12 +148,12 @@ end
 if 1
     clear all;
     N=200
-    
+
     Tvariable u N;
     Tvariable d N;
-    
+
     Ju=norm2(u+d-2)-10*norm2(d);
-    
+
     fprintf('(%d,%d) quadratic saddle-point\n',N,N);
     classname=cmex2equilibriumLatentCS('classname','tmp_qsaddle',...
                                        'P1objective',Ju,...
@@ -177,12 +165,12 @@ if 1
                                        'outputExpressions',{u,d,Ju},...
                                        'compilerOptimization','-O0',...
                                        'solverVerboseLevel',3);
-    
+
     s = RandStream('mt19937ar','Seed',0);
     RandStream.setGlobalStream(s);
-    
+
     obj=feval(classname);
-    
+
     % Initialize primal variables
     u0=.5*ones(N,1);
     d0=.5*ones(N,1);
@@ -196,7 +184,7 @@ if 1
     [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
     % Get outputs
     [u1,d1,ju]=getOutputs(obj);
-    
+
     ju
     status
 end
@@ -207,15 +195,15 @@ end
 if 1
     clear all;
     N=200
-    
+
     Tvariable u N;
     Tvariable d N;
     Tvariable xu N;
     Tvariable xd N;
-    
+
     Ju=norm2(xu-2)-10*norm2(d);
     Jd=norm2(xd-2)-10*norm2(d);
-    
+
     fprintf('(%d,%d) quadratic saddle-point with state\n',N,N);
     classname=cmex2equilibriumLatentCS('classname','tmp_qsaddlestate',...
                                        'P1objective',Ju,...
@@ -229,9 +217,9 @@ if 1
                                        'solverVerboseLevel',3);
     s = RandStream('mt19937ar','Seed',0);
     RandStream.setGlobalStream(s);
-    
+
     obj=feval(classname);
-    
+
     % Initialize primal variables
     u0=zeros(N,1);
     d0=zeros(N,1);
@@ -250,7 +238,7 @@ if 1
     % Get outputs
     [u1,xu1,d1,xd1,ju,jd]=getOutputs(obj);
     [u1,xu1,d1,xd1,ju,jd]=getOutputs(obj);
-    
+
     ju,jd
     norm(xu1-xd1)
     status
