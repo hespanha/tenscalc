@@ -98,6 +98,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         Lf=f;
     end
     out.Lf_u=f_u;
+    %out.Lf_uu=gradient(f_u,u);
 
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
@@ -112,6 +113,10 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         Lf=Lf-gap;                                    % Lf=Lf-gap;
         out.Lf_u=out.Lf_u-tprod(F_u,[-1,1],lambda,-1);        % Lf_u=Lf_u-F_u'*lambda;
 
+        %F_uu=gradient(F_u,u);
+        %out.Lf_uu=out.Lf_uu-tprod(F_uu,[-1,1,2],lambda,-1);  % F_uu is generally too big
+        
+        
         % Automatic initialization of lambda
         declareCopy(code,lambda,muOnes./F,'initDualIneq__');
 
@@ -126,8 +131,11 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
     if nG>0
         G_u=gradient(G,u);
-        Lf=Lf+tprod(nu,-1,G,-1);                      % Lf=Lf+nu*G;
+        Lf=Lf+tprod(nu,-1,G,-1);                              % Lf=Lf+nu*G;
         out.Lf_u=out.Lf_u+tprod(G_u,[-1,1],nu,-1);            % Lf_u=Lf_u+G_u'*nu;
+
+        %G_uu=gradient(G_u,u);
+        %out.Lf_uu=out.Lf_uu+tprod(G_uu,[-1,1,2],nu,-1);   % G_uu is generally too big
 
         % Automatic initialization of nu
         % simple
