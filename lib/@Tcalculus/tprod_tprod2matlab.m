@@ -684,7 +684,6 @@ function obj=tprod_tprod2matlab(obj)
             end
         end
     end
-
     if found
         if ~isempty(library{i,3})
             %i,library{i,3}
