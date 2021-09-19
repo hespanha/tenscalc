@@ -676,6 +676,7 @@ classdef Tcalculus
         % Attention: unlike matlab's regular reshape,
         % Tcalculus/reshape does not support using [] as one of the
         % dimensions.
+
             if nargin>2
                 osize=[varargin{:}];
             elseif nargin==2
@@ -692,7 +693,11 @@ classdef Tcalculus
             end
 
             if isequal(type(obj1),'reshape')
-                % for nested reshapes, only last one counts
+                % for nested reshapes, only last one counts.
+                % However, this will not catch nested reshapes when
+                % tprod2matlab changes and operand, withough checking
+                % parent operator. Fortunately, reshape is a very
+                % cheap function.
                 obj1=Tcalculus(operands(obj1));
                 osize1=size(obj1);
             end
