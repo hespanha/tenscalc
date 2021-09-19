@@ -113,6 +113,8 @@ function obj=tprod_simplify(obj)
             inds(i)=[];
         end
     end
+    % objs{:}
+    % inds{:}
 
     %% Process ones() - remove multiplications by ones
     c=1;                              % may need to multiply by this constant
@@ -148,6 +150,9 @@ function obj=tprod_simplify(obj)
     % remove ones
     objs(toremove)=[];
     inds(toremove)=[];
+    % objs{:}
+    % inds{:}
+    % repma
 
     % process multiplication by scalar
     if c~=1
@@ -162,11 +167,12 @@ function obj=tprod_simplify(obj)
         reshap=tprod_size;
         for k=length(ks):-1:1
             % remove ks(k) index
-            tprod_size(ks(k))=[];
-            if ks(k)<length(tprod_size);
-                % old index ks(k)+1 -> ks(k)
-                inds=replaceIndex(inds,ks(k)+1,ks(k));
+            % old indices above dimension removed must be decreased
+            for ind=ks(k)+1:numel(tprod_size);
+                inds=replaceIndex(inds,ind,ind-1);
             end
+            % remove dimension
+            tprod_size(ks(k))=[];
             % remember for reshape;
             reshap(ks(k))=1;
         end
