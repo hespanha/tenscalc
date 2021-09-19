@@ -176,7 +176,7 @@ classdef csparse < handle
             %                tprod directly. Convertion to matlab
             %                sometimes force convertion of sparse
             %                matrices to full.
-            %                Default = false
+            %                Default = true
             %
             % fastRedundancyCheck - when true, very intensive
             %                operations (like the lu factorization)
@@ -191,7 +191,7 @@ classdef csparse < handle
                 debug=0;
             end
             if nargin<3
-                tprod2matlab=false;
+                tprod2matlab=true;
             end
             if nargin<4
                 fastRedundancyCheck=false;
