@@ -314,7 +314,9 @@ do this
 
 The following people greatly helped in testing and improving this
 toolbox: David Copp, Sharad Shankar, Calvin Wang, Ricard Scott Erwing,
-Justin Pearson.
+Justin Pearson. 
+
+This work was partially funded by the National Science Foundation.
 
 ## Contact Information
 
