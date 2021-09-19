@@ -54,13 +54,14 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter)
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.nZ,obj.nU,obj.nD,obj.nX,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         headers='Iter   cost1      cost2      |grad|     |eq|    inequal     dual      gap       mu      alphaA     sigma   alphaP    alphaDI     alphaDE  time [ms]\n';
+        if obj.nF>0
+            headers=sprintf('%s%3d: <-maxIter       tol->%10.2e%10.2e                    %10.2e%10.2e\n',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
+        else
+            headers=sprintf('%3d: <-maxIter       tol->%10.2e%10.2e\n',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance);
+        end
         fprintf(headers);
-    end
-    if obj.nF>0
-        printf3('%3d: <-maxIter       tol->%10.2e%10.2e                    %10.2e%10.2e\n',...
-                maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
-    else
-        printf3('%3d: <-maxIter       tol->%10.2e%10.2e\n',maxIter,obj.gradTolerance,obj.equalTolerance);
     end
 
     dt0=clock();

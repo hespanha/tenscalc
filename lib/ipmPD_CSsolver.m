@@ -94,18 +94,19 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap     mu    alphaA  sigma   alphaP  alphaDI alphaDE       time\n';
             end
         end
-        fprintf(headers);
         if obj.nF>0
-            fprintf('%4d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e',...
-                    maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
+            headers=sprintf('%s%4d:<-mx des.->%8.1e%8.1e                %8.1e%8.1e',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,muMin);
         else
-            fprintf('%4d:<-mx tol.->%8.1e%8.1e                                 ',maxIter,obj.gradTolerance,obj.equalTolerance);
+            headers=sprintf('%s%4d:<-mx tol.->%8.1e%8.1e                                 ',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance);
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL
-            fprintf('%8.1e        %5d%5d\n',obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
+            headers=sprintf('%s%8.1e        %5d%5d\n',headers,obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
         else
-            fprintf('\n');
+            headers(end+1)='\n';
         end
+        fprintf(headers);
     end
 
     dt0=clock();
