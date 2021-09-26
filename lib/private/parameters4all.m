@@ -19,6 +19,23 @@ function localVariables_=parameters4all(localVariables_)
                       });
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Symbolic computation parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    declareParameter(...
+        'VariableName','packOptimizationVariables',...
+        'AdmissibleValues',{false,true},...
+        'DefaultValue',true,...
+        'Description',{
+            'When true all optimization variables are packed into a'
+            'single column vector before performing symbolic'
+            'differentiation. This speeds up symbolic differentiation,'
+            'but may result in slower matlab solvers.'
+            ' '
+            'This parameter should not affect the speed of C solvers.'
+                      });
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point solver stopping criteria parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -102,20 +119,23 @@ function localVariables_=parameters4all(localVariables_)
             'Multiplicative factor used to update the barrier parameter |mu|'
             '(must be smaller than 1).'
             'This value is used when there is good progress along the'
-            'Newton direction.'
+            'Newton direction, the equality constraints are satisfied,'
+            'and the gradient is small.'
             'Nice convex problems can take as low as 1/100, but '
             'poorly conditioned problems may require as high as 1/3.'
             'This parameter is only used when |skipAffine=true|.'
                       });
     declareParameter(...
         'VariableName','muFactorConservative',...
-        ...%'DefaultValue',.75,...
-        'DefaultValue',1,...
+        'DefaultValue',.95,...
+        ...%'DefaultValue',1,...
         'Description',{
             'Multiplicative factor used to update the barrier parameter |mu|'
             '(must be smaller than 1).'
-            'This value is used when there is poor or no progress along the'
-            'Newton direction. A value not much smaller than one is preferable.'
+            'This value is used when there is good progress along the'
+            'Newton direction, the equality constraints are satisfied,'
+            'but the gradient is still large.'
+            'A value not much smaller than one (or 1) is preferable.'
                       });
 
     declareParameter(...
