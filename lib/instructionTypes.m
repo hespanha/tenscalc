@@ -169,6 +169,7 @@ instructionTypes={
     'I_Mlu_l'
     'I_Mlu_u'
     'I_Mlu_d'
+    'I_Mlu_sym'  % LU using umfpack
     'I_Mldl'
     'I_Mldl_d'
     'I_Mldl_l'
@@ -183,6 +184,7 @@ instructionTypes={
     'I_Mmldivide_u'
     'I_Mmldivide_u1'
     'I_Mmldivide_d'
+    'I_Mmldivide_lu'   % for LU using umfpack
     'I_Mrdivide'
     'I_Mcompose'
     'I_Mcomponentwise'
