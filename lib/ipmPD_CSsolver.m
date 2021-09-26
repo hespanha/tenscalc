@@ -82,8 +82,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         muMin=desiredDualityGap/obj.nF/2;
     end
 
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d):\n   %d primal variable, %d equality constraints, %d inequality constraints\n',...
-            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.nU,obj.nG,obj.nF);
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,useLDL=%d,umfpack=%d):\n   %d primal variable, %d equality constraints, %d inequality constraints\n',...
+            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,...
+            obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,...
+            obj.muFactorAggressive,obj.muFactorConservative,...
+            obj.useLDL,obj.useUmfpack,...
+            obj.nU,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL
                 headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2  eig+ eig-  d.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n';
@@ -102,9 +106,10 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                             headers,maxIter,obj.gradTolerance,obj.equalTolerance);
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && obj.useLDL
-            headers=sprintf('%s%8.1e        %5d%5d\n',headers,obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
+            headers=sprintf('%s%8.1e        %5d%5d\n',...
+                            headers,obj.addEye2Hessian1tolerance,mpDesired,mnDesired);
         else
-            headers(end+1)='\n';
+            headers=sprintf('%s\n',headers);
         end
         fprintf(headers);
     end
@@ -200,7 +205,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if norminf_grad<=obj.gradTolerance && ...
                 (obj.nF==0 || gap<=desiredDualityGap) && ...
                 (obj.nG==0 || norminf_eq<=obj.equalTolerance) && ...
-                (obj.setAddEye2Hessian && obj.adjustAddEye2Hessian && addEye2Hessian1<=obj.addEye2Hessian1tolerance)
+                (~obj.setAddEye2Hessian || ~obj.adjustAddEye2Hessian || addEye2Hessian1<=obj.addEye2Hessian1tolerance)
             printf2('  -> clean exit\n');
             status = 0;
             break;
@@ -595,10 +600,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         setMu__(obj,mu);
                         initDualIneq__(obj);
                         printf3('^');
-                    else
+                    elseif alphaPrimal>.99 && th_eq
                         mu=max(mu*obj.muFactorConservative,muMin);
                         setMu__(obj,mu);
                         printf3('v');
+                    else
+                        printf3('=');
                     end
                     if th_grad
                         printf3('g');

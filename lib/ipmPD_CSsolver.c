@@ -180,8 +180,8 @@ EXPORT void ipmPD_CSsolver(
   muMin=desiredDualityGapVar/nF/2;
 #endif
 
-  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
-	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,useLDL,useUmfpack,nU,nG,nF);
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
+	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,muFactorAggressive,muFactorConservative,useLDL,useUmfpack,nU,nG,nF);
 #if verboseLevel>=3
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0) && (useLDL != 0) && (useUmfpack == 0)
   char *header="Iter     cost   |grad|   |eq|    ineq.    dual    gap     mu    add2H1  add2H2   eig+ eig-  d.err. alphaA  sigma  alphaP  alphaDI alphaDE       time\n";
@@ -583,11 +583,17 @@ EXPORT void ipmPD_CSsolver(
 	setMu__(&mu);
 	initDualIneq__();
 	printf3("^");
-      } else {
+      } else if (alphaPrimal>.99
+#if nG>0
+	&& th_eq
+#endif
+		 ) {
 	mu *= muFactorConservative;
 	if (mu < muMin) mu = muMin;
 	setMu__(&mu);
 	printf3("v");
+      } else {
+	printf3("=");
       }
 #if verboseLevel>=3
       if (th_grad)
