@@ -25,13 +25,10 @@ function grad=gradient(obj,var)
                            % that have many arguments and need to
                            % be very much expanded
 
-    if ~isequal(type(var),'variable')
-        var
-        error('Can only compute gradient with respect to variables (not %s)',type(var));
+    if ~isa(obj,'Tcalculus')
+        obj=toCalculus(obj);
     end
-
-    obj=toCalculus(obj);
-
+ 
     %% Check if already in the cache
     obj_derivatives_cache=derivatives_cache(obj); % [variable.TCindex,derivative.TCindex;...]
     k=find(obj_derivatives_cache(:,1)==var.TCindex);
@@ -41,6 +38,13 @@ function grad=gradient(obj,var)
         return
     elseif length(k)>1
         error('derivatives_cache has repeated entries\n');
+    end
+
+    %global TCsymbolicExpressions;    
+    %if ~isequal(TCsymbolicExpressions(var.TCindex).type,'variable')
+    if ~isequal(type(var),'variable')
+        var,
+        error('Can only compute gradient with respect to variables (not %s)',type(var));
     end
 
     obj_type=type(obj);
@@ -130,23 +134,34 @@ function grad=gradient(obj,var)
         else
             for i=1:length(objs)
                 ind1=[inds{i},(1:length(var_size))+length(obj_size)];
-                x='tprod(grads{i},ind1';
+                args=cell(2*length(objs),1);
+                args{1}=grads{i};
+                args{2}=ind1;
+                kk=3;
+                %x='tprod(grads{i},ind1';
                 for j=1:length(objs)
                     if j~=i
-                        x=sprintf('%s,objs{%d},inds{%d}',x,j,j);
+                        %x=sprintf('%s,objs{%d},inds{%d}',x,j,j);
+                        args{kk}=objs{j};
+                        args{kk+1}=inds{j};
+                        kk=kk+2;
                     end
                 end
                 if tprod_associate
                     if i==1
-                        grad=eval([x,',''associate'')']);
+                        %grad=eval([x,',''associate'')']);
+                        grad=tprod(args{:},'associate');
                     else
-                        grad=grad+eval([x,',''associate'')']);
+                        %grad=grad+eval([x,',''associate'')']);
+                        grad=grad+tprod(args{:},'associate');
                     end
                 else
                     if i==1
-                        grad=eval([x,')']);
+                        %grad=eval([x,')']);
+                        grad=tprod(args{:});
                     else
-                        grad=grad+eval([x,')']);
+                        %grad=grad+eval([x,')']);
+                        grad=grad+tprod(args{:});
                     end
                 end
             end
@@ -170,7 +185,7 @@ function grad=gradient(obj,var)
         grad=tprod(grads{1},...
                      [-1:-1:-length(osize1),1:length(var_size)],...
                      abs(objs{1}),-1:-1:-length(osize1));
-        error('Do not attemp to take derivative of norm1() as it is typically not smooth at optimal value.')
+        error('Do not attemp to take derivative of norm1() as it is typically not smooth at optimal value.');
 
       case 'componentwise'
         fun=parameters(obj);
@@ -282,7 +297,7 @@ function grad=gradient(obj,var)
                      /(objs{2}*objs{2});
             end
         else
-            error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size))
+            error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size));
         end
 
       case 'rdivide'
@@ -326,21 +341,21 @@ function grad=gradient(obj,var)
             grad=tprod(grads{1},[I,K],1./objs{2},I)-...
                  tprod(objs{1}./(objs{2}.*objs{2}),I,grads{2},[I,K]);
         else
-            osize1,osize2
-            error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size))
+            osize1,osize2,
+            error('error: grad_{%s}(%s)\n\t%s_{%s} incomplete\n',str(var),str(obj),obj_type,index2str(obj_size));
         end
 
       case 'interpolate'
         if strcmp(type(grads{2}),'zeros')
-            objs{2}
+            objs{2},
             error('gradient(interpolate,var) incomplete: 2nd argument of interpolate cannot depend on var\n');
         end
         if strcmp(type(grads{3}),'zeros')
-            objs{3}
+            objs{3},
             error('gradient(interpolate,var) incomplete: 3rd argument of interpolate cannot depend on var\n');
         end
         if strcmp(type(grads{4}),'zeros')
-            objs{4}
+            objs{4},
             error('gradient(interpolate,var) incomplete: 4th argument of interpolate cannot depend on var\n');
         end
         grad=tprod(Ginterpolate(objs{1},objs{2},objs{3},objs{4},parameters(obj)),...
@@ -350,15 +365,15 @@ function grad=gradient(obj,var)
 
       case 'Ginterpolate'
         if strcmp(type(grads{2}),'zeros')
-            objs{2}
+            objs{2},
             error('gradient(Ginterpolate,var) incomplete: 2nd argument of interpolate cannot depend on var\n');
         end
         if strcmp(type(grads{3}),'zeros')
-            objs{3}
+            objs{3},
             error('gradient(Ginterpolate,var) incomplete: 3rd argument of interpolate cannot depend on var\n');
         end
         if strcmp(type(grads{4}),'zeros')
-            objs{4}
+            objs{4},
             error('gradient(Ginterpolate,var) incomplete: 4th argument of interpolate cannot depend on var\n');
         end
         grad=tprod(Hinterpolate(objs{1},objs{2},objs{3},objs{4},parameters(obj)),...
@@ -366,9 +381,9 @@ function grad=gradient(obj,var)
                    grads{1},[-(1:length(objs{1}.size)),length(obj_size)+1:length(obj_size)+length(var_size)]);
 
       otherwise
-        obj,objs{1}
+        obj,objs{1},
         grad=Tcalculus('gradient',gsize,[],[obj.TCindex;var.TCindex],{},1);
-        error('error in computing: grad_{%s}(%s)\n\tgradient of %s_{%s} not implemented\n',str(var),str(obj),obj_type,index2str(obj_size))
+        error('error in computing: grad_{%s}(%s)\n\tgradient of %s_{%s} not implemented\n',str(var),str(obj),obj_type,index2str(obj_size));
     end
 
     updateFile2table(grad,1);
@@ -377,9 +392,9 @@ function grad=gradient(obj,var)
     add2derivatives_cache(obj,var,grad);
 
     if ~isequal(size(grad),gsize)
-        obj
-        gsize
-        grad
+        obj,
+        gsize,
+        grad,
         error('gradient: unexpected size for the gradient\n');
     end
     %fprintf('D_{%s} (%s) = %s\n',str(var),str(obj),str(grad))
