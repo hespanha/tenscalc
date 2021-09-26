@@ -1,15 +1,31 @@
-function [grad,hess]=gradientVector(objs,vars)
+function [grad,hess]=gradientVector(objs,vars,dependencies)
 % [grad,hess]=gradientVector(obj,vars)
 %
-% Return of gradient with respect to a list of variables, reshaped so
-% that the derivatives with respect to all variables appear as a
-% single additional last dimension (regardless of the size of the
-% different variables).
+% Return of gradient of a list of expressions with respect to a list
+% of variables, reshaped so that
+%
+% 1) all entries of all the expressions in the list appear as a single
+%    column vector (regardless of their original sizes)
+%
+% 2) the derivatives with respect to all variables appear as a single
+%    additional last dimension (regardless of the size of the
+%    different variables).
 %
 % Optionally also return the hessian matrix, also reshaped so that the
 % derivatives with respect to all variables appear as two additional
 % last dimensions (regardless of the size of the different
 % variables).
+%
+% [grad,hess]=gradientVector(obj,vars,dependencies)
+%
+% The optional cell array 'dependecies' has the same size as objs and each entry
+%      dependencies{k} = indices of the variables that affect objs{k}
+%
+% All variables not listed in dependencies{k} are assumed no to affect
+% the value of objs{k} and the correspondiong derivative will be
+% returned as zero, without checking. This can greatly increazse
+% speed, but will lead to errors if variables are missing from objs{k}
+%
 %
 % This file is part of Tencalc.
 %
@@ -27,7 +43,19 @@ function [grad,hess]=gradientVector(objs,vars)
         objs{k}=toCalculus(objs{k});
     end
 
-    grad=cell(length(objs),length(vars));
+    if numel(objs)==1 && isempty(size(objs{1}))
+        scalar=true;
+    else
+        scalar=false;
+    end
+
+    if nargin>=3 && numel(objs)~=numel(dependencies)
+        objs,dependencies,
+        error('number of expressions %d, must match number of arrays in dependencies variable %d\n',...
+              numel(objs),numel(dependencies));
+    end
+
+    gradCell=cell(length(objs),length(vars));
     remove=false(length(vars),1);
     for i=1:length(vars)
         if prod(msize(vars{i}))>0
@@ -37,7 +65,11 @@ function [grad,hess]=gradientVector(objs,vars)
                 error('%dth variable is not of the type ''variable''\n',i)
             end
             for k=1:length(objs)
-                grad{k,i}=gradient(objs{k},vars{i});
+                if nargin<3 || ( nargin >= 3 && ismember(i,dependencies{k}))
+                    gradCell{k,i}=gradient(objs{k},vars{i});
+                else
+                    gradCell{k,i}=Tzeros([size(objs{k}),size(vars{i})]);
+                end
             end
         else
             remove(i)=true;
@@ -45,13 +77,17 @@ function [grad,hess]=gradientVector(objs,vars)
         end
     end
     if nargout>1
-        hess=cell(length(objs),length(vars),length(vars));
+        hessCell=cell(length(objs),length(vars),length(vars));
         for i=1:length(vars)
             if prod(msize(vars{i}))>0
                 for j=i:length(vars)
                     if prod(msize(vars{j}))>0
                         for k=1:length(objs)
-                            hess{k,i,j}=gradient(grad{i},vars{j});
+                            if nargin<3 || ( nargin >= 3 && ismember(i,dependencies{k}) && ismember(j,dependencies{k}) )
+                                hessCell{k,i,j}=gradient(gradCell{k,i},vars{j});
+                            else
+                                hessCell{k,i,j}=Tzeros([size(objs{k}),size(vars{i}),size(vars{j})]);
+                            end
                         end
                     end
                 end
@@ -60,38 +96,65 @@ function [grad,hess]=gradientVector(objs,vars)
     end
 
     vars(remove)=[];
-    grad(:,remove)=[];
+    gradCell(:,remove)=[];
     if nargout>1
-        hess(:,remove,:)=[];
-        hess(:,:,remove)=[];
+        hessCell(:,remove,:)=[];
+        hessCell(:,:,remove)=[];
     end
 
     % "Normalize" shapes
-    grad2=cell(size(grad,1),1);
-    for k=1:size(grad,1)
-        for i=1:size(grad,2)
+    grad2=cell(size(gradCell,1),1);
+    for k=1:size(gradCell,1)
+        for i=1:size(gradCell,2)
             % gradient as a vector
-            grad{k,i}=reshape(grad{k,i},[size(objs{k}),prod(size(vars{i}))]);
-        end
-        grad2{k}=cat(length(size(objs{k}))+1,grad{k,:});
-    end
-
-    if nargout>1
-        hess3=cell(size(grad,1),1);
-        for k=1:size(grad,1)
-            hess2=cell(size(grad,1),size(grad,2));
-            for i=1:size(grad,2)
-                for j=i:size(grad,2)
-                    % hessian as a 2-matrix
-                    hess{k,i,j}=reshape(hess{k,i,j},[size(objs{k}),prod(size(vars{i})),prod(size(vars{j}))]);
-                    hess{k,j,i}=hess{k,i,j}';
-                end
-                hess2{k,i}=cat(length(size(objs{k}))+2,hess{k,i,:});
+            if scalar
+                newsize=[prod(size(vars{i}))];
+            else
+                newsize=[numel(objs{k}),prod(size(vars{i}))];
             end
-            hess3{k}=cat(length(size(objs{k}))+1,hess2{k,:});
+            gradCell{k,i}=reshape(gradCell{k,i},newsize);
         end
-        hess=cat(length(size(objs{k}))+1,hess2{:});
+        if scalar
+            grad2{k}=cat(1,gradCell{k,:});
+        else
+            grad2{k}=cat(2,gradCell{k,:});
+        end
     end
     grad=cat(1,grad2{:});
+
+    if nargout>1
+        hess3=cell(size(gradCell,1),1);
+        for k=1:size(gradCell,1)
+            hess2=cell(size(gradCell,1),size(gradCell,2));
+            for i=1:size(gradCell,2)
+                for j=i:size(gradCell,2)
+                    % hessian as a 2-matrix
+                    if scalar
+                        newsize=[prod(size(vars{i})),prod(size(vars{j}))];
+                    else
+                        newsize=[numel(objs{k}),prod(size(vars{i})),prod(size(vars{j}))];
+                    end
+                    hessCell{k,i,j}=reshape(hessCell{k,i,j},newsize);
+                    % get hessCell{k,j,i} by transpose
+                    if numel(newsize)==2
+                        hessCell{k,j,i}=hessCell{k,i,j}';
+                    else
+                        hessCell{k,j,i}=tprod(hessCell{k,i,j},[1,3,2]);
+                    end
+                end
+                if scalar
+                    hess2{k,i}=cat(2,hessCell{k,i,:});
+                else
+                    hess2{k,i}=cat(3,hessCell{k,i,:});
+                end
+            end
+            if scalar
+                hess3{k}=cat(1,hess2{k,:});
+            else
+                hess3{k}=cat(2,hess2{k,:});
+            end
+        end
+        hess=cat(1,hess3{:});
+    end
 
 end
