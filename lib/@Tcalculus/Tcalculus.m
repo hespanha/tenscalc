@@ -1342,8 +1342,10 @@ classdef Tcalculus
                 error('Transpose on ND array is not defined\n');
             end
             if strcmp(type1,'ctranspose')
+                % transpose of transpose gets cancelled
                 obj=Tcalculus(operands(obj1));
             elseif ismember(type1,{'diag','eye'})
+                % transpose of diagonal matrices not needed
                 obj=obj1;
             elseif strcmp(type1,'zeros')
                 obj=Tzeros(osize1(end:-1:1));
