@@ -1,14 +1,46 @@
-function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
-                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                      scaleInequalities,scaleCost,scaleEqualities,...
-                      useLDL,atomicFactorization,...
-                      cmexfunction,allowSave,debugConvergence)
+function out=ipmPD_CS(pars)
 % See tenscalc/doc/ipm.tex for an explanation of the formulas used here
 %
 % This file is part of Tencalc.
 %
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
+
+    packOptimizationVariables=pars.packOptimizationVariables;
+    isSensitivity=pars.isSensitivity;
+    smallerNewtonMatrix=pars.smallerNewtonMatrix;
+    addEye2Hessian=pars.addEye2Hessian;
+    skipAffine=pars.skipAffine;
+
+    scaleCost=pars.scaleCost;
+    scaleInequalities=pars.scaleInequalities;
+    scaleEqualities=pars.scaleEqualities; % currently not used
+
+    useLDL=pars.useLDL;
+    atomicFactorization=pars.atomicFactorization;
+
+    cmexfunction=pars.cmexfunction;
+    allowSave=pars.allowSave;
+    debugConvergence=pars.debugConvergence;
+
+    %% Retrieve input paramneters
+    code=pars.code;
+
+    u=pars.u;
+    f=pars.f;
+    F=pars.F;
+    G=pars.G;
+
+    if ~packOptimizationVariables
+        uList=pars.uList;
+        f_uList=pars.f_uList;
+        F_uList=pars.F_uList;
+        G_uList=pars.G_uList;
+    end
+
+    lambda=pars.lambda;
+    nu=pars.nu;
+
 
     %profile clear;profile on
 
@@ -30,11 +62,16 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     if useLDL
         if atomicFactorization
             factor=@lu_sym;
+            error('Bug, should not come here');
         else
             factor=@ldl;
         end
     else
-        factor=@lu;
+        if atomicFactorization
+            factor=@lu_sym;
+        else
+            factor=@lu;
+        end
     end
 
     %% Define all sizes
@@ -54,11 +91,17 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         scale4Ineq=Tvariable('scale4Ineq__',size(F));
         declareCopy(code,scale4Ineq,abs(1./F),'scaleIneq__');
         F=scale4Ineq.*F;
+        if ~packOptimizationVariables
+            F_uList=scale4Ineq.*F_uList;
+        end
     end
     if scaleCost>0
         scale4Cost=Tvariable('scale4Cost__',[]);
         declareCopy(code,scale4Cost,abs(scaleCost/f),'scaleCost__');
         f=scale4Cost*f;
+        if ~packOptimizationVariables
+            f_uList=scale4Cost*f_uList;
+        end
         % will also need to scale "desiredGap" to get exist condition that is independent of scaling
         declareGet(code,scale4Cost,'getScale4Cost__');
     end
@@ -90,16 +133,79 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
     end
     out.addEye2Hessian1=addEye2Hessian1;
     out.addEye2Hessian2=addEye2Hessian2;
+
+    %% Compute derivatives
     if trustRegion
+        if ~packOptimizationVariables
+            error('gradientsWRTvariables not implemented for trustRegion option');
+        end
         f_u=gradient(f+.5*addEye2Hessian1*norm2(u),u);
         Lf=f+.5*addEye2Hessian1*norm2(u);
     else
-        f_u=gradient(f,u);
-        Lf=f;
+        if packOptimizationVariables
+            f_u=gradient(f,u);
+            Lf=f;
+        else
+            f_u=gradientVector(f_uList,uList);
+            Lf=f_uList;
+        end
     end
     out.Lf_u=f_u;
-    %out.Lf_uu=gradient(f_u,u);
+    if nF>0
+        if packOptimizationVariables
+            F_u=gradient(F,u);
+            gap=tprod(lambda,-1,F,-1);                        % gap=lambda*F;
+        else
+            F_u=gradientVector(F_uList,uList);
+            gap=tprod(lambda,-1,F_uList,-1);                  % gap=lambda*F;
+        end
+        Lf=Lf-gap;                                            % Lf=Lf-gap;
+        % out.Lf_u=out.Lf_u-tprod(F_u,[-1,1],lambda,-1);        % Lf_u=Lf_u-F_u'*lambda;
+    else
+        F=Tzeros(0);
+        F_u=Tzeros([0,nU]);
+    end
+    if nG>0
+        if packOptimizationVariables
+            G_u=gradient(G,u);
+            Lf=Lf+tprod(nu,-1,G,-1);                              % Lf=Lf+nu*G;
+        else
+            G_u=gradientVector(G_uList,uList);
+            Lf=Lf+tprod(nu,-1,G_uList,-1);                        % Lf=Lf+nu*G;
+        end
+        % out.Lf_u=out.Lf_u+tprod(G_u,[-1,1],nu,-1);                % Lf_u=Lf_u+G_u'*nu;
+    else
+        G=Tzeros(0);
+        G_u=Tzeros([0,nU]);
+    end
+    fprintf('(%.2f sec)\n    2nd derivatives...',etime(clock(),t2));
+    t2=clock();
 
+    if packOptimizationVariables
+        %out.Lf_uu=gradient(out.Lf_u,u);
+        [out.Lf_uu,out.Lf_u]=hessian(Lf,u); % seems to be more efficient than using the previously computed F_u/G_u
+    else
+        [out.Lf_u,out.Lf_uu]=gradientVector(Lf,uList); % seems to be more efficient than using the previously computed F_u/G_u
+        
+        % Replace uList by u
+        Lf=substitute(Lf,uList,u);
+        f_u=substitute(f_u,uList,u);
+        out.Lf_u=substitute(out.Lf_u,uList,u);
+        F_u=substitute(F_u,uList,u);
+        gap=substitute(gap,uList,u);
+        G_u=substitute(G_u,uList,u);
+        out.Lf_uu=substitute(out.Lf_uu,uList,u);
+    end
+
+    % gets for derivatives
+    declareGet(code,out.Lf_u,'getGrad__');
+    declareGet(code,norminf(out.Lf_u),'getNorminf_Grad__');
+    if debugConvergence
+        declareGet(code,Lf,'getLf__');
+        declareGet(code,out.Lf_uu,'getLfuu__');
+    end
+
+    %% Barrier variable
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
         %muOnes=out.mu*Tones(nF);
@@ -108,35 +214,17 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
         declareSet(code,out.mu,'setMu__');
 
-        F_u=gradient(F,u);
-        gap=tprod(lambda,-1,F,-1);                    % gap=lambda*F;
-        Lf=Lf-gap;                                    % Lf=Lf-gap;
-        out.Lf_u=out.Lf_u-tprod(F_u,[-1,1],lambda,-1);        % Lf_u=Lf_u-F_u'*lambda;
-
-        %F_uu=gradient(F_u,u);
-        %out.Lf_uu=out.Lf_uu-tprod(F_uu,[-1,1,2],lambda,-1);  % F_uu is generally too big
-        
-        
         % Automatic initialization of lambda
         declareCopy(code,lambda,muOnes./F,'initDualIneq__');
 
         declareGet(code,{gap,min(F,[],1),min(lambda,[],1)},'getGapMinFMinLambda__');
     else
-        F=Tzeros(0);
-        F_u=Tzeros([0,nU]);
         gap=Tzeros([]);
         out.mu=Tzeros([]);
         muOnes=Tzeros(0);
     end
 
     if nG>0
-        G_u=gradient(G,u);
-        Lf=Lf+tprod(nu,-1,G,-1);                              % Lf=Lf+nu*G;
-        out.Lf_u=out.Lf_u+tprod(G_u,[-1,1],nu,-1);            % Lf_u=Lf_u+G_u'*nu;
-
-        %G_uu=gradient(G_u,u);
-        %out.Lf_uu=out.Lf_uu+tprod(G_uu,[-1,1,2],nu,-1);   % G_uu is generally too big
-
         % Automatic initialization of nu
         % simple
         declareCopy(code,nu,Tones(nG),'initDualEq__');
@@ -151,22 +239,6 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
         declareCopy(code,nu,wnu0(nU+1:end),'initDualEqX__');
 
         declareGet(code,norminf(G),'getNorminf_G__');
-    else
-        G=Tzeros(0);
-        G_u=Tzeros([0,nU]);
-    end
-
-    declareGet(code,out.Lf_u,'getGrad__');
-    declareGet(code,norminf(out.Lf_u),'getNorminf_Grad__');
-
-    fprintf('(%.2f sec)\n    2nd derivatives...',etime(clock(),t2));
-    t2=clock();
-
-    out.Lf_uu=gradient(out.Lf_u,u);
-
-    if debugConvergence
-        declareGet(code,Lf,'getLf__');
-        declareGet(code,out.Lf_uu,'getLfuu__');
     end
 
     alphaPrimal=Tvariable('alphaPrimal__',[],nowarningsamesize,nowarningever);
@@ -178,6 +250,7 @@ function out=ipmPD_CS(code,f,u,lambda,nu,F,G,isSensitivity,...
 
     fprintf('(%.2f sec)\n    WW...',etime(clock(),t2));
     t2=clock();
+
     if smallerNewtonMatrix
         %%%%%%%%%%%%%%%%%%
         %% Small matrix %%
