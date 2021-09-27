@@ -198,6 +198,20 @@ function writeMatlabInstructions(obj,fid,ks)
                     end
                 end
                 str=sprintf('%s)',str);
+              case '(:)',
+                % compressed subscript as stored in computeMatlabInstructions
+                str='(';
+                for i=1:length(parameters.subs)
+                    if i ~= 1
+                        str=[str,','];
+                    end
+                    if ischar(parameters.subs{i}) && parameters.subs{i}==':'
+                        str=sprintf('%s:',str);
+                    else
+                        str=sprintf('%s%d:%d',str,parameters.subs{i});
+                    end
+                end
+                str=sprintf('%s)',str);
               otherwise,
                 error('subsref of type ''%s'' not implemented\n',parameters.type);
             end
@@ -248,17 +262,17 @@ function writeMatlabInstructions(obj,fid,ks)
             %    L*U*inv(Q)*dxl = P*inv(D)*b
             %    dxl=Q*inv(U)*inv(L)*P*inv(D)*b
             %    dxl=Q*(U\(L\(P*(D\b))))
-          
+
           case obj.Itypes.I_Mlu_sym
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
             fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.U,obj.m%d.P,obj.m%d.Q,obj.m%d.D]=umfpack(sparse(obj.m%d));\n',...
                     obj.memoryLocations(k),obj.memoryLocations(k),...
                     obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),operands);
-          
+
           case obj.Itypes.I_Mmldivide_lu
             fprintf(fid,'\t\tobj.m%d=obj.m%d.Q*(obj.m%d.U\\(obj.m%d.L\\(obj.m%d.P*(obj.m%d.D\\obj.m%d))));\n',...
                     obj.memoryLocations(k),operands(1),operands(1),operands(1),operands(1),operands(1),operands(2));            %%% problem for ldl factorization
-            
+
             %% LU factorization, et al.
             % WW=randn(6,6);WW=sparse(WW);b=randn(6,1);
             %
@@ -267,15 +281,15 @@ function writeMatlabInstructions(obj,fid,ks)
             %
             %    WW * dxl = b
             %    WW(:,q) * dxl(q) = b
-            %    inv(d(:,p)) * WW(:,q) * dxl(q) = inv(d(:,p)) * b 
+            %    inv(d(:,p)) * WW(:,q) * dxl(q) = inv(d(:,p)) * b
             %        d * s = I <=> d(:,p) * s(p,:) = I => inv(d(:,p))=s(p,:)
-            %    s(p,:) * WW(:,q) * dxl(q) = s(p,:) * b 
-            %    L * U * dxl(q) = s(p,:) * b 
+            %    s(p,:) * WW(:,q) * dxl(q) = s(p,:) * b
+            %    L * U * dxl(q) = s(p,:) * b
             %
             % m=s*b;m=L\m(p,:);               %% I_Mmldivide_l1
             % m=U\m;m(q,:)=m                  %% I_Mmldivide_u
             %
-            
+
           case obj.Itypes.I_Mlu
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
             fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.U,obj.m%d.p,obj.m%d.q,obj.m%d.d]=lu(sparse(obj.m%d),''vector'');\n',...

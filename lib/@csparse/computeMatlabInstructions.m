@@ -53,15 +53,48 @@ function computeMatlabInstructions(obj,ks)
             end
 
           case {'constant'}
+            pars=double(getByteStreamFromArray({osize,parameters}));
+            if numel(pars)>10000
+                fprintf('   computeMatlabInstructions: expression  %-15s (%4d) with many parameters (%d)\n',type,thisExp,numel(pars));
+            end
             instructions=newInstructions(obj,obj.Itypes.I_load,...
-                                         {double(getByteStreamFromArray({osize,parameters}))},...
+                                         {pars},...
                                          {[]},...
+                                         thisExp,fast);
+
+          case {'subsref'}
+            Itype=getfield(obj.Itypes,sprintf('I_M%s',type));
+            subs=parameters.subs;
+            compressible=cellfun(@(ndx)(ischar(ndx) && ndx==':') || (numel(ndx)>=2 && all(diff(ndx)==1)),subs);
+            if all(compressible)
+                %fprintf('   compressing %-15s (%4d)\n',type,thisExp);
+                %parameters
+                parameters.type='(:)';
+                for i=1:numel(subs)
+                    if ~ischar(subs{i})
+                        parameters.subs{i}=[subs{i}(1),subs{i}(end)]; % just keep 1st and last
+                    end
+                end
+                %parameters
+            end
+            pars=double(getByteStreamFromArray({osize,parameters}));
+            if numel(pars)>10000
+                %parameters.subs{1}
+                fprintf('   computeMatlabInstructions: expression  %-15s (%4d) with many parameters (%d)\n',type,thisExp,numel(pars));
+            end
+            instructions=newInstructions(obj,Itype,...
+                                         {pars},...
+                                         {opinstr},...
                                          thisExp,fast);
 
           otherwise
             Itype=getfield(obj.Itypes,sprintf('I_M%s',type));
+            pars=double(getByteStreamFromArray({osize,parameters}));
+            if numel(pars)>10000
+                fprintf('   computeMatlabInstructions: expression  %-15s (%4d) with many parameters (%d)\n',type,thisExp,numel(pars));
+            end
             instructions=newInstructions(obj,Itype,...
-                                         {double(getByteStreamFromArray({osize,parameters}))},...
+                                         {pars},...
                                          {opinstr},...
                                          thisExp,fast);
         end
