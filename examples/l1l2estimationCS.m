@@ -15,6 +15,8 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 optimizeCS=@cmex2optimizeCS;  % c
 minInstructions4loop=100;
 N=200
+verboseLevel=2; % <=2 for speed tests
+adjustAddEye2Hessian=false; % not really needed since problem is convex, but useful for testing
 
 %compilerOptimization='-O0';
 compilerOptimization='-O1';
@@ -44,7 +46,7 @@ thisDt1=1./(t(2:end)-t(1:end-1));
 
 %% declare (symbolic) variables
 Tvariable measurement N;          % measurements
-Tvariable dt1 N-1;                % 1/time differences 
+Tvariable dt1 N-1;                % 1/time differences
 Tvariable weight2acceleration []; % cost-weight for acceleration's l2-norm
 Tvariable position N;             % positions (to be optimized)
 
@@ -69,12 +71,13 @@ if 1
             measurement;dt1;
             weight2acceleration},...
         'skipAffine',false,...
+        'adjustAddEye2Hessian',adjustAddEye2Hessian,...
         'debugConvergence',debugConvergence,...
         'minInstructions4loop',minInstructions4loop,...
         'compilerOptimization',compilerOptimization,...
         'allowSave',allowSave,...
         'profiling',false,...
-        'solverVerboseLevel',2);
+        'solverVerboseLevel',verboseLevel);
 
     obj=feval(classname);
 
@@ -87,7 +90,7 @@ if 1
     setP_weight2acceleration(obj,thisWeight2acceleration);
     % initialize primal
     setV_position(obj,position_0);
-    
+
     % call solver
     mu=10*N;
     maxIter=50;
@@ -127,7 +130,7 @@ Tcalculus.clear;
 
 %% declare (symbolic) variables
 Tvariable measurement N;          % measurements
-Tvariable dt1 N-1;                % 1/time differences 
+Tvariable dt1 N-1;                % 1/time differences
 Tvariable weight2acceleration []; % cost-weight for acceleration's l2-norm
 Tvariable position N;             % positions (to be optimized)
 
@@ -166,13 +169,13 @@ J=norm2(noise2) ...
         measurement;dt1;
         weight1acceleration;weight2acceleration;weight1noise},...
     'skipAffine',false,...
-    'adjustAddEye2Hessian',false,...
+    'adjustAddEye2Hessian',adjustAddEye2Hessian,...
     'profiling',false,...
     'debugConvergence',debugConvergence,...
     'minInstructions4loop',minInstructions4loop,...
     'compilerOptimization',compilerOptimization,...
     'allowSave',allowSave,...
-    'solverVerboseLevel',2);
+    'solverVerboseLevel',verboseLevel);
 %profile viewer
 
 obj=feval(classname);
@@ -240,7 +243,7 @@ if allowSave && isequal(optimizeCS,@cmex2optimizeCS)
                     '@tmpC_minl1l2/tmpC_minl1l2_WW.values');
     WWs=sparse(double(subscripts(1,:)),double(subscripts(2,:)),...
                ones(size(values)),size(WW,1),size(WW,2));
-    
+
     figure(2);clf
     subplot(1,2,1)
     spy(WW);
