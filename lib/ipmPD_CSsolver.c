@@ -358,7 +358,7 @@ EXPORT void ipmPD_CSsolver(
       }
 #endif
 #endif // #if (useInertia == 0)
-      if (addEye2Hessian1>addEye2HessianMIN ) {
+      if (addEye2Hessian1>addEye2HessianMIN && derr<maxDirectionError) {
       //if (addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*gradTolerance) {
 	addEye2Hessian1=MAX(.75*addEye2Hessian1,addEye2HessianMIN);
 	updateaAddEye2Hessian1=1; // update at next iteration
