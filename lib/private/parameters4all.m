@@ -72,6 +72,20 @@ function localVariables_=parameters4all(localVariables_)
             'Maximum number of Newton iterations.'
                       });
 
+    declareParameter(...
+        'VariableName','LDLthreshold',...
+        'DefaultValue',1e-5,...
+        'Description',{
+            'Pivot threshold for MATLAB''s LDL factoriztion.'
+            ' '
+            'From help LDL: LDLthreshold must be a double scalar lying in'
+            'the interval [0, 0.5]. The default value for THRESH is 0.01.'
+            'Using smaller values of LDLthreshold may give faster factorization'
+            'times and fewer entries, but may also result in a less stable factorization.'
+            ' '
+            'Currently this only affects the generation of matlab code.'
+                      });
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Interior-point Scaling parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

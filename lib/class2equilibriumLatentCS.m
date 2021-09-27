@@ -256,6 +256,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     debug=false;
     tprod2matlab=true;
     code=csparse(scratchbookType,debug,tprod2matlab); % using instructionsTable.c
+    code.LDLthreshold=LDLthreshold;
     classhelp={'Create object';
                sprintf('obj=%s();',classname)};
 

@@ -115,6 +115,10 @@ classdef csparse < handle
         % C-type for the intermediate computations
         scratchbookType='double';
 
+        % Threshold for (matlab's) sparse LDL factorization
+        
+        LDLthreshold=1e-5;
+
         %% Statistics about code generation
         statistics=struct(...
             'nGroups',nan,...          % # of dependency groups

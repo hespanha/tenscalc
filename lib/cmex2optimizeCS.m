@@ -135,6 +135,7 @@ function varargout=cmex2optimizeCS(varargin)
     %code=csparse1(scratchbookType,debug);  % using fastTable.m, string I_ instruction types
     %code=csparse2(scratchbookType,debug);  % using fastTable.m, integer instruction types
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
+    code.LDLthreshold=LDLthreshold;
     classhelp={'Create object';
                sprintf('obj=%s();',classname)};
 

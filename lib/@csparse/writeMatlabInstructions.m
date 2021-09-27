@@ -322,8 +322,15 @@ function writeMatlabInstructions(obj,fid,ks)
 
           case obj.Itypes.I_Mldl
             fprintf(fid,'\t\tobj.m%d=struct();\n',obj.memoryLocations(k));
-            fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.D,obj.m%d.p,obj.m%d.s]=ldl(sparse(obj.m%d),''vector''); %% op %d: [%s]\n',...
-                    obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),operands,k,index2str(osize));
+            % THRESH as the pivot tolerance in the algorithm. THRESH
+            % must be a double scalar lying in the interval [0,
+            % 0.5]. The default value for THRESH is 0.01. Using
+            % smaller values of THRESH may give faster factorization
+            % times and fewer entries, but may also result in a less
+            % stable factorization.
+            fprintf(fid,'\t\t[obj.m%d.L,obj.m%d.D,obj.m%d.p,obj.m%d.s]=ldl(sparse(obj.m%d),%g,''vector''); %% op %d: [%s]\n',...
+                    obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),obj.memoryLocations(k),...
+                    operands,obj.LDLthreshold,k,index2str(osize));
 
           case obj.Itypes.I_Mmldivide_u1
             fprintf(fid,'\t\tobj.m%d=obj.m%d.L''\\(obj.m%d);\n',...
