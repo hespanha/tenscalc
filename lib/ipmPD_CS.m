@@ -258,11 +258,13 @@ function out=ipmPD_CS(pars)
 
         LPG=tprod(lambda./F,1,F_u,[1,2]);
         if trustRegion
-            WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate'),G_u';
-                  G_u,-addEye2Hessian2*Teye([nG,nG])];
+            WW11=out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate');
+            WW=[WW11,G_u';
+                G_u,-addEye2Hessian2*Teye([nG,nG])];
         else
-            WW=  [out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u';
-                  G_u,-addEye2Hessian2*Teye([nG,nG])];
+            WW11=out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu));
+            WW=[WW11,G_u';
+                G_u,-addEye2Hessian2*Teye([nG,nG])];
         end
         out.Hess=WW;
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
@@ -272,7 +274,8 @@ function out=ipmPD_CS(pars)
             out.dHess=ldl_d(factor_ww);
             out.lHess=ldl_l(factor_ww);
             tol=0*1e-8; % minimum eigenvalue to be considered positive -- as we let addEye2Hessian get smaller, this generally also needs to get smaller
-            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            declareGet(code,{sum(heaviside(out.dHess-tol)),...
+                             sum(heaviside(-out.dHess-tol))},'getHessInertia__');
             %declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
@@ -331,6 +334,9 @@ function out=ipmPD_CS(pars)
         newU_s=u+alphaPrimal*dU_s;
         dNu_s=dx_s(nU+1:end);
         newNu_s=nu+alphaDualEq*dNu_s;
+        curvature=dU_s*(WW11*dU_s);
+        declareGet(code,curvature,'getCurvature__');
+        
         if nF>0
             if skipAffine
                 dLambda_s=muF-LPG*dU_s-lambda;
@@ -359,11 +365,13 @@ function out=ipmPD_CS(pars)
         %%%%%%%%%%%%%%%%%%
 
         if trustRegion
-            WW=[out.Lf_uu,G_u',-F_u';
+            WW11=out.Lf_uu;
+            WW=[WW11,G_u',-F_u';
                 G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
                 -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
         else
-            WW=[out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu)),G_u',-F_u';
+            WW11=out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu));
+            WW=[WW11,G_u',-F_u';
                 G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
                 -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
         end
@@ -374,7 +382,8 @@ function out=ipmPD_CS(pars)
             out.dHess=ldl_d(factor_ww);
             out.lHess=ldl_l(factor_ww);
             tol=0*1e-8; % minimum eigenvalue to be considered positive -- as we let addEye2Hessian get smaller, this generally also needs to get smaller
-            declareGet(code,{sum(heaviside(out.dHess-tol)),sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+            declareGet(code,{sum(heaviside(out.dHess-tol)),...
+                             sum(heaviside(-out.dHess-tol))},'getHessInertia__');
             %declareGet(code,{sqrt(norm2(out.Hess-out.lHess*diag(out.dHess)*out.lHess'))},'getFactorError__');
         else
             out.dHess=Tzeros(size(factor_ww,1));
@@ -434,6 +443,9 @@ function out=ipmPD_CS(pars)
         newU_s=u+alphaPrimal*dU_s;
         dNu_s=dx_s(nU+1:nU+nG);
         newNu_s=nu+alphaDualEq*dNu_s;
+
+        curvature=dU_s*(WW11*dU_s);
+        declareGet(code,curvature,'getCurvature__');
 
         if nF>0
             dLambda_s=dx_s(nU+nG+1:nU+nG+nF);
