@@ -81,10 +81,10 @@ x0=[-1;-1;0;0;0];
 setInitialState(mpc,t0,x0);
 
 % cold start
-u_warm=.1*randn(nu,T-controlDelay);               
+u_warm=.1*randn(nu,T-controlDelay);
 
 mu0=1;
-maxIter=50;
+maxIter=100;
 saveIter=false;
 
 nSteps=1000;
@@ -99,9 +99,9 @@ for i=1:nSteps
     u_warm=min(u_warm,.95*uMax);
     u_warm=max(u_warm,-.95*uMax);
     setSolverWarmStart(mpc,u_warm);
-    
+
     [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
-    
+
     if solution.status==0
         fprintf('t=%g, J=%g computed in %g iterations & %g ms\n',t,J,solution.iter,1e3*solution.time);
     else
@@ -109,7 +109,7 @@ for i=1:nSteps
         disp(solution);
         warning('solver failed')
     end
-    
+
     if mod(i,10)==0
         plot(x(1,:),x(2,:),'k.-',...
              x(4,:),x(5,:),'b.-',...
@@ -124,9 +124,9 @@ for i=1:nSteps
         drawnow
         %pause
     end
-    
+
     ufinal=zeros(nu,1);
-    [t,u_warm]=applyControls(mpc,solution,ufinal); 
+    [t,u_warm]=applyControls(mpc,solution,ufinal);
 end
 
 history=getHistory(mpc);
@@ -152,6 +152,3 @@ yyaxis right
 plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
 ylabel('solver time [ms]');
 xlabel('t');
-
-
-
