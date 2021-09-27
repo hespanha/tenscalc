@@ -9,6 +9,8 @@ function str=mat2str_compact(mat)
     if nnz(mat)==0
         %mat=full(mat);
         str=sprintf('zeros(%s)',index2str(msize));
+    elseif all(mat==1,'all')
+        str=sprintf('ones(%s)',index2str(msize));
     elseif length(msize)==2 & msize(2)==1 & mat(2:end)==mat(1:end-1)+1
         mat=full(mat);
         str=sprintf('((%d:%d)'')',mat(1),mat(end));
