@@ -208,9 +208,8 @@ function out=ipmPD_CS(pars)
     %% Barrier variable
     if nF>0
         out.mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
-        %muOnes=out.mu*Tones(nF);
         muOnes=reshape(out.mu,1);
-        muOnes=muOnes(ones(nF,1));
+        muOnes=repmat(muOnes,nF);
 
         declareSet(code,out.mu,'setMu__');
 

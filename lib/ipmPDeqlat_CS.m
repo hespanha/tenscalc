@@ -106,9 +106,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
     %% Declare gets for exit condition and output
     if nF>0
         mu=Tvariable('mu__',[],nowarningsamesize,nowarningever);
-        %muOnes=mu*Tones(nF);
         muOnes=reshape(mu,1);
-        muOnes=muOnes(ones(nF,1));
+        muOnes=repmat(muOnes,nF);
 
         declareSet(code,mu,'setMu__');
         declareGet(code,{gap,min(F,[],1),min(lambda,[],1)},'getGapMinFMinLambda__');
