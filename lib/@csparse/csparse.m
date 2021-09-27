@@ -4,7 +4,7 @@ classdef csparse < handle
 %
 % See csparse.pdf for details
 %
-% This file is part of Tencalc.
+% This file is part of Tenscalc.
 %
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
@@ -19,7 +19,7 @@ classdef csparse < handle
                %    >=3 - a get function is declared for every
                %          intermediate vectorized operations
 
-        tprod2matlab=true; % attemps to convert any tprod to matlab operations
+        tprod2matlab=true; % attempts to convert any tprod to matlab operations
 
         fastRedundancyCheck=true; % uses fast newInstruction some scalarizations
 
@@ -112,7 +112,7 @@ classdef csparse < handle
 
         %% Compilation information
 
-        % C-type for the inermediate computations
+        % C-type for the intermediate computations
         scratchbookType='double';
 
         %% Statistics about code generation
@@ -122,7 +122,7 @@ classdef csparse < handle
             'nGets',nan,...            % # of get functions
             'nCopies',nan,...          % # of copy functions
             'nInstructions',nan,...    % final # of instructions
-            'nAddedInstructions',0,... % number of (nonunique) instructions added
+            'nAddedInstructions',0,... % number of (non-unique) instructions added
             'sizeScratchbook',nan,...
             'lu',{{}},...              % information about lu-factorization
             'ldl',{{}},...             % information about ldl-factorization
@@ -173,8 +173,8 @@ classdef csparse < handle
             % tprod2matlab - when true, an attempt is always made to
             %                convert tprod operation to matlab
             %                operations, instead of implementing
-            %                tprod directly. Convertion to matlab
-            %                sometimes force convertion of sparse
+            %                tprod directly. Conversion to matlab
+            %                sometimes force conversion of sparse
             %                matrices to full.
             %                Default = true
             %
@@ -221,7 +221,7 @@ classdef csparse < handle
                 'name','string',... % (unique) name of the expression:
                 ...                 % when type=='variable' is the
                 ...                 % name of the variable otherwise,
-                ...                 % name is contructed from type
+                ...                 % name is constructed from type
                 'osize','matrix',... % size of the sparse array (row
                 ...                  % vector)
                 'subscripts','general',... % subscripts of the nonzero
@@ -347,10 +347,10 @@ classdef csparse < handle
         % declareGet(obj,TCsource,functionName)
         %
         %    Declares a 'get' operation to be compiled.  Each 'get'
-        %    operation retrives data from a compiled sparse
+        %    operation retrieves data from a compiled sparse
         %    variables. TCsource may be a cell array (with one
         %    Tcalculus expression per entry) or a structure (with one
-        %    Tcalculus extry per field) for multiple simultaneous
+        %    Tcalculus entry per field) for multiple simultaneous
         %    gets.
 
             if isstruct(TCsource)
@@ -595,9 +595,9 @@ classdef csparse < handle
         end
 
         function declareFunction(obj,filename,functionName,defines,inputs,outputs,method,helpmsg)
-        % declarefunction(obj,filename,functionName,defines,inputs,outputs)
+        % declareFunction(obj,filename,functionName,defines,inputs,outputs)
         %
-        % declarefunction(obj,filename,functionName,defines)
+        % declareFunction(obj,filename,functionName,defines)
         %
         %   Declares a C (first form) or a matlab (second form)
         %   function that typically calls the functions
@@ -615,7 +615,7 @@ classdef csparse < handle
         %     defines.name2 = value
         %
         %   For C functions, the inputs and outputs are passed by reference and
-        %   are decribed in the structure arrays 'inputs' and
+        %   are described in the structure arrays 'inputs' and
         %   'outputs', with fields
         %      .name = string with the name of the parameter
         %      .type = string with the matlab type of the
@@ -624,7 +624,7 @@ classdef csparse < handle
         %      .size = array with the dimensions of the matrix
         %   The structure 'defines' specifies a set of #define
         %   pre-processor directives that should precede the C
-        %   function definition and can be used to pass (hardcoded)
+        %   function definition and can be used to pass (hard coded)
         %   parameters to the C function, as in:
         %      defines.name1 = {string or scalar}
         %      defines.name2 = {string or scalar}
@@ -657,7 +657,7 @@ classdef csparse < handle
         function k=addTCexpression(obj,TCobj,atomic)
         % k=addTCexpression(obj,TCobj)
         %
-        %   Parses a tenscalc expression into a sequence of
+        %   Parses a Tenscalc expression into a sequence of
         %   ''vectorizedOperations'' and adds them to the csparse
         %   object.
         %
@@ -697,7 +697,7 @@ classdef csparse < handle
                 osize2=size(op2);
                 if length(osize2)>2
                     op1=Tcalculus(ops(1));
-                    % merge all dimensions past the 1st before appying mldivide and undo it afterwords
+                    % merge all dimensions past the 1st before applying mldivide and undo it afterwords
                     TCobj=reshape(mldivide(op1,reshape(op2,[osize2(1),prod(osize2(2:end))])),osize2);
                 end
                 typ=type(TCobj);
@@ -710,9 +710,9 @@ classdef csparse < handle
               case 'inv'
                 % One should check if it is possible to avoid forming the inverse:
                 % e.g., if the inverse is part of a tprod, one could
-                % use LDL or LU factorization intop the tprod to avoid
+                % use LDL or LU factorization on top the tprod to avoid
                 % forming the inverse, which may be full.
-                warning('Forming the inverse is computationally very expensive for sparse matries and should be avoided');
+                warning('Forming the inverse is computationally very expensive for sparse matrices and should be avoided');
                 ops=operands(TCobj);
                 op1=Tcalculus(ops(1));
                 TCobj=op1\Teye(size(op1));
@@ -742,7 +742,7 @@ classdef csparse < handle
             end
             if length(obj.TCindex2CSvectorized)>=TCobj.TCindex && ...
                     obj.TCindex2CSvectorized(TCobj.TCindex)~=0
-                % allreadey added TCobj
+                % already added TCobj
                 k=obj.TCindex2CSvectorized(TCobj.TCindex);
                 return
             end
@@ -1090,9 +1090,9 @@ classdef csparse < handle
         % instr=newInstructions(obj,types,parameters,operands,vectorizedOperation,fast)
         %
         %   Creates one or several instructions of the given type,
-        %   with the given parameters, operands's intructions, and
+        %   with the given parameters, operands' instructions, and
         %   corresponding vectorizedOperation.  If a similar
-        %   intruction already exists, returns the previous location.
+        %   instruction already exists, returns the previous location.
         %
         %   The input parameter 'type' may be a string or a cell
         %   array.  The input parameters 'parameters' and 'operands',
@@ -1130,7 +1130,7 @@ classdef csparse < handle
                 end
             end
             if any(instr<0)
-                error('instrution table is full, increase sizes in instructionsTableUTHash.c');
+                error('instruction table is full, increase sizes in instructionsTableUTHash.c');
             end
         end
 
@@ -1139,7 +1139,7 @@ classdef csparse < handle
         %
         %   Creates a single instruction of the given type, with the
         %   given parameters, operands, and corresponding
-        %   vectorizedOperation.  If a similar intruction already
+        %   vectorizedOperation.  If a similar instruction already
         %   exists, returns the previous location.
         %
         %   Slightly faster than newInstructions for a single
@@ -1162,7 +1162,7 @@ classdef csparse < handle
             end
 
             if instr<0
-                error('instrution table is full, increase sizes in instructionsTableUTHash.c');
+                error('instruction table is full, increase sizes in instructionsTableUTHash.c');
             end
         end
 
@@ -1277,7 +1277,7 @@ classdef csparse < handle
         %   obj - csparse object
         %
         %   minInstructions4loop - minimum number of similar
-        %                          instructions to be implmented as a
+        %                          instructions to be implemented as a
         %                          for loop (rather than inlined)
         %
         %   maxInstructionsPerFunction - maximum number of
@@ -1463,7 +1463,7 @@ classdef csparse < handle
                 variable_names
                 sets
                 set_names
-                error('variables do not matchs sets/copies');
+                error('variables do not match sets/copies');
             end
         end
 
@@ -1503,3 +1503,29 @@ classdef csparse < handle
     end
 
 end
+
+% LocalWords:  TCalculus csparse pdf Tenscalc Joao stderr vectorized
+% LocalWords:  tprod matlab newInstruction scalarizations templateNdx
+% LocalWords:  functionName childrenGroups get's parentGroups Ap Ai
+% LocalWords:  ExternalFunctions fileName createGateway nGroups nSets
+% LocalWords:  vectorizedOperations TCsymbolicExpressions nGets lu nd
+% LocalWords:  instructionsTable dependencyGraph dependencyGroup ldl
+% LocalWords:  groupLocalInstructions groupInputInstructions nCopies
+% LocalWords:  groupOutputInstructions nInstructions sizeScratchbook
+% LocalWords:  nAddedInstructions chol deserialize loadobj subsref sS
+% LocalWords:  scratchbookType fastRedundancyCheck scratchbook vec ns
+% LocalWords:  repmat norminf clp componentwise sym inv det logdet
+% LocalWords:  traceinv mldivide rdivide mtimes ctranspose diag osize
+% LocalWords:  nnz fprintf saveobj declareSet TCdestination Tcalculus
+% LocalWords:  Tvariable computeScalarInstructions declareGet TCvar
+% LocalWords:  TCsource declareCopy declareComputation disp getOne
+% LocalWords:  addTCexpression isnan nargin isempty declareAlias uint
+% LocalWords:  declareSave intmax declareFunction pre TCobj oname NaN
+% LocalWords:  precompute Ginterpolate Hinterpolate appendRowUnique
+% LocalWords:  nameMatch LDU expr nAddedVectorizedOperations len typ
+% LocalWords:  debugGet newInstructions vectorizedOperation parentsOf
+% LocalWords:  appendUnique instructionsTableUTHash childrenOf
+% LocalWords:  minInstructions maxInstructionsPerFunction Cfunction
+% LocalWords:  Hfunction logFile inlined dependencyGroups codeType
+% LocalWords:  writeCswitchpergroup Mfunction classhelp thisExp
+% LocalWords:  computeMatlabInstructions checkVariableSets
