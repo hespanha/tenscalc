@@ -3224,7 +3224,7 @@ function obj2=growScalar(obj1,osize)
         S.type='()';
         S.subs=cell(1,length(osize));
         for i=1:length(osize)
-            S.subs{i}=ones(osize(i),1);
+            S.subs{i}=ones(1,osize(i));
         end
         obj2=subsref(obj2,S);
         updateFile2table(obj2,2);
