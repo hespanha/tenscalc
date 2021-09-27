@@ -629,7 +629,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 if alphaDualIneq>obj.alphaMax
                     alphaDualIneq = obj.alphaMax;
                 end
-                alphaDualEq = obj.alphaMax;
+                %alphaDualEq = obj.alphaMax;
+                alphaDualEq = alphaDualIneq;
             end
 
             if obj.nG>0
@@ -891,7 +892,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             end
             fprintf(')\n                ');
         else
-            fprintf('%3d:status=0x%s, ',iter,dec2hex(status));
+            fprintf('%4d:status=0x%s, ',iter,dec2hex(status));
         end
         fprintf('cost=%13.5e, ',full(J));
         norminf_grad=getNorminf_Grad__(obj);
@@ -903,7 +904,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             fprintf(', |eq|=%10.2e',full(norminf_eq));
         end
         if obj.nF>0
-            fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
+            fprintf(', ineq=%10.2e,\n                 dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
         end
         fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end

@@ -623,7 +623,8 @@ EXPORT void ipmPD_CSsolver(
     alphaDualIneq *= STEPBACK;
     if (alphaDualIneq>alphaMax_)
       alphaDualIneq=alphaMax_;
-    alphaDualEq = alphaMax;
+    //alphaDualEq = alphaMax;
+    alphaDualEq = alphaDualIneq;
 #endif
 #if nG>0
     setAlphaDualEq__(&alphaDualEq);
@@ -789,7 +790,7 @@ EXPORT void ipmPD_CSsolver(
     }
     printf2(")\n                ");
   } else {
-    printf2("%3d:status=0x%X, ",(*iter),(*status));
+    printf2("%4d:status=0x%X, ",(*iter),(*status));
   }
   printf2("cost=%13.5e",J);
   printf2(", |grad|=%10.2e",norminf_grad);
@@ -800,7 +801,8 @@ EXPORT void ipmPD_CSsolver(
   printf2(", |eq|=%10.2e",norminf_eq);
 #endif
 #if nF>0
-  printf2(", ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e",ineq,dual,gap,alphaPrimal);
+  printf2(", ineq=%10.2e,\n                 dual=%10.2e, gap=%10.2e, last alpha=%10.2e",
+	  ineq,dual,gap,alphaPrimal);
 #endif
   printf2(" (%.1lfus,%.2lfus/iter)\n",(*time)*1e6,(*time)/(double)(*iter)*1e6);
 #endif  // verboseLevel>=2
