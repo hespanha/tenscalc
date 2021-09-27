@@ -194,10 +194,14 @@ function writeMatlabInstructions(obj,fid,ks)
                     if ischar(parameters.subs{i}) && parameters.subs{i}==':'
                         str=sprintf('%s:',str);
                     else
-                        str=sprintf('%s%s',str,mat2str_compact(parameters.subs{i}(:)));
+                        str=sprintf('%s%s',str,mat2str_compact(parameters.subs{i}));
                     end
                 end
-                str=sprintf('%s)',str);
+                if length(parameters.subs)<2
+                    str=sprintf('%s,1)',str);                    
+                else
+                    str=sprintf('%s)',str);
+                end
               case '(:)',
                 % compressed subscript as stored in computeMatlabInstructions
                 str='(';
@@ -211,7 +215,11 @@ function writeMatlabInstructions(obj,fid,ks)
                         str=sprintf('%s%d:%d',str,parameters.subs{i});
                     end
                 end
-                str=sprintf('%s)',str);
+                if length(parameters.subs)<2
+                    str=sprintf('%s,1)',str);                    
+                else
+                    str=sprintf('%s)',str);
+                end
               otherwise,
                 error('subsref of type ''%s'' not implemented\n',parameters.type);
             end
