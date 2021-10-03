@@ -698,7 +698,7 @@ function obj=tprod_tprod2matlab(obj)
                     str=[str,','];
                 end
             end
-            obj=eval([str,')']);
+            obj=eval([str,')']); %% Should avoid eval
             obj=tprod_tprod2matlab(obj);
             if ~myisequal(size(obj),old_size)
                 error('Size changed [%s] -> [%s] (library entry %d)',...
