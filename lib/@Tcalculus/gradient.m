@@ -29,22 +29,24 @@ function grad=gradient(obj,var)
         obj=toCalculus(obj);
     end
  
-    %% Check if already in the cache
-    obj_derivatives_cache=derivatives_cache(obj); % [variable.TCindex,derivative.TCindex;...]
-    k=find(obj_derivatives_cache(:,1)==var.TCindex);
-    if length(k)==1
-        %fprintf('.');
-        grad=Tcalculus(obj_derivatives_cache(k,2));
-        return
-    elseif length(k)>1
-        error('derivatives_cache has repeated entries\n');
-    end
-
-    %global TCsymbolicExpressions;    
-    %if ~isequal(TCsymbolicExpressions(var.TCindex).type,'variable')
-    if ~isequal(type(var),'variable')
-        var,
-        error('Can only compute gradient with respect to variables (not %s)',type(var));
+    if true  % only use 'false' for debug
+        %% Check if already in the cache
+        obj_derivatives_cache=derivatives_cache(obj); % [variable.TCindex,derivative.TCindex;...]
+        k=find(obj_derivatives_cache(:,1)==var.TCindex);
+        if length(k)==1
+            %fprintf('.');
+            grad=Tcalculus(obj_derivatives_cache(k,2));
+            return
+        elseif length(k)>1
+            error('derivatives_cache has repeated entries\n');
+        end
+        
+        %global TCsymbolicExpressions;    
+        %if ~isequal(TCsymbolicExpressions(var.TCindex).type,'variable')
+        if ~isequal(type(var),'variable')
+            var,
+            error('Can only compute gradient with respect to variables (not %s)',type(var));
+        end
     end
 
     obj_type=type(obj);
@@ -62,6 +64,7 @@ function grad=gradient(obj,var)
         objs{i}=Tcalculus(ops(i));
         updateFile2table(objs{i},1);
         if ismember(obj_type,{'det','logdet','traceinv','inv','mldivide'}) && ismember(type(objs{i}),{'ldl','lu','lu_sym'})
+            % skip factorization
             grads{i}=gradient(Tcalculus(operands(objs{i})),var);
         else
             grads{i}=gradient(objs{i},var);
@@ -257,9 +260,9 @@ function grad=gradient(obj,var)
         % exists in the factorization
         alpha=numel(var_size);
         sigma=numel(obj_size);
-        eta=max(2,sigma);
-        grad=mldivide(objs{1},grads{2}-tprod(grads{1},[1,-1,eta+1:eta+alpha],mldivide(objs{1},objs{2}),[-1,2:sigma]));
-
+        grad=mldivide(objs{1},grads{2}-tprod(grads{1},[1,-1,sigma+1:sigma+alpha],...
+                                             mldivide(objs{1},objs{2}),[-1,2:sigma]));
+        
       case 'inv'
         osize1=size(objs{1});
         % This operation should not form the inverse and then do the product
