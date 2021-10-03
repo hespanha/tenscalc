@@ -26,6 +26,10 @@ function varargout=cmex2compute(varargin)
         return
     end
 
+    if csparseObject.tprod2matlab
+        error('csparseObject needs to be created with tprod2matlab=false (default) to generate C code');
+    end
+        
     %% transfer any folder in classname into folder
     [folder,classname]=fileparts(fsfullfile(folder,classname));
 
@@ -64,26 +68,33 @@ function varargout=cmex2compute(varargin)
 
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
-    tpl=csparseObject.template;
+    template=csparseObject.template;
     % add classname to cmex & S-functions to make names unique
-    for i=1:length(tpl)
-        tpl(i).MEXfunction=sprintf('%s_%s',classname,tpl(i).MEXfunction);
-        tpl(i).Sfunction=sprintf('%s_%s',classname,tpl(i).Sfunction);
+    for i=1:length(template)
+        template(i).MEXfunction=sprintf('%s_%s',classname,template(i).MEXfunction);
+        template(i).Sfunction=sprintf('%s_%s',classname,template(i).Sfunction);
         % no simulink functions
-        tpl(i).Sfunction='';
+        template(i).Sfunction='';
     end
 
     t_createGateway=clock();
 
-    statistics=createGateway('template',tpl,...
+    statistics=createGateway('template',template,...
                              'CfunctionsSource',fsfullfile(classFolder,sprintf('%s.c',classname)),...
                              'callType','dynamicLibrary',...
-                             'dynamicLibrary',classname,...
+                             'dynamicLibrary',classname,'absolutePath',absolutePath,...
                              'folder',folder,...
                              'className',classname,...
-                             'absolutePath',absolutePath,...
-                             'compilerOptimization',compilerOptimization);
-
+                             'className',classname,...%'classHelp',classhelp,...
+                             'targetComputer',targetComputer,...
+                             'compilerOptimization',compilerOptimization,...
+                             'compileGateways',compileGateways,...
+                             'compileLibrary',compileLibrary,...
+                             'compileStandalones',compileStandalones,...
+                             'verboseLevel',verboseLevel);
+    
+    
+    
     statistics.time.createGateway=etime(clock,t_createGateway);
     statistics.createGateway=statistics;
 
