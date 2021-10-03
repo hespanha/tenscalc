@@ -290,7 +290,7 @@ function localVariables_=parameters4all(localVariables_)
     declareParameter(...
         'VariableName','classname',...
         'DefaultValue',getFromPedigree(),...
-        'Description',{
+        'Description', {
             'Name of the class to be created.'
             'A matlab class will be created with this name plus a |.m| extension.';
             'The class will have the following methods:';
@@ -344,7 +344,7 @@ function localVariables_=parameters4all(localVariables_)
             '   * |time|    - solver''s compute time (in secs).'
             ' '
             'One can look "inside" this class to find the name of the cmex functions.'
-                      });
+                       });
 
     declareParameter(...
         'VariableName','folder',...
