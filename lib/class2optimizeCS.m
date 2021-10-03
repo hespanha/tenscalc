@@ -50,7 +50,7 @@ function varargout=class2optimizeCS(varargin)
         warning('umfpack does not include LDL factorization, using LU factorization instead');
         useLDL=false;
     end
-    
+
     %% transfer any folder in classname into folder
     [folder,classname]=fileparts(fsfullfile(folder,classname));
 
