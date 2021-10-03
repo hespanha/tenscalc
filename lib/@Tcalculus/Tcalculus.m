@@ -1006,7 +1006,8 @@ classdef Tcalculus
                     mx=size(obj1);
                     ms=size(S);
                     if length(mx)==1 && length(ms)==2 && ms(1)==mx(1) && ms(2)==mx(1)
-                        obj=tprod(obj1,-1,S,[-1,-2],obj1,-2);
+                        %obj=tprod(obj1,-1,S,[-1,-2],obj1,-2);          % gives warning
+                        obj=tprod(obj1,-1,tprod(S,[1,-1],obj1,-1),-1);
                     else
                         error('norm2: norm2(x,S) called with x[%s] not a column vector and/or S[%s] not a square matrix of compatible size\n',index2str(size(obj1)),index2str(size(S)));
                     end
@@ -1103,6 +1104,7 @@ classdef Tcalculus
                 obj=tprod(obj1,ind);
                 updateFile2table(obj,1);
             else
+                %warning('this may fail for cmex since ''sum'' not implemented in c')
                 ssize=size(obj1);
                 ssize(dimension)=[];
                 obj=Tcalculus('sum',ssize,dimension,obj1.TCindex,{},1);
@@ -2419,6 +2421,7 @@ classdef Tcalculus
                 obj=tprod(obj1,1:length(osize1),obj2,1:length(osize2));
                 updateFile2table(obj,1);
             else
+                %warning('this may fail for cmex since ''times'' not implemented in c')
                 if strcmp(type(obj1),'zeros') || strcmp(type(obj2),'zeros')
                     obj=obj1;
                 elseif strcmp(type(obj1),'ones')
@@ -2461,8 +2464,8 @@ classdef Tcalculus
             [obj1,obj2]=toCalculus(obj1,obj2);
             osize1=size(obj1);
             osize2=size(obj2);
-
             if mtimes2tprod
+                %% Convert to tprod
                 if length(osize1)==2 && length(osize2)==2
                     % A * B
                     obj=tprod(obj1,[1,-1],obj2,[-1,2]);
@@ -2492,6 +2495,8 @@ classdef Tcalculus
                     obj1,obj2,error('Tcalculus/mtimes ambigous')
                 end
             else
+                %warning('this may fail for cmex since ''mtimes'' not implemented in c')
+                %% Avoid to tprod
                 if length(osize1)==2 && length(osize2)==2
                     % A * B
                     if osize1(2)~=osize2(1)
@@ -2533,7 +2538,7 @@ classdef Tcalculus
                 else
                     obj1,obj2,error('Tcalculus/mtimes ambigous')
                 end
-
+                %% Simplifications, without tprod
                 if strcmp(type(obj1),'zeros') || strcmp(type(obj2),'zeros')
                     obj=Tzeros(msize);
                 elseif strcmp(type(obj2),'ones') && myisequal(osize2,[1,1])
