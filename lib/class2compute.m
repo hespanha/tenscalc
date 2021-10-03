@@ -26,7 +26,10 @@ function varargout=class2compute(varargin)
         return
     end
 
-
+    if ~csparseObject.tprod2matlab
+        warning('csparseObject should have been created with tprod2matlab=true for faster matlab code. Use "csparseObject=csparse();csparseObject.tprod2matlab=true;" to create the csparse object.');
+    end
+        
     %% transfer any folder in classname into folder
     [folder,classname]=fileparts(fsfullfile(folder,classname));
 
