@@ -11,17 +11,17 @@ classdef csparse < handle
 
     properties
 
-        debug; % When nonzero the C functions print debug information
-               % to stderr:
-               %    >=1 - functions write their name when called
-               %
-               %    >=2 - functions write the content of the buffer
-               %    >=3 - a get function is declared for every
-               %          intermediate vectorized operations
+        debug=0; % When nonzero the C functions print debug information
+                 % to stderr:
+                 %    >=1 - functions write their name when called
+                 %
+                 %    >=2 - functions write the content of the buffer
+                 %    >=3 - a get function is declared for every
+                 %          intermediate vectorized operations
+        
+        tprod2matlab=false; % true attempts to convert any tprod to matlab operations, but gives error when generating c code since matlab operations like times,mtimes,sum may not have been implemented.
 
-        tprod2matlab=true; % attempts to convert any tprod to matlab operations
-
-        fastRedundancyCheck=true; % uses fast newInstruction some scalarizations
+        fastRedundancyCheck=false; % uses fast newInstruction some scalarizations
 
 
         %% Information about set's
@@ -188,23 +188,18 @@ classdef csparse < handle
             %                reuse computations.
             %                Default = false
 
-            if nargin<1
-                scratchbookType='double';
+            if nargin>=1
+                obj.scratchbookType=scratchbookType;
             end
-            if nargin<2
-                debug=0;
+            if nargin>=2
+                obj.debug=debug;
             end
-            if nargin<3
-                tprod2matlab=true;
+            if nargin>=3
+                obj.tprod2matlab=tprod2matlab;
             end
-            if nargin<4
-                fastRedundancyCheck=false;
+            if nargin>=4
+                obj.fastRedundancyCheck=fastRedundancyCheck;
             end
-
-            obj.scratchbookType=scratchbookType;
-            obj.debug=debug;
-            obj.tprod2matlab=tprod2matlab;
-            obj.fastRedundancyCheck=fastRedundancyCheck;
 
             global TCsymbolicExpressions
             obj.TCindex2CSvectorized=zeros(length(TCsymbolicExpressions),1);
