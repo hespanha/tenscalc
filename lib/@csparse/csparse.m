@@ -28,7 +28,7 @@ classdef csparse < handle
         sets=struct('functionName',{},...  % desired name for the C function
                     'destination',{},...   % elementary expression to be set
                     'childrenGroups',{},...% groups of instructions that depend on destination
-                    'templateNdx',{});    % index in template
+                    'templateNdx',{});     % index in template
 
         %% Information about get's
         gets=struct('functionName',{},... % desired name for the C function
@@ -52,10 +52,10 @@ classdef csparse < handle
 
         %% Information about ExternalFunctions
         externalFunctions=struct('fileName',{},...  % filename name where source resides
-                          'functionName',{},...  % function name
-                          'inputs',{},...        % input parameters
-                          'output',{},...        % output parameters
-                          'defines',{});         % #defines
+                          'functionName',{},...     % function name
+                          'inputs',{},...           % input parameters
+                          'output',{},...           % output parameters
+                          'defines',{});            % #defines
 
         %% template for createGateway
         template=cmextoolsTemplate();
