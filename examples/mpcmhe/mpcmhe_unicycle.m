@@ -5,7 +5,7 @@
 
 clear all
 % remove previous solvers
-% ATTENTION: for cmex version must not erase 
+% ATTENTION: for cmex version must not erase
 %          @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.subscripts & @tmp_mpcmhe_uni/tmp_mpcmhe_uni_WW.values
 %!rm -rf *toremove* tmp* @tmp*
 
@@ -18,13 +18,13 @@ T=12;   % forward horizon  (T=20 gives nicer results)
 
 % System dynamics:
 % pursuer
-% x1(k+1)    = x1(k) + v cos theta(k) 
-% x2(k+1)    = x2(k) + v sin theta(k) 
+% x1(k+1)    = x1(k) + v cos theta(k)
+% x2(k+1)    = x2(k) + v sin theta(k)
 % theta(k+1) = theta(k) + u(k)         u(k) in [-uMax,uMax]
 
 % evader
 % y1(k+1)    = y1(k) + d1(k)           d1(k), d2(k) in [-dMax,dMax]
-% y2(k+1)    = y2(k) + d2(k)  
+% y2(k+1)    = y2(k) + d2(k)
 
 % controlled output
 % z1 = y1 - x1
@@ -50,7 +50,7 @@ Tvariable uPast [nU,L];     % u(t-L), ... , u(t-1)
 Tvariable uFut  [nU,T];     % u(t),   ... , u(t+T-1);
 Tvariable yPast [nY,L+1];   % y(t-L), ..., y(t)
 
-x=[x0,x1];                  % x(t-L), ... , x(t+T) 
+x=[x0,x1];                  % x(t-L), ... , x(t+T)
 uAll=[uPast,uFut];          % u(t-L), ... , u(t+T-1)
 xFut=x1(:,L:end);           % x(t), ... , x(t+T)
 
@@ -87,17 +87,18 @@ if strcmp(computer,'PCWIN64');
     coder=@class2equilibriumLatentCS;
 else
     coder=@cmex2equilibriumLatentCS;
-end 
-if exist('tmp_recompile.txt')
-    fprintf('Recompilation needed\n');
+end
+if exist('tmp_matrixSaved.txt')
+    fprintf('Recompilation needed with saved matrix values\n');
     executeScript='yes';
-    delete('tmp_recompile.txt');
+    allowSave=false; % do not overwrte saved matrix
 else
     executeScript='asneeded';
+    allowSave=true;
 end
 
 classname=coder(...
-    'pedigreeClass','tmp_mm_uni',...
+    ...%'pedigreeClass','tmp_mm_uni',... % should not use variable name to reuse matrix values
     'executeScript',executeScript,...
     'classname','tmp_mpcmhe_uni',...
     ...
@@ -122,7 +123,7 @@ classname=coder(...
     'scaleInequalities',true,...
     ...%'scaleCost',20,....
     ...
-    'allowSave',true,...
+    'allowSave',allowSave,...
     ...%'smallerNewtonMatrix',true,...
     ...%'umfpack',true,...
     ...
@@ -192,7 +193,7 @@ for k=1:200
     % get measurement
     n=nSigma*randn(nY,1);
     closedloop.y(:,end+1)=measuredOutput(closedloop.x(:,end))+n;
-    
+
     if size(closedloop.u,2)<=L
         % open loop
         [closedloop.status(end+1,1),...
@@ -203,12 +204,12 @@ for k=1:200
          uFut,hatd,hatx,uFutWarm,dWarm,xWarm]=deal(...
              nan,nan(size(JJ,1),1),...
              zeros(nU,T),zeros(nD,L+T),zeros(nX,L+T+1),...
-             zeros(nU,T),zeros(nD,L+T),zeros(nX,L+T+1));        
+             zeros(nU,T),zeros(nD,L+T),zeros(nX,L+T+1));
     else
         % MPC-MHE optimization
         setP_uPast(obj,closedloop.u(:,end-L+1:end));
         setP_yPast(obj,closedloop.y(:,end-L:end));
-        
+
         [closedloop.status(end+1,1),...
          closedloop.iter(end+1,1),...
          closedloop.stime(end+1,1)]=solve(obj,mu0,int32(maxIter),int32(saveIter));
@@ -216,16 +217,16 @@ for k=1:200
         [closedloop.J(end+1,1),...
          closedloop.JJ(:,end+1),...
          uFut,hatd,hatx,uFutWarm,dWarm,xWarm]=getOutputs(obj);
-        
+
         fprintf('t=%g, J=%g computed in %g iterations & %g ms\n',...
                 closedloop.t(end),closedloop.J(end),closedloop.iter(end),1e3*closedloop.stime(end));
 
         if closedloop.status(end)==4
             % create file to force recompilation
-            fclose(fopen('tmp_recompile.txt','w'));
+            fclose(fopen('tmp_matrixSaved.txt','w'));
             error('failed to invert hessian, regenerate code to compile with saved values for hessian')
         end
-        
+
         if closedloop.status(end)>0
             uFut=lastUfut(:,2:end);
             lastUfut=uFut;
@@ -236,15 +237,15 @@ for k=1:200
             lastUfut=uFut;
             lastUfutT=closedloop.t(end);
         end
-    
-        
-        
+
+
+
     end
-    
-    
+
+
     % Apply control
-     closedloop.u(:,end+1)=uFut(:,1);     
-     % Apply disturbance 
+     closedloop.u(:,end+1)=uFut(:,1);
+     % Apply disturbance
      if closedloop.t(end)<=55
          closedloop.d(:,end+1)=[.05;0];
      else
@@ -252,8 +253,8 @@ for k=1:200
      end
      closedloop.x(:,end+1)=dXfun(closedloop.x(:,end),closedloop.u(:,end),closedloop.d(:,end),v);
      closedloop.t(end+1)=closedloop.t(end)+1;
-     
-     % apply warm start for next iteration     
+
+     % apply warm start for next iteration
      setV_uFut(obj,uFutWarm);
      setV_d(obj,dWarm);
      if size(closedloop.u,2)>L
@@ -267,9 +268,9 @@ for k=1:200
      setV_x0(obj,xWarm(:,1));
      setV_x1(obj,xWarm(:,2:end));
 
-     
+
      if mod(k,10)==0
-         figure(1);
+         set(groot,'currentfigure',1);
          %subplot(4,4,mod(k,16)+1);
          plot(closedloop.x(1,:),closedloop.x(2,:),'g.-',...
               closedloop.x(4,:),closedloop.x(5,:),'b.-',...
@@ -277,14 +278,14 @@ for k=1:200
               hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
          legend('pursuer','evader','pursuer prediction','evader prediction');
          axis equal
-         figure(2);
+         set(groot,'currentfigure',2);
          plot(closedloop.y(1,:),closedloop.y(2,:),'g.-',...
               closedloop.y(3,:),closedloop.y(4,:),'b.-',...
               hatx(1,L+1:end),hatx(2,L+1:end),'g:',...
               hatx(4,L+1:end),hatx(5,L+1:end),'b:');grid on
          legend('noisy pursuer','noisy evader','pursuer prediction','evader prediction');
          axis equal
-         figure(3);
+         set(groot,'currentfigure',3);
          subplot(3,1,1);
          plot(closedloop.t(1:end-1),closedloop.J,'-',closedloop.t(1:end-1),closedloop.JJ,'.');grid on
          legend('J','J_x','J_u','J_n','J_d');
@@ -294,7 +295,7 @@ for k=1:200
          subplot(3,1,3);
          plot(closedloop.t(1:end-1),closedloop.d,'.-');grid on
          legend('evader v_x','evader v_y','location','best');
-         figure(4);
+         set(groot,'currentfigure',4);
          subplot(3,1,1)
          plot(closedloop.t(1:end-1),closedloop.iter,'.');grid on
          ylabel('# iter');
@@ -310,4 +311,3 @@ for k=1:200
 end
 
 clear obj;
-
