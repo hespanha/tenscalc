@@ -76,7 +76,7 @@ function localVariables_=parameters4all(localVariables_)
         'VariableName','LDLthreshold',...
         'DefaultValue',1e-5,...
         'Description',{
-            'Pivot threshold for MATLAB''s LDL factoriztion.'
+            'Pivot threshold for MATLAB''s LDL factorization.'
             ' '
             'From help LDL: LDLthreshold must be a double scalar lying in'
             'the interval [0, 0.5]. The default value for THRESH is 0.01.'
