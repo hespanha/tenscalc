@@ -30,6 +30,7 @@ extern void initDualEq__();
 extern void initDualIneq__();
 extern void setAddEye2Hessian1__(const double *addEye2Hessian);
 extern void setAddEye2Hessian2__(const double *addEye2Hessian);
+extern void getDirectionError__(double *derr);
 extern void updatePrimalDual__();
 extern void scaleIneq__();
 extern void scaleCost__();
@@ -138,8 +139,10 @@ EXPORT void ipmPD_CSsolver(
   double addEye2Hessian2=addEye2Hessian[1];
   setAddEye2Hessian1__(&addEye2Hessian1);
   setAddEye2Hessian2__(&addEye2Hessian2);
+#endif
+#if adjustAddEye2Hessian != 0  
   double derr,curvature;
-  int updateaAddEye2Hessian1=0,updateaAddEye2Hessian2=0;
+  int updateAddEye2Hessian1=0,updateAddEye2Hessian2=0;
 #if (useInertia != 0)
   double mp,mn;
 #endif
@@ -206,7 +209,7 @@ EXPORT void ipmPD_CSsolver(
   printf3(header);
 #endif
 #if nF>0
-  printf3("%4d:<-mx des.->%8.1e%8.1e                %8.1e%6.1f",
+  printf3("%4d:<-mx tol.->%8.1e%8.1e                %8.1e%6.1f",
 	  *maxIter,gradTolerance,equalTolerance,desiredDualityGapVar,log10(muMin));
 #else
   printf3("%4d:<-mx tol.->%8.1e%8.1e                              ",*maxIter,gradTolerance,equalTolerance);
@@ -326,13 +329,13 @@ EXPORT void ipmPD_CSsolver(
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
 
     // updates delayed from the last iteration
-    if (updateaAddEye2Hessian1) {
+    if (updateAddEye2Hessian1) {
       setAddEye2Hessian1__(&addEye2Hessian1);
-      updateaAddEye2Hessian1=0;
+      updateAddEye2Hessian1=0;
     }
-    if (updateaAddEye2Hessian2) {
+    if (updateAddEye2Hessian2) {
       setAddEye2Hessian2__(&addEye2Hessian2);
-      updateaAddEye2Hessian2=0;
+      updateAddEye2Hessian2=0;
     }
 
     getCurvature__(&curvature);
@@ -361,11 +364,11 @@ EXPORT void ipmPD_CSsolver(
       if (addEye2Hessian1>addEye2HessianMIN && derr<maxDirectionError) {
       //if (addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*gradTolerance) {
 	addEye2Hessian1=MAX(.75*addEye2Hessian1,addEye2HessianMIN);
-	updateaAddEye2Hessian1=1; // update at next iteration
+	updateAddEye2Hessian1=1; // update at next iteration
       }
       if (addEye2Hessian2>addEye2HessianMIN && derr<maxDirectionError) {
 	addEye2Hessian2=MAX(.75*addEye2Hessian2,addEye2HessianMIN);
-	updateaAddEye2Hessian2=1; // update at next iteration
+	updateAddEye2Hessian2=1; // update at next iteration
       }
     } else {
       for (int ii=0;ii<20;ii++) {
