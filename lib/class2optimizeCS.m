@@ -248,9 +248,9 @@ function varargout=class2optimizeCS(varargin)
     defines.scaleEqualities=double(scaleEqualities);
     defines.alphaMin=alphaMin;
     defines.alphaMax=alphaMax;
+    defines.coupledAlphas=double(coupledAlphas);
     defines.setAddEye2Hessian=double(addEye2Hessian~=0);
     defines.adjustAddEye2Hessian=double(adjustAddEye2Hessian~=0);
-    defines.coupledAlphas=double(coupledAlphas);
     defines.muFactorAggressive=muFactorAggressive;
     defines.muFactorConservative=muFactorConservative;
     defines.delta=delta;
