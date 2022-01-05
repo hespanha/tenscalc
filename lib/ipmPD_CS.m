@@ -6,6 +6,7 @@ function out=ipmPD_CS(pars)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
+    %% Retrieve input paramneters
     packOptimizationVariables=pars.packOptimizationVariables;
     isSensitivity=pars.isSensitivity;
     smallerNewtonMatrix=pars.smallerNewtonMatrix;
@@ -23,7 +24,6 @@ function out=ipmPD_CS(pars)
     allowSave=pars.allowSave;
     debugConvergence=pars.debugConvergence;
 
-    %% Retrieve input paramneters
     code=pars.code;
 
     u=pars.u;
