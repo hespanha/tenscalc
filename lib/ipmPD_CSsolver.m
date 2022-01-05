@@ -39,8 +39,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
         setAddEye2Hessian1__(obj,addEye2Hessian1);
         setAddEye2Hessian2__(obj,addEye2Hessian2);
-        updateaAddEye2Hessian1=false;
-        updateaAddEye2Hessian2=false;
+        updateAddEye2Hessian1=false;
+        updateAddEye2Hessian2=false;
     else
         addEye2Hessian1=nan;
         addEye2Hessian2=nan;
@@ -237,13 +237,13 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
 
             % updates delayed from the last iteration
-            if updateaAddEye2Hessian1
+            if updateAddEye2Hessian1
                 setAddEye2Hessian1__(obj,addEye2Hessian1);
-                updateaAddEye2Hessian1=false;
+                updateAddEye2Hessian1=false;
             end
-            if updateaAddEye2Hessian2
+            if updateAddEye2Hessian2
                 setAddEye2Hessian2__(obj,addEye2Hessian2);
-                updateaAddEye2Hessian2=false;
+                updateAddEye2Hessian2=false;
             end
 
             curvature=getCurvature__(obj); % skip inertia test if curvature looks good (see Zavala and Chiang, 2014)
@@ -265,11 +265,11 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 if addEye2Hessian1>addEye2HessianMIN && derr<maxDirectionError
                 %if addEye2Hessian1>addEye2HessianMIN && norminf_grad<=10*obj.gradTolerance
                     addEye2Hessian1=max(.75*addEye2Hessian1,addEye2HessianMIN);
-                    updateaAddEye2Hessian1=true; % update at next iteration
+                    updateAddEye2Hessian1=true; % update at next iteration
                 end
                 if addEye2Hessian2>addEye2HessianMIN && derr<maxDirectionError
                     addEye2Hessian2=max(.75*addEye2Hessian2,addEye2HessianMIN);
-                    updateaAddEye2Hessian2=true; % update at next iteration
+                    updateAddEye2Hessian2=true; % update at next iteration
                 end
             else
                 for ii=1:20
