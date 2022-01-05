@@ -226,7 +226,7 @@ function varargout=cmex2optimizeCS(varargin)
     t_ipmPD=clock();
     Tout=ipmPD_CS(struct(...
         'code',code,...
-        'u',u,...         % single column vector
+        'u',u,...            % single column vector
         'f',objective,...    % as a function of u
         'F',F,...            % as a function of u
         'G',G,...            % as a function of u
@@ -296,9 +296,9 @@ function varargout=cmex2optimizeCS(varargin)
     defines.scaleEqualities=double(scaleEqualities);
     defines.alphaMin=sprintf('%e',alphaMin); % to make double
     defines.alphaMax=sprintf('%e',alphaMax); % to make double
+    defines.coupledAlphas=double(coupledAlphas);
     defines.setAddEye2Hessian=double(addEye2Hessian~=0);
     defines.adjustAddEye2Hessian=double(adjustAddEye2Hessian~=0);
-    defines.coupledAlphas=double(coupledAlphas);
     defines.muFactorAggressive=sprintf('%e',muFactorAggressive); % to make double
     defines.muFactorConservative=sprintf('%e',muFactorConservative); % to make double
     defines.delta=delta;
