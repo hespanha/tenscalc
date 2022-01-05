@@ -1,15 +1,48 @@
-function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
-                               Fu,Gu,Fd,Gd,H,...
-                               smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-                               scaleInequalities,scaleCost,scaleEqualities,...
-                               atomicFactorization,...
-                               cmexfunction,allowSave,debugConvergence,profiling)
+function out=ipmPDeqlat_CS(pars)
 % See tenscalc/doc/ipm.tex for an explanation of the formulas used here
 %
 % This file is part of Tencalc.
 %
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
+
+    %packOptimizationVariables=pars.packOptimizationVariables;
+    %isSensitivity=pars.isSensitivity;
+    smallerNewtonMatrix=pars.smallerNewtonMatrix;
+    addEye2Hessian=pars.addEye2Hessian;
+    skipAffine=pars.skipAffine;
+
+    scaleCost=pars.scaleCost;
+    scaleInequalities=pars.scaleInequalities;
+    scaleEqualities=pars.scaleEqualities; % currently not used
+
+    atomicFactorization=pars.atomicFactorization;
+
+    cmexfunction=pars.cmexfunction;
+    allowSave=pars.allowSave;
+    debugConvergence=pars.debugConvergence;
+
+    code=pars.code;
+    
+    u=pars.u;
+    d=pars.d;
+    x=pars.x;
+
+    f=pars.P1objective;
+    g=pars.P2objective;
+
+    Fu=pars.Fu;
+    Fd=pars.Fd;
+    Gu=pars.Gu;
+    Gd=pars.Gd;
+    H=pars.H;
+    
+    P1lambda=pars.P1lambda;
+    P1nu=pars.P1nu;
+    P1xnu=pars.P1xnu;
+    P2lambda=pars.P2lambda;
+    P2nu=pars.P2nu;
+    P2xnu=pars.P2xnu;
 
     nowarningsamesize=true;
     nowarningever=true;
@@ -183,6 +216,18 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
     t2=clock();
+    if addEye2Hessian
+        addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
+        addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
+        declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
+        declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
+    else
+        addEye2Hessian1=Tzeros([]);
+        addEye2Hessian2=Tzeros([]);
+    end
+    out.addEye2Hessian1=addEye2Hessian1;
+    out.addEye2Hessian2=addEye2Hessian2;
+
     Lf_u=gradient(Lf,u);
     Lg_d=gradient(Lg,d);
     if nX>0
@@ -284,7 +329,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                     Lg_xz,Lg_xn;
                     G_z,Tzeros([nG,nG+nH])];
             end
-            Hess_=WW;
+            out.Hess=WW;
 
             %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
 
@@ -317,9 +362,9 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         else
             if nF>0
                 WW=[[Lf_uz-Lf_ul*LFF;
-                     Lg_dz-Lg_dl*LFF]+addEye2Hessian*Teye([nZ,nZ]),[Lf_un;Lg_dn];
-                    G_z,-addEye2Hessian*Teye([nG,nG])];
-                Hess_=[[Lf_uz-Lf_ul*LFF;
+                     Lg_dz-Lg_dl*LFF]+addEye2Hessian1*Teye([nZ,nZ]),[Lf_un;Lg_dn];
+                    G_z,-addEye2Hessian2*Teye([nG,nG])];
+                out.Hess=[[Lf_uz-Lf_ul*LFF;
                         Lg_dz-Lg_dl*LFF],[Lf_un;Lg_dn];
                        G_z,Tzeros([nG,nG])];
                 %WW=[Lf_uz-Lf_ul*LFF,Lf_un;
@@ -328,9 +373,9 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                 %WW=WW+addEye2Hessian*Teye([nZ+nH+nG,nZ+nH+nG]);
             else
                 WW=[[Lf_uz;
-                     Lg_dz]+addEye2Hessian*Teye([nZ,nZ]),[Lf_un;Lg_dn];
-                    G_z,-addEye2Hessian*Teye([nG,nG])];
-                Hess_=[[Lf_uz;
+                     Lg_dz]+addEye2Hessian1*Teye([nZ,nZ]),[Lf_un;Lg_dn];
+                    G_z,-addEye2Hessian2*Teye([nG,nG])];
+                out.Hess=[[Lf_uz;
                         Lg_dz],[Lf_un;Lg_dn];
                        G_z,Tzeros([nG,nG])];
             end
@@ -442,12 +487,13 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
 
         dZNu_s=lu_ww\b_s;
 
-
         fprintf('(%.2f sec)\n    add direction...',etime(clock(),t2));
         t2=clock();
 
         dZNu_s=declareAlias(code,dZNu_s,'dZNu_s__',false,nowarningsamesize,nowarningever);
 
+        declareGet(code,{norminf((WW*dZNu_s-b_s))},'getDirectionError__');
+        
         fprintf('(%.2f sec)\n    increment primal...',etime(clock(),t2));
         t2=clock();
 
@@ -524,7 +570,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                     Lg_xz,Lg_xn;
                     G_z,Tzeros([nG,nG+nH])];
             end
-            Hess_=WW;
+            out.Hess=WW;
 
             if nF>0
                 b_a=[-Lf_u;
@@ -558,7 +604,7 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
                     Lg_dz,Lg_dn;
                     G_z,Tzeros([nG,nG+nH])];
             end
-            Hess_=WW;
+            out.Hess=WW;
 
             if nF>0
                 b_a=[-Lf_u;
@@ -659,6 +705,8 @@ function [Hess_]=ipmPDeqlat_CS(code,f,g,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,
         dx_s=lu_ww\b_s;
         dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
 
+        declareGet(code,{norminf((WW*dx_s-b_s))},'getDirectionError__');
+        
         dU_s=dx_s(1:nU);
         dD_s=dx_s(nU+1:nU+nD);
         dZ_s=dx_s(1:nZ);
