@@ -1,9 +1,9 @@
 function localVariables_=parameters4optimize(localVariables_)
-% Declare input parameters common to the 4 tenscalc functions:
+% Declare input parameters common to the 2 tenscalc functions:
 %   cmex2optimizeCS.m
 %   class2optimizeCS.m
 %
-% This file is part of Tencalc.
+% This file is part of Tenscalc.
 %
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
@@ -62,13 +62,13 @@ function localVariables_=parameters4optimize(localVariables_)
             '* |G_|    - vector stacked with all inequalities at the (last) Newton step.'
             '* |nu_|   - vector stacked with all dual equality variables at the (last) Newton step.'
             '* |lambda_|   - vector stacked with all dual inequality variables at the (last) Newton step.'
-            '* |addEye2Hessia1__|,|addEye2Hessia2__|  - values of addEye2Hessian1/2 at the (last) Newton step.'
-            '            (see help for ||addEye2Hessia|)'
+            '* |addEye2Hessian1__|,|addEye2Hessian2__|  - values of addEye2Hessian1/2 at the (last) Newton step.'
+            '            (see help for ||addEye2Hessian|)'
             ' ';
             'ATTENTION: To be able to include these variables as input parameters,';
             '           they have to be previously created outside *with the appropriate sizes*.'
             '           Eventually, their values will be overridden by the solver'
-            '           to reflect the values listted above.'
+            '           to reflect the values listed above.'
                       });
 
     declareParameter(...
@@ -80,21 +80,21 @@ function localVariables_=parameters4optimize(localVariables_)
             ' ';
             'One scaled identity matrix equal to';
             '           addEye2Hessian1 * eye(# primal variables)'
-            'is added to the matrix of 2nd derivatives of the Lagragian (Hessian), helping this'
+            'is added to the matrix of 2nd derivatives of the Lagrangian (Hessian), helping this'
             'matrix to become positive definite and moving the Newton''s';
-            'search direction towards the gradient descent of the Lagragian (and away from the'
+            'search direction towards the gradient descent of the Lagrangian (and away from the'
             'pure Newton direction).'
             ' '
             'Setting a positive value for |addEye2Hessian1|, can be views as achieving convexity'
             'by adding a constraint of the form'
             '     .5 \| primal variables \|^2 < R'
-            'for a sufficietly small |R|. From this perspective, |addEye2Hessian1| corresponds to'
+            'for a sufficiently small |R|. From this perspective, |addEye2Hessian1| corresponds to'
             'the Lagrange associated with this constraint.'
             ' ';
             'A seconds scaled identity matrix equal to';
             '           addEye2Hessian2 * eye(# equality constraints)'
             'is added to the diagonal block of the Newton matrix that corresponds to the equality'
-            'constraints, turning it slighly negative definite, which makes factrorization'
+            'constraints, turning it slightly negative definite, which makes factorization'
             'of the Newton matrix numerically more stable.'
             ' '
             'Both effects improve the robustness of the solver, but may lead to slower convergence.';
@@ -107,7 +107,7 @@ function localVariables_=parameters4optimize(localVariables_)
             'of the machine precision.'
             ' '
             'For non-convex problems, one can try to increase addEye2Hessian1 when';
-            'the Newton direction actually causes an increase of the Lagragian.'
+            'the Newton direction actually causes an increase of the Lagrangian.'
                       });
 
     declareParameter(...
@@ -115,10 +115,10 @@ function localVariables_=parameters4optimize(localVariables_)
         'DefaultValue',true,...
         'AdmissibleValues',{false,true},...
         'Description',{
-            'When |true|, the values of the parametes |addEye2Hessian1| and |addEye2Hessian2|';
+            'When |true|, the values of the parameters |addEye2Hessian1| and |addEye2Hessian2|';
             'are adjusted in real-time by the solver.';
             ' '
-            'This is only possivle when using LDL factorization (|useLDL| set to true) and will result';
+            'This is only possible when using LDL factorization (|useLDL| set to true) and will result';
             'slightly slower solvers. Ideally, one would try a few test runs with |adjustAddEye2Hessian|';
             'set to |true| to learn good values for |addEye2Hessian1| and |addEye2Hessian2| and then turn';
             '|adjustAddEye2Hessian| to |false|.';
@@ -137,3 +137,9 @@ function localVariables_=parameters4optimize(localVariables_)
                       });
 
 end
+
+% LocalWords:  localVariables tenscalc cmex optimizeCS Joao Tcalculus
+% LocalWords:  declareParameter VariableName optimizationVariables nd
+% LocalWords:  sensitivityVariables DefaultValue outputExpressions
+% LocalWords:  dHess LDL addEye AdmissibleValues adjustAddEye useLDL
+% LocalWords:  solverVerboseLevel
