@@ -170,7 +170,11 @@ EXPORT void ipmPDeq_CSsolver(
   muMin=desiredDualityGapVar/nF/2;
 #endif
 
-  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,umfpack=%d): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,muFactorAggressive,muFactorConservative,useUmfpack,nZ,nU,nD,nX,nG,nF);
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n",__FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,
+	  setAddEye2Hessian,adjustAddEye2Hessian,
+	  muFactorAggressive,muFactorConservative,
+	  useLDL,useUmfpack,
+	  nZ,nU,nD,nX,nG,nF);
 #if verboseLevel>=3
   char *header="Iter     cost1      cost2    |grad|  |eq|   inequal   dual    gap   l(mu) "
 #if (setAddEye2Hessian != 0)

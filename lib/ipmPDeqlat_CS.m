@@ -16,6 +16,7 @@ function out=ipmPDeqlat_CS(pars)
     scaleInequalities=pars.scaleInequalities;
     scaleEqualities=pars.scaleEqualities; % currently not used
 
+    useLDL=pars.useLDL;
     atomicFactorization=pars.atomicFactorization;
 
     cmexfunction=pars.cmexfunction;
@@ -376,8 +377,8 @@ function out=ipmPDeqlat_CS(pars)
                      Lg_dz]+addEye2Hessian1*Teye([nZ,nZ]),[Lf_un;Lg_dn];
                     G_z,-addEye2Hessian2*Teye([nG,nG])];
                 out.Hess=[[Lf_uz;
-                        Lg_dz],[Lf_un;Lg_dn];
-                       G_z,Tzeros([nG,nG])];
+                           Lg_dz],[Lf_un;Lg_dn];
+                          G_z,Tzeros([nG,nG])];
             end
 
             ff=f;
@@ -415,7 +416,16 @@ function out=ipmPDeqlat_CS(pars)
             declareGet(code,{full(F),full(G)},'getFG__');
         end
 
-        lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        if useLDL
+            % symmetrize
+            b_s=WW'*b_s;
+            b_a=WW'*b_a;
+            WW=WW'*WW;
+            lu_ww=ldl(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        else
+            lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        end
+        
         if atomicFactorization
             lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
         end
@@ -633,7 +643,15 @@ function out=ipmPDeqlat_CS(pars)
             declareGet(code,{full(F),full(G)},'getFG__');
         end
 
-        lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        if useLDL
+            % symmetrize
+            b_s=WW'*b_s;
+            b_a=WW'*b_a;
+            WW=WW'*WW;
+            lu_ww=ldl(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        else
+            lu_ww=lu(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+        end
         if atomicFactorization
             lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
         end

@@ -145,6 +145,26 @@ function localVariables_=parameters4equilibrium(localVariables_)
                       });
 
     
+    declareParameter(...
+        'VariableName','useLDL',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the search directions are computed using an'
+            'LDL instead of an LU factorization.';
+            ' '
+            'To achieve this the system of equations for the Newton step is'
+            'symmetrized, which typically makes it less sparse.'
+            ' '
+            'In general, the LDL factorization leads to faster code.';
+            'However, the current implementation is restricted to a pure';
+            'diagonal matrix (no 2x2 blocks in the D factor) so it may';
+            'fail with the message ''ldl needs pivoting''. If this happens';
+            'either set |useLDL=false| or use a nonzero value for |addEye2Hessian|.';
+            ' ';
+            'ATTENTION: This is an experimental parameter.'
+                      });
+
 end
 
 
