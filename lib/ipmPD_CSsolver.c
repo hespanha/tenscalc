@@ -192,7 +192,11 @@ EXPORT void ipmPD_CSsolver(
 #endif
 
   printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
-	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,setAddEye2Hessian,adjustAddEye2Hessian,muFactorAggressive,muFactorConservative,useLDL,useUmfpack,nU,nG,nF);
+	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,
+	  setAddEye2Hessian,adjustAddEye2Hessian,
+	  muFactorAggressive,muFactorConservative,
+	  useLDL,useUmfpack,
+	  nU,nG,nF);
 #if verboseLevel>=3
   char *header="Iter      cost   |grad|   |eq|    ineq.    dual    gap   l(mu) "
 #if (setAddEye2Hessian != 0)
