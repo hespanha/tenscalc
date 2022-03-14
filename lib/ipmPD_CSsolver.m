@@ -121,7 +121,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
             headers=sprintf('%s%6.1f',headers,log10(obj.addEye2Hessian1tolerance));
             if useInertia
-                headers=sprintf('%s      %5d%5d',headers,mpDesired,mnDesired);
+                headers=sprintf('%s      %5d%5d%8.1e',headers,mpDesired,mnDesired,maxDirectionError);
+            else
+                headers=sprintf('%s                %8.1e',headers,maxDirectionError);
             end
         end
         fprintf('%s\n',headers);
@@ -269,6 +271,14 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 end
                 if addEye2Hessian2>addEye2HessianMIN && derr<maxDirectionError
                     addEye2Hessian2=max(.75*addEye2Hessian2,addEye2HessianMIN);
+                    updateAddEye2Hessian2=true; % update at next iteration
+                end
+                if addEye2Hessian1<addEye2HessianMAX && derr>maxDirectionError
+                    addEye2Hessian1=min(10*addEye2Hessian1,addEye2HessianMAX);
+                    updateAddEye2Hessian1=true; % update at next iteration
+                end
+                if addEye2Hessian2<addEye2HessianMAX && derr>maxDirectionError
+                    addEye2Hessian2=min(10*addEye2Hessian2,addEye2HessianMAX);
                     updateAddEye2Hessian2=true; % update at next iteration
                 end
             else

@@ -134,6 +134,10 @@ EXPORT void ipmPD_CSsolver(
 {
   *iter=0; // iteration number
 
+#define addEye2HessianMAX 1e2
+#define addEye2HessianMIN 1e-20
+#define maxDirectionError 1e-9
+
 #if setAddEye2Hessian != 0
   double addEye2Hessian1=addEye2Hessian[0];
   double addEye2Hessian2=addEye2Hessian[1];
@@ -221,7 +225,9 @@ EXPORT void ipmPD_CSsolver(
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
   printf3("%6.1f",log10(addEye2Hessian1tolerance));
 #if (useInertia != 0)
-  printf3("      %5d%5d",mpDesired,mnDesired);
+  printf3("      %5d%5d%8.1e",mpDesired,mnDesired,maxDirectionError);
+#else
+  printf3("                %8.1e",maxDirectionError);
 #endif
 #endif
   printf3("\n");
@@ -326,10 +332,6 @@ EXPORT void ipmPD_CSsolver(
     /* Adjust addEye2Hessian */
     /*************************/
 
-#define addEye2HessianMAX 1e2
-#define addEye2HessianMIN 1e-20
-#define maxDirectionError 1e-9
-
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
 
     // updates delayed from the last iteration
@@ -372,6 +374,14 @@ EXPORT void ipmPD_CSsolver(
       }
       if (addEye2Hessian2>addEye2HessianMIN && derr<maxDirectionError) {
 	addEye2Hessian2=MAX(.75*addEye2Hessian2,addEye2HessianMIN);
+	updateAddEye2Hessian2=1; // update at next iteration
+      }
+      if (addEye2Hessian1<addEye2HessianMAX && derr>maxDirectionError) {
+	addEye2Hessian1=MIN(10*addEye2Hessian1,addEye2HessianMAX);
+	updateAddEye2Hessian1=1; // update at next iteration
+      }
+      if (addEye2Hessian2<addEye2HessianMAX && derr>maxDirectionError) {
+	addEye2Hessian2=MIN(10*addEye2Hessian2,addEye2HessianMAX);
 	updateAddEye2Hessian2=1; // update at next iteration
       }
     } else {
