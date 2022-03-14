@@ -127,7 +127,7 @@ function varargout=class2optimizeCS(varargin)
     tprod2matlab=true;
     code=csparse(scratchbookType,debug,tprod2matlab); % using instructionsTable.c
     code.LDLthreshold=LDLthreshold;
-    classhelp={'Create object';
+    classhelp={'% Create object';
                sprintf('obj=%s();',classname)};
 
     %% Declare 'sets' for initializing parameters
@@ -142,7 +142,7 @@ function varargout=class2optimizeCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='Initialize primal variables';
+    classhelp{end+1}='% Initialize primal variables';
     for i=1:length(optimizationVariables)
         declareSet(code,optimizationVariables{i},...
                    sprintf('setV_%s',name(optimizationVariables{i})));
@@ -232,7 +232,7 @@ function varargout=class2optimizeCS(varargin)
     end
 
     %% Declare ipm solver
-    classhelp{end+1}='Solve optimization';
+    classhelp{end+1}='% Solve optimization';
     classhelp{end+1}=...
         sprintf('[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);');
 
