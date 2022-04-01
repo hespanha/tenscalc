@@ -11,12 +11,12 @@ function varargout=cmex2optimizeCS(varargin)
         'Help', {
             'Creates a set of cmex functions for solving optimization problems'
             'of the form:'
-            '%  objective(optimizationVariables^*,parameters) ='
-            '%       = minimum     objective(optimizationVariables,parameters)'
-            '%         w.r.t.      optimizationVariables'
-            '%         subject to  constraints(optimizationVariables,parameters)'
+            '  objective(optimizationVariables^*,parameters) ='
+            '       = minimum     objective(optimizationVariables,parameters)'
+            '         w.r.t.      optimizationVariables'
+            '         subject to  constraints(optimizationVariables,parameters)'
             'and returns'
-            '%  outputExpressions(optimizationVariables^*,parameters)'
+            '  outputExpressions(optimizationVariables^*,parameters)'
             ' '
             'The solver is accessed through several cmex functions that can be';
             'accessed directly or through a matlab class.'

@@ -11,12 +11,12 @@ function varargout=class2optimizeCS(varargin)
         'Help', {
             'Creates a matlab class for solving optimization problems'
             'of the form:'
-            '%  objective(optimizationVariables^*,parameters) ='
-            '%       = minimum     objective(optimizationVariables,parameters)'
-            '%         w.r.t.      optimizationVariables'
-            '%         subject to  constraints(optimizationVariables,parameters)'
+            '  objective(optimizationVariables^*,parameters) ='
+            '       = minimum     objective(optimizationVariables,parameters)'
+            '         w.r.t.      optimizationVariables'
+            '         subject to  constraints(optimizationVariables,parameters)'
             'and returns'
-            '%  outputExpressions(optimizationVariables^*,parameters)'
+            '  outputExpressions(optimizationVariables^*,parameters)'
             ' '
             'The solver is accessed through a matlab class.'
             'See |ipm.pdf| for details of the optimization engine.';

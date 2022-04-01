@@ -11,16 +11,16 @@ function varargout=cmex2equilibriumLatentCS(varargin)
         'Help', {
             'Creates a set of cmex functions for computing a Nash equilibrium'
             'of the form'
-            '%  P1objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
-            '%        = minimize    P1objective(P1variables,P2variables^*,latentVariables,parameters)'
-            '%          w.r.t.      P1variables,latentVariables'
-            '%          subject to  P1constraints(P1variables,P2variables^*,latentVariables,parameters)'
-            '%                      latentConstraints(P1variables,P2variables^*,latentVariables,parameters)'
-            '%  P2objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
-            '%        = minimize    P2objective(P1variables^*,P2variables,latentVariables,parameters)'
-            '%          w.r.t.      P2variables,latentVariables'
-            '%          subject to  P2constraints(P1variables^*,P2variables,latentVariables,parameters)'
-            '%                      latentConstraints(P1variables^*,P2variables,latentVariables,parameters)'
+            '  P1objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
+            '        = minimize    P1objective(P1variables,P2variables^*,latentVariables,parameters)'
+            '          w.r.t.      P1variables,latentVariables'
+            '          subject to  P1constraints(P1variables,P2variables^*,latentVariables,parameters)'
+            '                      latentConstraints(P1variables,P2variables^*,latentVariables,parameters)'
+            '  P2objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
+            '        = minimize    P2objective(P1variables^*,P2variables,latentVariables,parameters)'
+            '          w.r.t.      P2variables,latentVariables'
+            '          subject to  P2constraints(P1variables^*,P2variables,latentVariables,parameters)'
+            '                      latentConstraints(P1variables^*,P2variables,latentVariables,parameters)'
             'and returns'
             '  outputExpressions(P1variables^*,P2variables^*,latentVariables^*,parameters)'
             'See ipm.pdf for details of the optimization engine.'
@@ -167,12 +167,9 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     t_csparse=clock();
     debug=false;
     tprod2matlab=false;
-    %code=csparse0(scratchbookType,debug);   % using fastTable.m
-    %code=csparse1(scratchbookType,debug);  % using fastTable.m, string I_ instruction types
-    %code=csparse2(scratchbookType,debug);  % using fastTable.m, integer instruction types
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
     code.LDLthreshold=LDLthreshold;
-    classhelp={'% Create object';
+    classhelp={'Create object';
                sprintf('obj=%s();',classname)};
 
     % template for createGateway
@@ -357,12 +354,6 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    % Hess__=ipmPDeqlat_CS(code,P1objective,P2objective,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
-    %                      Fu,Gu,Fd,Gd,H,...
-    %                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-    %                      scaleInequalities,scaleCost,scaleEqualities,...
-    %                      useUmfpack,...
-    %                      classname,allowSave,debugConvergence,profiling);
     Tout=ipmPDeqlat_CS(struct(...
         'code',code,...
         'P1objective',P1objective,...

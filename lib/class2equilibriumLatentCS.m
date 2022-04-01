@@ -11,16 +11,16 @@ function varargout=class2equilibriumLatentCS(varargin)
         'Help', {
             'Creates a matlab class for computing a Nash equilibrium'
             'of the form'
-            '%  P1objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
-            '%        = minimize    P1objective(P1variables,P2variables^*,latentVariables,parameters)'
-            '%          w.r.t.      P1variables,latentVariables'
-            '%          subject to  P1constraints(P1variables,P2variables^*,latentVariables,parameters)'
-            '%                      latentConstraints(P1variables,P2variables^*,latentVariables,parameters)'
-            '%  P2objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
-            '%        = minimize    P2objective(P1variables^*,P2variables,latentVariables,parameters)'
-            '%          w.r.t.      P2variables,latentVariables'
-            '%          subject to  P2constraints(P1variables^*,P2variables,latentVariables,parameters)'
-            '%                      latentConstraints(P1variables^*,P2variables,latentVariables,parameters)'
+            '  P1objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
+            '        = minimize    P1objective(P1variables,P2variables^*,latentVariables,parameters)'
+            '          w.r.t.      P1variables,latentVariables'
+            '          subject to  P1constraints(P1variables,P2variables^*,latentVariables,parameters)'
+            '                      latentConstraints(P1variables,P2variables^*,latentVariables,parameters)'
+            '  P2objective(P1variables^*,P2variables^*,latentVariables^*,parameters) ='
+            '        = minimize    P2objective(P1variables^*,P2variables,latentVariables,parameters)'
+            '          w.r.t.      P2variables,latentVariables'
+            '          subject to  P2constraints(P1variables^*,P2variables,latentVariables,parameters)'
+            '                      latentConstraints(P1variables^*,P2variables,latentVariables,parameters)'
             'and returns'
             '  outputExpressions(P1variables^*,P2variables^*,latentVariables^*,parameters)'
             'See ipm.pdf for details of the optimization engine.'
@@ -230,26 +230,6 @@ function varargout=class2equilibriumLatentCS(varargin)
         error('latent constraints cannot be inequalities\n');
     end
 
-    % HCells={};
-    % P1xnus={};
-    % P2xnus={};
-    % for k=1:length(latentConstraints)
-    %     switch (type(latentConstraints{k}))
-    %       case {'iszero'}
-    %         % remove iszero
-    %         op1=Tcalculus(operands(latentConstraints{k}));
-    %         HCells{end+1}=op1;
-    %         % create appropriate nu
-    %         P1xnus{end+1}=Tvariable(sprintf('P1xnu%d_',length(P1xnus)+1),size(op1));
-    %         P2xnus{end+1}=Tvariable(sprintf('P2xnu%d_',length(P2xnus)+1),size(op1));
-    %         declareSet(code,P1xnus{end},sprintf('setD_%s',classname,name(P1xnus{end})));
-    %         declareSet(code,P2xnus{end},sprintf('setD_%s',classname,name(P2xnus{end})));
-    %       otherwise
-    %         error('latent constraint of type ''%s'' not implemented\n',...
-    %               type(latentConstraints{k}));
-    %     end
-    % end
-
     %% Pack constraints
 
     if verboseLevel>1
@@ -339,12 +319,6 @@ function varargout=class2equilibriumLatentCS(varargin)
 
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
-    % Hess__=ipmPDeqlat_CS(code,P1objective,P2objective,u,d,x,P1lambda,P1nu,P1xnu,P2lambda,P2nu,P2xnu,...
-    %                      Fu,Gu,Fd,Gd,H,...
-    %                      smallerNewtonMatrix,addEye2Hessian,skipAffine,...
-    %                      scaleInequalities,scaleCost,scaleEqualities,...
-    %                      false,...
-    %                      classname,allowSave,debugConvergence,profiling);
     Tout=ipmPDeqlat_CS(struct(...
         'code',code,...
         'P1objective',P1objective,...
