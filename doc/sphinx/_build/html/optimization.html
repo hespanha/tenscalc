@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>5. Constrained optimization &#8212; Tenscalc Users&#39; Guide</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,12 +43,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="constrained-optimization">
+  <section id="constrained-optimization">
 <h1><span class="section-number">5. </span>Constrained optimization<a class="headerlink" href="#constrained-optimization" title="Permalink to this headline">¶</a></h1>
 <p>TensCalc can be used to generate code to solve optimizations or Nash
 equilibria. All solvers use a primal-dual interior-point method and
 share several common parameters.</p>
-<div class="section" id="types-of-code">
+<section id="types-of-code">
 <h2><span class="section-number">5.1. </span>Types of code<a class="headerlink" href="#types-of-code" title="Permalink to this headline">¶</a></h2>
 <p>C code</p>
 <blockquote>
@@ -74,8 +75,8 @@ parameter values and call the solver.</p>
 appear indistinguishable to the user, aside from the speed of
 execution.</p>
 </div>
-</div>
-<div class="section" id="minimization">
+</section>
+<section id="minimization">
 <h2><span class="section-number">5.2. </span>Minimization<a class="headerlink" href="#minimization" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc can generate optimized code to solve constrained
 optimizations of the form</p>
@@ -87,20 +88,20 @@ inequalities involving multiple tensors.</p>
 <p>The following two scripts are used to generate code to solve this type
 of constrained minimization</p>
 <dl class="mat function">
-<dt id="cmex2optimizeCS">
-<code class="sig-name descname"><span class="pre">cmex2optimizeCS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cmex2optimizeCS">
+<span class="sig-name descname"><span class="pre">cmex2optimizeCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2optimizeCS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="class2optimizeCS">
-<code class="sig-name descname"><span class="pre">class2optimizeCS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="class2optimizeCS">
+<span class="sig-name descname"><span class="pre">class2optimizeCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2optimizeCS" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
-<li><p><strong>value1</strong> (<em>type depends on the parameter</em>) – parameter to set</p></li>
-<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set</p></li>
-<li><p><strong>value2</strong> (<em>type depends on the parameter</em>) – parameter to set, …</p></li>
+<li><p><strong>parameter1</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set</p></li>
+<li><p><strong>value1</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">depends</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">parameter</span></code></span>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set</p></li>
+<li><p><strong>value2</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">depends</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">parameter</span></code></span>) – parameter to set, …</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -447,7 +448,7 @@ search domain to make sure that the desired optimum was found, or
 test if that was the case after the fact. The <code class="docutils literal notranslate"><span class="pre">Hess_</span></code> output can
 help in that regard.</p>
 </div>
-<div class="section" id="special-variables-to-include-in-outputexpressions">
+<section id="special-variables-to-include-in-outputexpressions">
 <span id="special-variables-optimization"></span><h3><span class="section-number">5.2.1. </span>Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code><a class="headerlink" href="#special-variables-to-include-in-outputexpressions" title="Permalink to this headline">¶</a></h3>
 <p>The following <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> variables are assigned special values and
 can be using in <code class="docutils literal notranslate"><span class="pre">outputExpressions</span></code>:</p>
@@ -504,16 +505,16 @@ have to be previously created using <a class="reference internal" href="basics.h
 appropriate sizes</em>.  Eventually, their values will be overridden by
 the solver to reflect the values listed above.</p>
 </div>
-</div>
-<div class="section" id="sensitivity-variables">
+</section>
+<section id="sensitivity-variables">
 <span id="id1"></span><h3><span class="section-number">5.2.2. </span>Sensitivity variables<a class="headerlink" href="#sensitivity-variables" title="Permalink to this headline">¶</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This section of the documentation is still <strong>incomplete</strong>.</p>
 </div>
 <dl class="mat function">
-<dt id="Tvars2optimizeCS">
-<code class="sig-name descname"><span class="pre">Tvars2optimizeCS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tvars2optimizeCS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tvars2optimizeCS">
+<span class="sig-name descname"><span class="pre">Tvars2optimizeCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tvars2optimizeCS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <table class="colwidths-given docutils align-left" id="id4">
@@ -565,44 +566,44 @@ increase.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="solver-class">
+</section>
+<section id="solver-class">
 <span id="id2"></span><h3><span class="section-number">5.2.3. </span>Solver Class<a class="headerlink" href="#solver-class" title="Permalink to this headline">¶</a></h3>
 <p>The MATLAB© class created to set parameter values and call the solver
 from within MATLAB© has the following methods:</p>
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">obj=classname()</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">obj=classname()</span></span></dt>
 <dd><p>creates class and, for C code, loads the dynamic library containing the C code</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt id="delete">
-<code class="sig-name descname"><span class="pre">delete</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#delete" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">obj</span></em><span class="sig-paren">)</span><a class="headerlink" href="#delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>deletes the class and, for C code, unloads the dynamic library</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">setP_{parameter}(obj,value)</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">setP_{parameter}(obj,value)</span></span></dt>
 <dd><p>sets the value of one of the parameters</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">setV_{variable}(obj,value)</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">setV_{variable}(obj,value)</span></span></dt>
 <dd><p>sets the value of one of the optimization variables</p>
 </dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">[y1,y2,</span> <span class="pre">...]=getOutputs(obj)</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">[y1,y2,</span> <span class="pre">...]=getOutputs(obj)</span></span></dt>
 <dd><p>gets the values of the <code class="docutils literal notranslate"><span class="pre">outputExpressions</span></code></p>
 </dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter))</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter))</span></span></dt>
 <dd><dl class="field-list">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -659,8 +660,8 @@ information about the solution returned</p>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="pedigrees">
+</section>
+<section id="pedigrees">
 <h3><span class="section-number">5.2.4. </span>Pedigrees<a class="headerlink" href="#pedigrees" title="Permalink to this headline">¶</a></h3>
 <p>Pedigrees can save a lot of time for functions that take some time to
 execute, like the TensCalc’s functions that generate code:</p>
@@ -757,9 +758,9 @@ code-generation functions.</p>
 available to any function that uses this toolbox to process input
 and output parameters.</p>
 </div>
-</div>
-</div>
-<div class="section" id="nash-equilibrium">
+</section>
+</section>
+<section id="nash-equilibrium">
 <h2><span class="section-number">5.3. </span>Nash equilibrium<a class="headerlink" href="#nash-equilibrium" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc can generate optimized code to compute Nash equilibrium</p>
 <div class="math notranslate nohighlight">
@@ -773,20 +774,20 @@ a free optimization variable.</p>
 <p>The following two scripts are used to generate code to compute this
 type of Nash equilibrium</p>
 <dl class="mat function">
-<dt id="cmex2equilibriumLatentCS">
-<code class="sig-name descname"><span class="pre">cmex2equilibriumLatentCS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cmex2equilibriumLatentCS">
+<span class="sig-name descname"><span class="pre">cmex2equilibriumLatentCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="class2equilibriumLatentCS">
-<code class="sig-name descname"><span class="pre">class2equilibriumLatentCS</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="class2equilibriumLatentCS">
+<span class="sig-name descname"><span class="pre">class2equilibriumLatentCS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2equilibriumLatentCS" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
-<li><p><strong>value1</strong> (<em>type depends on the parameter</em>) – parameter to set</p></li>
-<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set</p></li>
-<li><p><strong>value2</strong> (<em>type depends on the parameter</em>) – parameter to set, …</p></li>
+<li><p><strong>parameter1</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set</p></li>
+<li><p><strong>value1</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">depends</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">parameter</span></code></span>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set</p></li>
+<li><p><strong>value2</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">type</span> <span class="pre">depends</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">parameter</span></code></span>) – parameter to set, …</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -863,7 +864,7 @@ that the solver should return upon termination.</p>
 </tr>
 </tbody>
 </table>
-<div class="section" id="special-variables-to-include-in-outputexpressions-for-nash-solver">
+<section id="special-variables-to-include-in-outputexpressions-for-nash-solver">
 <span id="special-variables-nash"></span><h3><span class="section-number">5.3.1. </span>Special variables to include in <code class="docutils literal notranslate"><span class="pre">'outputExpressions'</span></code> for Nash solver<a class="headerlink" href="#special-variables-to-include-in-outputexpressions-for-nash-solver" title="Permalink to this headline">¶</a></h3>
 <p>The following <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> variables are assigned special values and
 can be using in <code class="docutils literal notranslate"><span class="pre">outputExpressions:</span></code></p>
@@ -891,9 +892,9 @@ have to be previously created using <a class="reference internal" href="basics.h
 appropriate sizes</em>.  Eventually, their values will be overridden by
 the solver to reflect the values listed above.</p>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -902,8 +903,9 @@ the solver to reflect the values listed above.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">5. Constrained optimization</a><ul>
 <li><a class="reference internal" href="#types-of-code">5.1. Types of code</a></li>
 <li><a class="reference internal" href="#minimization">5.2. Minimization</a><ul>
@@ -921,12 +923,17 @@ the solver to reflect the values listed above.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="operations.html"
-                        title="previous chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="computation.html"
-                        title="next chapter"><span class="section-number">6. </span>Code generation for computations</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="operations.html"
+                          title="previous chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="computation.html"
+                          title="next chapter"><span class="section-number">6. </span>Code generation for computations</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -938,7 +945,7 @@ the solver to reflect the values listed above.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -966,7 +973,7 @@ the solver to reflect the values listed above.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2012-2020, Joao Pedro Hespanha.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>3. Basics &#8212; Tenscalc Users&#39; Guide</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,12 +43,12 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="basics">
+  <section id="basics">
 <h1><span class="section-number">3. </span>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h1>
 <p>TensCalc computations and optimizations are defined using symbolic
 expressions supported by the class <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>, named after <em>tensor
 calculus</em>.</p>
-<div class="section" id="what-are-tensors">
+<section id="what-are-tensors">
 <span id="tensors-section"></span><h2><span class="section-number">3.1. </span>What are Tensors?<a class="headerlink" href="#what-are-tensors" title="Permalink to this headline">¶</a></h2>
 <p>In TensCalc, tensors are multi-dimensional real-valued arrays over
 which one performs numerical operations. The <a class="reference internal" href="#size" title="size"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">size()</span></code></a> of a tensor is a
@@ -108,13 +109,13 @@ scalar is added to <em>every entry</em> of the tensor, which is consistent
 with MATLAB©’s syntax.</p>
 <p>See <a class="reference internal" href="#size-conversion-section"><span class="std std-ref">Using MATLAB© matrices in TensCalc symbolic expressions</span></a> regarding the rules for automatic
 conversion of sizes between MATLAB© matrices and TensCalc tensors.</p>
-</div>
-<div class="section" id="building-tcalculus-symbolic-expressions">
+</section>
+<section id="building-tcalculus-symbolic-expressions">
 <h2><span class="section-number">3.2. </span>Building <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expressions<a class="headerlink" href="#building-tcalculus-symbolic-expressions" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc symbolic expressions are supported by the class</p>
 <dl class="mat class">
-<dt id="Tcalculus">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Tcalculus</span></code><a class="headerlink" href="#Tcalculus" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tcalculus">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Tcalculus</span></span><a class="headerlink" href="#Tcalculus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>but you never really need to call this class directly. Instead,
@@ -133,8 +134,8 @@ variables with</p>
 <p>If this is not possible, one can use the following method to just
 clear <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>’s auxiliary global variables</p>
 <dl class="mat method">
-<dt id="Tcalculus.clear">
-<code class="sig-prename descclassname"><span class="pre">Tcalculus.</span></code><code class="sig-name descname"><span class="pre">clear</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tcalculus.clear" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tcalculus.clear">
+<span class="sig-prename descclassname"><span class="pre">Tcalculus.</span></span><span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Tcalculus.clear" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <p>However, after using this method, any instances of the <a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a>
@@ -144,19 +145,19 @@ errors if used in a subsequent computations or optimizations
 strongly advised to use <code class="docutils literal notranslate"><span class="pre">clear</span> <span class="pre">all</span></code> rather than
 <code class="docutils literal notranslate"><span class="pre">Tcalculus.clear</span></code>.</p>
 </div>
-<div class="section" id="symbolic-variables">
+<section id="symbolic-variables">
 <span id="tvariable-section"></span><h3><span class="section-number">3.2.1. </span>Symbolic variables<a class="headerlink" href="#symbolic-variables" title="Permalink to this headline">¶</a></h3>
 <p>Most symbolic expressions start with symbolic variables that represent
 tensors that will only be assigned numeric values at code-execution
 time. Symbolic variables are created using</p>
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">Tvariable</span> <span class="pre">name</span> <span class="pre">size</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">Tvariable</span> <span class="pre">name</span> <span class="pre">size</span></span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>character string</em>) – Name of the variable to be created</p></li>
-<li><p><strong>size</strong> (<em>vector of integers</em>) – Size of the tensor as a vector of integers.
+<li><p><strong>name</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">character</span> <span class="pre">string</span></code></span>) – Name of the variable to be created</p></li>
+<li><p><strong>size</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">vector</span> <span class="pre">of</span> <span class="pre">integers</span></code></span>) – Size of the tensor as a vector of integers.
 When omitted, the empty size <code class="docutils literal notranslate"><span class="pre">[]</span></code> is assumed, which
 corresponds to a scalar.</p></li>
 </ul>
@@ -175,8 +176,8 @@ corresponds to a scalar.</p></li>
 </div>
 <p><a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> can also be used as a regular MATLAB© function using the syntax:</p>
 <dl class="mat function">
-<dt id="Tvariable">
-<code class="sig-name descname"><span class="pre">Tvariable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tvariable" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tvariable">
+<span class="sig-name descname"><span class="pre">Tvariable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tvariable" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic expression holding the symbolic
@@ -198,8 +199,8 @@ to store it in:</p>
 <span class="n">variable1</span>   <span class="o">=</span> <span class="n">variable</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,)</span> <span class="p">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="using-matlab-matrices-in-tenscalc-symbolic-expressions">
+</section>
+<section id="using-matlab-matrices-in-tenscalc-symbolic-expressions">
 <span id="size-conversion-section"></span><h3><span class="section-number">3.2.2. </span>Using MATLAB© matrices in TensCalc symbolic expressions<a class="headerlink" href="#using-matlab-matrices-in-tenscalc-symbolic-expressions" title="Permalink to this headline">¶</a></h3>
 <p>Often symbolic expressions involve regular MATLAB© matrices, as in adding a symbolic variable created with <a class="reference internal" href="#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a> with a regular MATLAB© matrix:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">Tvariable</span> <span class="n">a</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
@@ -270,13 +271,13 @@ is more efficient to directly create the symbolic tensor.</p>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="Tzeros">
-<code class="sig-name descname"><span class="pre">Tzeros</span></code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tzeros" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tzeros">
+<span class="sig-name descname"><span class="pre">Tzeros</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tzeros" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">Tzeros</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">Tzeros</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -289,13 +290,13 @@ MATLAB© function <code class="docutils literal notranslate"><span class="pre">z
 rules in <a class="reference internal" href="#size-conversion-table"><span class="std std-ref">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span></a> are appropriate.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="Tones">
-<code class="sig-name descname"><span class="pre">Tones</span></code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tones" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tones">
+<span class="sig-name descname"><span class="pre">Tones</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Tones" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">Tones</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">Tones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -306,13 +307,13 @@ MATLAB© function <code class="docutils literal notranslate"><span class="pre">o
 rules in <a class="reference internal" href="#size-conversion-table"><span class="std std-ref">Rules for automatic convertion between MATLAB© matrices and TensCalc tensors</span></a> are appropriate.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="Teye">
-<code class="sig-name descname"><span class="pre">Teye</span></code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Teye" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Teye">
+<span class="sig-name descname"><span class="pre">Teye</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#Teye" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">Teye</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">Teye</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nk</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -327,8 +328,8 @@ regular MATLAB© function <code class="docutils literal notranslate"><span class
 generate “identity” tensors with a larger number of dimensions.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="Tconstant">
-<code class="sig-name descname"><span class="pre">Tconstant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">mat</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tconstant" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="Tconstant">
+<span class="sig-name descname"><span class="pre">Tconstant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">mat</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#Tconstant" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -347,9 +348,9 @@ return vectors (i.e., tensors with 1 dimension), rather than square
 matrices, and <a class="reference internal" href="#Teye" title="Teye"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Teye()</span></code></a> generates an error since it has no
 counter-part for vectors.</p>
 </div>
-</div>
-</div>
-<div class="section" id="accessing-information-about-the-size-of-symbolic-variables">
+</section>
+</section>
+<section id="accessing-information-about-the-size-of-symbolic-variables">
 <h2><span class="section-number">3.3. </span>Accessing information about the size of symbolic variables<a class="headerlink" href="#accessing-information-about-the-size-of-symbolic-variables" title="Permalink to this headline">¶</a></h2>
 <table class="colwidths-given docutils align-left" id="id4">
 <caption><span class="caption-text">Functions to access information about symbolic expressions</span><a class="headerlink" href="#id4" title="Permalink to this table">¶</a></caption>
@@ -366,18 +367,18 @@ counter-part for vectors.</p>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="size">
-<code class="sig-name descname"><span class="pre">size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#size" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="size">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#size" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">[n1,n2,...,nd]=size(X)</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">[n1,n2,...,nd]=size(X)</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">size</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -385,8 +386,8 @@ counter-part for vectors.</p>
 <td><p>Similar syntax to MATLAB©</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="ndims">
-<code class="sig-name descname"><span class="pre">ndims</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ndims" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ndims">
+<span class="sig-name descname"><span class="pre">ndims</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ndims" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -395,8 +396,8 @@ counter-part for vectors.</p>
 <code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 0 dimensions.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="numel">
-<code class="sig-name descname"><span class="pre">numel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#numel" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="numel">
+<span class="sig-name descname"><span class="pre">numel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#numel" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -405,8 +406,8 @@ counter-part for vectors.</p>
 <code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 1 elements.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="length">
-<code class="sig-name descname"><span class="pre">length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#length" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="length">
+<span class="sig-name descname"><span class="pre">length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#length" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -415,8 +416,8 @@ counter-part for vectors.</p>
 <code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">=</span> <span class="pre">[]</span></code>) always has 1 elements.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="isempty">
-<code class="sig-name descname"><span class="pre">isempty</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#isempty" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="isempty">
+<span class="sig-name descname"><span class="pre">isempty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#isempty" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -426,8 +427,8 @@ counter-part for vectors.</p>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="indexing-and-resizing-symbolic-variables">
+</section>
+<section id="indexing-and-resizing-symbolic-variables">
 <h2><span class="section-number">3.4. </span>Indexing and resizing symbolic variables<a class="headerlink" href="#indexing-and-resizing-symbolic-variables" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc uses the same syntax as MATLAB© to index tensors:</p>
 <ul>
@@ -463,13 +464,13 @@ objects.</p></li>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="reshape">
-<code class="sig-name descname"><span class="pre">reshape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#reshape" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="reshape">
+<span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#reshape" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">reshape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">reshape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -478,13 +479,13 @@ objects.</p></li>
 <code class="docutils literal notranslate"><span class="pre">[]</span></code> as one of the dimensions.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="repmat">
-<code class="sig-name descname"><span class="pre">repmat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#repmat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="repmat">
+<span class="sig-name descname"><span class="pre">repmat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">size</span></em><span class="sig-paren">)</span><a class="headerlink" href="#repmat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">repmat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">repmat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">n1</span></em>, <em class="sig-param"><span class="pre">...</span></em>, <em class="sig-param"><span class="pre">nd</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -506,8 +507,8 @@ one on top of the other, one needs:</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="cat">
-<code class="sig-name descname"><span class="pre">cat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dim</span></em>, <em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cat">
+<span class="sig-name descname"><span class="pre">cat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dim</span></em>, <em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -539,8 +540,8 @@ concatenation to a 3-by-2 matrix is possible:</p>
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="vertcat">
-<code class="sig-name descname"><span class="pre">vertcat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vertcat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="vertcat">
+<span class="sig-name descname"><span class="pre">vertcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vertcat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -549,8 +550,8 @@ concatenation to a 3-by-2 matrix is possible:</p>
 <td><p>Similar syntax to MATLAB©, with the same caveats as <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="horzcat">
-<code class="sig-name descname"><span class="pre">horzcat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dim</span></em>, <em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#horzcat" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="horzcat">
+<span class="sig-name descname"><span class="pre">horzcat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">dim</span></em>, <em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#horzcat" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -559,13 +560,13 @@ concatenation to a 3-by-2 matrix is possible:</p>
 <td><p>Similar syntax to MATLAB©, with the same caveats as <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="vec2tensor">
-<code class="sig-name descname"><span class="pre">vec2tensor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">sz</span></em>, <em class="sig-param"><span class="pre">subs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vec2tensor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="vec2tensor">
+<span class="sig-name descname"><span class="pre">vec2tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">sz</span></em>, <em class="sig-param"><span class="pre">subs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#vec2tensor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">vec2tensor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">sz</span></em>, <em class="sig-param"><span class="pre">subs</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">vec2tensor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">sz</span></em>, <em class="sig-param"><span class="pre">subs</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -622,7 +623,7 @@ the entries of a (typically full) vector. See <a class="reference internal" href
 <p>This functionality needs to be achieved with the concatenation
 operations <a class="reference internal" href="#cat" title="cat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">cat()</span></code></a>, <a class="reference internal" href="#vertcat" title="vertcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">vertcat()</span></code></a>, <a class="reference internal" href="#horzcat" title="horzcat"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">horzcat()</span></code></a>.</p>
 </div>
-<div class="section" id="creating-structured-matrices">
+<section id="creating-structured-matrices">
 <span id="structured-matrices"></span><h3><span class="section-number">3.4.1. </span>Creating structured matrices<a class="headerlink" href="#creating-structured-matrices" title="Permalink to this headline">¶</a></h3>
 <p>The function <a class="reference internal" href="#vec2tensor" title="vec2tensor"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">vec2tensor()</span></code></a> is very useful to create structured matrices from vectors, to be used as optimization variables</p>
 <ul>
@@ -663,9 +664,9 @@ operations <a class="reference internal" href="#cat" title="cat"><code class="xr
 </ul>
 <p>In all these examples, one would set <code class="docutils literal notranslate"><span class="pre">v</span></code> to be an optimization
 variable, that implicitly represents the structured matrix.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -674,8 +675,9 @@ variable, that implicitly represents the structured matrix.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">3. Basics</a><ul>
 <li><a class="reference internal" href="#what-are-tensors">3.1. What are Tensors?</a></li>
 <li><a class="reference internal" href="#building-tcalculus-symbolic-expressions">3.2. Building <code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code> symbolic expressions</a><ul>
@@ -692,12 +694,17 @@ variable, that implicitly represents the structured matrix.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="install.html"
-                        title="previous chapter"><span class="section-number">2. </span>Installation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="operations.html"
-                        title="next chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="install.html"
+                          title="previous chapter"><span class="section-number">2. </span>Installation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="operations.html"
+                          title="next chapter"><span class="section-number">4. </span>Operations on symbolic expressions</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -709,7 +716,7 @@ variable, that implicitly represents the structured matrix.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -737,7 +744,7 @@ variable, that implicitly represents the structured matrix.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2012-2020, Joao Pedro Hespanha.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>

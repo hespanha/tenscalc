@@ -4,16 +4,17 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>4. Operations on symbolic expressions &#8212; Tenscalc Users&#39; Guide</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,9 +43,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="operations-on-symbolic-expressions">
+  <section id="operations-on-symbolic-expressions">
 <h1><span class="section-number">4. </span>Operations on symbolic expressions<a class="headerlink" href="#operations-on-symbolic-expressions" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="arithmetic-operations">
+<section id="arithmetic-operations">
 <h2><span class="section-number">4.1. </span>Arithmetic operations<a class="headerlink" href="#arithmetic-operations" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc supports most of the basic arithmetic operations in
 MATLAB©, in most cases using the same or a very similar syntax.</p>
@@ -63,13 +64,13 @@ MATLAB©, in most cases using the same or a very similar syntax.</p>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">+</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">+</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="plus">
-<code class="sig-name descname"><span class="pre">plus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#plus" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="plus">
+<span class="sig-name descname"><span class="pre">plus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#plus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -80,13 +81,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">-</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">-</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="minus">
-<code class="sig-name descname"><span class="pre">minus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#minus" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="minus">
+<span class="sig-name descname"><span class="pre">minus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#minus" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -97,13 +98,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="times">
-<code class="sig-name descname"><span class="pre">times</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#times" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="times">
+<span class="sig-name descname"><span class="pre">times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#times" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -114,13 +115,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">*</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">*</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="mtimes">
-<code class="sig-name descname"><span class="pre">mtimes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mtimes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="mtimes">
+<span class="sig-name descname"><span class="pre">mtimes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mtimes" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -147,13 +148,13 @@ behave quite differently from MATLAB©’s matrix multiplication
 <code class="docutils literal notranslate"><span class="pre">mtimes()</span></code>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">./</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">./</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="rdivide">
-<code class="sig-name descname"><span class="pre">rdivide</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rdivide" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="rdivide">
+<span class="sig-name descname"><span class="pre">rdivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#rdivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -164,13 +165,13 @@ singleton dimensions is not performed automatically to match
 matrix sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X</span> <span class="pre">.\\</span> <span class="pre">Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X</span> <span class="pre">.\\</span> <span class="pre">Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="ldivide">
-<code class="sig-name descname"><span class="pre">ldivide</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldivide" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ldivide">
+<span class="sig-name descname"><span class="pre">ldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -181,13 +182,13 @@ singleton dimensions is not performed automatically to match
 matrix sizes.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="sum">
-<code class="sig-name descname"><span class="pre">sum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sum" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="sum">
+<span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sum" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">sum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">sum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -198,18 +199,18 @@ but with the dimensions in <code class="docutils literal notranslate"><span clas
 <td><p>Similar syntax to MATLAB©</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="max">
-<code class="sig-name descname"><span class="pre">max</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#max" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="max">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#max" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">max</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">max</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -220,8 +221,8 @@ along all dimensions (3rd form).</p></td>
 return a second output with indices.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">max</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">max</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -234,18 +235,18 @@ Y is a scalar.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="min">
-<code class="sig-name descname"><span class="pre">min</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#min" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="min">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#min" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">min</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">vecdim</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">min</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <span class="optional">[</span><span class="optional">]</span><em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -256,8 +257,8 @@ along all dimensions (3rd form).</p></td>
 return a second output with indices.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">min</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">min</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -270,8 +271,8 @@ Y is a scalar.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="full">
-<code class="sig-name descname"><span class="pre">full</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#full" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="full">
+<span class="sig-name descname"><span class="pre">full</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#full" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -286,8 +287,8 @@ required to return <code class="docutils literal notranslate"><span class="pre">
 more than 2 dimensions.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="tprod">
-<code class="sig-name descname"><span class="pre">tprod</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A1</span></em>, <em class="sig-param"><span class="pre">index1</span></em>, <em class="sig-param"><span class="pre">A2</span></em>, <em class="sig-param"><span class="pre">index2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tprod" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="tprod">
+<span class="sig-name descname"><span class="pre">tprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A1</span></em>, <em class="sig-param"><span class="pre">index1</span></em>, <em class="sig-param"><span class="pre">A2</span></em>, <em class="sig-param"><span class="pre">index2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tprod" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -296,7 +297,7 @@ more than 2 dimensions.</p></td>
 </tr>
 </tbody>
 </table>
-<div class="section" id="tensor-product">
+<section id="tensor-product">
 <span id="tprod-section"></span><h3><span class="section-number">4.1.1. </span>Tensor product<a class="headerlink" href="#tensor-product" title="Permalink to this headline">¶</a></h3>
 <p>The function <a class="reference internal" href="#tprod" title="tprod"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">tprod()</span></code></a> provides a very general and flexible
 multiplication operation between tensors, which includes the usual
@@ -306,17 +307,17 @@ extracting a matrix main diagonal <a class="reference internal" href="#diag" tit
 of a vectors <a class="reference internal" href="#norm" title="norm"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">norm()</span></code></a>; as well as generalizations of all these
 operations to <code class="docutils literal notranslate"><span class="pre">n</span></code>-dimensional tensors:</p>
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">tprod</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">a</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">b</span></em>, <em class="sig-param"><span class="pre">C</span></em>, <em class="sig-param"><span class="pre">c</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">tprod</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em>, <em class="sig-param"><span class="pre">a</span></em>, <em class="sig-param"><span class="pre">B</span></em>, <em class="sig-param"><span class="pre">b</span></em>, <em class="sig-param"><span class="pre">C</span></em>, <em class="sig-param"><span class="pre">c</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>A</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 1st tensor</p></li>
-<li><p><strong>a</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">A</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(A)</span></code></p></li>
+<li><p><strong>a</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">vector</span> <span class="pre">of</span> <span class="pre">integers</span></code></span>) – indices for <code class="docutils literal notranslate"><span class="pre">A</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(A)</span></code></p></li>
 <li><p><strong>B</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 2nd tensor</p></li>
-<li><p><strong>b</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">B</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(B)</span></code></p></li>
+<li><p><strong>b</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">vector</span> <span class="pre">of</span> <span class="pre">integers</span></code></span>) – indices for <code class="docutils literal notranslate"><span class="pre">B</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(B)</span></code></p></li>
 <li><p><strong>C</strong> (<a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> symbolic tensor) – 3rd tensor</p></li>
-<li><p><strong>c</strong> (<em>vector of integers</em>) – indices for <code class="docutils literal notranslate"><span class="pre">C</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(C)</span></code></p></li>
+<li><p><strong>c</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">vector</span> <span class="pre">of</span> <span class="pre">integers</span></code></span>) – indices for <code class="docutils literal notranslate"><span class="pre">C</span></code> with length <code class="docutils literal notranslate"><span class="pre">ndims(C)</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -373,9 +374,9 @@ flexibility of <a class="reference internal" href="#tprod" title="tprod"><code c
 <span class="n">tprod</span><span class="p">(</span><span class="n">C</span><span class="p">,[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>           <span class="o">%</span> <span class="n">same</span> <span class="k">as</span> <span class="n">trace</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="logical-valued-operations">
+</section>
+</section>
+<section id="logical-valued-operations">
 <h2><span class="section-number">4.2. </span>Logical-valued operations<a class="headerlink" href="#logical-valued-operations" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc uses logical-valued operations mostly to specify
 optimization constraints.</p>
@@ -394,13 +395,13 @@ optimization constraints.</p>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X==Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X==Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="eq">
-<code class="sig-name descname"><span class="pre">eq</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#eq" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="eq">
+<span class="sig-name descname"><span class="pre">eq</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#eq" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -411,13 +412,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X&gt;=Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X&gt;=Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="ge">
-<code class="sig-name descname"><span class="pre">ge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ge" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ge">
+<span class="sig-name descname"><span class="pre">ge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ge" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -432,13 +433,13 @@ represent the same constraint.</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X&gt;Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X&gt;Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="gt">
-<code class="sig-name descname"><span class="pre">gt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="gt">
+<span class="sig-name descname"><span class="pre">gt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -449,13 +450,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X&lt;=Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X&lt;=Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="le">
-<code class="sig-name descname"><span class="pre">le</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#le" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="le">
+<span class="sig-name descname"><span class="pre">le</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#le" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -470,13 +471,13 @@ represent the same constraint.</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X&lt;Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X&lt;Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="lt">
-<code class="sig-name descname"><span class="pre">lt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="lt">
+<span class="sig-name descname"><span class="pre">lt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -487,13 +488,13 @@ dimensions is not performed automatically to match the tensors’
 sizes.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="all">
-<code class="sig-name descname"><span class="pre">all</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#all" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="all">
+<span class="sig-name descname"><span class="pre">all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#all" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">all</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -506,13 +507,13 @@ but with the dimensions in <code class="docutils literal notranslate"><span clas
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="any">
-<code class="sig-name descname"><span class="pre">any</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#any" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="any">
+<span class="sig-name descname"><span class="pre">any</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">dim</span></em><span class="sig-paren">)</span><a class="headerlink" href="#any" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">any</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">any</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">'all'</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -526,8 +527,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="entry-wise-operations">
+</section>
+<section id="entry-wise-operations">
 <h2><span class="section-number">4.3. </span>Entry-wise operations<a class="headerlink" href="#entry-wise-operations" title="Permalink to this headline">¶</a></h2>
 <p>The following functions are applied to every entry of a tensor.</p>
 <table class="colwidths-given docutils align-left" id="id3">
@@ -545,8 +546,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="exp">
-<code class="sig-name descname"><span class="pre">exp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#exp" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="exp">
+<span class="sig-name descname"><span class="pre">exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#exp" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -554,8 +555,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="log">
-<code class="sig-name descname"><span class="pre">log</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#log" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#log" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -563,8 +564,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="sin">
-<code class="sig-name descname"><span class="pre">sin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sin" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="sin">
+<span class="sig-name descname"><span class="pre">sin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sin" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -572,8 +573,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="cos">
-<code class="sig-name descname"><span class="pre">cos</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cos" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cos">
+<span class="sig-name descname"><span class="pre">cos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cos" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -581,8 +582,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="tan">
-<code class="sig-name descname"><span class="pre">tan</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="tan">
+<span class="sig-name descname"><span class="pre">tan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -590,8 +591,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="atan">
-<code class="sig-name descname"><span class="pre">atan</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#atan" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="atan">
+<span class="sig-name descname"><span class="pre">atan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#atan" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -599,8 +600,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="sqr">
-<code class="sig-name descname"><span class="pre">sqr</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqr" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="sqr">
+<span class="sig-name descname"><span class="pre">sqr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqr" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -608,8 +609,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^2</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="cube">
-<code class="sig-name descname"><span class="pre">cube</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cube" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cube">
+<span class="sig-name descname"><span class="pre">cube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cube" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -617,13 +618,13 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">X.^3</span></code> or <code class="docutils literal notranslate"><span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span> <span class="pre">.*</span> <span class="pre">X</span></code>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">X.^Y</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">X.^Y</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="power">
-<code class="sig-name descname"><span class="pre">power</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#power" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="power">
+<span class="sig-name descname"><span class="pre">power</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em>, <em class="sig-param"><span class="pre">Y</span></em><span class="sig-paren">)</span><a class="headerlink" href="#power" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -633,8 +634,8 @@ as X, but with the dimensions in <code class="docutils literal notranslate"><spa
 Tcalculus symbolic expression.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="sqrt">
-<code class="sig-name descname"><span class="pre">sqrt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqrt" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="sqrt">
+<span class="sig-name descname"><span class="pre">sqrt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sqrt" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -642,8 +643,8 @@ Tcalculus symbolic expression.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="round">
-<code class="sig-name descname"><span class="pre">round</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#round" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="round">
+<span class="sig-name descname"><span class="pre">round</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#round" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -653,8 +654,8 @@ a second argument specifying a desired number of digits for
 rounding to a decimal.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="ceil">
-<code class="sig-name descname"><span class="pre">ceil</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceil" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ceil">
+<span class="sig-name descname"><span class="pre">ceil</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceil" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -662,8 +663,8 @@ rounding to a decimal.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="floor">
-<code class="sig-name descname"><span class="pre">floor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#floor" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="floor">
+<span class="sig-name descname"><span class="pre">floor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#floor" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -671,8 +672,8 @@ rounding to a decimal.</p></td>
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="sign">
-<code class="sig-name descname"><span class="pre">sign</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sign" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="sign">
+<span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#sign" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -682,8 +683,8 @@ positive, zero, or negative.</p></td>
 <td><p>Similar syntax to MATLAB©,</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="heaviside">
-<code class="sig-name descname"><span class="pre">heaviside</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#heaviside" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="heaviside">
+<span class="sig-name descname"><span class="pre">heaviside</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#heaviside" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -693,8 +694,8 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="abs">
-<code class="sig-name descname"><span class="pre">abs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="abs">
+<span class="sig-name descname"><span class="pre">abs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#abs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -702,8 +703,8 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="relu">
-<code class="sig-name descname"><span class="pre">relu</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="relu">
+<span class="sig-name descname"><span class="pre">relu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#relu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -711,8 +712,8 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">max(X,0)</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="srelu">
-<code class="sig-name descname"><span class="pre">srelu</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="srelu">
+<span class="sig-name descname"><span class="pre">srelu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#srelu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -720,8 +721,8 @@ of <code class="docutils literal notranslate"><span class="pre">X</span></code> 
 <td><p>Similar to <code class="docutils literal notranslate"><span class="pre">log(1+exp(X))</span></code> or <code class="docutils literal notranslate"><span class="pre">x+log(1+exp(-x))</span></code>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="normpdf">
-<code class="sig-name descname"><span class="pre">normpdf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#normpdf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="normpdf">
+<span class="sig-name descname"><span class="pre">normpdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">X</span></em><span class="sig-paren">)</span><a class="headerlink" href="#normpdf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -733,8 +734,8 @@ deviation different than 0 and 1, respectively.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="linear-algebra">
+</section>
+<section id="linear-algebra">
 <h2><span class="section-number">4.4. </span>Linear algebra<a class="headerlink" href="#linear-algebra" title="Permalink to this headline">¶</a></h2>
 <p>TensCalc supports several basic linear algebra operations, but for
 operations that require some form of factorization to be performed
@@ -782,7 +783,7 @@ in the same computation:</p>
 </div>
 <p>Specifically note that, even though <code class="docutils literal notranslate"><span class="pre">lu(A)</span></code> appears twice in the
 bottom snippet, the matrix <code class="docutils literal notranslate"><span class="pre">A</span></code> is only factored once.</p>
-<div class="section" id="which-factorization-to-use">
+<section id="which-factorization-to-use">
 <h3><span class="section-number">4.4.1. </span>Which factorization to use?<a class="headerlink" href="#which-factorization-to-use" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><p>The LDL factorization is faster and requires less
@@ -825,18 +826,18 @@ matrices).</p>
 </thead>
 <tbody>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="diag">
-<code class="sig-name descname"><span class="pre">diag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">v</span></em>, <em class="sig-param"><span class="pre">k</span></em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="diag">
+<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">v</span></em>, <em class="sig-param"><span class="pre">k</span></em><span class="sig-paren">)</span><a class="headerlink" href="#diag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">diag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">v</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">v</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">diag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">diag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -853,8 +854,8 @@ a second argument specifying a diagonal other than the main
 diagonal, when <code class="docutils literal notranslate"><span class="pre">A</span></code> is a matrix.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="trace">
-<code class="sig-name descname"><span class="pre">trace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="trace">
+<span class="sig-name descname"><span class="pre">trace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#trace" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -863,23 +864,23 @@ which is also the sum of the eigenvalues of <code class="docutils literal notran
 <td><p>Similar syntax to MATLAB©.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">A.'</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">A.'</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">A'</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">A'</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="transpose">
-<code class="sig-name descname"><span class="pre">transpose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="transpose">
+<span class="sig-name descname"><span class="pre">transpose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#transpose" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="ctranspose">
-<code class="sig-name descname"><span class="pre">ctranspose</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ctranspose">
+<span class="sig-name descname"><span class="pre">ctranspose</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ctranspose" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -889,8 +890,8 @@ support complex-valued variables and therefore <code class="docutils literal not
 and <code class="docutils literal notranslate"><span class="pre">ctranspose</span></code> return the same values.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="lu">
-<code class="sig-name descname"><span class="pre">lu</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="lu">
+<span class="sig-name descname"><span class="pre">lu</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -906,8 +907,8 @@ logdet, traceinv), but should <em>not</em> be used by functions that
 are not expecting a factorized matrix as an input.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="ldl">
-<code class="sig-name descname"><span class="pre">ldl</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ldl">
+<span class="sig-name descname"><span class="pre">ldl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -928,23 +929,23 @@ logdet, traceinv), but should <em>not</em> be used by functions that
 are not expecting a factorized matrix as an input.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">lu(A)</span> <span class="pre">\\</span> <span class="pre">B</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">lu(A)</span> <span class="pre">\\</span> <span class="pre">B</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="mldivide">
-<code class="sig-name descname"><span class="pre">mldivide</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em>, <em class="sig-param"><span class="pre">B</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="mldivide">
+<span class="sig-name descname"><span class="pre">mldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em>, <em class="sig-param"><span class="pre">B</span></em><span class="sig-paren">)</span><a class="headerlink" href="#mldivide" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">ldl(A)</span> <span class="pre">\\</span> <span class="pre">B</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">ldl(A)</span> <span class="pre">\\</span> <span class="pre">B</span></span></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">mldivide</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em>, <em class="sig-param"><span class="pre">B</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">mldivide</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em>, <em class="sig-param"><span class="pre">B</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -963,13 +964,13 @@ regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="inv">
-<code class="sig-name descname"><span class="pre">inv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="inv">
+<span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#inv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">inv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">inv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -982,13 +983,13 @@ regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="det">
-<code class="sig-name descname"><span class="pre">det</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="det">
+<span class="sig-name descname"><span class="pre">det</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#det" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">det</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">det</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1001,13 +1002,13 @@ regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="logdet">
-<code class="sig-name descname"><span class="pre">logdet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="logdet">
+<span class="sig-name descname"><span class="pre">logdet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#logdet" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">logdet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">logdet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1027,13 +1028,13 @@ computing derivatives of <code class="docutils literal notranslate"><span class=
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="traceinv">
-<code class="sig-name descname"><span class="pre">traceinv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="traceinv">
+<span class="sig-name descname"><span class="pre">traceinv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">lu(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#traceinv" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">traceinv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">traceinv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1049,13 +1050,13 @@ regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="ldl_l">
-<code class="sig-name descname"><span class="pre">ldl_l</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ldl_l">
+<span class="sig-name descname"><span class="pre">ldl_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="ldl_d">
-<code class="sig-name descname"><span class="pre">ldl_d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="ldl_d">
+<span class="sig-name descname"><span class="pre">ldl_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ldl(A)</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ldl_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -1076,18 +1077,18 @@ regarding of whether or not this is true</em>.</p>
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="lu_l">
-<code class="sig-name descname"><span class="pre">lu_l</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_l" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="lu_l">
+<span class="sig-name descname"><span class="pre">lu_l</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_l" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="lu_u">
-<code class="sig-name descname"><span class="pre">lu_u</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_u" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="lu_u">
+<span class="sig-name descname"><span class="pre">lu_u</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_u" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="lu_d">
-<code class="sig-name descname"><span class="pre">lu_d</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_d" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="lu_d">
+<span class="sig-name descname"><span class="pre">lu_d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">A</span></em><span class="sig-paren">)</span><a class="headerlink" href="#lu_d" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -1106,13 +1107,13 @@ matrices).</p>
 factorized with <a class="reference internal" href="#lu" title="lu"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">lu()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="norm">
-<code class="sig-name descname"><span class="pre">norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="norm">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">2</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">2</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1124,8 +1125,8 @@ on how to overcome this issue.</p>
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">1</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">1</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1135,8 +1136,8 @@ it is not differentiable at points where the optimum often
 lies.  See <a class="reference internal" href="#smoothness"><span class="std std-ref">Avoiding lack of smoothness</span></a> on how to overcome this issue.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">norm</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">inf</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">inf</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1147,13 +1148,13 @@ often lies. See <a class="reference internal" href="#smoothness"><span class="st
 issue.</p></td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="norm2">
-<code class="sig-name descname"><span class="pre">norm2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="norm2">
+<span class="sig-name descname"><span class="pre">norm2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm2" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt>
-<code class="sig-name descname"><span class="pre">norm2</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">S</span></em><span class="sig-paren">)</span></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">norm2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em>, <em class="sig-param"><span class="pre">S</span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </th>
@@ -1168,8 +1169,8 @@ dimension) and <code class="docutils literal notranslate"><span class="pre">S</s
 <code class="docutils literal notranslate"><span class="pre">sum(x.^2,'all')</span></code>, but computes derivatives more efficiently.</p></td>
 </tr>
 <tr class="row-even"><th class="stub"><dl class="mat function">
-<dt id="norm1">
-<code class="sig-name descname"><span class="pre">norm1</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="norm1">
+<span class="sig-name descname"><span class="pre">norm1</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norm1" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -1182,8 +1183,8 @@ lies. See <a class="reference internal" href="#smoothness"><span class="std std-
 </td>
 </tr>
 <tr class="row-odd"><th class="stub"><dl class="mat function">
-<dt id="norminf">
-<code class="sig-name descname"><span class="pre">norminf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="norminf">
+<span class="sig-name descname"><span class="pre">norminf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#norminf" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </th>
@@ -1204,8 +1205,8 @@ lies. See <a class="reference internal" href="#smoothness"><span class="std std-
 lead to syntax errors, often not easy to directly relate to the
 missing factorization.</p>
 </div>
-</div>
-<div class="section" id="avoiding-lack-of-smoothness">
+</section>
+<section id="avoiding-lack-of-smoothness">
 <span id="smoothness"></span><h3><span class="section-number">4.4.2. </span>Avoiding lack of smoothness<a class="headerlink" href="#avoiding-lack-of-smoothness" title="Permalink to this headline">¶</a></h3>
 <p>In general norm are not smooth:</p>
 <ul class="simple">
@@ -1249,16 +1250,16 @@ smooth, without losing convexity.</p>
 </div></blockquote>
 </li>
 </ul>
-</div>
-</div>
-<div class="section" id="calculus-differentiation">
+</section>
+</section>
+<section id="calculus-differentiation">
 <h2><span class="section-number">4.5. </span>Calculus - differentiation<a class="headerlink" href="#calculus-differentiation" title="Permalink to this headline">¶</a></h2>
 <p>The following function computes the partial derivatives of a symbolic
 expression with respect to the entries of a tensor-valued symbolic
 variable:</p>
 <dl class="mat function">
-<dt id="gradient">
-<code class="sig-name descname"><span class="pre">gradient</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gradient" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="gradient">
+<span class="sig-name descname"><span class="pre">gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">x</span></em><span class="sig-paren">)</span><a class="headerlink" href="#gradient" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1292,8 +1293,8 @@ matrix (with size <code class="docutils literal notranslate"><span class="pre">[
 <p>The computation of first and second derivatives can be
 streamlined using the following function:</p>
 <dl class="mat function">
-<dt id="hessian">
-<code class="sig-name descname"><span class="pre">hessian</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">x</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">y</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hessian" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="hessian">
+<span class="sig-name descname"><span class="pre">hessian</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">f</span></em>, <em class="sig-param"><span class="pre">x</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">y</span></em><span class="optional">]</span><span class="sig-paren">)</span><a class="headerlink" href="#hessian" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -1334,8 +1335,8 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
 <span class="n">h</span><span class="o">=</span><span class="n">gradient</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">y</span><span class="p">);</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -1344,8 +1345,9 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">4. Operations on symbolic expressions</a><ul>
 <li><a class="reference internal" href="#arithmetic-operations">4.1. Arithmetic operations</a><ul>
 <li><a class="reference internal" href="#tensor-product">4.1.1. Tensor product</a></li>
@@ -1363,12 +1365,17 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="basics.html"
-                        title="previous chapter"><span class="section-number">3. </span>Basics</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="optimization.html"
-                        title="next chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="basics.html"
+                          title="previous chapter"><span class="section-number">3. </span>Basics</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="optimization.html"
+                          title="next chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -1380,7 +1387,7 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1408,7 +1415,7 @@ the 2nd derivatives will also be taken with respect to x)</p></li>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2012-2020, Joao Pedro Hespanha.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.4.0.
     </div>
   </body>
 </html>
