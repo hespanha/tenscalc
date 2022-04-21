@@ -4,12 +4,13 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>6. Code generation for computations &#8212; Tenscalc Users&#39; Guide</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -37,7 +38,7 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="code-generation-for-computations">
+  <section id="code-generation-for-computations">
 <h1><span class="section-number">6. </span>Code generation for computations<a class="headerlink" href="#code-generation-for-computations" title="Permalink to this headline">¶</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -48,16 +49,16 @@
 <div><p>Sets of computations organized as dependency graphs, with multiple
 roots (input variables) and leaves (output expressions).</p>
 </div></blockquote>
-<div class="section" id="defining-a-computation">
+<section id="defining-a-computation">
 <h2><span class="section-number">6.1. </span>Defining a computation<a class="headerlink" href="#defining-a-computation" title="Permalink to this headline">¶</a></h2>
 <dl class="mat class">
-<dt id="csparse">
-<em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">csparse</span></code><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="csparse">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">csparse</span></span><a class="headerlink" href="#csparse" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat method">
-<dt>
-<code class="sig-name descname"><span class="pre">cs=csparse()</span></code></dt>
+<dt class="sig sig-object mat">
+<span class="sig-name descname"><span class="pre">cs=csparse()</span></span></dt>
 <dd><p>Creates an empty computation tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -67,38 +68,38 @@ roots (input variables) and leaves (output expressions).</p>
 </dd></dl>
 
 <dl class="mat method">
-<dt id="declareSet">
-<code class="sig-name descname"><span class="pre">declareSet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destination</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="declareSet">
+<span class="sig-name descname"><span class="pre">declareSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destination</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareSet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds an input variable to the tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
 <li><p><strong>destination</strong> – <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variable created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></li>
-<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+<li><p><strong>functionname</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – name of the function to be created</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="mat method">
-<dt id="declareGet">
-<code class="sig-name descname"><span class="pre">declareGet</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="declareGet">
+<span class="sig-name descname"><span class="pre">declareGet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareGet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds output expressions to the tree</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
 <li><p><strong>sources</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-valued expressions</p></li>
-<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+<li><p><strong>functionname</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – name of the function to be created</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="mat method">
-<dt id="declareCopy">
-<code class="sig-name descname"><span class="pre">declareCopy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destinations</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="declareCopy">
+<span class="sig-name descname"><span class="pre">declareCopy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">cs</span></em>, <em class="sig-param"><span class="pre">destinations</span></em>, <em class="sig-param"><span class="pre">sources</span></em>, <em class="sig-param"><span class="pre">functionName</span></em><span class="sig-paren">)</span><a class="headerlink" href="#declareCopy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the value of input variables, based on the value of output
 expressions</p>
 <dl class="field-list simple">
@@ -107,30 +108,30 @@ expressions</p>
 <li><p><strong>cs</strong> – <a class="reference internal" href="#csparse" title="csparse"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">csparse</span></code></a> object</p></li>
 <li><p><strong>sources</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor-valued expressions</p></li>
 <li><p><strong>destinations</strong> – cell array of <a class="reference internal" href="basics.html#Tcalculus" title="Tcalculus"><code class="xref mat mat-class docutils literal notranslate"><span class="pre">Tcalculus</span></code></a> tensor variables created using <a class="reference internal" href="basics.html#Tvariable" title="Tvariable"><code class="xref mat mat-func docutils literal notranslate"><span class="pre">Tvariable()</span></code></a></p></li>
-<li><p><strong>functionname</strong> (<em>string</em>) – name of the function to be created</p></li>
+<li><p><strong>functionname</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – name of the function to be created</p></li>
 </ul>
 </dd>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="code-generation">
+</section>
+<section id="code-generation">
 <h2><span class="section-number">6.2. </span>Code generation<a class="headerlink" href="#code-generation" title="Permalink to this headline">¶</a></h2>
 <dl class="mat function">
-<dt id="cmex2compute">
-<code class="sig-name descname"><span class="pre">cmex2compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="cmex2compute">
+<span class="sig-name descname"><span class="pre">cmex2compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmex2compute" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="mat function">
-<dt id="class2compute">
-<code class="sig-name descname"><span class="pre">class2compute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object mat" id="class2compute">
+<span class="sig-name descname"><span class="pre">class2compute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">parameter1</span></em>, <em class="sig-param"><span class="pre">value1</span></em>, <em class="sig-param"><span class="pre">parameter2</span></em>, <em class="sig-param"><span class="pre">values2</span></em>, <em class="sig-param"><span class="pre">...</span></em><span class="sig-paren">)</span><a class="headerlink" href="#class2compute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate code to set values of input variables, get values of
 output expressions, and copy output expressions to input variables.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>parameter1</strong> (<em>string</em>) – parameter to set</p></li>
-<li><p><strong>parameter2</strong> (<em>string</em>) – parameter to set, …</p></li>
+<li><p><strong>parameter1</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set</p></li>
+<li><p><strong>parameter2</strong> (<span><code class="xref mat mat-obj docutils literal notranslate"><span class="pre">string</span></code></span>) – parameter to set, …</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -142,8 +143,8 @@ output expressions, and copy output expressions to input variables.</p>
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -152,8 +153,9 @@ output expressions, and copy output expressions to input variables.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">6. Code generation for computations</a><ul>
 <li><a class="reference internal" href="#defining-a-computation">6.1. Defining a computation</a></li>
 <li><a class="reference internal" href="#code-generation">6.2. Code generation</a></li>
@@ -161,9 +163,12 @@ output expressions, and copy output expressions to input variables.</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="optimization.html"
-                        title="previous chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="optimization.html"
+                          title="previous chapter"><span class="section-number">5. </span>Constrained optimization</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -175,7 +180,7 @@ output expressions, and copy output expressions to input variables.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -200,7 +205,7 @@ output expressions, and copy output expressions to input variables.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright © 2012-2020, Joao Pedro Hespanha.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.2.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
     </div>
   </body>
 </html>
