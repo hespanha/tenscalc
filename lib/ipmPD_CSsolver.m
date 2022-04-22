@@ -24,7 +24,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         addEye2Hessian2MAX=1e2;
         addEye2HessianMIN=1e-20;
 
-        maxDirectionError=1e-9;
+        maxDirectionError=1e-7;
         
         if nargin<5
             addEye2Hessian1=1e-9;
@@ -273,12 +273,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     addEye2Hessian2=max(.75*addEye2Hessian2,addEye2HessianMIN);
                     updateAddEye2Hessian2=true; % update at next iteration
                 end
-                if addEye2Hessian1<addEye2HessianMAX && derr>maxDirectionError
-                    addEye2Hessian1=min(10*addEye2Hessian1,addEye2HessianMAX);
+                if addEye2Hessian1<addEye2Hessian1MAX && derr>maxDirectionError
+                    addEye2Hessian1=min(10*addEye2Hessian1,addEye2Hessian1MAX);
                     updateAddEye2Hessian1=true; % update at next iteration
                 end
-                if addEye2Hessian2<addEye2HessianMAX && derr>maxDirectionError
-                    addEye2Hessian2=min(10*addEye2Hessian2,addEye2HessianMAX);
+                if addEye2Hessian2<addEye2Hessian2MAX && derr>maxDirectionError
+                    addEye2Hessian2=min(10*addEye2Hessian2,addEye2Hessian2MAX);
                     updateAddEye2Hessian2=true; % update at next iteration
                 end
             else
