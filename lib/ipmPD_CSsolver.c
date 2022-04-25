@@ -163,7 +163,7 @@ EXPORT void ipmPD_CSsolver(
   double norminf_grad,alphaMax_=alphaMax;
 
 #if nF>0
-  double mu=*mu0,muMin,gap,ineq,ineq1,dual,
+  double mu=*mu0,stepback=.99,muMin,gap,ineq,ineq1,dual,
     scale4cost,desiredDualityGapVar=desiredDualityGap,alphaPrimal=0,alphaDualEq=0,alphaDualIneq=0;
 #if skipAffine != 1
   double sigma;
@@ -579,15 +579,13 @@ EXPORT void ipmPD_CSsolver(
       alphaPrimal=alphaDualIneq;
 #endif
 
-#define STEPBACK .99
-
-    alphaPrimal *= STEPBACK;
+    alphaPrimal *= stepback;
 
     alphaMax_ = (alphaPrimal<alphaMax)?alphaPrimal:alphaMax;
 
     if (alphaMax_ >= alphaMin) {
       // try max
-      alphaPrimal=alphaMax_/STEPBACK;
+      alphaPrimal=alphaMax_/stepback;
       setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
       if (isnan(ineq)) {
 	  printf2("  -> failed to invert hessian\n");
@@ -600,12 +598,12 @@ EXPORT void ipmPD_CSsolver(
 	}
       if (ineq>0) {
 	// recheck just to be safe in case not convex
-	alphaPrimal *= STEPBACK;
+	alphaPrimal *= stepback;
 	setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq1);
       }
       if (ineq<=0 || ineq1<=ineq/10) {
 	// try min
-	alphaPrimal=alphaMin/STEPBACK;
+	alphaPrimal=alphaMin/stepback;
 	setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
 	if (ineq>0) {
 	  // try between min and max
@@ -613,7 +611,7 @@ EXPORT void ipmPD_CSsolver(
 	    setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq);
 	    if (ineq>0) {
 	      // backtrace just a little
-	      alphaPrimal *= STEPBACK;
+	      alphaPrimal *= stepback;
 	      // recheck just to be safe in case not convex
 	      setAlphaPrimal__(&alphaPrimal);getMinF_s__(&ineq1);
 	      if (ineq1>ineq/10) {
@@ -638,7 +636,7 @@ EXPORT void ipmPD_CSsolver(
     alphaDualEq=alphaPrimal;
     alphaDualIneq=alphaPrimal;
 #else
-    alphaDualIneq *= STEPBACK;
+    alphaDualIneq *= stepback;
     if (alphaDualIneq>alphaMax_)
       alphaDualIneq=alphaMax_;
     //alphaDualEq = alphaMax;

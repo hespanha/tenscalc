@@ -25,7 +25,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         addEye2HessianMIN=1e-20;
 
         maxDirectionError=1e-7;
-        
+
         if nargin<5
             addEye2Hessian1=1e-9;
             addEye2Hessian2=1e-9;
@@ -581,13 +581,16 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 alphaPrimal=alphaDualIneq;
             end
 
-            alphaPrimal = .99 * alphaPrimal;
+            stepback=.99;
+            %stepback=max(1-mu,.9);
+
+            alphaPrimal = stepback * alphaPrimal;
 
             alphaMax = min(alphaPrimal,obj.alphaMax);
 
             if (alphaMax >= obj.alphaMin)
                 % try max
-                alphaPrimal=alphaMax/.99;
+                alphaPrimal=alphaMax/stepback;
                 setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                 if isnan(ineq)
                     printf2('  -> failed to invert hessian\n');
@@ -596,12 +599,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 end
                 if (ineq>0)
                     % recheck just to be safe in case not convex
-                    alphaPrimal = .99 * alphaPrimal;
+                    alphaPrimal = stepback * alphaPrimal;
                     setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
                 end
                 if ineq<=0 || ineq1<=ineq/10
                     % try min
-                    alphaPrimal=obj.alphaMin/.99;
+                    alphaPrimal=obj.alphaMin/stepback;
                     setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                     if (ineq>0)
                         % try between min and max
@@ -610,7 +613,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                             setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                             if (ineq>0)
                                 % backtrace just a little
-                                alphaPrimal = .99 * alphaPrimal;
+                                alphaPrimal = stepback * alphaPrimal;
                                 % recheck just to be safe in case not convex
                                 setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
                                 if (ineq1>ineq/10)
@@ -637,7 +640,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 alphaDualEq=alphaPrimal;
                 alphaDualIneq=alphaPrimal;
             else
-                alphaDualIneq = .99 * alphaDualIneq;
+                alphaDualIneq = stepback * alphaDualIneq;
                 if alphaDualIneq>obj.alphaMax
                     alphaDualIneq = obj.alphaMax;
                 end
@@ -668,7 +671,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 th_grad=            norminf_grad<=max(1e-4,1e0*obj.gradTolerance);
                 th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
-                    %mu = max(mu*obj.muFactorAggressive,muMin);
+                    %mu = max(muMin,obj.muFactorAggressive*mu);
                     mu=max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu);
                     printf3(' * ');
