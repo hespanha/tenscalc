@@ -186,7 +186,7 @@ function out=ipmPD_CS(pars)
         [out.Lf_uu,out.Lf_u]=hessian(Lf,u); % seems to be more efficient than using the previously computed F_u/G_u
     else
         [out.Lf_u,out.Lf_uu]=gradientVector(Lf,uList); % seems to be more efficient than using the previously computed F_u/G_u
-        
+
         % Replace uList by u
         Lf=substitute(Lf,uList,u);
         f_u=substitute(f_u,uList,u);
@@ -335,7 +335,7 @@ function out=ipmPD_CS(pars)
         newNu_s=nu+alphaDualEq*dNu_s;
         curvature=dU_s*(WW11*dU_s);
         declareGet(code,curvature,'getCurvature__');
-        
+
         if nF>0
             if skipAffine
                 dLambda_s=muF-LPG*dU_s-lambda;
