@@ -57,11 +57,13 @@ mpc=Tmpc('reuseSolver',true,...
          'constraints',{u<=uMax, u>=-uMax},...
          'outputExpressions',{J,x,u},...
          'parameters',{v,d,Ts,uMax},...
-         'solverParameters',{;
-                    'adjustAddEye2Hessian',true,...
-                    'compilerOptimization','-O0',...
-                    'solverVerboseLevel',2 ...
-                   });
+         'solverParameters',{...
+             'scaleCost',1e4,...
+             'scaleInequalities',true,...
+             'adjustAddEye2Hessian',false,... % current adjustment algorithm too conservative for this problem
+             'muFactorAggressive',.25,...
+             'compilerOptimization','-O0',...
+             'solverVerboseLevel',2});
 
 %% Simulate system
 
@@ -84,8 +86,9 @@ setInitialState(mpc,t0,x0);
 u_warm=.1*randn(nu,T-controlDelay);
 
 mu0=1;
-maxIter=100;
+maxIter=200;
 saveIter=false;
+addEye2Hessia=[1e-8;1e-8];
 
 nSteps=1000;
 
@@ -100,7 +103,7 @@ for i=1:nSteps
     u_warm=max(u_warm,-.95*uMax);
     setSolverWarmStart(mpc,u_warm);
 
-    [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter);
+    [solution,J,x,u]=solve(mpc,mu0,maxIter,saveIter,addEye2Hessia);
 
     if solution.status==0
         fprintf('t=%g, J=%g computed in %g iterations & %g ms\n',t,J,solution.iter,1e3*solution.time);
@@ -152,3 +155,5 @@ yyaxis right
 plot(history.t(2:end),1000*history.stime(2:end),'.-');grid on;
 ylabel('solver time [ms]');
 xlabel('t');
+title(sprintf('%.1f%% of solver success, mean solve time = %.3f ms',...
+              100*mean(history.status==0),1000*mean(history.stime(2:end))));
