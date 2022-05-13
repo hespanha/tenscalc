@@ -660,8 +660,8 @@ classdef Tmpc < handle
             obj.controlSet=true;
         end
 
-        function [solution,varargout]=solve(obj,mu0,maxIter,saveIter)
-        % [solution,y1,y2,...]=solve(obj,mu0,maxIter,saveIter)
+        function [solution,varargout]=solve(obj,mu0,maxIter,saveIter,addEye2Hessian)
+        % [solution,y1,y2,...]=solve(obj,mu0,maxIter,saveIter,addEye2Hessian)
         %
         % Given
         %   mu0      - initial value for the gap variable
@@ -689,9 +689,13 @@ classdef Tmpc < handle
                 error('must set initial value for state before calling solver');
             end
 
-            [solution.status,solution.iter,solution.time]=...
-                solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter));
-
+            if nargin<5
+                [solution.status,solution.iter,solution.time]=...
+                    solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter));
+            else
+                [solution.status,solution.iter,solution.time]=...
+                    solve(obj.solverObject,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);
+            end
             varargout=cell(obj.nOutputExpressions,1);
             [varargout{:},solution.control,solution.state,solution.objective]=getOutputs(obj.solverObject);
         end
