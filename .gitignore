@@ -95,5 +95,7 @@ old/
 ## Emacs backups
 auto/
 *~
+#*#
+.#*#
 
 
