@@ -560,7 +560,7 @@ EXPORT void ipmPDeq_CSsolver(
     //int th_eq=norminf_eq<MAX(1e-3,1e2*equalTolerance);
     int th_eq=norminf_eq<MAX(1e-5,1e0*equalTolerance);
 #endif
-    if (alphaPrimal>alphaMax_/2 && th_grad
+    if (alphaPrimal>alphaMax/2 && th_grad
 #if nG>0
 	&& th_eq
 #endif
