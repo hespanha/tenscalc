@@ -2,21 +2,7 @@
 # git config core.ignorecase false
 
 ## examples to be fixed
-/examples/*RSS*
-/examples/*rss*
-/examples/sphereSample.m
-/examples/estimation.m
-/examples/estimates.eps
-/examples/*gps*.m
-/examples/*imu*.m
-/examples/csparse/
-/examples/mpcmhe/mpcmhe_2integratorLatCS2.m
-/examples/mpcmhe/mpcmhe_transfer_function_known_zero.m
-/examples/mpcmhe/mpcmhe_unicycleLatCS.m
-/examples/regression*
-/examples/Regression*
-/examples/plots
-/examples/lasso_deblur.m
+/myexamples
 
 ## other files to be fixed
 /test-asm/
@@ -27,18 +13,6 @@
 COPYING-GPLv3-statement.txt
 TODO.txt
 CONVERGENCE_DEBUG.txt
-
-## examples from others
-/examples/cvxgen/
-/examples/davidCopp/
-/examples/johnGilbert/
-/examples/scott/
-/examples/sharad/
-/examples/phase_recovery/
-/examples/stevenQuintero/
-/examples/victorFragoso/
-/examples/test_raphael/
-/examples/test_robin/
 
 ## temporary scripts for testing
 /doc/StudyInfeasibility.nb
