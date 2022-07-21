@@ -1331,17 +1331,14 @@ classdef Tcalculus
             % end
             osize1=size(obj1);
             type1=type(obj1);
-            if isempty(osize1)
-                % transpose of scalar = same scalar
+            if length(osize1)<2
+                warning('Tcalculus: Transpose on scalar (0D-array) or vector (1D-array) has not effect\n');
                 obj=obj1;
                 return
             end
-            if length(osize1)<2
-                error('Tcalculus: Transpose on scalar (0D-array) or vector (1D-array) not allowed nothing\n');
-            end
             if length(osize1)>2
                 obj1
-                error('Transpose on ND array is not defined\n');
+                error('Transpose on ND array is not allowed. You may want to use permute instead\n');
             end
             if strcmp(type1,'ctranspose')
                 % transpose of transpose gets cancelled
