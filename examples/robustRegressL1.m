@@ -31,7 +31,7 @@ createSolvers=~isequal(createSolvers,'n');
 %%%%%%%%%%%%%%%%%%%
 
 m=1000; % size of training data
-n=15;  % # of independent variables
+n=15;   % # of independent variables
 
 if createSolvers
 
@@ -46,24 +46,12 @@ if createSolvers
     Tvariable theta0   [];
     Tvariable theta    [n];
     Tvariable absTheta [n];
-    Tvariable v    [];
 
-    if 1
-        Tvariable y [m];
-        Tvariable H [m,n];
-
-        v2=norm2(y-theta0*Tones(m)-H*theta);
-    else
-        Tvariable y2   [];
-        Tvariable sumY [];
-        Tvariable yH   [n];
-        Tvariable sumH [n];
-        Tvariable HH   [n,n];
-        v2=y2-2*sumY*theta0-2*yH*theta+2*theta0*sumH*theta+theta0*theta0*m+theta*HH*theta;
-    end
-
-    v=sqrt(v2);
-    J =v+lambda*sum(absTheta,1);
+    Tvariable y [m];
+    Tvariable H [m,n];
+    
+    v2=norm2(y-theta0*Tones(m)-H*theta);
+    J =sqrt(v2)+lambda*sum(absTheta,1);
 
     classname=cmex2optimizeCS('classname','tmp_lasso',...
                               'objective',J,...
@@ -73,12 +61,6 @@ if createSolvers
                               'outputExpressions',{theta,theta0,J},...
                               'scaleCost',1,...
                               'solverVerboseLevel',2);
-
-
-    preMultiplied=true;
-    useSqrt=true;      % true is slightly slower, but can be more robust
-    smoothSqrt=false;  % true generally leads to slower convergence
-
 end
 
 %%%%%%%%%%%%%%%
@@ -127,6 +109,6 @@ for i=1:3
     disp(theta');
 
     if status
-        error()
+        error('Solver failed')
     end
 end
