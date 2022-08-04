@@ -399,7 +399,7 @@ classdef Tmpc < handle
             obj.parametersSet(end+1)=false;
 
             try
-                if 1
+                if 0
                     %% Trapesoidal integration for u with ZOH
                     %    (x_{k+1} - x_k)/Ts == (f(x_{k+1},u_k)+f(x_k,u_k))/2
                     dynamics=(stateVariable-thisState)==.5*sampleTime*(...
@@ -415,6 +415,10 @@ classdef Tmpc < handle
                               sampleTime*stateDerivativeFunction(thisState,...
                                                                  thisControl,...
                                                                  parameters{:}));
+                    Jdynamics=norm2(stateVariable-thisState-...
+                                    sampleTime*stateDerivativeFunction(thisState,...
+                                                                      thisControl,...
+                                                                      parameters{:}));
                 end
 
                 % add output expressions for debug
