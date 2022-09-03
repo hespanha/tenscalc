@@ -5,7 +5,7 @@
 % times. Creating a solver typically takes much longer than solving
 % the optimization by creating the solver.
 %
-% This script give you the option and skipping creating the solver,
+% This script gives you the option of skipping creating the solver,
 % but you can only skip generating a solver if you have done it once.
 
 % This file is part of Tencalc.
