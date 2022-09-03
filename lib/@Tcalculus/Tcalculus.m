@@ -1950,6 +1950,34 @@ classdef Tcalculus
                 updateFile2table(obj,1);
             end
         end
+        function obj=mpower(obj1,p)
+        % power - Matrix power
+        %
+        %    X^Y or mpower(x,y) returns the matrix X raised to
+        %    the power Y.
+        %
+        %    The power Y must be a regular numeric scalar, *not* a
+        %    Tcalculus symbolic expression
+        %    
+        % Attention: unlike in matlab's regular power(), the power Y
+        % must be an integer currently equal to 1,2,3 and is expanded
+        % to the corresponding product.
+            if length(p)>1
+                error('Tcalculus/power only supports scalar exponents');
+            end
+            if ~isnumeric(p)
+                error('Tcalculus/power only supports constant exponents');
+            end
+            switch p
+              case 1
+                obj=obj1;
+              case 2
+                obj=obj1*obj1;
+              case 3
+                obj=obj1*obj1*obj2;
+              otherwise
+            end
+        end
         function obj=sqrt(obj1)
         % cube - Square root of tensor entries
             obj=componentwise(obj1,@sqrt,'sqrt(%s)',@(x).5./sqrt(x)); % reuses sqrt computation
