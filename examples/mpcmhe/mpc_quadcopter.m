@@ -46,16 +46,15 @@
 %   c) R is a rotation matrix
 %           => R_ib(:,1) = R_ib(:,2) x R_ib(:,3)
 %
-% Note that the constraints will have to be imposed on these variables
-% (and their derivatives) rather than on u.
-%
 % The goal of MPC is to minimize the distance to a desired final
 % position/velocity, penalizing total thrust
 %
-%         J = \|p(T)-pfinal\|^2 + lambda1 \|dot p(T)-vfinal\|^2 + lambda2 \int_0^T m_thrust(t) dt
+%         J = \|p(T)-pfinal\|^2 
+%                     + lambda_v \|dot p(T)-vfinal\|^2 
+%                     + lambda_thrust \int_0^T m_thrust(t) dt
 %
-% subject to the constraintrs mentioned on 1) and 2) above as well as
-% a minimum altitude consraint:
+% subject to the constraint mentioned on 1) above as well as a minimum
+% altitude constraint:
 %
 %        p(3,:) <= -min_altitude    (recall that z-xis points down)
 %
@@ -84,7 +83,7 @@ createSolvers=~isequal(createSolvers,'n');
 %% Load test data
 %%%%%%%%%%%%%%%%%%%
 
-T=100;                        % horizon length
+T=100;                        % horizon length in time-steps
 
 if createSolvers
 
@@ -176,6 +175,7 @@ if createSolvers
                                   min_thrust;max_thrust;min_altitude;...
                                   lambda_v;lambda_thrust},...
                               'addEye2Hessian',true,...
+                              'adjustAddEye2Hessian',true,...
                               'scaleInequalities',true,...
                               'solverVerboseLevel',4);
 
@@ -195,7 +195,7 @@ s = RandStream('mt19937ar','Seed',0); % fix seed for reproducibility
 RandStream.setGlobalStream(s);
 
 %% Set parameters
-Ts=.01;
+Ts=.02;               % 20 ms
 b_drag=.1;
 min_altitude=-.1;     % must be a little lower than initial altitude
 min_thrust=5;         % must be positive to avoid singularities in computing R_{ib}
@@ -212,17 +212,19 @@ setP_lambda_v(obj,lambda_v);
 setP_lambda_thrust(obj,lambda_thrust);
 
 
-pinit=[0;0;0];
-vinit=[0;0;0];
-pdesired=[0;10;-5]/2;
-vdesired=[0;0;0];
+pinit=[0;0;0];            % initial position
+vinit=[0;0;0];            % initial velocity
+pdesired=[0;10;-5]/2;     % desired final position
+vdesired=[0;0;0];         % desired final velocity
+
 setP_pdesired(obj,pdesired);
 setP_vdesired(obj,vdesired);
 
-clear history;
+clear history;   % structure where system's state, control, etc. will be stored
 for k=1:1000
 
-    setP_pinit(obj,pinit);
+    %% Set parameters specific to this optimization
+    setP_pinit(obj,pinit);  
     setP_vinit(obj,vinit);
 
     %% Initialize primal variables using a spline that respects initial position and velocity
@@ -241,14 +243,14 @@ for k=1:1000
     setV_u(obj,u);
     setV_positive2(obj,ones(T,1));
 
-    % Solve optimization
+    %% Solve optimization
     [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
     % Get outputs
     out=getOutputs(obj);
     k
     disp(out)
 
-    %% Save applied control
+    %% Save applied sate, control, etc. in `history` structure
     if k==1
         history.t(k)=0;
     else
@@ -290,7 +292,7 @@ for k=1:1000
     end
 
     if status
-        error('optimization failed\n');
+        warning('optimization failed\n');
     end
 
     %fprintf('paused\n');pause
