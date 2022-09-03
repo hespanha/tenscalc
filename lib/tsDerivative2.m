@@ -30,29 +30,59 @@ function [ddx,ts]=tsDerivative2(x,ts,invDts,invD2ts)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if isequal(class(ts),'Tcalculus') && length(size(ts))~=1 && ~isempty(size(ts))
-        error('tsDerivative: requires times vector to be one-dimensional ([%s])\n',...
-              index2str(size(ts)));
+    if isa(ts,'Tcalculus')
+        if isempty(size(ts))
+            scalarTs=true;
+        elseif length(size(ts))==1
+            scalarTs=false;
+        else
+            error('tsDerivative2: requires Tcalculus times vector to be a scalars or a one-dimensional (not size=[%s])\n',...
+                  index2str(size(ts)));
+        end
+    else
+        if numel(ts)==1
+            scalarTs=true;
+        elseif size(ts,2)==numel(ts)
+            scalarTs=false;
+        else
+            error('tsDerivative2: requires times vector to be a column vector (not size=[%s])\n',...
+                  index2str(size(ts)));
+        end
     end
 
-    if ~isequal(class(ts),'Tcalculus') && size(ts,2)~=1
-        error('tsDerivative: requires times vector to be a column vector ([%s])\n',...
-              index2str(size(ts)));
-    end
-
-    if length(size(x))~=2
+    xsize=size(x);
+    if length(xsize)~=2
         error('tsDerivative2: only implemented for time series of vectors ([%s])\n',...
-              index2str(size(x)));
+              index2str(xsize));
     end
 
-    if length(ts)~=1 && length(ts)~=size(x,2)
+    if ~scalarTs && length(ts)~=xsize(2)
         error('tsDerivative2: length of sample times does not match size of input (%d,[%s])\n',...
-              length(ts),index2str(size(x)));
+              length(ts),index2str(xsize));
     end
 
-    if length(ts)>1
+    if scalarTs
+
         if nargin<4
-            if isequal(class(x),'Tcalculus')
+            invD2t=1/(ts*ts);
+        end
+
+        if isa(ts,'Tcalculus')
+            whichtprod=@tprod;
+            if ~isequal(class(invD2t),'Tcalculus')
+                invD2t=Tconstant(invD2t,[]);
+            end
+        else
+            whichtprod=@mytprod;            
+        end
+
+        ddx=invD2t*[x(:,1)-2*x(:,2)+x(:,3),...
+                    x(:,1:end-2)-2*x(:,2:end-1)+x(:,3:end),...
+                    x(:,end-2)-2*x(:,end-1)+x(:,end)];
+    else % if scalarTs
+
+        if nargin<4
+            if isa(ts,'Tcalculus')
                 two=Tconstant(2,1);
                 ones2=Tones(length(ts)-2);
             else
@@ -85,15 +115,15 @@ function [ddx,ts]=tsDerivative2(x,ts,invDts,invD2ts)
                 2*invD2ts(end).*invDts(end)];
         end
 
-        if ~isequal(class(x),'Tcalculus')
-            whichtprod=@mytprod;
-        else
+        if isa(ts,'Tcalculus')
             whichtprod=@tprod;
             if ~isequal(class(ts),'Tcalculus')
                 t1=Tconstant(t1,length(t1));
                 t2=Tconstant(t2,length(t2));
                 t3=Tconstant(t3,length(t3));
             end
+        else
+            whichtprod=@mytprod;            
         end
 
         ddx=[
@@ -109,27 +139,10 @@ function [ddx,ts]=tsDerivative2(x,ts,invDts,invD2ts)
             whichtprod(t2(end),[2],x(:,end-1),[1,2])+...
             whichtprod(t3(end),[2],x(:,end),[1,2])...
             ];
-    else % if length(ts)>1
-        if nargin<4
-            invD2t=1/(ts*ts);
-        end
-
-        if ~isequal(class(x),'Tcalculus')
-            whichtprod=@mytprod;
-        else
-            whichtprod=@tprod;
-            if ~isequal(class(invD2t),'Tcalculus')
-                invD2t=Tconstant(invD2t,[]);
-            end
-        end
-
-        ddx=invD2t*[x(:,1)-2*x(:,2)+x(:,3),...
-                    x(:,1:end-2)-2*x(:,2:end-1)+x(:,3:end),...
-                    x(:,end-2)-2*x(:,end-1)+x(:,end)];
     end
 
     % turn into linear operation to remove number of times that x appears
-    if false && isequal(class(ddx),'Tcalculus')
+    if false && isa(ts,'Tcalculus')
         g=gradient(ddx,x);
         %g=eval(str(g))
         ddx=whichtprod(g,[1,2,-1,-2],x,[-1,-2]);
