@@ -1,4 +1,4 @@
-% This script uses Tenscals's function `cmex2equilibriumLatentCS` to
+% This script uses Tenscals's function `cmex2optimizeCS` to
 % generate a solver for an L1-regularized regression of the form:
 %
 %    minimize || y - theta0 ones(size(y)) - H \theta ||_2 + lambda ||\theta||_1
