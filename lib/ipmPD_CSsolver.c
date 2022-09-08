@@ -114,9 +114,7 @@ void printMatrix(const char *name,double *mat,int m, int n)
 }
 #endif
 
-#if (useLDL != 0)
-#define useInertia 0 // set to 1 to use inertia
-#else
+#if (useLDL == 0)
 #define useInertia 0 // cannot use inertia without LDL factorization
 #endif
 
@@ -145,7 +143,7 @@ EXPORT void ipmPD_CSsolver(
   setAddEye2Hessian1__(&addEye2Hessian1);
   setAddEye2Hessian2__(&addEye2Hessian2);
 #endif
-#if adjustAddEye2Hessian != 0  
+#if adjustAddEye2Hessian != 0
   double derr,curvature;
   int updateAddEye2Hessian1=0,updateAddEye2Hessian2=0;
 #if (useInertia != 0)
@@ -196,9 +194,9 @@ EXPORT void ipmPD_CSsolver(
   muMin=desiredDualityGapVar/nF/2;
 #endif
 
-  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
+  printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,useInertia=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
 	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,
-	  setAddEye2Hessian,adjustAddEye2Hessian,
+	  setAddEye2Hessian,adjustAddEye2Hessian,useInertia,
 	  muFactorAggressive,muFactorConservative,
 	  useLDL,useUmfpack,
 	  nU,nG,nF);
@@ -760,6 +758,10 @@ EXPORT void ipmPD_CSsolver(
     else if (alphaPrimal<=.5 && alphaDualIneq<.5 && alphaDualEq<.5)
       (*status) |= 1024;
 #endif
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
+    if (addEye2Hessian1>addEye2Hessian1tolerance)
+      (*status) |= 2048;
+#endif
   }
 
 #if verboseLevel>=1
@@ -803,6 +805,10 @@ EXPORT void ipmPD_CSsolver(
       printf2("%calpha<.1",sep);
     } else if ((*status) & 1024) {
       printf2("%calpha<.5",sep);
+    }
+    if ((*status) & 2048) {
+      printf2("%clarge addEye2Hessian",sep);
+      sep=',';
     }
     printf2(")\n                ");
   } else {

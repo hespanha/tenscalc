@@ -299,6 +299,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.coupledAlphas=double(coupledAlphas);
     defines.setAddEye2Hessian=double(addEye2Hessian~=0);
     defines.adjustAddEye2Hessian=double(adjustAddEye2Hessian~=0);
+    defines.useInertia=double(useInertia~=0);
     defines.muFactorAggressive=sprintf('%e',muFactorAggressive); % to make double
     defines.muFactorConservative=sprintf('%e',muFactorConservative); % to make double
     defines.delta=delta;

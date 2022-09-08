@@ -118,13 +118,26 @@ function localVariables_=parameters4optimize(localVariables_)
             'When |true|, the values of the parameters |addEye2Hessian1| and |addEye2Hessian2|';
             'are adjusted in real-time by the solver.';
             ' '
-            'This is only possible when using LDL factorization (|useLDL| set to true) and will result';
-            'slightly slower solvers. Ideally, one would try a few test runs with |adjustAddEye2Hessian|';
-            'set to |true| to learn good values for |addEye2Hessian1| and |addEye2Hessian2| and then turn';
-            '|adjustAddEye2Hessian| to |false|.';
+            'Ideally, one would try a few test runs with |adjustAddEye2Hessian|=|true|';
+            'to learn good values for |addEye2Hessian1| and |addEye2Hessian2| and then turn';
+            '|adjustAddEye2Hessian|=|false|.';
             ' ';
             'The values of |addEye2Hessian1| and |addEye2Hessian2| can be viewed by setting'
             '|solverVerboseLevel| to 3.'
+                      });
+
+    declareParameter(...
+        'VariableName','useInertia',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true|, the values of the parameters |addEye2Hessian1| and |addEye2Hessian2|';
+            'are adjusted in real-time by the solver using an inertia-based algorithms.';
+            'Otherwise, they are adjusted using a curvature-based algortithm';
+            ' '
+            'The inertia-based algorithm can only be used when using LDL factorization';
+            '(|useLDL| set to true) and will result in slower solvers.';
+            'However, it is typically more robust for non-convex problems.';
                       });
 
     declareParameter(...

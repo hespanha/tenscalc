@@ -251,6 +251,7 @@ function varargout=class2optimizeCS(varargin)
     defines.coupledAlphas=double(coupledAlphas);
     defines.setAddEye2Hessian=double(addEye2Hessian~=0);
     defines.adjustAddEye2Hessian=double(adjustAddEye2Hessian~=0);
+    defines.useInertia=double(useInertia~=0);
     defines.muFactorAggressive=muFactorAggressive;
     defines.muFactorConservative=muFactorConservative;
     defines.delta=delta;

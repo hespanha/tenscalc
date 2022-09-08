@@ -46,10 +46,8 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         addEye2Hessian2=nan;
     end
 
-    useInertia=false; % set to true to use inertia
-
-    if obj.useLDL
-        useIntertial=false; % cannot use inertia without LDL factorization
+    if ~obj.useLDL
+        obj.useInertia=false; % cannot use inertia without LDL factorization
     end
 
     function printf2(varargin)
@@ -92,9 +90,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         muMin=desiredDualityGap/obj.nF/2;
     end
 
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,useLDL=%d,umfpack=%d):\n   %d primal variable, %d equality constraints, %d inequality constraints\n',...
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,useInertia=%d,muFactorAggresive=%g,muFactorConservative=%g,useLDL=%d,umfpack=%d):\n   %d primal variable, %d equality constraints, %d inequality constraints\n',...
             FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,...
-            obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,...
+            obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,obj.useInertia,...
             obj.muFactorAggressive,obj.muFactorConservative,...
             obj.useLDL,obj.useUmfpack,...
             obj.nU,obj.nG,obj.nF);
@@ -104,7 +102,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             headers=[headers,'l(Hp) l(Hd) '];
         end
         if obj.adjustAddEye2Hessian
-            if useInertia
+            if obj.useInertia
                 headers=[headers,'eig+ eig-  d.err. '];
             else
                 headers=[headers,'curvature  d.err. '];
@@ -120,7 +118,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
             headers=sprintf('%s%6.1f',headers,log10(obj.addEye2Hessian1tolerance));
-            if useInertia
+            if obj.useInertia
                 headers=sprintf('%s      %5d%5d%8.1e',headers,mpDesired,mnDesired,maxDirectionError);
             else
                 headers=sprintf('%s                %8.1e',headers,maxDirectionError);
@@ -249,12 +247,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             end
 
             curvature=getCurvature__(obj); % skip inertia test if curvature looks good (see Zavala and Chiang, 2014)
-            if curvature<=0 && useInertia
+            if curvature<=0 && obj.useInertia
                 [mp,mn]=getHessInertia__(obj);
             end
             derr=getDirectionError__(obj);
-            if curvature>0 || (useInertia && mp==mpDesired && mn==mnDesired )
-                if ~useInertia
+            if curvature>0 || (obj.useInertia && mp==mpDesired && mn==mnDesired )
+                if ~obj.useInertia
                     printf3('%6.1f%6.1f %+8.1e %8.1e',...
                             log10(addEye2Hessian1),log10(addEye2Hessian2),full(curvature),full(derr));
                 elseif curvature>0
@@ -285,7 +283,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 for ii=1:20
                     change=false;
                     if curvature<0
-                        if ~useInertia
+                        if ~obj.useInertia
                             % inertia not available, increase both
                             if obj.verboseLevel>=4
                                 fprintf('%6.1f%6.1f %+8.1e %8.1e\n                                                              ',...
@@ -339,12 +337,12 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                         break;
                     end
                     curvature=getCurvature__(obj); % skip inertia test if curvature looks good (see Zavala and Chiang, 2014)
-                    if curvature<0 && useInertia
+                    if curvature<0 && obj.useInertia
                         [mp,mn]=getHessInertia__(obj);
                     end
                     derr=getDirectionError__(obj);
                 end
-                if ~useInertia
+                if ~obj.useInertia
                     printf3('%6.1f%6.1f %+8.1e %8.1e',...
                             log10(addEye2Hessian1),log10(addEye2Hessian2),full(curvature),full(derr));
                 elseif curvature>0
@@ -864,6 +862,9 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 status=bitor(status,1024);
             end
         end
+        if (obj.setAddEye2Hessian && obj.adjustAddEye2Hessian & addEye2Hessian1>obj.addEye2Hessian1tolerance)
+                status=bitor(status,2048);
+        end
     end
 
     time=etime(clock(),dt0);
@@ -903,6 +904,10 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 sep=',';
             elseif bitand(status,1024)
                 fprintf("%calpha<.5",sep);
+                sep=',';
+            end
+            if bitand(status,2048)
+                fprintf("%clarge addEye2Hessian",sep);
                 sep=',';
             end
             fprintf(')\n                ');
