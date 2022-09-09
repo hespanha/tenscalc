@@ -1,4 +1,5 @@
-% MPC control of a brushed DC motor with the following 2nd order state-space model
+% MPC control of a brushed DC motor with the following 2nd order
+% continous-time state-space model
 %
 %   [dot x1]=[0  1][x1]+[0]u
 %   [dot x2] [0  p][x2] [k]
@@ -34,7 +35,7 @@
 % Copyright (C) 2012-22 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-clear all
+clear all;
 % remove previous solvers
 %delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
@@ -68,17 +69,17 @@ if createSolvers
     Tvariable p [];               % pole
     Tvariable k [];               % gain
 
-    A=[0,1;0,p];                  % matrices for the dynamics
+    A=[0,1;0,p];                  % matrices for the continuous-time dynamics
     B=[0;k];
 
     % System dynamics
     dynamics={
         % option 1) forward Euler
-        x(:,2:end)==x(:,1:end-1)+Ts*(A*x(:,1:end-1)+B*u) 
-        % option 2) trapesoidal, with ZOH for u       
-        %x(:,2:end)==x(:,1:end-1)+Ts*(A*(x(:,1:end-1)+x(:,2:end))/2+B*u) 
+        x(:,2:end)==x(:,1:end-1)+Ts*(A*x(:,1:end-1)+B*u)
+        % option 2) trapesoidal, with ZOH for u
+        %x(:,2:end)==x(:,1:end-1)+Ts*(A*(x(:,1:end-1)+x(:,2:end))/2+B*u)
         % initial state
-        x(:,1)==xinit; 
+        x(:,1)==xinit;
              };
 
     % Constraints
@@ -105,8 +106,8 @@ if createSolvers
 
     % Warm start for next optimization (shift and  move away from constrainsts)
 
-    xWarm=[x(:,2:end),zeros(nX,1)];
-    uWarm=[u(:,2:end),zeros(nU,1)];
+    uWarm=[u(:,2:end),zeros(nU,1)];   % append zero control
+    xWarm=[x(:,[2:end,end])];         % repeat last state
     xWarm=max(xWarm,repmat(min_x+.05*(max_x-min_x),[1,T])); % move away from min_x
     xWarm=min(xWarm,repmat(max_x-.05*(max_x-min_x),[1,T])); % move away from max_x
     uWarm=max(uWarm,repmat(min_u+.05*(max_u-min_u),[1,T-1])); % move away from min_u
@@ -139,7 +140,7 @@ if createSolvers
                               'addEye2Hessian',true,...
                               'adjustAddEye2Hessian',true,...
                               'scaleInequalities',true,...
-                              'solverVerboseLevel',2);
+                              'solverVerboseLevel',2);  % use 4 to see solver iterations
 
 end
 
@@ -161,7 +162,7 @@ RandStream.setGlobalStream(s);
 ref=@(t)-.35*sign(sin(.5*t)); % reference signals
 
 Ts=.1;
-p=2;k=1;
+p=-2;k=1;
 A=[0,1;0,p];                  % matrices for the dynamics
 B=[0;k];
 min_x=[-.4;-.3];
@@ -179,18 +180,23 @@ setP_min_u(obj,min_u);
 setP_max_u(obj,max_u);
 setP_lambda_u(obj,lambda_u);
 
-xinit=[.2;.2];
-xWarm=xinit+.01*rand(nX,T); % random initialization close to initial condition
+% initial condition
+xinit=[.2;.2];  
+
+% cold-start: random initialization close to initial condition
+xWarm=xinit+.01*rand(nX,T); 
 uWarm=.01*rand(nU,T-1);
+
 t=0;
 clear history;   % structure where system's state, control, etc. will be stored
-for k=1:150
+nSteps=150;
+for k=1:nSteps
 
     %% Set parameters specific to this optimization
     setP_ref(obj,ref(t+(0:T-1)*Ts));
     setP_xinit(obj,xinit);
 
-    %% Solver initialization (cold for k==1 and then warm)
+    %% Initialization primal variables (cold for k==1 and then warm)
     setV_u(obj,uWarm);
     setV_x(obj,xWarm);
 
@@ -220,15 +226,16 @@ for k=1:150
     t=t+Ts;
     xWarm=out.xWarm;
     uWarm=out.uWarm;
-    
-    if mod(k,10)==1 || status
+
+    if mod(k,10)==1 || k==nSteps || status
         %% Plot MPC solution
         fig=clearFigure('figureNumber',10,'figureName','Latest MPC solution');
         plotData(out,Ts)
         %% Plot actual control
         fig=clearFigure('figureNumber',fig+1,'figureName','Actual control');
         plotData(history,Ts)
-        fig=clearFigure('figureNumber',fig+1,'figureName','Solver');
+        %% Plot solver statistics
+        fig=clearFigure('figureNumber',fig+1,'figureName','Solver statistics');
         subplot(2,1,1);
         plot(history.t,history.J,'.-',...
              history.t,history.Jx2,'.-',...
@@ -250,15 +257,15 @@ end
 clear obj
 
 function plotData(data,Ts)
-subplot(3,1,1);
-plot(data.t,data.theta,'.-',...
-     data.t,data.ref,'-'); grid on
-ylabel('\theta');
-subplot(3,1,2);
-plot(data.t,data.omega,'.-'); grid on
-ylabel('\omega');
-subplot(3,1,3);
-plot(data.t(1:size(data.u,2)),data.u,'.-'); grid on
-ylabel('u');
+    subplot(3,1,1);
+    plot(data.t,data.theta,'.-',...
+         data.t,data.ref,'-'); grid on
+    ylabel('\theta');
+    subplot(3,1,2);
+    plot(data.t,data.omega,'.-'); grid on
+    ylabel('\omega');
+    subplot(3,1,3);
+    plot(data.t(1:size(data.u,2)),data.u,'.-'); grid on
+    ylabel('u');
 
 end
