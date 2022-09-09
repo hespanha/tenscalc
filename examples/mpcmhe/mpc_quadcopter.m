@@ -1,4 +1,4 @@
-% Path planning for a quadcopter with model
+% MPC control for a quadcopter with continuous-time model
 %
 %    ddot p = -b_{drag} dot p + g + R_{ib} u_thrust m_thrust
 %
@@ -99,8 +99,6 @@ if createSolvers
 
     Tvariable pinit [3,1];        % initial position:       p(1)
     Tvariable vinit [3,1];        % initial velocity:       v(1)
-    Tvariable pdesired [3,1];     % desired final position: p_{desired}(T)
-    Tvariable vdesired [3,1];     % desired final velocity: v_{desired}(T)
 
     Tvariable b_drag [];          % drag coefficient
     g=Tconstant([0;0;9.8],[3,1]); % gravity vector (in inertial frame)
@@ -127,6 +125,7 @@ if createSolvers
 
     % Constraints
     Tvariable positive2 [T];
+
     constraints={
         m_thrust >= min_thrust;
         ...%m_thrust <= max_thrust;
@@ -135,6 +134,9 @@ if createSolvers
                 };
 
     % Criterion
+    Tvariable pdesired [3,1];     % desired final position: p_{desired}(T)
+    Tvariable vdesired [3,1];     % desired final velocity: v_{desired}(T)
+
     Tvariable lambda_v [];            % weigth for velocity error
     Tvariable lambda_thrust [];       % weigth for thrust
 
@@ -177,7 +179,7 @@ if createSolvers
                               'addEye2Hessian',true,...
                               'adjustAddEye2Hessian',true,...
                               'scaleInequalities',true,...
-                              'solverVerboseLevel',4);
+                              'solverVerboseLevel',2);  % use 4 to see solver iterations
 
 end
 
@@ -187,7 +189,7 @@ end
 
 %% Create object
 obj=tmp_quadcopter();
-mu0=.001;       % low value will speed-up convergence (up to a point where it causes numerical issues)
+mu0=1e-3;       % low value will speed-up convergence (up to a point where it causes numerical issues)
 maxIter=1000;
 saveIter=-1;
 
@@ -221,7 +223,8 @@ setP_pdesired(obj,pdesired);
 setP_vdesired(obj,vdesired);
 
 clear history;   % structure where system's state, control, etc. will be stored
-for k=1:1000
+nSteps=150;
+for k=1:nSteps
 
     %% Set parameters specific to this optimization
     setP_pinit(obj,pinit);  
@@ -276,18 +279,23 @@ for k=1:1000
     pinit=yout(end,1:3)';
     vinit=yout(end,4:6)';
 
-    if mod(k,10)==1 || status
+    if mod(k,10)==1 || k==nSteps || status
         %% Plot MPC solution
-        clearFigure('figureNumber',1,'figureName','latest MPC solution');
+        fig=clearFigure('figureNumber',1,'figureName','Latest MPC solution');
         plotData(out,Ts)
         %% Plot actual control
-        clearFigure('figureNumber',2,'figureName','Actual control');
+        fig=clearFigure('figureNumber',fig+1,'figureName','Actual control');
         plotData(history,Ts)
-        clearFigure('figureNumber',3,'figureName','solver');
-        subplot(2,2,1);plot(history.t,history.iter,'.-');ylabel('# solver iter');grid on;
-        subplot(2,2,2);plot(history.t,1000*history.time,'.-');ylabel('solver time [ms]');grid on;
-        subplot(2,2,3);plot(history.t,history.Jp2,'.-');ylabel('Jp2');grid on;
-        subplot(2,2,4);plot(history.t,history.Jv2,'.-');ylabel('Jv2');grid on;
+        %% Plot solver statistics
+        fig=clearFigure('figureNumber',fig+1,'figureName','Solver statistics');
+        subplot(2,1,1);
+        plot(history.t,history.J,'.-',...
+             history.t,history.Jp2,'.-',...
+             history.t,history.Jv2,'.-')
+        legend('J','Jp2','Jv2','location','best');grid on;
+        subplot(2,1,2);
+        yyaxis left;plot(history.t,history.iter,'.-');ylabel('# solver iter');grid on;
+        yyaxis right;plot(history.t,1000*history.time,'.-');ylabel('solver time [ms]');grid on;
         drawnow;
     end
 
@@ -295,9 +303,7 @@ for k=1:1000
         warning('optimization failed\n');
     end
 
-    %fprintf('paused\n');pause
 end
-
 
 % Delete object
 clear obj
