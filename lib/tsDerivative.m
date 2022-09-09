@@ -25,6 +25,22 @@ function [dx,ts]=tsDerivative(x,ts,invDts,invD2ts);
 %                (one time per column)
 %   ts [N x 1] - vector of times (equal to the corresponding input)
 %
+% Attention: Using this function to set constraints for MPC dynamics,
+%    as in
+%               tsDerivative(x,ts) == f(x,u)
+%    for the system
+%               dot x = f(x,u)
+%    ignores that u is piecewise-constant (ZOH) and often leads to
+%       1) optimal controls with high-frequency components
+%       2) make the output of tsDerivative a bad approximation for
+%          the derivative
+%       3) overall bad MPC performance
+%
+%    In  view of this, it is often better to constraints of the form
+%         x^+ = x + Ts * f(x,u)                [forward Euler]
+%    or
+%         x^+ = x + Ts * ( f(x^+,u)+f(x,u) )   [trapesiodal with ZOH for u]
+%    
 % This file is part of Tencalc.
 %
 % Copyright (C) 2012-21 The Regents of the University of California

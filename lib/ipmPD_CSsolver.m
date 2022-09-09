@@ -128,6 +128,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
     end
 
     dt0=clock();
+    dt1=clock();
 
     if obj.nF>0
         initDualIneq__(obj);
@@ -162,7 +163,6 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 fprintf('%s\n',headers);
             end
             fprintf('%4d:',iter);
-            dt1=clock();
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -712,6 +712,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         if obj.verboseLevel>=3
             dt1=etime(clock(),dt1);
             fprintf('%8.1fms\n',dt1*1e3);
+            dt1=clock();
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%

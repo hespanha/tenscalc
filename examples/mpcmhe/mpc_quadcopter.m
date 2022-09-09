@@ -67,7 +67,7 @@
 
 % This file is part of Tencalc.
 %
-% Copyright (C) 2012-21 The Regents of the University of California
+% Copyright (C) 2012-22 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
 clear all;
@@ -79,9 +79,9 @@ help mpc_quadcopter
 createSolvers=input('Do you want to create the solvers (Y/n)? ','s');
 createSolvers=~isequal(createSolvers,'n');
 
-%%%%%%%%%%%%%%%%%%%
-%% Load test data
-%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Optimization parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 T=100;                        % horizon length in time-steps
 
@@ -185,7 +185,7 @@ end
 %% Use solver
 %%%%%%%%%%%%%%%
 
-% Create object
+%% Create object
 obj=tmp_quadcopter();
 mu0=.001;       % low value will speed-up convergence (up to a point where it causes numerical issues)
 maxIter=1000;

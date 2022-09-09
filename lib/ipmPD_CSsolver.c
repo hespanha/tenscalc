@@ -232,10 +232,10 @@ EXPORT void ipmPD_CSsolver(
   printf3("\n");
 
 #if verboseLevel>=1
-  clock_t dt0=clock();
+  double dt0=clock();
 #endif
 #if verboseLevel>=3
-  clock_t dt1;
+  double dt1=dt0;
 #endif
 
 #if nF>0
@@ -252,7 +252,6 @@ EXPORT void ipmPD_CSsolver(
 #if verboseLevel>=3
     if ((*iter) % 50 ==0)
       printf3(header);
-    dt1=clock();
     printf3("%4d:",*iter);
 #endif
 
@@ -315,10 +314,14 @@ EXPORT void ipmPD_CSsolver(
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
 	&& addEye2Hessian1<=addEye2Hessian1tolerance
 #endif
-	 ) {
-	       printf2("  -> clean exit\n");
-	       (*status) = 0;
-	       break;
+	) {
+#if verboseLevel>=3
+      printf3("  -> clean exit %71.1lfus\n",(clock()-dt1)/CLOCKS_PER_SEC*1e6);
+#else
+      printf2("  -> clean exit\n");
+#endif
+      (*status) = 0;
+      break;
     }
 
 #if nF>0
@@ -719,9 +722,9 @@ EXPORT void ipmPD_CSsolver(
 
 #endif
 #if verboseLevel>=3
-    dt1=clock()-dt1;
+    printf3("%8.1lfus\n",(clock()-dt1)/CLOCKS_PER_SEC*1e6);
+    dt1=clock();
 #endif
-    printf3("%8.1lfus\n",dt1/(double)CLOCKS_PER_SEC*1e6);
 
   } // while(1)
 
@@ -765,7 +768,7 @@ EXPORT void ipmPD_CSsolver(
   }
 
 #if verboseLevel>=1
-  (*time)=(clock()-dt0)/(double)CLOCKS_PER_SEC;
+  (*time)=(clock()-dt0)/CLOCKS_PER_SEC;
 #endif
 
 #if verboseLevel>=2
