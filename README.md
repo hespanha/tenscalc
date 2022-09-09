@@ -103,8 +103,9 @@ To install
 
 	```matlab
 	mpc_dcmotor
-	mpcmhe_dcmotor
+	mpc_quadcopter
 	mpc_unicycle_pursuit
+	mpcmhe_dcmotor
 	```
 
 	For this to work, MATLAB must have write permissions to the folder

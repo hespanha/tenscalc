@@ -37,16 +37,12 @@ function [subsY,instrY,instructions]=sparsity_max2(obj,thisExp)
     [instrXs,k]=sort(instrXs,2,'ascend'); % sort terms by instructions
 
     %% Compute instructions
-    k=find(nTerms==1);
-    if ~isempty(k)
-        instrY(k)=max(instrXs(k,:),[],2); % get the onky nonzero instruction
-    end
-    for n=2:max(nTerms)
+    for n=1:max(nTerms)
         k=find(nTerms==n);
         if ~isempty(k)
             instructions=num2cell(instrXs(k,end-n+1:end),2);
             if n<length(operands)
-                % less than all terms -> min0 (to account for structural zero)
+                % less than all terms -> max0 (to account for structural zero)
                 instrY(k)=newInstructions(obj,obj.Itypes.I_max0,{[]},instructions,thisExp);
             else
                 instrY(k)=newInstructions(obj,obj.Itypes.I_max,{[]},instructions,thisExp);
