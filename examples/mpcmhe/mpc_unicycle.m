@@ -1,5 +1,5 @@
-% MPC control for a vehicle modeled as a unicycle trying to catch a
-% kinematic target.
+% MPC state-feedback control for a vehicle modeled as a unicycle
+% trying to catch a kinematic target.
 %
 % Pursuer continuous-time model (unicycle):
 %       dot x1 = v cos x3

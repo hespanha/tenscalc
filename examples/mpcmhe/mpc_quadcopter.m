@@ -1,4 +1,4 @@
-% MPC control for a quadcopter with continuous-time model
+% MPC state-feedback control for a quadcopter with continuous-time model:
 %
 %    ddot p = -b_{drag} dot p + g + R_{ib} u_thrust m_thrust
 %
