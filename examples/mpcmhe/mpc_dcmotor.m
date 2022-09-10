@@ -1,5 +1,5 @@
-% MPC control of a brushed DC motor with the following 2nd order
-% continous-time state-space model
+% MPC state-feedback control of a brushed DC motor with the following
+% simplified 2nd order continous-time state-space model
 %
 %   [dot x1]=[0  1][x1]+[0]u
 %   [dot x2] [0  p][x2] [k]
@@ -7,6 +7,7 @@
 % where
 %   theta = x1 = shaft angle
 %   omega = x2 = shaft angular velocity
+%   u          = input voltage
 %   p          = pole (in addition to the pole at the origin)
 %   k          = gain
 %
@@ -121,12 +122,10 @@ if createSolvers
                              'u',u,...
                              'x',x,...
                              'ref',ref,...
-                             'theta',x(1,:),...
-                             'omega',x(2,:),...
                              'xWarm',xWarm,...
                              'uWarm',uWarm);
 
-    classname=cmex2optimizeCS('classname','tmp_dcmotor',...
+    classname=cmex2optimizeCS('classname','tmp_mpc_dcmotor',...
                               'objective',J,...
                               'optimizationVariables',{u,x},...
                               'constraints',[dynamics;constraints],...
@@ -149,7 +148,7 @@ end
 %%%%%%%%%%%%%%%
 
 %% Create object
-obj=tmp_dcmotor();
+obj=tmp_mpc_dcmotor();
 mu0=1e-3;       % low value will speed-up convergence (up to a point where it causes numerical issues)
 maxIter=100;
 saveIter=-1;
@@ -210,8 +209,6 @@ for k=1:nSteps
     %% Save applied sate, control, etc. in `history` structure
     history.t(k)=t;
     history.x(1:nX,k)=xinit;
-    history.theta(1:nX,k)=xinit(1);
-    history.omega(1:nX,k)=xinit(2);
     history.ref(k)=out.ref(1);
     history.u(1:nU,k)=out.u(:,1);
     history.J(k)=out.J;
@@ -220,7 +217,7 @@ for k=1:nSteps
     history.iter(k)=iter;
     history.time(k)=time;
 
-    %% Apply (constant) control to update initial position and velocity
+    %% Apply (constant) control to update state
     [tout,yout]=ode23(@(t,x)A*x+B*out.u(:,1),[0,Ts],xinit);
     xinit=yout(end,:)';
     t=t+Ts;
@@ -258,11 +255,11 @@ clear obj
 
 function plotData(data,Ts)
     subplot(3,1,1);
-    plot(data.t,data.theta,'.-',...
+    plot(data.t,data.x(1,:),'.-',...
          data.t,data.ref,'-'); grid on
     ylabel('\theta');
     subplot(3,1,2);
-    plot(data.t,data.omega,'.-'); grid on
+    plot(data.t,data.x(2,:),'.-'); grid on
     ylabel('\omega');
     subplot(3,1,3);
     plot(data.t(1:size(data.u,2)),data.u,'.-'); grid on
