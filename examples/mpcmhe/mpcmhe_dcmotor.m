@@ -118,19 +118,19 @@ if createSolvers
                 };
 
     % Criterion
-    Tvariable ref [1,T];           % reference for angle
-    Tvariable lambda_u [];         % weigth for control input
-    Tvariable lambda_d [];         % weigth for input disturbance
-    Tvariable lambda_n [];         % weigth for measurement noise
+    Tvariable ref [1,T];                       % reference for angle
+    Tvariable lambda_u [];                     % weigth for control input
+    Tvariable lambda_d [];                     % weigth for input disturbance
+    Tvariable lambda_n [];                     % weigth for measurement noise
 
+    errFuture=x(1,end-T+1:end)-ref;            % future position error
+    Jerr2=tsIntegral(sum(errFuture.^2,1),Ts);  % integral of future position error^2
+    Ju2=tsIntegral(sum(uFuture.^2,1),Ts);      % integral of future control^2
+    Jd2=tsIntegral(sum(d.^2,1),Ts);            % integral of disturbance^2
+    n=C*x(:,1:L)-yPast;                        % measurement noise
+    Jn2=tsIntegral(sum(n.^2,1),Ts);            % integral of noise^2
 
-    Jx2=tsIntegral(sum((x(1,end-T+1:end)-ref).^2,1),Ts); % integral of position error^2
-    Ju2=tsIntegral(sum(uFuture.^2,1),Ts);                % integral of control^2
-    Jd2=tsIntegral(sum(d.^2,1),Ts);                      % integral of disturbance^2
-    n=C*x(:,1:L)-yPast;                                  % measurement noise
-    Jn2=tsIntegral(sum(n.^2,1),Ts);                      % integral of noise^2
-
-    J = Jx2+lambda_u*Ju2-lambda_d*Jd2-lambda_n*Jn2;
+    J = Jerr2+lambda_u*Ju2-lambda_d*Jd2-lambda_n*Jn2;
 
     % Warm start for next optimization (shift and  move away from constrainsts)
 
@@ -145,7 +145,7 @@ if createSolvers
 
     % Solver output
     outputExpressions=struct('J',J,...
-                             'Jx2',Jx2,...
+                             'Jerr2',Jerr2,...
                              'Ju2',Ju2,...
                              'Jd2',Jd2,...
                              'Jn2',Jn2,...
@@ -156,10 +156,6 @@ if createSolvers
                              'x',x,...
                              'xEst',x1(:,L),...  % estimate of state at time 0
                              'ref',ref,...
-                             'test',[d;
-                                     repmat(-max_d,[1,L+T]);
-                                     d-repmat(-max_d,[1,L+T]);
-                                     repmat(max_d,[1,L+T])-d],...
                              'x0Warm',x0Warm,...
                              'x1Warm',x1Warm,...
                              'uWarm',uWarm,...
@@ -227,7 +223,7 @@ setP_lambda_n(obj,lambda_n);
 % initial condition
 xinit=[.2;.2];
 
-% cold-start: random initialization close to initial condition
+% cold-start: random initialization
 x0Warm=.01*rand(nX,1);
 x1Warm=.01*rand(nX,T+L);
 uWarm=.01*rand(nU,T);
@@ -248,7 +244,7 @@ for k=1:nSteps
                    'uFuture',zeros(nU,1),...
                    'ref',ref(t),...
                    'J',NaN,...
-                   'Jx2',NaN,...
+                   'Jerr2',NaN,...
                    'Ju2',NaN,...
                    'Jd2',NaN,...
                    'Jn2',NaN);
@@ -268,8 +264,6 @@ for k=1:nSteps
         setV_uFuture(obj,uWarm);
         setV_d(obj,dWarm);
 
-        full(dWarm)
-
         %% Solve optimization
         [status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter));
         % Get outputs
@@ -277,9 +271,8 @@ for k=1:nSteps
 
         k
         disp(out)
-        
+
         if status
-            out.d
             error('optimization failed\n');
         end
 
@@ -296,7 +289,7 @@ for k=1:nSteps
     history.ref(k)=out.ref(1);
     history.uFuture(1:nU,k)=out.uFuture(:,1);
     history.J(k)=out.J;
-    history.Jx2(k)=out.Jx2;
+    history.Jerr2(k)=out.Jerr2;
     history.Ju2(k)=out.Ju2;
     history.Jd2(k)=out.Jd2;
     history.Jn2(k)=out.Jn2;
@@ -304,17 +297,18 @@ for k=1:nSteps
     history.time(k)=time;
 
     %% Apply (constant) control to update state and output with random distrubance/noise
+    u=out.uFuture(:,1);
     d=.1*randn(nD,1);
-    n=.2*randn(nD,1);
-    [tout,yout]=ode23(@(t,x)A*x+B*(out.uFuture(:,1)+d),[0,Ts],xinit);
+    n=.2*randn(nY,1);
+    [tout,yout]=ode23(@(t,x)A*x+B*(u+d),[0,Ts],xinit);
 
     %% Add data to past inputs and outputs
     yPast=[yPast,C*yout(1,:)'+n];     % output has delay of one sampling time
-    history.y(k)=yPast(:,end);
+    history.y(1:nY,k)=yPast(:,end);
     uPast=[uPast,out.uFuture(:,1)];
     % erase old data
-    yPast(1:end-L)=[];     %
-    uPast(1:end-L)=[];
+    yPast(:,1:end-L)=[];     %
+    uPast(:,1:end-L)=[];
 
     % update current time & state
     xinit=yout(end,:)';
@@ -331,11 +325,11 @@ for k=1:nSteps
         fig=clearFigure('figureNumber',fig+1,'figureName','Solver statistics');
         subplot(2,1,1);
         plot(history.t,history.J,'.-',...
-             history.t,history.Jx2,'.-',...
+             history.t,history.Jerr2,'.-',...
              history.t,history.Ju2,'.-',...
              history.t,history.Jd2,'.-',...
              history.t,history.Jn2,'.-')
-        legend('J','Jx2','Ju2','Jd2','Jn2');grid on;
+        legend('J','Jerr2','Ju2','Jd2','Jn2');grid on;
         subplot(2,1,2);
         yyaxis left;plot(history.t,history.iter,'.-');ylabel('# solver iter');grid on;
         yyaxis right;plot(history.t,1000*history.time,'.-');ylabel('solver time [ms]');grid on;
