@@ -841,9 +841,9 @@ function out=ipmPDeqlat_CS(pars)
         end
     end
 
-    if ~isempty(szHess_) && ~myisequal(szHess_,size(Hess_))
+    if ~isempty(szHess_) && ~myisequal(szHess_,size(out.Hess))
         warning('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
-                szHess_(1),szHess_(2),size(Hess_,1),size(Hess_,2));
+                szHess_(1),szHess_(2),size(out.Hess,1),size(out.Hess,2));
     end
 
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
