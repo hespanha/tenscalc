@@ -1,4 +1,4 @@
-function out=ipmPDminmax_CS(pars)
+%function out=ipmPDminmax_CS(pars)
 % See tenscalc/doc/ipm.tex for an explanation of the formulas used here
 %
 % This file is part of Tencalc.
@@ -171,16 +171,16 @@ function out=ipmPDminmax_CS(pars)
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
     t2=clock();
     if addEye2Hessian
-        addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
-        addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
-        declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
-        declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
+        addEye2HessianU=Tvariable('addEye2HessianU__',[],nowarningsamesize,nowarningever);
+        addEye2HessianEq=Tvariable('addEye2HessianEq__',[],nowarningsamesize,nowarningever);
+        declareSet(code,addEye2HessianU,'setAddEye2HessianU__');
+        declareSet(code,addEye2HessianEq,'setAddEye2HessianEq__');
     else
-        addEye2Hessian1=Tzeros([]);
-        addEye2Hessian2=Tzeros([]);
+        addEye2HessianU=Tzeros([]);
+        addEye2HessianEq=Tzeros([]);
     end
-    out.addEye2Hessian1=addEye2Hessian1;
-    out.addEye2Hessian2=addEye2Hessian2;
+    out.addEye2HessianU=addEye2HessianU;
+    out.addEye2HessianEq=addEye2HessianEq;
 
     Lf_z=gradientVector(Lf,{u,d});
     % for exit condition

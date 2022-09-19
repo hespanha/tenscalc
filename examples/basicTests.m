@@ -4,9 +4,9 @@
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
 %% Optimizations in tenscalc/examples
-examples=which('cmex2optimizeCS');
-examples=fileparts(examples);
-cd(fullfile(examples,'../examples'));
+examplesFolder=which('cmex2optimizeCS');
+examplesFolder=fileparts(examplesFolder);
+cd(fullfile(examplesFolder,'../examples'));
 
 clear all;
 % remove previous solvers
@@ -21,9 +21,9 @@ clear all;
 delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %% Optimizations in tenscalc/examples/mpcmhe
-examples=which('cmex2optimizeCS');
-examples=fileparts(examples);
-cd(fullfile(examples,'../examples/mpcmhe'));
+examplesFolder=which('cmex2optimizeCS');
+examplesFolder=fileparts(examplesFolder);
+cd(fullfile(examplesFolder,'../examples/mpcmhe'));
 
 clear all;
 % remove previous solvers
@@ -31,13 +31,13 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 mpc_dcmotor
 mpcmhe_dcmotor
-mpc_unicycle_pursuit
+mpc_unicycle
 
 clear all;
 % remove previous solvers
 delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %% Back to examples
-examples=which('cmex2optimizeCS');
-examples=fileparts(examples);
-cd(fullfile(examples,'../examples'));
+examplesFolder=which('cmex2optimizeCS');
+examplesFolder=fileparts(examplesFolder);
+cd(fullfile(examplesFolder,'../examples'));

@@ -123,24 +123,24 @@ function out=ipmPD_CS(pars)
     fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
     t2=clock();
     if addEye2Hessian
-        addEye2Hessian1=Tvariable('addEye2Hessian1__',[],nowarningsamesize,nowarningever);
-        addEye2Hessian2=Tvariable('addEye2Hessian2__',[],nowarningsamesize,nowarningever);
-        declareSet(code,addEye2Hessian1,'setAddEye2Hessian1__');
-        declareSet(code,addEye2Hessian2,'setAddEye2Hessian2__');
+        addEye2HessianU=Tvariable('addEye2HessianU__',[],nowarningsamesize,nowarningever);
+        addEye2HessianEq=Tvariable('addEye2HessianEq__',[],nowarningsamesize,nowarningever);
+        declareSet(code,addEye2HessianU,'setAddEye2HessianU__');
+        declareSet(code,addEye2HessianEq,'setAddEye2HessianEq__');
     else
-        addEye2Hessian1=Tzeros([]);
-        addEye2Hessian2=Tzeros([]);
+        addEye2HessianU=Tzeros([]);
+        addEye2HessianEq=Tzeros([]);
     end
-    out.addEye2Hessian1=addEye2Hessian1;
-    out.addEye2Hessian2=addEye2Hessian2;
+    out.addEye2HessianU=addEye2HessianU;
+    out.addEye2HessianEq=addEye2HessianEq;
 
     %% Compute derivatives
     if trustRegion
         if ~packOptimizationVariables
             error('gradientsWRTvariables not implemented for trustRegion option');
         end
-        f_u=gradient(f+.5*addEye2Hessian1*norm2(u),u);
-        Lf=f+.5*addEye2Hessian1*norm2(u);
+        f_u=gradient(f+.5*addEye2HessianU*norm2(u),u);
+        Lf=f+.5*addEye2HessianU*norm2(u);
     else
         if packOptimizationVariables
             f_u=gradient(f,u);
@@ -228,7 +228,7 @@ function out=ipmPD_CS(pars)
         % simple
         declareCopy(code,nu,Tones(nG),'initDualEq__');
         % complex
-        WW0=[Teye(nU,nU),G_u';G_u,-addEye2Hessian2*Teye(nG,nG)];
+        WW0=[Teye(nU,nU),G_u';G_u,-addEye2HessianEq*Teye(nG,nG)];
         factor_ww0=factor(WW0,[cmexfunction,'_WW0.subscripts'],[cmexfunction,'_WW0.values']);
         if atomicFactorization
             factor_ww0=declareAlias(code,factor_ww0,'factor_ww0',true,nowarningsamesize,nowarningever);
@@ -259,11 +259,11 @@ function out=ipmPD_CS(pars)
         if trustRegion
             WW11=out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate');
             WW=[WW11,G_u';
-                G_u,-addEye2Hessian2*Teye([nG,nG])];
+                G_u,-addEye2HessianEq*Teye([nG,nG])];
         else
-            WW11=out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2Hessian1*Teye(size(out.Lf_uu));
+            WW11=out.Lf_uu+tprod(F_u,[-1,1],LPG,[-1,2],'associate')+addEye2HessianU*Teye(size(out.Lf_uu));
             WW=[WW11,G_u';
-                G_u,-addEye2Hessian2*Teye([nG,nG])];
+                G_u,-addEye2HessianEq*Teye([nG,nG])];
         end
         out.Hess=WW;
         muF=muOnes./F;         % muF=(mu*Tones(size(F)))./F;
@@ -366,12 +366,12 @@ function out=ipmPD_CS(pars)
         if trustRegion
             WW11=out.Lf_uu;
             WW=[WW11,G_u',-F_u';
-                G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
+                G_u,-addEye2HessianEq*Teye([nG,nG]),Tzeros([nG,nF]);
                 -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
         else
-            WW11=out.Lf_uu+addEye2Hessian1*Teye(size(out.Lf_uu));
+            WW11=out.Lf_uu+addEye2HessianU*Teye(size(out.Lf_uu));
             WW=[WW11,G_u',-F_u';
-                G_u,-addEye2Hessian2*Teye([nG,nG]),Tzeros([nG,nF]);
+                G_u,-addEye2HessianEq*Teye([nG,nG]),Tzeros([nG,nF]);
                 -F_u,Tzeros([nF,nG]),-diag(F./lambda)];
         end
         out.Hess=WW;

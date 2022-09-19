@@ -17,33 +17,6 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         saveIter=-1;
     end
 
-    if obj.setAddEye2Hessian
-        addEye2Hessian1MAX=1e-2;
-        addEye2Hessian2MAX=1e-2;
-        addEye2HessianMIN=1e-20;
-
-        maxDirectionError=1e-9;
-
-        if nargin<5
-            addEye2Hessian1=1e-9;
-            addEye2Hessian2=1e-9;
-        else
-            addEye2Hessian1=addEye2Hessian(1);
-            if length(addEye2Hessian)<2
-                addEye2Hessian2=addEye2Hessian(1);
-            else
-                addEye2Hessian2=addEye2Hessian(2);
-            end
-        end
-        setAddEye2Hessian1__(obj,addEye2Hessian1);
-        setAddEye2Hessian2__(obj,addEye2Hessian2);
-        updateAddEye2Hessian1=false;
-        updateAddEye2Hessian2=false;
-    else
-        addEye2Hessian1=nan;
-        addEye2Hessian2=nan;
-    end
-
     function printf2(varargin)
         if obj.verboseLevel>=2
             fprintf(varargin{:});
@@ -56,7 +29,57 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         end
     end
 
-    iter=0;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Initialize addEye2Hessian %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    if obj.setAddEye2Hessian
+        addEye2HessianUMAX=1e2;
+        addEye2HessianDMAX=1e2;
+        addEye2HessianEqMAX=1e2;
+        addEye2HessianMIN=1e-20;
+
+        maxDirectionError=1e-7;
+
+        if nargin<5
+            addEye2HessianU=1e-9;
+            addEye2HessianD=1e-9;
+            addEye2HessianEq=1e-9;
+        else
+            addEye2HessianU=addEye2Hessian(1);
+            if length(addEye2Hessian)<2
+                addEye2HessianD=addEye2Hessian(end);
+            else
+                addEye2HessianD=addEye2Hessian(2);
+            end
+            if length(addEye2Hessian)<3
+                addEye2HessianEq=addEye2Hessian(end);
+            else
+                addEye2HessianEq=addEye2Hessian(3);
+            end
+        end
+        setAddEye2HessianU__(obj,addEye2HessianU);
+        setAddEye2HessianD__(obj,addEye2HessianD);
+        setAddEye2HessianEq__(obj,addEye2HessianEq);
+        updateAddEye2HessianU=false;
+        updateAddEye2HessianD=false;
+        updateAddEye2HessianEq=false;
+    else
+        addEye2HessianU=nan;
+        addEye2HessianD=nan;
+        addEye2HessianEq=nan;
+    end
+
+    %%%%%%%%%%%%%%%%%%
+    %% Start timing %%
+    %%%%%%%%%%%%%%%%%%
+
+    dt0=clock();
+    dt1=clock();
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Initialize primal variables & scaling %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     initPrimal__(obj);
 
@@ -77,66 +100,63 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         muMin=desiredDualityGap/obj.nF/2;
     end
 
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,umfpack=%d): %d primal variables (%d+%d+%d), %d eq. constr., %d ineq. constr.\n',...
-            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,...
-            obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,...
-            obj.muFactorAggressive,obj.muFactorConservative,...
-            obj.useLDL,obj.useUmfpack,...
-            obj.nZ,obj.nU,obj.nD,obj.nX,obj.nG,obj.nF);
-    if obj.verboseLevel>=3
-        headers='Iter     cost1      cost2    |grad|  |eq|   inequal   dual    gap   l(mu) ';
-        if obj.setAddEye2Hessian
-            headers=[headers,' l(Hp) l(Hd)'];
-        end
-        if obj.adjustAddEye2Hessian
-            headers=[headers,' d.err. '];
-        end
-        headers=[headers,' alphaA    sigma   alphaP alphaDI alphaDE     time[ms]\n'];
-        if obj.nF>0
-            headers=sprintf('%s%4d: <-maxIter      tol.->%8.1e%8.1e                %8.1e%6.1f',...
-                            headers,maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,log10(muMin));
-        else
-            headers=sprintf('%s%4d: <-maxIter      tol.->%8.1e                                      ',...
-                            headers,maxIter,obj.gradTolerance,obj.equalTolerance);
-        end
-        if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
-            headers=sprintf('%s%6.1f',headers,log10(obj.addEye2Hessian1tolerance));
-        end
-        headers=sprintf('%s\n',headers);
-        fprintf(headers);
-    end
-
-    dt0=clock();
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Initialize dual variables %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if obj.nF>0
         initDualIneq__(obj);
-        if obj.debugConvergence
-            [F_,l_]=getFLambda__(obj);
-            k=find(F_<1/sqrt(obj.debugConvergenceThreshold));
-            if ~isempty(k)
-                printf2('%3d: ATTENTION: initial ineq < %10.2e for %4d entries - scale optimization variables or add constraint\n',...
-                        iter,1/sqrt(obj.debugConvergenceThreshold),length(k));
-                if obj.verboseLevel>=4
-                    for ii=k(:)'
-                        fprintf('\t ineq %4d: %9.2e\n',ii,full(F_(ii)));
-                    end
-                end
-            end
-        end
     end
 
     if obj.nG>0
         initDualEq__(obj);
     end
 
-    while (1)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Print & initilize headers %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,umfpack=%d): %d primal variables (%d+%d), %d eq. constr., %d ineq. constr.\n',...
+            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,...
+            obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,...
+            obj.muFactorAggressive,obj.muFactorConservative,...
+            obj.useLDL,obj.useUmfpack,...
+            obj.nZ,obj.nU,obj.nD,obj.nG,obj.nF);
+    if obj.verboseLevel>=3
+        headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap   l(mu) ';
+        if obj.setAddEye2Hessian
+            headers=[headers,'l(Hu) l(Hd) l(H=) '];
+        end
+        if obj.adjustAddEye2Hessian
+            headers=[headers,'eig+ eig-  d.err. '];
+        end
+        headers=sprintf('%salphaA  sigma   alphaP  alphaDI alphaDE      time\n',headers);
+        if obj.nF>0
+            headers=sprintf('%s%4d:<-mx des.->%8.1e%8.1e                %8.1e%6.1f',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,log10(muMin));
+        else
+            headers=sprintf('%s%4d:<-mx tol.->%8.1e%8.1e                              ',...
+                            headers,maxIter,obj.gradTolerance,obj.equalTolerance);
+        end
+        if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
+            headers=sprintf('%s%6.1f',headers,log10(obj.addEye2HessianUtolerance));
+            headers=sprintf('%s      %5d%5d%8.1e',headers,mpDesired,mnDesired,maxDirectionError);
+        end
+        fprintf('%s\n',headers);
+    end
+
+    %%%%%%%%%%%%%%%
+    %% Main loop %%
+    %%%%%%%%%%%%%%%
+
+    iter=0;
+    while true
         iter=iter+1;
         if obj.verboseLevel>=3
             if mod(iter,50)==0
-                fprintf(headers);
+                fprintf('%s\n',headers);
             end
             fprintf('%4d:',iter);
-            dt1=clock();
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -149,29 +169,15 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             break;
         end
 
-        if obj.verboseLevel>=3 || obj.debugConvergence
-            [f,g]=getfg__(obj);
+        if obj.verboseLevel>=3
+            f=getf__(obj);
         end
         if obj.verboseLevel>=3
-            fprintf('%11.3e%11.3e',full(f),full(g));
+            fprintf('%11.3e',full(f));
         end
 
         norminf_grad=getNorminf_Grad__(obj);
         printf3('%8.1e',full(norminf_grad));
-
-        if obj.debugConvergence
-            if norminf_grad>obj.debugConvergenceThreshold
-                grad_=getGrad__(obj);
-                k=find(abs(grad_)>obj.debugConvergenceThreshold);
-                if ~isempty(k)
-                    printf2('\n%3d: ATTENTION: |grad| > %10.2e for %4d entries - cost is probably too large or primal variables too small\n',...
-                            iter,obj.debugConvergenceThreshold,length(k));
-                    for ii=k(:)'
-                        printf2('\t grad (primal var %3d): %9.2e\n',ii,grad_(ii));
-                    end
-                end
-            end
-        end
 
         if isnan(norminf_grad)
             printf2('  -> failed to invert hessian\n');
@@ -200,13 +206,15 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                     break;
             end
         else
-            printf3(' -ineq-  -dual-   -gap-  ');
+            printf3(' -ineq-  -dual-   -gap- ');
         end
 
         if norminf_grad<=obj.gradTolerance && ...
                 (obj.nF==0 || gap<=desiredDualityGap) && ...
                 (obj.nG==0 || norminf_eq<=obj.equalTolerance) && ...
-                (~obj.setAddEye2Hessian || ~obj.adjustAddEye2Hessian || addEye2Hessian1<=obj.addEye2Hessian1tolerance)
+                (~obj.setAddEye2Hessian || ~obj.adjustAddEye2Hessian || ...
+                 (addEye2HessianU<=obj.addEye2HessianUtolerance &&  ...
+                  addEye2HessianD<=obj.addEye2HessianDtolerance) )
             printf2('  -> clean exit\n');
             status = 0;
             break;
@@ -225,38 +233,52 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
 
             % updates delayed from the last iteration
-            if updateAddEye2Hessian1
-                setAddEye2Hessian1__(obj,addEye2Hessian1);
-                updateAddEye2Hessian1=false;
+            if updateAddEye2HessianU
+                setAddEye2HessianU__(obj,addEye2HessianU);
+                updateAddEye2HessianU=false;
             end
-            if updateAddEye2Hessian2
-                setAddEye2Hessian2__(obj,addEye2Hessian2);
-                updateAddEye2Hessian2=false;
+            if updateAddEye2HessianD
+                setAddEye2HessianD__(obj,addEye2HessianD);
+                updateAddEye2HessianD=false;
+            end
+            if updateAddEye2HessianEq
+                setAddEye2HessianEq__(obj,addEye2HessianEq);
+                updateAddEye2HessianEq=false;
             end
 
             derr=getDirectionError__(obj);
+            [mp,mn]=getHessInertia__(obj);
 
             if derr<maxDirectionError
-                if false % addEye2Hessian1>addEye2HessianMIN
-                    addEye2Hessian1=max(.75*addEye2Hessian1,addEye2HessianMIN);
-                    updateAddEye2Hessian1=true; % update at next iteration
+                if false % addEye2HessianU>addEye2HessianMIN
+                    addEye2HessianU=max(.75*addEye2HessianU,addEye2HessianMIN);
+                    updateAddEye2HessianU=true; % update at next iteration
                 end
-                if addEye2Hessian2>addEye2HessianMIN
-                    addEye2Hessian2=max(.75*addEye2Hessian2,addEye2HessianMIN);
-                    updateAddEye2Hessian2=true; % update at next iteration
+                if false % addEye2HessianD>addEye2HessianMIN
+                    addEye2HessianD=max(.75*addEye2HessianD,addEye2HessianMIN);
+                    updateAddEye2HessianD=true; % update at next iteration
+                end
+                if addEye2HessianEq>addEye2HessianMIN
+                    addEye2HessianEq=max(.75*addEye2HessianEq,addEye2HessianMIN);
+                    updateAddEye2HessianEq=true; % update at next iteration
                 end
             else
                 for ii=1:20
                     change=false;
-                    if derr>=maxDirectionError 
-                        if false % addEye2Hessian1<addEye2Hessian1MAX 
-                            addEye2Hessian1= min(2*max(addEye2Hessian1,addEye2HessianMIN),addEye2Hessian1MAX);
-                            setAddEye2Hessian1__(obj,addEye2Hessian1);
+                    if derr>=maxDirectionError
+                        if false % addEye2HessianU<addEye2HessianUMAX
+                            addEye2HessianU= min(2*max(addEye2HessianU,addEye2HessianMIN),addEye2HessianUMAX);
+                            setAddEye2HessianU__(obj,addEye2HessianU);
                             change=true;
                         end
-                        if addEye2Hessian2<addEye2Hessian2MAX
-                            addEye2Hessian2= min(2*max(addEye2Hessian2,addEye2HessianMIN),addEye2Hessian2MAX);
-                            setAddEye2Hessian2__(obj,addEye2Hessian2);
+                        if false % addEye2HessianD<addEye2HessianDMAX
+                            addEye2HessianD= min(2*max(addEye2HessianD,addEye2HessianMIN),addEye2HessianDMAX);
+                            setAddEye2HessianD__(obj,addEye2HessianD);
+                            change=true;
+                        end
+                        if addEye2HessianEq<addEye2HessianEqMAX
+                            addEye2HessianEq= min(2*max(addEye2HessianEq,addEye2HessianMIN),addEye2HessianEqMAX);
+                            setAddEye2HessianEq__(obj,addEye2HessianEq);
                             change=true;
                         end
                     end
@@ -266,11 +288,11 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                     derr=getDirectionError__(obj);
                 end
             end
-            printf3('%6.1f%6.1f%8.1e',...
-                    log10(addEye2Hessian1),log10(addEye2Hessian2),full(derr));
+            printf3('%6.1f%6.1f%6.1f%8.1e',...
+                    log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq),full(derr));
         else
             if obj.setAddEye2Hessian
-                printf3("%6.1f%6.1f",log10(addEye2Hessian1),log10(addEye2Hessian2));
+                printf3("%6.1f%6.1f%6.1f",log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq));
             end
             if obj.adjustAddEye2Hessian
                 derr=getDirectionError__(obj);
@@ -278,47 +300,26 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             end
         end
 
-        if obj.debugConvergence
-            [Lfu,Lgd]=getLf1__(obj);
-            [Lfuu,Lgdd]=getLf2__(obj);
-            euu=eig(Lfuu);
-            tol=1e-9;
-            mpu=sum(euu>tol);
-            mnu=sum(euu<-tol);
-            edd=eig(Lgdd);
-            mpd=sum(edd>tol);
-            mnd=sum(edd<-tol);
-            fprintf('\n   |Lfu|=%g, |Lgd|=%g, |Lfuu-Lfuu''|=%g, |Lgdd-Lgdd''|=%g, eig(Lfuu) in [%g,%g] (%d >0,%d =0,%d <0), eig(Lgdd) in [%g,%g] (%d >0,%d =0,%d <0)\n',...
-                    norm(Lfu,'fro'),norm(Lgd,'fro'),...
-                    norm(Lfuu-Lfuu','fro'),norm(Lgdd-Lgdd','fro'),...
-                    min(euu),max(euu),mpu,length(euu)-mpu-mnu,mnu,min(edd),max(edd),mpd,length(edd)-mpd-mnd,mnd);
-        end
-
-
         if obj.nF==0
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%  NO INEQUALITY CONSTRAINTS %%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %% No inequality constraints case %%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             setAlphaPrimal__(obj,obj.alphaMax);
             if obj.nG>0
                 setAlphaDualEq__(obj,obj.alphaMax);
             end
-            printf3(' -alphaA-  -sigma- ');
-            printf3('%8.1e                   ',obj.alphaMax);
+            printf3('  -alpA- -sigm- ');
+            printf3('%8.1e  -nan-    -na-    ',obj.alphaMax);
 
             updatePrimalDual__(obj);
         else
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %%  WITH INEQUALITY CONSTRAINTS %%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %% Inequality constraints case %%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-            if obj.debugConvergence
-                [oldF,oldLambda]=getFLambda__(obj);
-                oldmu=mu;
-            end
             if obj.skipAffine==1
-                printf3(' -alphaA-  -sigma-');
+                printf3(' -alpA-  -sigm- ');
             else
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %% Affine search direction %%
@@ -362,6 +363,8 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 setAlphaDualIneq__(obj,alphaPrimal);
                 printf3('%8.1e',full(alphaPrimal));
 
+                %% Update mu %%
+
                 % update mu based on sigma, but this only seems to be safe for:
                 % 1) 'long' newton steps in the affine direction
                 % 2) equality constraints fairly well satisfied (perhaps not very important)
@@ -378,10 +381,10 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                         sigma=sigma*sigma*sigma;
                     end
                     printf3('%8.1e',sigma);
-                    mu = full(max(sigma*gap/obj.nF,muMin));
+                    mu=full(max(sigma*gap/obj.nF,muMin));
                     setMu__(obj,mu);
                 else
-                    printf3(' -sigma-');
+                    printf3(' -sigm- ');
                 end
             end  % obj.skipAffine==1
 
@@ -389,31 +392,20 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             %% Combined search direction %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-            if obj.debugConvergence
-                setAlphaPrimal__(obj,1);
-                if obj.nG>0
-                    setAlphaDualEq__(obj,1);
-                end
-                if obj.nF>0
-                    setAlphaDualIneq__(obj,1);
-                end
-                [newF_s,newLambda_s]=getFLambda_s__(obj);
-                newmu = mu;
-            end
-
             [alphaPrimal,alphaDualIneq]=getMaxAlphas_s__(obj);
 
             if obj.coupledAlphas && alphaDualIneq<alphaPrimal
                 alphaPrimal=alphaDualIneq;
             end
 
-            alphaPrimal = .99 * alphaPrimal;
+            stepback=.99;
+            alphaPrimal = stepback * alphaPrimal;
 
             alphaMax = min(alphaPrimal,obj.alphaMax);
 
             if (alphaMax >= obj.alphaMin)
                 % try max
-                alphaPrimal=alphaMax/.99;
+                alphaPrimal=alphaMax/stepback;
                 setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                 if isnan(ineq)
                     printf2('  -> failed to invert hessian\n');
@@ -422,12 +414,12 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 end
                 if (ineq>0)
                     % recheck just to be safe in case not convex
-                    alphaPrimal = .99 * alphaPrimal;
+                    alphaPrimal = stepback * alphaPrimal;
                     setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
                 end
                 if ineq<=0 || ineq1<=ineq/10
                     % try min
-                    alphaPrimal=obj.alphaMin/.99;
+                    alphaPrimal=obj.alphaMin/stepback;
                     setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                     if (ineq>0)
                         % try between min and max
@@ -436,7 +428,7 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                             setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_s__(obj);
                             if (ineq>0)
                                 % backtrace just a little
-                                alphaPrimal = .99 * alphaPrimal;
+                                alphaPrimal = stepback * alphaPrimal;
                                 % recheck just to be safe in case not convex
                                 setAlphaPrimal__(obj,alphaPrimal);ineq1=getMinF_s__(obj);
                                 if (ineq1>ineq/10)
@@ -463,11 +455,11 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 alphaDualEq=alphaPrimal;
                 alphaDualIneq=alphaPrimal;
             else
-                alphaDualIneq = .99 * alphaDualIneq;
+                alphaDualIneq = stepback * alphaDualIneq;
                 if alphaDualIneq>obj.alphaMax
                     alphaDualIneq = obj.alphaMax;
                 end
-                alphaDualEq = obj.alphaMax;
+                alphaDualEq = alphaDualIneq;
             end
 
             if obj.nG>0
@@ -479,9 +471,11 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             if obj.nG>0
                 printf3('%8.1e%8.1e%8.1e',full(alphaPrimal),full(alphaDualIneq),full(alphaDualEq));
             else
-                printf3('%8.1e%8.1e  -eq-   ',full(alphaPrimal),full(alphaDualIneq));
+                printf3('%8.1e%8.1e  -eq-  ',full(alphaPrimal),full(alphaDualIneq));
             end
 
+            %% Update mu %%
+            
             if obj.skipAffine==1
                 % More aggressive if
                 % 1) 'long' newton steps in the affine direction
@@ -493,8 +487,8 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
                 th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
                 if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
-                    %mu = max(mu*obj.muFactorAggressive,muMin);
-                    mu = max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
+                    %mu=max(muMin,mu*obj.muFactorAggressive);
+                    mu=max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
                     setMu__(obj,mu);
                     printf3(' * ');
                 else
@@ -503,10 +497,12 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                         setMu__(obj,mu);
                         initDualIneq__(obj);
                         printf3('^');
-                    else
+                    elseif alphaPrimal>.99 && th_eq
                         mu=max(mu*obj.muFactorConservative,muMin);
                         setMu__(obj,mu);
                         printf3('v');
+                    else
+                        printf3('=');
                     end
                     if th_grad
                         printf3('g');
@@ -519,11 +515,13 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                         printf3(' ');
                     end
                 end
+            else
+                printf3('   ');
             end
 
             % if no motion, slowly increase mu
             if (alphaPrimal<obj.alphaMin && alphaDualIneq<obj.alphaMin && alphaDualEq<obj.alphaMin)
-                mu = max(mu/obj.muFactorConservative,muMin);
+                mu=max(mu/obj.muFactorConservative,muMin);
                 setMu__(obj,mu);
             end
 
@@ -532,131 +530,16 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         if obj.verboseLevel>=3
             dt1=etime(clock(),dt1);
             fprintf('%8.1fms\n',dt1*1e3);
+            dt1=clock();
         end
 
-        %%%%%%%%%%%%%%%%%%%%%%%
-        %% Debug small alpha %%
-        %%%%%%%%%%%%%%%%%%%%%%%
+    end % while true
 
-        if obj.debugConvergence
-            if obj.nF>0 && alphaPrimal<obj.alphaMax/5 && isfinite(obj.debugConvergenceThreshold)
-                kk=find(newF_s<=0 | newLambda_s<=0);
-                fprintf('%3d: ATTENTION: alphaPrimal = %8.2e < %8.2e due to %4d entries (lambda * ineq)\n',iter,full(alphaPrimal),obj.alphaMax/5,length(kk));
-                if obj.verboseLevel>=4
-                    for ii=kk(:)'
-                        fprintf('\t ineq %4d: %8.2e * %8.2e = %8.2e (%8.2e) -> %9.2e * %9.2e = %9.2e (%8.2e)',...
-                                ii,full(oldLambda(ii)),full(oldF(ii)),full(oldLambda(ii)*oldF(ii)),oldmu,...
-                                full(newLambda_s(ii)),full(newF_s(ii)),full(newLambda_s(ii)*newF_s(ii)),newmu);
-                        if (newF_s(ii)<0)
-                            fprintf(' -- probably inequality too large (needs scaling)\n');
-                        else
-                            fprintf(' -- probably inequality too large or mu too small\n');
-                        end
-                    end
-                end
-            end
-        end
+    time=etime(clock(),dt0);
 
-        %%%%%%%%%%%%%%%%%%%
-        %% Check scaling %%
-        %%%%%%%%%%%%%%%%%%%
-
-        if obj.debugConvergence
-            %% Check scaling for optimization variables
-            [u_,d_]=getUD__(obj);
-            k=find(abs(u_)>obj.debugConvergenceThreshold);
-            if ~isempty(k)
-                fprintf('%3d: ATTENTION: abs(u) > %10.2e for %4d entries - scale optimization variables or add constraint\n',...
-                        iter,obj.debugConvergenceThreshold,length(k));
-                for ii=k(:)'
-                    fprintf('\t primal var %4d: %9.2e\n',ii,u_(ii));
-                end
-            end
-            if max(abs(u_))<1/obj.debugConvergenceThreshold
-                %disp(u_')
-                fprintf('%3d: ATTENTION: all abs(u) < %10.2e - scale optimization variables\n',...
-                        iter,1/obj.debugConvergenceThreshold);
-            end
-
-            k=find(abs(d_)>obj.debugConvergenceThreshold);
-            if ~isempty(k)
-                fprintf('%3d: ATTENTION: abs(d) > %10.2e > %10.2e for %4d entries - scale optimization variables or add constraint\n',...
-                        iter,obj.debugConvergenceThreshold,length(k));
-                for ii=k(:)'
-                    fprintf('\t primal var %4d: %9.2e\n',ii,d_(ii));
-                end
-            end
-            if max(abs(d_))<1/obj.debugConvergenceThreshold
-                %disp(d_')
-                fprintf('%3d: ATTENTION: all abs(d) < %10.2e - scale optimization variables\n',...
-                        iter,1/obj.debugConvergenceThreshold);
-            end
-
-            if obj.nG>0
-                %% Check scaling for equality constraints
-                [G_,nu_]=getGNu__(obj);
-                k=find(abs(nu_)>obj.debugConvergenceThreshold);
-                if ~isempty(k)
-                    fprintf('%3d: ATTENTION: abs(nu) > %10.2e for %4d entries - scale equality constraints\n',...
-                            iter,obj.debugConvergenceThreshold,length(k));
-                    for ii=k(:)'
-                        fprintf('\t eq %4d: %9.2e\n',ii,nu_(ii));
-                    end
-                end
-                if max(abs(nu_))<1/obj.debugConvergenceThreshold
-                    %disp(nu_')
-                    fprintf('%3d: ATTENTION: all abs(nu) < %10.2e - scale equality constraints\n',...
-                            iter,1/obj.debugConvergenceThreshold);
-                end
-            end
-
-            if obj.nF>0
-                %% Check scaling for inequalities constraints
-                [F_,l_]=getFLambda__(obj);
-                k=find(abs(l_)>obj.debugConvergenceThreshold);
-                if ~isempty(k)
-                    fprintf('%3d: ATTENTION: abs(lambda) > %10.2e for %4d entries - scale inequality constraint\n',...
-                            iter,obj.debugConvergenceThreshold,length(k));
-                    for ii=k(:)'
-                        fprintf('\t ineq %4d: %9.2e\n',ii,l_(ii));
-                    end
-                end
-                k=find(abs(F_)>obj.debugConvergenceThreshold);
-                if ~isempty(k)
-                    fprintf('%3d: ATTENTION: ineq > %10.2e for %4d entries - scale inequality constraint\n',...
-                            iter,obj.debugConvergenceThreshold,length(k));
-                    for ii=k(:)'
-                        fprintf('\t ineq %4d: %9.2e\n',ii,full(F_(ii)));
-                    end
-                end
-                if max(abs(l_))<1/obj.debugConvergenceThreshold
-                    %disp(l_')
-                    fprintf('%3d: ATTENTION: all abs(lambda) < %10.2e (%10.2e<=abs(F)<=%10.2e) - either all inequalities inactive or scale inequality constraint\n',...
-                            iter,1/obj.debugConvergenceThreshold,min(abs(F_)),max(abs(F_)));
-                    if obj.verboseLevel>=4
-                        disp([l_,F_])
-                    end
-                end
-            end
-        end
-
-    end % while(1)
-
-    if obj.debugConvergence
-        [Lfu,Lgd]=getLf1__(obj);
-        [Lfuu,Lgdd]=getLf2__(obj);
-        euu=eig(Lfuu);
-        tol=1e-9;
-        mpu=sum(euu>tol);
-        mnu=sum(euu<-tol);
-        edd=eig(Lgdd);
-        mpd=sum(edd>tol);
-        mnd=sum(edd<-tol);
-        fprintf('   |Lfu|=%g, |Lgd|=%g, |Lfuu-Lfuu''|=%g, |Lgdd-Lgdd''|=%g, eig(Lfuu) in [%g,%g] (%d >0,%d =0,%d <0), eig(Lgdd) in [%g,%g] (%d >0,%d =0,%d <0)\n',...
-                norm(Lfu,'fro'),norm(Lgd,'fro'),...
-                norm(Lfuu-Lfuu','fro'),norm(Lgdd-Lgdd','fro'),...
-                min(euu),max(euu),mpu,length(euu)-mpu-mnu,mnu,min(edd),max(edd),mpd,length(edd)-mpd-mnd,mnd);
-    end
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Complete status output when maxIter reached %%
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if status == 8
         norminf_grad=getNorminf_Grad__(obj);
@@ -685,11 +568,19 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 status=bitor(status,1024);
             end
         end
+        if (obj.setAddEye2Hessian && obj.adjustAddEye2Hessian & ...
+            ( addEye2HessianU>obj.addEye2HessianUtolerance ||
+              addEye2HessianD>obj.addEye2HessianDtolerance ) )
+            status=bitor(status,2048);
+        end
     end
 
-    time=etime(clock(),dt0);
+    %%%%%%%%%%%%%%%%%%%%%%%%
+    %% Print exit summary %%
+    %%%%%%%%%%%%%%%%%%%%%%%%
+
     if obj.verboseLevel>=2
-        [f,g]=getfg__(obj);
+        f=getf__(obj);
         if obj.nG>0 && status<8 % when status>=8 this has been already been computed
             norminf_eq=getNorminf_G__(obj);
         end
@@ -726,19 +617,28 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 fprintf("%calpha<.5",sep);
                 sep=',';
             end
+            if bitand(status,2048)
+                fprintf("%clarge addEye2Hessian",sep);
+                sep=',';
+            end
             fprintf(')\n                ');
         else
-            fprintf('%3d:status=0x%s, ',iter,dec2hex(status));
+            fprintf('%4d:status=0x%s, ',iter,dec2hex(status));
         end
 
-        fprintf('cost=%13.5e,%13.5e ',full(f),full(g));
+        fprintf('cost=%13.5e ',full(f));
         norminf_grad=getNorminf_Grad__(obj);
         fprintf('|grad|=%10.2e',full(norminf_grad));
+        if obj.setAddEye2Hessian
+            fprintf(', addEye2Hessian=[%10.2e,%10.2e,%10.2e]',...
+                    addEye2HessianU,addEye2HessianD,addEye2HessianEq);
+        end
         if obj.nG>0
             fprintf(', |eq|=%10.2e',full(norminf_eq));
         end
         if obj.nF>0
-            fprintf(', ineq=%10.2e,\n              dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
+            fprintf(', ineq=%10.2e,\n                dual=%10.2e, gap=%10.2e, last alpha=%10.2e, last mu=%10.2e',...
+                    full(ineq),full(dual),full(gap),full(alphaPrimal),mu);
         end
         fprintf(' (%.1fms,%.2fms/iter)\n',time*1e3,time/iter*1e3);
     end
