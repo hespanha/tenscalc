@@ -176,7 +176,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
-        classhelp{end+1}='Set parameters';
+        classhelp{end+1}='% Set parameters';
     end
     for i=1:length(parameters)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(parameters{i}));
@@ -192,7 +192,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='Initialize primal variables';
+    classhelp{end+1}='% Initialize primal variables';
     % Player 1
     for i=1:length(P1optimizationVariables)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',...
@@ -395,12 +395,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     end
 
     %% Declare ipm solver
-    nZ=size(u,1)+size(d,1)+size(x,1);
-    nG=size(Gu,1)+size(Gd,1)+size(H,1);
-    nF=size(Fu,1)+size(Fd,1);
-    nNu=size(Gu,1)+size(Gd,1)+2*size(H,1);
-
-    classhelp{end+1}='Solve optimization';
+    classhelp{end+1}='% Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
     template(end).Cfunction='ipmPDeq_CSsolver';
@@ -412,19 +407,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
     template(end).outputs(1)=struct('type','int32','name','status','sizes',1);
     template(end).outputs(2)=struct('type','int32','name','iter','sizes',1);
     template(end).outputs(3)=struct('type','double','name','time','sizes',1);
-    % template(end).outputs(4)=struct('type','double','name','z','sizes',[nZ,maxIter+1]);
-    % template(end).outputs(5)=struct('type','double','name','nu','sizes',[nNu,maxIter+1]);
-    % template(end).outputs(6)=struct('type','double','name','lambda','sizes',[nF,maxIter+1]);
-    % template(end).outputs(7)=struct('type','double','name','dZ_s','sizes',[nZ,maxIter]);
-    % template(end).outputs(8)=struct('type','double','name','dNu_s','sizes',[nNu,maxIter]);
-    % template(end).outputs(9)=struct('type','double','name','dLambda_s','sizes',[nF,maxIter]);
-    % template(end).outputs(10)=struct('type','double','name','G','sizes',[nG,maxIter+1]);
-    % template(end).outputs(11)=struct('type','double','name','F','sizes',[nF,maxIter+1]);
-    % template(end).outputs(12)=struct('type','double','name','primaAlpha_s','sizes',[maxIter+1]);
-    % template(end).outputs(13)=struct('type','double','name','dualAlpha_s','sizes',[maxIter+1]);
-    % template(end).outputs(14)=struct('type','double','name','finalAlpha','sizes',[maxIter+1]);
 
-    %folder='.';
     classFolder=fsfullfile(folder,sprintf('@%s',classname));
     if ~exist(classFolder,'dir')
         fprintf('class classFolder @%s does not exist, creating it... ',classname);
@@ -469,7 +452,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
                     defines,template(end).inputs,template(end).outputs,template(end).method);
 
     %% Declare 'gets' for output expressions
-    classhelp{end+1}='Get outputs';
+    classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
     template(end+1,1).MEXfunction=sprintf('%s_getOutputs',classname);
     template(end).Cfunction=sprintf('%s_getOutputs',classname);
@@ -526,7 +509,7 @@ function varargout=cmex2equilibriumLatentCS(varargin)
 
     fprintf('  done creating C code (%.3f sec)\n',etime(clock,t_compile2C));
 
-    classhelp{end+1}='Delete object';
+    classhelp{end+1}='% Delete object';
     classhelp{end+1}='clear obj';
 
     t_createGateway=clock();
