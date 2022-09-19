@@ -170,7 +170,7 @@ function varargout=class2equilibriumLatentCS(varargin)
 
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
-        classhelp{end+1}='Set parameters';
+        classhelp{end+1}='% Set parameters';
     end
     for i=1:length(parameters)
         declareSet(code,parameters{i},sprintf('setP_%s',name(parameters{i})));
@@ -180,7 +180,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='Initialize primal variables';
+    classhelp{end+1}='% Initialize primal variables';
     % Player 1
     for i=1:length(P1optimizationVariables)
         declareSet(code,P1optimizationVariables{i},...
@@ -360,7 +360,7 @@ function varargout=class2equilibriumLatentCS(varargin)
     end
 
     %% Declare ipm solver
-    classhelp{end+1}='Solve optimization';
+    classhelp{end+1}='% Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     defines.nZ=size(u,1)+size(d,1)+size(x,1);
     defines.nU=size(u,1);
@@ -398,14 +398,13 @@ function varargout=class2equilibriumLatentCS(varargin)
     declareFunction(code,fsfullfile(pth,'ipmPDeq_CSsolver.m'),'solve',defines,[],[],'solve');
 
     %% Declare 'gets' for output expressions
-    classhelp{end+1}='Get outputs';
+    classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
     for i=1:length(outputExpressions)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
-
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);');
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 
     code.statistics.time.csparse=etime(clock,t_csparse);
