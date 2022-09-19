@@ -55,7 +55,7 @@ function varargout=cmex2optimizeCS(varargin)
         warning('umfpack does not include LDL factorization, using LU factorization instead');
         useLDL=false;
     end
-    
+
     %% transfer any folder in classname into folder
     [folder,classname]=fileparts(fsfullfile(folder,classname));
 
@@ -133,14 +133,14 @@ function varargout=cmex2optimizeCS(varargin)
     tprod2matlab=false;
     code=csparse(scratchbookType,debug,tprod2matlab,fastRedundancyCheck); % using instructionsTable.c
     code.LDLthreshold=LDLthreshold;
-    classhelp={'Create object';
+    classhelp={'% Create object';
                sprintf('obj=%s();',classname)};
 
     % template for createGateway
     template=cmextoolsTemplate();
     %% Declare 'sets' for initializing parameters
     if length(parameters)>0
-        classhelp{end+1}='Set parameters';
+        classhelp{end+1}='% Set parameters';
     end
     for i=1:length(parameters)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',classname,name(parameters{i}));
@@ -159,7 +159,7 @@ function varargout=cmex2optimizeCS(varargin)
     end
 
     %% Declare 'sets' for initializing primal variables
-    classhelp{end+1}='Initialize primal variables';
+    classhelp{end+1}='% Initialize primal variables';
     for i=1:length(optimizationVariables)
         template(end+1,1).MEXfunction=sprintf('%s_set_%s',...
                                             classname,name(optimizationVariables{i}));
@@ -260,7 +260,7 @@ function varargout=cmex2optimizeCS(varargin)
     end
 
     %% Declare ipm solver
-    classhelp{end+1}='Solve optimization';
+    classhelp{end+1}='% Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
     if ~isempty(simulinkLibrary)
@@ -318,7 +318,7 @@ function varargout=cmex2optimizeCS(varargin)
                     defines,template(end).inputs,template(end).outputs,template(end).method);
 
     %% Declare 'gets' for output expressions
-    classhelp{end+1}='Get outputs';
+    classhelp{end+1}='% Get outputs';
     classhelp{end+1}='';
     template(end+1,1).MEXfunction=sprintf('%s_getOutputs',classname);
     if ~isempty(simulinkLibrary)

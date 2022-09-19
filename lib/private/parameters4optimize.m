@@ -149,6 +149,18 @@ function localVariables_=parameters4optimize(localVariables_)
             'This parameter is ignored when |adjustAddEye2Hessian|=|false|.'
                       });
 
+    declareParameter(...
+        'VariableName','smallerNewtonMatrix',...
+        'DefaultValue',false,...
+        'AdmissibleValues',{false,true},...
+        'Description',{
+            'When |true| the matrix that needs to be inverted to compute a Newton step'
+            'is reduced by first eliminating the dual variables associated with inequality'
+            'constraints.'
+            'However, often the smaller matrix is not as sparse so the computation'
+            'may actually increase.'
+                      });
+
 end
 
 % LocalWords:  localVariables tenscalc cmex optimizeCS Joao Tcalculus

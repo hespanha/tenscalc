@@ -194,11 +194,12 @@ function varargout=class2optimizeCS(varargin)
 
     %% Get indices of sensitivity variables
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
+
     %% Generate the code for the functions that do the raw computation
     t_ipmPD=clock();
     Tout=ipmPD_CS(struct(...
         'code',code,...
-        'u',u,...         % single column vector
+        'u',u,...            % single column vector
         'f',objective,...    % as a function of u
         'F',F,...            % as a function of u
         'G',G,...            % as a function of u
@@ -275,7 +276,7 @@ function varargout=class2optimizeCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);');
 
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 

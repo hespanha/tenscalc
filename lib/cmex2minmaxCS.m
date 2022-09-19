@@ -56,8 +56,6 @@ function varargout=cmex2minmaxCS(varargin)
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
 
-    debugConvergence=false; % not implemented for cmex
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -285,7 +283,6 @@ function varargout=cmex2minmaxCS(varargin)
         'objective',objective,...
         'u',u,...
         'd',d,...
-        'x',x,...
         'minLambda',minLambda,...
         'minNu',minNu,...
         'maxLambda',maxLambda,...
@@ -294,18 +291,13 @@ function varargout=cmex2minmaxCS(varargin)
         'Gu',Gu,...
         'Fd',Fd,...
         'Gd',Gd,...
-        'H',H,...
-        'smallerNewtonMatrix',smallerNewtonMatrix,...
         'addEye2Hessian',addEye2Hessian,...
-        'skipAffine',skipAffine,...
         'scaleInequalities',scaleInequalities,...
         'scaleCost',scaleCost,...
         'scaleEqualities',scaleEqualities,...
-        'useLDL',useLDL,...
         'atomicFactorization',useUmfpack,...
         'cmexfunction',classname,...
         'allowSave',allowSave,...
-        'debugConvergence',debugConvergence,...
         'profiling',profiling));
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
 
@@ -318,11 +310,6 @@ function varargout=cmex2minmaxCS(varargin)
     end
 
     %% Declare ipm solver
-    nZ=size(u,1)+size(d,1);
-    nG=size(Gu,1)+size(Gd,1)+size(H,1);
-    nF=size(Fu,1)+size(Fd,1);
-    nNu=size(Gu,1)+size(Gd,1)+2*size(H,1);
-
     classhelp{end+1}='Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
     template(end+1,1).MEXfunction=sprintf('%s_solve',classname);
@@ -335,17 +322,6 @@ function varargout=cmex2minmaxCS(varargin)
     template(end).outputs(1)=struct('type','int32','name','status','sizes',1);
     template(end).outputs(2)=struct('type','int32','name','iter','sizes',1);
     template(end).outputs(3)=struct('type','double','name','time','sizes',1);
-    % template(end).outputs(4)=struct('type','double','name','z','sizes',[nZ,maxIter+1]);
-    % template(end).outputs(5)=struct('type','double','name','nu','sizes',[nNu,maxIter+1]);
-    % template(end).outputs(6)=struct('type','double','name','lambda','sizes',[nF,maxIter+1]);
-    % template(end).outputs(7)=struct('type','double','name','dZ_s','sizes',[nZ,maxIter]);
-    % template(end).outputs(8)=struct('type','double','name','dNu_s','sizes',[nNu,maxIter]);
-    % template(end).outputs(9)=struct('type','double','name','dLambda_s','sizes',[nF,maxIter]);
-    % template(end).outputs(10)=struct('type','double','name','G','sizes',[nG,maxIter+1]);
-    % template(end).outputs(11)=struct('type','double','name','F','sizes',[nF,maxIter+1]);
-    % template(end).outputs(12)=struct('type','double','name','primaAlpha_s','sizes',[maxIter+1]);
-    % template(end).outputs(13)=struct('type','double','name','dualAlpha_s','sizes',[maxIter+1]);
-    % template(end).outputs(14)=struct('type','double','name','finalAlpha','sizes',[maxIter+1]);
 
     %folder='.';
     classFolder=fsfullfile(folder,sprintf('@%s',classname));
@@ -382,8 +358,6 @@ function varargout=cmex2minmaxCS(varargin)
     defines.useLDL=double(useLDL);
     defines.useUmfpack=double(useUmfpack);
     defines.allowSave=double(allowSave);
-    defines.debugConvergence=double(debugConvergence);
-    defines.debugConvergenceThreshold=debugConvergenceThreshold;
     defines.profiling=double(profiling);
     defines.verboseLevel=solverVerboseLevel;
 
@@ -516,13 +490,6 @@ function varargout=cmex2minmaxCS(varargin)
                 end
         end
     end
-
-    %% debug info to be passed to debugConvergenceAnalysis
-
-    debugInfo.minOptimizationVariables=minOptimizationVariables;
-    debugInfo.maxOptimizationVariables=maxOptimizationVariables;
-    debugInfo.minConstraints=minConstraints;
-    debugInfo.maxConstraints=maxConstraints;
 
     code.statistics.time.cmexCS=etime(clock,t_cmexCS);
     fprintf('done cmex2minmaxCS (%.3f sec)\n',etime(clock,t_cmexCS));
