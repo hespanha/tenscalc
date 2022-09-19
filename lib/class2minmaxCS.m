@@ -186,11 +186,11 @@ function varargout=class2minmaxCS(varargin)
     end
 
     % Minimizer
-    [Gu,Fu,minNus,minLambdas,outputExpressions]=...
+    [Gu,Fu,nusU,lambdasU,outputExpressions]=...
         parseConstraints(code,classname,minConstraints,outputExpressions,'minimizer');
 
     % Maximizer
-    [Gd,Fd,maxNus,maxLambdas,outputExpressions]=...
+    [Gd,Fd,nusD,lambdasD,outputExpressions]=...
         parseConstraints(code,classname,maxConstraints,outputExpressions,'maximizer');
 
     %% Pack constraints
@@ -201,14 +201,14 @@ function varargout=class2minmaxCS(varargin)
 
     %% Pack primal variables
     % Minimizer
-    [u,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd,H]...
+    [u,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd]...
         =packVariables(minOptimizationVariables,'u_',...
-                       objective,outputExpressions,Fu,Gu,Fd,Gd,H);
+                       objective,outputExpressions,Fu,Gu,Fd,Gd);
     u0=packExpressions(minOptimizationVariables);
     % Maximizer
-    [d,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd,H]...
+    [d,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd]...
         =packVariables(maxOptimizationVariables,'d_',...
-                       objective,outputExpressions,Fu,Gu,Fd,Gd,H);
+                       objective,outputExpressions,Fu,Gu,Fd,Gd);
     d0=packExpressions(maxOptimizationVariables);
     src={u0,d0};
     dst={u,d};
@@ -218,37 +218,37 @@ function varargout=class2minmaxCS(varargin)
     %% Pack dual variables
     % Minimizer
     if size(Gu,1)>0
-        minNu=packVariables(minNus,'minNu_');
-        minNu0=packExpressions(minNus);
-        src{end+1}=minNu0;
-        dst{end+1}=minNu;
+        nuU=packVariables(nusU,'nuU_');
+        nuU0=packExpressions(nusU);
+        src{end+1}=nuU0;
+        dst{end+1}=nuU;
     else
-        minNu=Tzeros(0);
+        nuU=Tzeros(0);
     end
     if size(Fu,1)>0
-        minLambda=packVariables(minLambdas,'minLambda_');
-        minLambda0=packExpressions(minLambdas);
-        src{end+1}=minLambda0;
-        dst{end+1}=minLambda;
+        lambdaU=packVariables(lambdasU,'lambdaU_');
+        lambdaU0=packExpressions(lambdasU);
+        src{end+1}=lambdaU0;
+        dst{end+1}=lambdaU;
     else
-        minLambda=Tzeros(0);
+        lambdaU=Tzeros(0);
     end
     % Maximizer
     if size(Gd,1)>0
-        maxNu=packVariables(maxNus,'maxNu_');
-        maxNu0=packExpressions(maxNus);
-        src{end+1}=maxNu0;
-        dst{end+1}=maxNu;
+        nuD=packVariables(nusD,'nuD_');
+        nuD0=packExpressions(nusD);
+        src{end+1}=nuD0;
+        dst{end+1}=nuD;
     else
-        maxNu=Tzeros(0);
+        nuD=Tzeros(0);
     end
     if size(Fd,1)>0
-        maxLambda=packVariables(maxLambdas,'maxLambda_');
-        maxLambda0=packExpressions(maxLambdas);
-        src{end+1}=maxLambda0;
-        dst{end+1}=maxLambda;
+        lambdaD=packVariables(lambdasD,'lambdaD_');
+        lambdaD0=packExpressions(lambdasD);
+        src{end+1}=lambdaD0;
+        dst{end+1}=lambdaD;
     else
-        maxLambda=Tzeros(0);
+        lambdaD=Tzeros(0);
     end
     declareCopy(code,dst,src,'initPrimalDual__');
 
@@ -259,27 +259,21 @@ function varargout=class2minmaxCS(varargin)
         'objective',objective,...
         'u',u,...
         'd',d,...
-        'x',x,...
-        'minLambda',minLambda,...
-        'minNu',minNu,...
-        'maxLambda',maxLambda,...
-        'maxNu',maxNu,...
         'Fu',Fu,...
         'Gu',Gu,...
         'Fd',Fd,...
         'Gd',Gd,...
-        'H',H,...
-        'smallerNewtonMatrix',smallerNewtonMatrix,...
+        'lambdaU',lambdaU,...
+        'nuU',nuU,...
+        'lambdaD',lambdaD,...
+        'nuD',nuD,...
         'addEye2Hessian',addEye2Hessian,...
-        'skipAffine',skipAffine,...
         'scaleInequalities',scaleInequalities,...
         'scaleCost',scaleCost,...
         'scaleEqualities',scaleEqualities,...
-        'useLDL',useLDL,...
         'atomicFactorization',useUmfpack,...
         'cmexfunction',classname,...
         'allowSave',allowSave,...
-        'debugConvergence',debugConvergence,...
         'profiling',profiling));
     code.statistics.time.ipmPD=etime(clock,t_ipmPD);
 
@@ -294,13 +288,12 @@ function varargout=class2minmaxCS(varargin)
     %% Declare ipm solver
     classhelp{end+1}='Solve optimization';
     classhelp{end+1}='[status,iter,time]=solve(obj,mu0,int32(maxIter),int32(saveIter),addEye2Hessian);';
-    defines.nZ=size(u,1)+size(d,1)+size(x,1);
+    defines.nZ=size(u,1)+size(d,1);
     defines.nU=size(u,1);
     defines.nD=size(d,1);
-    defines.nX=size(x,1);
-    defines.nG=size(Gu,1)+size(Gd,1)+size(H,1);
+    defines.nG=size(Gu,1)+size(Gd,1);
     defines.nF=size(Fu,1)+size(Fd,1);
-    defines.nNu=size(Gu,1)+size(Gd,1)+2*size(H,1);
+    defines.nNu=size(Gu,1)+size(Gd,1);
     defines.gradTolerance=gradTolerance;
     defines.addEye2Hessian1tolerance=addEye2Hessian1tolerance;
     defines.equalTolerance=equalTolerance;
@@ -316,13 +309,8 @@ function varargout=class2minmaxCS(varargin)
     defines.muFactorAggressive=muFactorAggressive;
     defines.muFactorConservative=muFactorConservative;
     defines.delta=delta;
-    defines.skipAffine=double(skipAffine);
-    defines.smallerNewtonMatrix=double(smallerNewtonMatrix);
-    defines.useLDL=double(useLDL);
     defines.useUmfpack=double(useUmfpack);
     defines.allowSave=double(allowSave);
-    defines.debugConvergence=double(debugConvergence);
-    defines.debugConvergenceThreshold=debugConvergenceThreshold;
     defines.profiling=double(profiling);
     defines.verboseLevel=solverVerboseLevel;
 
@@ -336,7 +324,7 @@ function varargout=class2minmaxCS(varargin)
         classhelp{end}=[classhelp{end},outputNames{i},','];
     end
     classhelp{end}=sprintf('[%s]=getOutputs(obj);',classhelp{end}(1:end-1));
-    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);',classhelp{end}(1:end-1));
+    classhelp{end+1}=sprintf('[y (struct)]=getOutputs(obj);');
 
     declareGet(code,cell2struct(outputExpressions,outputNames),'getOutputs');
 
@@ -356,13 +344,6 @@ function varargout=class2minmaxCS(varargin)
     code.statistics.time.compile2matlab=etime(clock,t_compile2matlab);
 
     fprintf(' done creating matlab code (%.3f sec)\n',etime(clock,t_csparse));
-
-    %% debug info to be passed to debugConvergenceAnalysis
-
-    debugInfo.minOptimizationVariables=minOptimizationVariables;
-    debugInfo.maxOptimizationVariables=maxOptimizationVariables;
-    debugInfo.minConstraints=minConstraints;
-    debugInfo.maxConstraints=maxConstraints;
 
     code.statistics.time.cmexCS=etime(clock,t_classCS);
     fprintf('done class2minmaxCS (%.3f sec)\n',etime(clock,t_classCS));
