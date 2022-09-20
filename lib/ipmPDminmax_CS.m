@@ -89,12 +89,12 @@ function out=ipmPDminmax_CS(pars)
     Gu_d=gradient(Gu,d);
     if ~strcmp(type(Gu_d),'zeros')
         Gu,Gu_d
-        error('cmex2minmaxCS & class2minmaxCS: equality constraints cnnot depend on  maximizer optimization variables\n');
+        error('cmex2minmaxCS & class2minmaxCS: equality constraints cannot depend on  maximizer optimization variables\n');
     end
     Fu_d=gradient(Fu,d);
     if ~strcmp(type(Fu_d),'zeros')
         Fu,Fu_d
-        error('cmex2minmaxCS & class2minmaxCS: equality constraints cnnot depend on  maximizer optimization variables\n');
+        error('cmex2minmaxCS & class2minmaxCS: equality constraints cannot depend on  maximizer optimization variables\n');
     end
 
     %% Stack variables
@@ -217,7 +217,7 @@ function out=ipmPDminmax_CS(pars)
     if nF>0
         WW=[WWUD,Lf_zn,Lf_zl;
             gradientVector([Gu,Gd],{u,d}),-addEye2HessianEq*Teye([nG,nG]),Tzeros([nG,nF]);
-            gradientVector([-Fu;Fd],{u,d}),Tzeros([nF,nG]),diag(F./lambda)];
+            gradientVector([-Fu;Fd],{u,d}),Tzeros([nF,nG]),diag([-Fu./lambdaU;Fd./lambdaD])];
     else
         WW=[WWUD,Lf_zn;
             gradientVector([Gu,Gd],{u,d}),-addEye2HessianEq*Teye([nG,nG])];
@@ -253,11 +253,12 @@ function out=ipmPDminmax_CS(pars)
         HessD=[Lf_dd-addEye2HessianD*Teye([nD,nD]),gradientVector(Lf_d,{nuD});
                gradient(Gd,d),-addEye2HessianEq*Teye([nGd,nGd])];
     end
-    
+    out.HessD=HessD;    
     out.d_HessD=ldl_d(ldl(HessD));
     declareGet(code,{sum(heaviside(out.d_HessD-tol)),...
                      sum(heaviside(-out.d_HessD-tol))},'getHessDinertia__');
 
+    out.HessU=WW;
     out.d_HessU=ldl_d(ldl_ww);
     declareGet(code,{sum(heaviside(out.d_HessU-tol)),...
                      sum(heaviside(-out.d_HessU-tol))},'getHessUinertia__');
