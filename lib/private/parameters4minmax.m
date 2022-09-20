@@ -83,30 +83,33 @@ function localVariables_=parameters4minmax(localVariables_)
 
     declareParameter(...
         'VariableName','addEye2Hessian',...
-        'DefaultValue',false,...
+        'DefaultValue',true,...
         'AdmissibleValues',{false,true},...
         'Description',{
             'When |true|, adds to the Newton matrix identity matrices scaled by small constants.';
             ' ';
-            'One scaled identity matrix equal to';
-            '           addEye2Hessian1 * eye(# primal variables)'
-            'is added to the matrix of 2nd derivatives of the Lagrangian (Hessian).'
+            'Scaled identity matrices:';
+            '           addEye2HessianU * eye(# primal minimizer variables)'
+            '           -addEye2HessianD * eye(# primal maximizer variables)'
+            'are added to the matrix of 2nd derivatives of the Lagrangian (Hessian).'
             ' '
             'A seconds scaled identity matrix equal to';
-            '           addEye2Hessian2 * eye(# equality constraints)'
+            '           addEye2HessianEq * eye(# equality constraints)'
             'is added to the diagonal block of the Newton matrix that corresponds to the equality'
             'constraints, which makes factorization of the Newton matrix numerically more stable.'
             ' '
             'Both effects improve the robustness of the solver, but may lead to slower convergence.';
             ' ';
-            'The constants |addEye2Hessian1| and |addEye2Hessian2| can be set at solve time'
-            'through input parameters to the solve function.'
+            'The constants |addEye2HessianU|, |addEye2HessianD|, and |addEye2HessianEq|'
+            'can be set at solve time through input parameters to the solve function.'
             ' '
-            'A typical choices for |addEye2Hessian1| and |addEye2Hessian2| is the square root'
-            'of the machine precision.'
+            'A typical choices for |addEye2HessianU|, |addEye2HessianD|, and |addEye2HessianEq|'
+            'is the square root of the machine precision.'
             ' '
-            'The values of |addEye2Hessian1| and |addEye2Hessian2| can be viewed by setting'
-            '|solverVerboseLevel| to 3.'
+            'The values of |addEye2HessianU|, |addEye2HessianD|, and |addEye2HessianEq|'
+            'can be viewed by setting |solverVerboseLevel| to 3.'
+            ' ';
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
     declareParameter(...
@@ -114,22 +117,32 @@ function localVariables_=parameters4minmax(localVariables_)
         'DefaultValue',false,...
         'AdmissibleValues',{false,true},...
         'Description',{
-            'When |true|, the values of the parameters |addEye2Hessian1| and |addEye2Hessian2|';
+            'When |true|, the values of the parameters |addEye2HessianU| and |addEye2HessianEq|';
             'are adjusted in real-time by the solver.';
             ' ';
-            'ATTENTION: currently addEye2Hessian1 is not adjusted';
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
     declareParameter(...
-        'VariableName','addEye2Hessian1tolerance',...
+        'VariableName','addEye2HessianUtolerance',...
         'DefaultValue',1e-6,...
         'Description',{
-            'When |adjustAddEye2Hessian|=|true|, waits until |addEye2Hessian1| becomes smaller than this value.';
+            'When |adjustAddEye2Hessian|=|true|, waits until |addEye2HessianU| becomes smaller than this value.';
             ' ';
             'This parameter is ignored when |adjustAddEye2Hessian|=|false|.'
             ' ';
-            'ATTENTION: currently addEye2Hessian1 is not adjusted,'
-            '           so addEye2Hessian1 must be initialized below this value.';
+            'ATTENTION: this parameter should refer to MCSS paper'
+                      });
+
+    declareParameter(...
+        'VariableName','addEye2HessianDtolerance',...
+        'DefaultValue',1e-6,...
+        'Description',{
+            'When |adjustAddEye2Hessian|=|true|, waits until |addEye2HessianD| becomes smaller than this value.';
+            ' ';
+            'This parameter is ignored when |adjustAddEye2Hessian|=|false|.'
+            ' ';
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
 end
