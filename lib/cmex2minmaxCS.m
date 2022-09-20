@@ -225,14 +225,14 @@ function varargout=cmex2minmaxCS(varargin)
 
     %% Pack primal variables
     % Minimizer
-    [u,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd,H]...
+    [u,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd]...
         =packVariables(minOptimizationVariables,'u_',...
-                       objective,outputExpressions,Fu,Gu,Fd,Gd,H);
+                       objective,outputExpressions,Fu,Gu,Fd,Gd);
     u0=packExpressions(minOptimizationVariables);
     % Maximizer
-    [d,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd,H]...
+    [d,~,~,~,objective,outputExpressions,Fu,Gu,Fd,Gd]...
         =packVariables(maxOptimizationVariables,'d_',...
-                       objective,outputExpressions,Fu,Gu,Fd,Gd,H);
+                       objective,outputExpressions,Fu,Gu,Fd,Gd);
     d0=packExpressions(maxOptimizationVariables);
     src={u0,d0};
     dst={u,d};
@@ -331,15 +331,19 @@ function varargout=cmex2minmaxCS(varargin)
     end
 
     defines.saveNamePrefix=['"',fsfullfile(classFolder,classname),'"'];
-    defines.nZ=size(u,1)+size(d,1)+size(x,1);
+    defines.nZ=size(u,1)+size(d,1);
     defines.nU=size(u,1);
     defines.nD=size(d,1);
-    defines.nX=size(x,1);
-    defines.nG=size(Gu,1)+size(Gd,1)+size(H,1);
+    defines.nG=size(Gu,1)+size(Gd,1);
     defines.nF=size(Fu,1)+size(Fd,1);
-    defines.nNu=size(Gu,1)+size(Gd,1)+2*size(H,1);
+    defines.nGu=size(Gu,1);
+    defines.nFu=size(Fu,1);
+    defines.nGd=size(Gd,1);
+    defines.nFd=size(Fd,1);
+    defines.nNu=size(Gu,1)+size(Gd,1);
     defines.gradTolerance=sprintf('%e',gradTolerance); % to make double
-    defines.addEye2Hessian1tolerance=sprintf('%e',addEye2Hessian1tolerance); % to make double
+    defines.addEye2HessianUtolerance=sprintf('%e',addEye2HessianUtolerance); % to make double
+    defines.addEye2HessianDtolerance=sprintf('%e',addEye2HessianDtolerance); % to make double
     defines.equalTolerance=sprintf('%e',equalTolerance); % to make double
     defines.desiredDualityGap=sprintf('%e',desiredDualityGap); % to make double
     defines.scaleCost=double(scaleCost~=0);
