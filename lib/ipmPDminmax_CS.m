@@ -1,4 +1,4 @@
-%function out=ipmPDminmax_CS(pars)
+function out=ipmPDminmax_CS(pars)
 % See tenscalc/doc/ipm.tex for an explanation of the formulas used here
 %
 % This file is part of Tencalc.
@@ -13,8 +13,6 @@
     scaleCost=pars.scaleCost;
     scaleInequalities=pars.scaleInequalities;
     scaleEqualities=pars.scaleEqualities; % currently not used
-
-    atomicFactorization=pars.atomicFactorization;
 
     cmexfunction=pars.cmexfunction;
     allowSave=pars.allowSave;
@@ -172,14 +170,18 @@
     t2=clock();
     if addEye2Hessian
         addEye2HessianU=Tvariable('addEye2HessianU__',[],nowarningsamesize,nowarningever);
+        addEye2HessianD=Tvariable('addEye2HessianD__',[],nowarningsamesize,nowarningever);
         addEye2HessianEq=Tvariable('addEye2HessianEq__',[],nowarningsamesize,nowarningever);
         declareSet(code,addEye2HessianU,'setAddEye2HessianU__');
+        declareSet(code,addEye2HessianD,'setAddEye2HessianD__');
         declareSet(code,addEye2HessianEq,'setAddEye2HessianEq__');
     else
         addEye2HessianU=Tzeros([]);
+        addEye2HessianD=Tzeros([]);
         addEye2HessianEq=Tzeros([]);
     end
     out.addEye2HessianU=addEye2HessianU;
+    out.addEye2HessianD=addEye2HessianD;
     out.addEye2HessianEq=addEye2HessianEq;
 
     Lf_z=gradientVector(Lf,{u,d});
@@ -189,24 +191,39 @@
     fprintf('(%.2f sec)\n    2nd derivatives...',etime(clock(),t2));
     t2=clock();
 
-    % Derivatives needed to compute WW
+    % Derivatives needed to compute WW 
     Lf_zz=gradientVector(Lf_z,{u,d});
     Lf_zl=gradientVector(Lf_z,{lambdaU,lambdaD});
     Lf_zn=gradientVector(Lf_z,{nuU,nuD});
 
+    % Derivatives needed to compute inertial
+    Lf_u=gradient(Lf,u);
+    Lf_d=gradient(Lf,d);
+    Lf_ud=gradient(Lf_u,d);
+    Lf_uu=gradient(Lf_u,u);
+    Lf_dd=gradient(Lf_d,d);
+    Lf_du=gradient(Lf_d,u);
+
     fprintf('(%.2f sec)\n    WW & b...',etime(clock(),t2));
     t2=clock();
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Hessian computations
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    WWD = Lf_dd-addEye2HessianD*Teye([nD,nD]);
+    WWUD=[Lf_uu+addEye2HessianU*Teye([nU,nU]),Lf_ud;
+          Lf_du,                              WWD];
     if nF>0
-        WW=[Lf_zz+[Teye([nU,nU]),Tzeros([nU,nD]);
-                   Tzeros([nD,nU]),-Teye([nD,nD])],Lf_zn,Lf_zl;
-            gradientVector([Gu,Gd],{u,d}),Tzeros([nG,nG+nF]);
+        WW=[WWUD,Lf_zn,Lf_zl;
+            gradientVector([Gu,Gd],{u,d}),-addEye2HessianEq*Teye([nG,nG]),Tzeros([nG,nF]);
             gradientVector([-Fu;Fd],{u,d}),Tzeros([nF,nG]),diag(F./lambda)];
     else
-        WW=[Lf_zz+[Teye([nU,nU]),Tzeros([nU,nD]);
-                   Tzeros([nD,nU]),-Teye([nD,nD])],Lf_zn;
-            gradientVector([Gu,Gd],{u,d}),Tzeros([nG,nG])];
+        WW=[WWUD,Lf_zn;
+            gradientVector([Gu,Gd],{u,d}),-addEye2HessianEq*Teye([nG,nG])];
     end
+    out.Lf_z=Lf_z;
+    out.Lf_zz=Lf_zz;
     out.Hess=WW;
 
     if nF>0
@@ -215,31 +232,38 @@
              +Fu-mu./lambdaU;
              -Fd+mu./lambdaD];
     else
-        b_s=[-Lf_u;
-             -Lg_d;
+        b_s=[-Lf_z;
              -G];
     end
 
-    fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
-    t2=clock();
-
     WW=declareAlias(code,WW,'WW__',false,nowarningsamesize,nowarningever);
 
-    if atomicFactorization
-        % LDL not supported, problems with inertia
-        lu_ww=lu_sym(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
+    ldl_ww=ldl(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
 
-        lu_ww=declareAlias(code,lu_ww,'lu_ww',true,nowarningsamesize,nowarningever);
-        warning('atomicFactorization does not support LDL factorization, cannot use inertia');
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Inertial computations
+    %%%%%%%%%%%%%%%%%%%%%%%%%%
+    tol=0*1e-8; % minimum eigenvalue to be considered positive
+    
+    if nF>0
+        HessD=[Lf_dd-addEye2HessianD*Teye([nD,nD]),gradientVector(Lf_d,{nuD}),gradientVector(Lf_d,{lambdaD});
+               gradient(Gd,d),-addEye2HessianEq*Teye([nGd,nGd]),Tzeros([nGd,nFd]);
+               gradient(Fd,d),Tzeros([nFd,nGd]),diag(Fd./lambdaD)];
     else
-        lu_ww=ldl(WW,[cmexfunction,'_WW.subscripts'],[cmexfunction,'_WW.values']);
-        
-        out.dHess=ldl_d(lu_ww);
-        out.lHess=ldl_l(lu_ww);
-        tol=0*1e-8; % minimum eigenvalue to be considered positive -- as we let addEye2Hessian get smaller, this generally also needs to get smaller
-        declareGet(code,{sum(heaviside(out.dHess-tol)),...
-                         sum(heaviside(-out.dHess-tol))},'getHessInertia__');
+        HessD=[Lf_dd-addEye2HessianD*Teye([nD,nD]),gradientVector(Lf_d,{nuD});
+               gradient(Gd,d),-addEye2HessianEq*Teye([nGd,nGd])];
     end
+    
+    out.d_HessD=ldl_d(ldl(HessD));
+    declareGet(code,{sum(heaviside(out.d_HessD-tol)),...
+                     sum(heaviside(-out.d_HessD-tol))},'getHessDinertia__');
+
+    out.d_HessU=ldl_d(ldl_ww);
+    declareGet(code,{sum(heaviside(out.d_HessU-tol)),...
+                     sum(heaviside(-out.d_HessU-tol))},'getHessUinertia__');
+    
+    fprintf('(%.2f sec)\n    adding WW...',etime(clock(),t2));
+    t2=clock();
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% search direction
@@ -247,7 +271,7 @@
     fprintf('(%.2f sec)\n    combined direction...',etime(clock(),t2));
     t2=clock();
 
-    dx_s=lu_ww\b_s;
+    dx_s=ldl_ww\b_s;
     dx_s=declareAlias(code,dx_s,'dx_s__',false,nowarningsamesize,nowarningever);
 
     declareGet(code,{norminf((WW*dx_s-b_s))},'getDirectionError__');
@@ -281,7 +305,7 @@
         declareGet(code,{maxAlphaPrimal_s,maxAlphaDualIneq_s},'getMaxAlphas_s__');
         declareGet(code,min(newF_s,[],1),'getMinF_s__');
     end
-
+    
     fprintf('(%.2f sec)\n    updatePrimalDual()...',etime(clock(),t2));
     t2=clock();
     dst={u,d};
@@ -302,23 +326,14 @@
         dst{end+1}=lambdaD;
         src{end+1}=newLambda_s(nFu+1:nF);
     end
-
+    
     declareCopy(code,dst,src,'updatePrimalDual__');
-
-    % declareSave after lu's to make sure previous "typical" values
-    % are used by lu, prior to being overwritten by declareSave
-    if allowSave
-        declareSave(code,WW,'saveWW__',[cmexfunction,'_WW.subscripts']);
-        %% for debug
-        declareSave(code,b_s,'saveb_s__',[cmexfunction,'_b_s.subscripts']);
-        declareSave(code,dx_s,'savedx_s__',[cmexfunction,'_dx_s.subscripts']);
-    end
-
+    
     if ~isempty(szHess_) && ~myisequal(szHess_,size(out.Hess))
         warning('\nvariable: ''Hess_'' already exists with the wrong size [%d,%d], should be [%d,%d]\n',...
                 szHess_(1),szHess_(2),size(out.Hess,1),size(out.Hess,2));
     end
-
+    
     fprintf('(%.2f sec)\n    ',etime(clock(),t2));
     fprintf(' done ipmPDminmax_CS symbolic computations (%.3f sec)\n',etime(clock(),t1));
 

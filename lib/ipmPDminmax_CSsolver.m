@@ -64,11 +64,16 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         updateAddEye2HessianU=false;
         updateAddEye2HessianD=false;
         updateAddEye2HessianEq=false;
+
+        mpUdesired=obj.nU+obj.nGu+obj.nFu;
+        mnDdesired=obj.nD;
     else
         addEye2HessianU=nan;
         addEye2HessianD=nan;
         addEye2HessianEq=nan;
     end
+
+
 
     %%%%%%%%%%%%%%%%%%
     %% Start timing %%
@@ -116,11 +121,10 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
     %% Print & initilize headers %%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    printf2('%s.m (coupledAlphas=%d,skipAffine=%d,delta=%g,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g,umfpack=%d): %d primal variables (%d+%d), %d eq. constr., %d ineq. constr.\n',...
-            FUNCTION__,obj.coupledAlphas,obj.skipAffine,obj.delta,...
+    printf2('%s.m (coupledAlphas=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,muFactorAggresive=%g,muFactorConservative=%g): %d primal variables (%d+%d), %d eq. constr., %d ineq. constr.\n',...
+            FUNCTION__,obj.coupledAlphas,...
             obj.setAddEye2Hessian,obj.adjustAddEye2Hessian,...
             obj.muFactorAggressive,obj.muFactorConservative,...
-            obj.useLDL,obj.useUmfpack,...
             obj.nZ,obj.nU,obj.nD,obj.nG,obj.nF);
     if obj.verboseLevel>=3
         headers='Iter      cost   |grad|   |eq|    ineq.    dual    gap   l(mu) ';
@@ -128,9 +132,9 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             headers=[headers,'l(Hu) l(Hd) l(H=) '];
         end
         if obj.adjustAddEye2Hessian
-            headers=[headers,'eig+ eig-  d.err. '];
+            headers=[headers,'egU+ egD-  d.err. '];
         end
-        headers=sprintf('%salphaA  sigma   alphaP  alphaDI alphaDE      time\n',headers);
+        headers=sprintf('%salphaP  alphaDI alphaDE      time\n',headers);
         if obj.nF>0
             headers=sprintf('%s%4d:<-mx des.->%8.1e%8.1e                %8.1e%6.1f',...
                             headers,maxIter,obj.gradTolerance,obj.equalTolerance,desiredDualityGap,log10(muMin));
@@ -139,8 +143,9 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                             headers,maxIter,obj.gradTolerance,obj.equalTolerance);
         end
         if obj.setAddEye2Hessian && obj.adjustAddEye2Hessian
-            headers=sprintf('%s%6.1f',headers,log10(obj.addEye2HessianUtolerance));
-            headers=sprintf('%s      %5d%5d%8.1e',headers,mpDesired,mnDesired,maxDirectionError);
+            headers=sprintf('%s%6.1f%6.1f',headers,...
+                            log10(obj.addEye2HessianUtolerance),log10(obj.addEye2HessianDtolerance));
+            headers=sprintf('%s      %5d%5d%8.1e',headers,mpUdesired,mnDdesired,maxDirectionError);
         end
         fprintf('%s\n',headers);
     end
@@ -246,53 +251,60 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 updateAddEye2HessianEq=false;
             end
 
-            derr=getDirectionError__(obj);
-            [mp,mn]=getHessInertia__(obj);
-
-            if derr<maxDirectionError
-                if false % addEye2HessianU>addEye2HessianMIN
-                    addEye2HessianU=max(.75*addEye2HessianU,addEye2HessianMIN);
-                    updateAddEye2HessianU=true; % update at next iteration
-                end
-                if false % addEye2HessianD>addEye2HessianMIN
-                    addEye2HessianD=max(.75*addEye2HessianD,addEye2HessianMIN);
-                    updateAddEye2HessianD=true; % update at next iteration
-                end
-                if addEye2HessianEq>addEye2HessianMIN
-                    addEye2HessianEq=max(.75*addEye2HessianEq,addEye2HessianMIN);
-                    updateAddEye2HessianEq=true; % update at next iteration
-                end
-            else
-                for ii=1:20
+            for ii=1:20
+                derr=getDirectionError__(obj);
+                [mpD,mnD]=getHessDinertia__(obj);
+                [mpU,mnU]=getHessUinertia__(obj);
+                % all looks good?
+                if mpU==mpUdesired && mnD==mnDdesired && derr<=maxDirectionError
+                    if addEye2HessianEq>addEye2HessianMIN
+                        addEye2HessianEq=max(.75*addEye2HessianEq,addEye2HessianMIN);
+                        updateAddEye2HessianEq=true; % update only at next iteration
+                    end
+                    if addEye2HessianU>addEye2HessianMIN
+                        addEye2HessianU=max(.75*addEye2HessianU,addEye2HessianMIN);
+                        updateAddEye2HessianU=true; % update only at next iteration
+                    end
+                    if addEye2HessianD>addEye2HessianMIN
+                        addEye2HessianD=max(.75*addEye2HessianD,addEye2HessianMIN);
+                        updateAddEye2HessianD=true; % update only at next iteration
+                    end
+                    break; % for ii
+                else
                     change=false;
-                    if derr>=maxDirectionError
-                        if false % addEye2HessianU<addEye2HessianUMAX
-                            addEye2HessianU= min(2*max(addEye2HessianU,addEye2HessianMIN),addEye2HessianUMAX);
-                            setAddEye2HessianU__(obj,addEye2HessianU);
-                            change=true;
-                        end
-                        if false % addEye2HessianD<addEye2HessianDMAX
-                            addEye2HessianD= min(2*max(addEye2HessianD,addEye2HessianMIN),addEye2HessianDMAX);
-                            setAddEye2HessianD__(obj,addEye2HessianD);
-                            change=true;
-                        end
-                        if addEye2HessianEq<addEye2HessianEqMAX
-                            addEye2HessianEq= min(2*max(addEye2HessianEq,addEye2HessianMIN),addEye2HessianEqMAX);
-                            setAddEye2HessianEq__(obj,addEye2HessianEq);
-                            change=true;
-                        end
+                    % increase updateAddEye2HessianU?
+                    if mpU<mpUdesired && updateAddEye2HessianU<addEye2HessianUMAX
+                        addEye2HessianU= min(10*addEye2HessianU,addEye2HessianUMAX);
+                        setAddEye2HessianU__(obj,addEye2HessianU);
+                        change=true;
+                    end
+                    % increase updateAddEye2HessianD?
+                    if mnD<mnDdesired && updateAddEye2HessianD<addEye2HessianDMAX
+                        addEye2HessianD= min(10*addEye2HessianD,addEye2HessianDMAX);
+                        setAddEye2HessianD__(obj,addEye2HessianD);
+                        change=true;
+                    end
+                    % increase addEye2HessianEq
+                    if derr>maxDirectionError && addEye2HessianEq<addEye2HessianEqMAX
+                        addEye2HessianEq= min(10*addEye2HessianEq,addEye2HessianEqMAX);
+                        setAddEye2HessianEq__(obj,addEye2HessianEq);
+                        change=true;
                     end
                     if ~change
                         break;
                     end
-                    derr=getDirectionError__(obj);
+                    if obj.verboseLevel>=4
+                        fprintf('%6.1f%6.1f%6.1f%5.0f%5.0f%8.1e\n                                                              ',...
+                                log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq),full(mpU),full(mnD),full(derr));
+                    end
                 end
             end
-            printf3('%6.1f%6.1f%6.1f%8.1e',...
-                    log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq),full(derr));
+            printf3('%6.1f%6.1f%6.1f%5.0f%5.0f%8.1e',...
+                    log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq),full(mpU),full(mnD),full(derr));
         else
             if obj.setAddEye2Hessian
-                printf3("%6.1f%6.1f%6.1f",log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq));
+                printf3("%6.1f%6.1f%6.1f",...
+                        log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq));
             end
             if obj.adjustAddEye2Hessian
                 derr=getDirectionError__(obj);
@@ -309,7 +321,6 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             if obj.nG>0
                 setAlphaDualEq__(obj,obj.alphaMax);
             end
-            printf3('  -alpA- -sigm- ');
             printf3('%8.1e  -nan-    -na-    ',obj.alphaMax);
 
             updatePrimalDual__(obj);
@@ -317,80 +328,6 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %% Inequality constraints case %%
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-            if obj.skipAffine==1
-                printf3(' -alpA-  -sigm- ');
-            else
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %% Affine search direction %%
-                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-                [alphaPrimal,alphaDualIneq]=getMaxAlphas_a__(obj);
-
-                alphaMax = min([obj.alphaMax,alphaPrimal,alphaDualIneq]);
-
-                if (alphaMax >= obj.alphaMin)
-                    % try max
-                    alphaPrimal=alphaMax;
-                    setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                    if (ineq<0)
-                        % try min
-                        alphaPrimal=obj.alphaMin;
-                        setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                        if (ineq>0)
-                            % try between min and max
-                            alphaPrimal = alphaMax*.95;
-                            while alphaPrimal >= obj.alphaMin
-                                setAlphaPrimal__(obj,alphaPrimal);ineq=getMinF_a__(obj);
-                                if (ineq>=0)
-                                    break;
-                                end
-                                alphaPrimal=alphaPrimal/2;
-                            end
-                            if (alphaPrimal < obj.alphaMin)
-                                alphaPrimal = 0;
-                                setAlphaPrimal__(obj,alphaPrimal);
-                            end
-                        else
-                            alphaPrimal = 0;
-                            setAlphaPrimal__(obj,alphaPrimal);
-                        end
-                    end
-                else
-                    alphaPrimal = 0;
-                    setAlphaPrimal__(obj,alphaPrimal);
-                end
-                setAlphaDualIneq__(obj,alphaPrimal);
-                printf3('%8.1e',full(alphaPrimal));
-
-                %% Update mu %%
-
-                % update mu based on sigma, but this only seems to be safe for:
-                % 1) 'long' newton steps in the affine direction
-                % 2) equality constraints fairly well satisfied (perhaps not very important)
-                % 3) small gradient
-                %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                th_eq=(obj.nG==0) || norminf_eq<=1e-3 || norminf_eq<=1e2*obj.equalTolerance;
-                if alphaPrimal>obj.alphaMax/2 && th_eq %&& th_grad
-                    sigma=full(getRho__(obj));
-                    if (sigma>1) sigma=1; end
-                    if (sigma<0) sigma=0; end
-                    if obj.delta==2
-                        sigma=sigma*sigma;
-                    else
-                        sigma=sigma*sigma*sigma;
-                    end
-                    printf3('%8.1e',sigma);
-                    mu=full(max(sigma*gap/obj.nF,muMin));
-                    setMu__(obj,mu);
-                else
-                    printf3(' -sigm- ');
-                end
-            end  % obj.skipAffine==1
-
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            %% Combined search direction %%
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             [alphaPrimal,alphaDualIneq]=getMaxAlphas_s__(obj);
 
@@ -475,48 +412,44 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             end
 
             %% Update mu %%
-            
-            if obj.skipAffine==1
-                % More aggressive if
-                % 1) 'long' newton steps in the affine direction
-                % 2) small gradient
-                % 3) equality constraints fairly well satisfied
-                % (2+3 mean close to the central path)
-                %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
-                %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
-                th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
-                th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
-                if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
-                    %mu=max(muMin,mu*obj.muFactorAggressive);
-                    mu=max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
-                    setMu__(obj,mu);
-                    printf3(' * ');
-                else
-                    if alphaPrimal<.1
-                        mu=min(mu0,1.1*mu);
-                        setMu__(obj,mu);
-                        initDualIneq__(obj);
-                        printf3('^');
-                    elseif alphaPrimal>.99 && th_eq
-                        mu=max(mu*obj.muFactorConservative,muMin);
-                        setMu__(obj,mu);
-                        printf3('v');
-                    else
-                        printf3('=');
-                    end
-                    if th_grad
-                        printf3('g');
-                    else
-                        printf3(' ');
-                    end
-                    if th_eq
-                        printf3('e');
-                    else
-                        printf3(' ');
-                    end
-                end
+
+            % More aggressive if
+            % 1) 'long' newton steps in the affine direction
+            % 2) small gradient
+            % 3) equality constraints fairly well satisfied
+            % (2+3 mean close to the central path)
+            %th_grad=norminf_grad<=max(1e-1,1e2*obj.gradTolerance);
+            %th_eq=(obj.nG==0) || (norminf_eq<=max(1e-3,1e2*obj.equalTolerance));
+            th_grad=            norminf_grad<=max(1e-3,1e0*obj.gradTolerance);
+            th_eq=(obj.nG==0) || (norminf_eq<=max(1e-5,1e0*obj.equalTolerance));
+            if alphaPrimal>obj.alphaMax/2 && th_grad && th_eq
+                %mu=max(muMin,mu*obj.muFactorAggressive);
+                mu=max(muMin,min(obj.muFactorAggressive*mu,mu^1.5));
+                setMu__(obj,mu);
+                printf3(' * ');
             else
-                printf3('   ');
+                if alphaPrimal<.1
+                    mu=min(mu0,1.1*mu);
+                    setMu__(obj,mu);
+                    initDualIneq__(obj);
+                    printf3('^');
+                elseif alphaPrimal>.99 && th_eq
+                    mu=max(mu*obj.muFactorConservative,muMin);
+                    setMu__(obj,mu);
+                    printf3('v');
+                else
+                    printf3('=');
+                end
+                if th_grad
+                    printf3('g');
+                else
+                    printf3(' ');
+                end
+                if th_eq
+                    printf3('e');
+                else
+                    printf3(' ');
+                end
             end
 
             % if no motion, slowly increase mu
@@ -569,7 +502,7 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
             end
         end
         if (obj.setAddEye2Hessian && obj.adjustAddEye2Hessian & ...
-            ( addEye2HessianU>obj.addEye2HessianUtolerance ||
+            ( addEye2HessianU>obj.addEye2HessianUtolerance || ...
               addEye2HessianD>obj.addEye2HessianDtolerance ) )
             status=bitor(status,2048);
         end
@@ -589,7 +522,7 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         end
 
         if (status)
-            fprintf('%3d:status=0x%s ',iter,dec2hex(status));
+            fprintf('%4d:status=0x%s ',iter,dec2hex(status));
             sep='(';
             if bitand(status,16)
                 fprintf("%clarge gradient",sep);
