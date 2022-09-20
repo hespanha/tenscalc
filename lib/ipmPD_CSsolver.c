@@ -186,11 +186,11 @@ EXPORT void ipmPD_CSsolver(
 #if verboseLevel>=3
   double dt1=dt0;
 #endif
-  
+
   /******************************************
   ** Initialize primal variables & scaling **
   *******************************************/
-  
+
   initPrimal__();
 
 #if scaleCost != 0
@@ -216,16 +216,16 @@ EXPORT void ipmPD_CSsolver(
 #if nF>0
   initDualIneq__();
 #endif
-  
+
 #if nG>0
   initDualEqX__();
   //initDualEq__();
 #endif
 
-  /**********************************
-  ** Print and initialize headings **
-  ***********************************/
-  
+  /***********************************
+   ** Print and initialize headings **
+   ***********************************/
+
   printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,useInertia=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
 	  __FUNCTION__,coupledAlphas,skipAffine,(double)delta,allowSave,
 	  setAddEye2Hessian,adjustAddEye2Hessian,useInertia,
@@ -266,7 +266,7 @@ EXPORT void ipmPD_CSsolver(
   /***************
    ** Main loop **
    ***************/
-  
+
   while (1) {
     (*iter)++;
 #if verboseLevel>=3
@@ -280,9 +280,9 @@ EXPORT void ipmPD_CSsolver(
       (*status) = 8;
       break; }
 
-    /*************************/
-    /* Check exit conditions */
-    /*************************/
+    /***************************
+     ** Check exit conditions **
+     ***************************/
 
 #if verboseLevel>=3
     getJ__(&J);
@@ -350,9 +350,9 @@ EXPORT void ipmPD_CSsolver(
     printf3(" -mu- ");
 #endif
 
-    /*************************/
-    /* Adjust addEye2Hessian */
-    /*************************/
+    /***************************
+     ** Adjust addEye2Hessian **
+     ***************************/
 
 #if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
 
@@ -490,8 +490,8 @@ EXPORT void ipmPD_CSsolver(
 
 #if nF==0
     /*************************************
-    /**  No inequality constraints case **
-    /*************************************/
+     **  No inequality constraints case **
+     *************************************/
     setAlphaPrimal__(&alphaMax_);
 #if nG>0
     setAlphaDualEq__(&alphaMax_);
@@ -516,9 +516,9 @@ EXPORT void ipmPD_CSsolver(
 #if skipAffine!=0
     printf3(" -alpA-  -sigm- ");
 #else
-    /*******************************************************************/
-    /** Affine search direction                                       **/
-    /*******************************************************************/
+    /*****************************
+     ** Affine search direction **
+     *****************************/
 
     getMaxAlphas_a__(&alphaPrimal,&alphaDualIneq);
 
@@ -558,7 +558,7 @@ EXPORT void ipmPD_CSsolver(
     printf3("%8.1e",alphaPrimal);
 
     /** update mu **/
-    
+
     // update mu based on sigma, but this only seems to be safe for:
     // 1) "long" newton steps in the affine direction
     // 2) equality constraints fairly well satisfied (perhaps not very important)
@@ -585,8 +585,8 @@ EXPORT void ipmPD_CSsolver(
 #endif  // skipAffine!=0
 
     /*******************************
-     ** Combined search direction ** 
-    ********************************/
+     ** Combined search direction **
+     *******************************/
 
 #if allowSave!=0
     if ((*iter)==(*saveIter)) {
@@ -678,7 +678,7 @@ EXPORT void ipmPD_CSsolver(
 #endif
 
     /** update mu **/
-    
+
 #if skipAffine!=0
     // More aggressive if
     // 1) "long" newton steps in the affine direction
@@ -802,7 +802,7 @@ EXPORT void ipmPD_CSsolver(
   /***********************
   ** Print exit summary **
   ************************/
-  
+
 #if verboseLevel>=2
   getJ__(&J);
   if ((*status)<8) {
@@ -817,7 +817,7 @@ EXPORT void ipmPD_CSsolver(
 
   if (*status) {
     char sep='(';
-    printf2("%3d:status=0x%X ",(*iter),(*status));
+    printf2("%4d:status=0x%X ",(*iter),(*status));
     if ((*status) & 16) {
       printf2("%clarge gradient",sep);
       sep=',';
