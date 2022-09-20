@@ -2,11 +2,15 @@ clear all
 
 Tvariable u [];
 Tvariable d [];
+Tvariable x [];
 Tvariable a [];
 
 Tvariable addEye2HessianU_ [];
 Tvariable addEye2HessianD_ [];
 Tvariable addEye2HessianEq_ [];
+
+minOptimizationVariables={u};
+maxOptimizationVariables={d};
 
 oExpr=struct('u',u,...
              'd',d,...
@@ -14,54 +18,95 @@ oExpr=struct('u',u,...
              'addEye2HessianD',addEye2HessianD_,...
              'addEye2HessianEq',addEye2HessianEq_);
 
-switch 4
+switch 5.5
   case 1
     % no constraints, diagonal Hessian
-    oExpr.Lf_z=Tvariable('Lf_z_',[2]);
-    oExpr.Lf_zz=Tvariable('Lf_zz_',[2,2]);
     oExpr.Hess=Tvariable('Hess_',[2,2]);
+    oExpr.HessD=Tvariable('HessD_',[1,1]);
+    oExpr.HessU=Tvariable('HessU_',[2,2]);
 
-    objective=u^2-a*d^2;
+    objective=u^2-2*d^2;
     minConstraints={};
     maxConstraints={};
 
   case 2
     % no constraints, non-diagonal Hessian
-    oExpr.Lf_z=Tvariable('Lf_z_',[2]);
-    oExpr.Lf_zz=Tvariable('Lf_zz_',[2,2]);
     oExpr.Hess=Tvariable('Hess_',[2,2]);
+    oExpr.HessD=Tvariable('HessD_',[1,1]);
+    oExpr.HessU=Tvariable('HessU_',[2,2]);
 
-    objective=(u+d+1)^2-a*(d-1)^2;
+    objective=(u+d+1)^2-2*(d-1)^2;
     minConstraints={};
     maxConstraints={};
+
+  case 2.5
+    % equality constraint, non-diagonal Hessian
+    oExpr.Hess=Tvariable('Hess_',[4,4]);
+    oExpr.HessD=Tvariable('HessD_',[3,3]);
+    oExpr.HessU=Tvariable('HessU_',[4,4]);
+
+    maxOptimizationVariables{end+1}=x;
+
+    objective=(x+1)^2-2*(d-1)^2;
+    minConstraints={};
+    maxConstraints={x==u+d};
 
   case 3
     oExpr.Hess=Tvariable('Hess_',[4,4]);
-
-    objective=(u+d)^2-a*(d+2)^2;
+    oExpr.HessD=Tvariable('HessD_',[3,3]);
+    oExpr.HessU=Tvariable('HessU_',[4,4]);
+    
+    objective=(u+d)^2-2*(d+2)^2;
     minConstraints={};
     maxConstraints={d>-1,d<1};
 
+  case 3.5
+    oExpr.Hess=Tvariable('Hess_',[6,6]);
+    oExpr.HessD=Tvariable('HessD_',[5,5]);
+    oExpr.HessU=Tvariable('HessU_',[6,6]);
+    
+    maxOptimizationVariables{end+1}=x;
+
+    objective=(x)^2-2*(d+2)^2;
+    minConstraints={};
+    maxConstraints={d>-1,d<1,x==u+d};
+
   case 4
     oExpr.Hess=Tvariable('Hess_',[4,4]);
+    oExpr.HessD=Tvariable('HessD_',[1,1]);
+    oExpr.HessU=Tvariable('HessU_',[4,4]);
 
-    objective=(u+d)^2-a*d^2;
-    minConstraints={u>-.5,u<.5};
+    objective=(u+d+1)^2-2*d^2;
+    minConstraints={u>-.25,u<.25};
     maxConstraints={};
 
-  case 6
+  case 5
     oExpr.Hess=Tvariable('Hess_',[6,6]);
+    oExpr.HessD=Tvariable('HessD_',[3,3]);
+    oExpr.HessU=Tvariable('HessU_',[6,6]);
 
-    objective=(u+d)^2-a*d^2;
-    minConstraints={u>-1,u<1};
+    objective=(u+d)^2-2*(d+2)^2;
+    minConstraints={u>-2,u<2};
     maxConstraints={d>-1,d<1};
+  
+  case 5.5
+    oExpr.Hess=Tvariable('Hess_',[8,8]);
+    oExpr.HessD=Tvariable('HessD_',[5,5]);
+    oExpr.HessU=Tvariable('HessU_',[8,8]);
+
+    maxOptimizationVariables{end+1}=x;
+
+    objective=(x)^2-2*(d+2)^2;
+    minConstraints={u>-2,u<2};
+    maxConstraints={d>-1,d<1,x==u+d};
 end
 
+oExpr.J=objective;
 classname=class2minmaxCS('classname','tmp_minmax',...
                          'objective',objective,...
-                         'minOptimizationVariables',{u},...
+                         'minOptimizationVariables',minOptimizationVariables,...
                          'minConstraints',minConstraints,...
-                         'maxOptimizationVariables',{d},...
+                         'maxOptimizationVariables',maxOptimizationVariables,...
                          'maxConstraints',maxConstraints,...
                          'outputExpressions',oExpr,...
                          'parameters',a,...
@@ -77,10 +122,13 @@ obj=feval(classname);
 
 %help obj
 
-setP_a(obj,10);
+setP_a(obj,3);
 
 setV_u(obj,.1);
 setV_d(obj,.1);
+if numel(maxOptimizationVariables)>1
+    setV_x(obj,.1);
+end
 
 mu0=1;
 maxIter=30;
@@ -90,5 +138,6 @@ addEye2Hessian=[1e-9,1e-9,1e-9];
 
 out=getOutputs(obj)
 full(out.Hess)
+full(out.HessU)
+full(out.HessD)
 eig(out.Hess)
-full(out.Lf_zz)
