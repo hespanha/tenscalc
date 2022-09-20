@@ -939,7 +939,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                 fprintf("%calpha negligible",sep);
                 sep=',';
             elseif bitand(status,512)
-                fprintf("%calpha<.1",sep)<;
+                fprintf("%calpha<.1",sep);
                 sep=',';
             elseif bitand(status,1024)
                 fprintf("%calpha<.5",sep);
