@@ -108,6 +108,8 @@ function localVariables_=parameters4optimize(localVariables_)
             ' '
             'For non-convex problems, one can try to increase addEye2HessianU when';
             'the Newton direction actually causes an increase of the Lagrangian.'
+            ' '
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
     declareParameter(...
@@ -124,6 +126,8 @@ function localVariables_=parameters4optimize(localVariables_)
             ' ';
             'The values of |addEye2HessianU| and |addEye2HessianEq| can be viewed by setting'
             '|solverVerboseLevel| to 3.'
+            ' '
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
     declareParameter(...
@@ -147,6 +151,8 @@ function localVariables_=parameters4optimize(localVariables_)
             'When |adjustAddEye2Hessian|=|true|, waits until |addEye2HessianU| becomes smaller than this value.';
             ' ';
             'This parameter is ignored when |adjustAddEye2Hessian|=|false|.'
+            ' '
+            'ATTENTION: this parameter should refer to MCSS paper'
                       });
 
     declareParameter(...
