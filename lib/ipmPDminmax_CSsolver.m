@@ -65,7 +65,7 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
         updateAddEye2HessianD=false;
         updateAddEye2HessianEq=false;
 
-        mpUdesired=obj.nU+obj.nGu+obj.nFu;
+        mpUdesired=obj.nU+obj.nGd+obj.nFd;
         mnDdesired=obj.nD;
     else
         addEye2HessianU=nan;
@@ -251,7 +251,7 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                 updateAddEye2HessianEq=false;
             end
 
-            for ii=1:20
+            for ii=1:30
                 derr=getDirectionError__(obj);
                 [mpD,mnD]=getHessDinertia__(obj);
                 [mpU,mnU]=getHessUinertia__(obj);
@@ -290,12 +290,12 @@ function [varargout]=ipmPDminmax_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessia
                         setAddEye2HessianEq__(obj,addEye2HessianEq);
                         change=true;
                     end
-                    if ~change
-                        break;
-                    end
                     if obj.verboseLevel>=4
                         fprintf('%6.1f%6.1f%6.1f%5.0f%5.0f%8.1e\n                                                              ',...
                                 log10(addEye2HessianU),log10(addEye2HessianD),log10(addEye2HessianEq),full(mpU),full(mnD),full(derr));
+                    end
+                    if ~change
+                        break;
                     end
                 end
             end
