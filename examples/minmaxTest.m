@@ -55,7 +55,7 @@ switch 5.5
     oExpr.Hess=Tvariable('Hess_',[4,4]);
     oExpr.HessD=Tvariable('HessD_',[3,3]);
     oExpr.HessU=Tvariable('HessU_',[4,4]);
-    
+
     objective=(u+d)^2-2*(d+2)^2;
     minConstraints={};
     maxConstraints={d>-1,d<1};
@@ -64,7 +64,7 @@ switch 5.5
     oExpr.Hess=Tvariable('Hess_',[6,6]);
     oExpr.HessD=Tvariable('HessD_',[5,5]);
     oExpr.HessU=Tvariable('HessU_',[6,6]);
-    
+
     maxOptimizationVariables{end+1}=x;
 
     objective=(x)^2-2*(d+2)^2;
@@ -88,7 +88,7 @@ switch 5.5
     objective=(u+d)^2-2*(d+2)^2;
     minConstraints={u>-2,u<2};
     maxConstraints={d>-1,d<1};
-  
+
   case 5.5
     oExpr.Hess=Tvariable('Hess_',[8,8]);
     oExpr.HessD=Tvariable('HessD_',[5,5]);
