@@ -698,7 +698,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
         end
 
         if (status)
-            fprintf('%3d:status=0x%s ',iter,dec2hex(status));
+            fprintf('%4d:status=0x%s ',iter,dec2hex(status));
             sep='(';
             if bitand(status,16)
                 fprintf("%clarge gradient",sep);
@@ -728,7 +728,7 @@ function [varargout]=ipmPDeq_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
             end
             fprintf(')\n                ');
         else
-            fprintf('%3d:status=0x%s, ',iter,dec2hex(status));
+            fprintf('%4d:status=0x%s, ',iter,dec2hex(status));
         end
 
         fprintf('cost=%13.5e,%13.5e ',full(f),full(g));
