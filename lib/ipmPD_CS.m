@@ -120,7 +120,7 @@ function out=ipmPD_CS(pars)
         end
     end
 
-    fprintf('(%.2f sec)\n    1st derivates...',etime(clock(),t2));
+    fprintf('(%.2f sec)\n    1st derivatives...',etime(clock(),t2));
     t2=clock();
     if addEye2Hessian
         addEye2HessianU=Tvariable('addEye2HessianU__',[],nowarningsamesize,nowarningever);
