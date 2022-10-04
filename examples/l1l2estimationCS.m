@@ -13,16 +13,23 @@ delete('toremove.m','tmp*');rc=rmdir('@tmp*','s');
 
 %optimizeCS=@class2optimizeCS; % matlab
 optimizeCS=@cmex2optimizeCS;  % c
-minInstructions4loop=100;
-N=200
-verboseLevel=2; % <=2 for speed tests
-adjustAddEye2Hessian=false; % not really needed since problem is convex, but useful for testing
+adjustAddEye2Hessian=true; % may not be needed since convex problem, but more robust
+skipAffine=true; % affine step does not seem to increase overal speed
+profiling=false;
 
-%compilerOptimization='-O0';
-compilerOptimization='-O1';
+N=200
+
+if true
+    % fastest run-time
+    compilerOptimization='-O1';
+    verboseLevel=2; % <=2 for speed tests
+else
+    % fastest compilation and more debug output
+    compilerOptimization='-O0';
+    verboseLevel=4; % <=2 for speed tests
+end
 
 allowSave=false;
-debugConvergence=false;
 
 s = RandStream('mt19937ar','Seed',1);
 RandStream.setGlobalStream(s);
@@ -70,13 +77,11 @@ if 1
         'parameters',{
             measurement;dt1;
             weight2acceleration},...
-        'skipAffine',false,...
+        'skipAffine',skipAffine,...
         'adjustAddEye2Hessian',adjustAddEye2Hessian,...
-        'debugConvergence',debugConvergence,...
-        'minInstructions4loop',minInstructions4loop,...
         'compilerOptimization',compilerOptimization,...
         'allowSave',allowSave,...
-        'profiling',false,...
+        'profiling',profiling,...
         'solverVerboseLevel',verboseLevel);
 
     obj=feval(classname);
@@ -86,14 +91,14 @@ if 1
 
     % set parameters
     setP_measurement(obj,thisMeasurement);
-    setP_dt1(obj,thisDt1);
+    %    setP_dt1(obj,thisDt1);
     setP_weight2acceleration(obj,thisWeight2acceleration);
     % initialize primal
     setV_position(obj,position_0);
 
     % call solver
-    mu=10*N;
-    maxIter=50;
+    mu=.1;
+    maxIter=100;
     saveIter=1;
     for i=1:4
         [status,iter,time]=solve(obj,mu,int32(maxIter),int32(saveIter));
@@ -168,11 +173,11 @@ J=norm2(noise2) ...
     'parameters',{
         measurement;dt1;
         weight1acceleration;weight2acceleration;weight1noise},...
-    'skipAffine',false,...
+    'skipAffine',skipAffine,...
     'adjustAddEye2Hessian',adjustAddEye2Hessian,...
-    'profiling',false,...
-    'debugConvergence',debugConvergence,...
-    'minInstructions4loop',minInstructions4loop,...
+    'scaleCost',1,...
+    'desiredDualityGap',1e-3,...
+    'profiling',profiling,...
     'compilerOptimization',compilerOptimization,...
     'allowSave',allowSave,...
     'solverVerboseLevel',verboseLevel);
@@ -206,8 +211,8 @@ setV_acceleration1(obj,acceleration1_0);
 setV_noise1abs(obj,noise1abs_0);
 setV_acceleration1abs(obj,acceleration1abs_0);
 % call solver
-mu=10*N;
-maxIter=50;
+mu=1e0;
+maxIter=100;
 saveIter=1;
 for i=1:4
     [status,iter,time]=solve(obj,mu,int32(maxIter),int32(saveIter));
