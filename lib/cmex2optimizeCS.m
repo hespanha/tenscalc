@@ -75,7 +75,24 @@ function varargout=cmex2optimizeCS(varargin)
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Hardcoded parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     debugConvergence=false; % not implemented for cmex
+    switch 3
+      case 1
+        % Original with all the options
+        createCsparseFunctions=@ipmPD_CS;
+      case 2
+        % Same algorithm as original, but with fewer options
+        createCsparseFunctions=@ipmPD_CSsimple;skipAffine=true;
+      case 3
+        % multiplicative update for lambda
+        createCsparseFunctions=@ipmPD_CStimesLambda;skipAffine=true;
+    end
+    solverScript='ipmPD_CSsolver.c';
+    solverCfunction='ipmPD_CSsolver';
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
@@ -223,8 +240,8 @@ function varargout=cmex2optimizeCS(varargin)
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
 
     %% Generate the code for the functions that do the raw computation
-    t_ipmPD=clock();
-    Tout=ipmPD_CS(struct(...
+    t_csparseDeclarations=clock();
+    Tout=createCsparseFunctions(struct(...
         'code',code,...
         'u',u,...            % single column vector
         'f',objective,...    % as a function of u
@@ -249,7 +266,7 @@ function varargout=cmex2optimizeCS(varargin)
         'cmexfunction',classname,...
         'allowSave',allowSave,...
         'debugConvergence',debugConvergence));
-    code.statistics.time.ipmPD=etime(clock,t_ipmPD);
+    code.statistics.time.csparseDeclarations=etime(clock,t_csparseDeclarations);
 
     % Replace solver variables into output expression
     fn=fields(Tout);
@@ -266,7 +283,7 @@ function varargout=cmex2optimizeCS(varargin)
     if ~isempty(simulinkLibrary)
         template(end).Sfunction=sprintf('%sS_solve',classname);
     end
-    template(end).Cfunction='ipmPD_CSsolver';
+    template(end).Cfunction=solverCfunction;
     template(end).method='solve';
     template(end).inputs(1) =struct('type','double','name','mu0','sizes',1,'default',1);
     template(end).inputs(2) =struct('type','int32','name','maxIter','sizes',1,'default',200);
@@ -314,7 +331,7 @@ function varargout=cmex2optimizeCS(varargin)
     defines.verboseLevel=solverVerboseLevel;
 
     pth=fileparts(which('cmex2optimizeCS.m'));
-    declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.c'),'ipmPD_CSsolver',...
+    declareFunction(code,fsfullfile(pth,solverScript),solverCfunction,...
                     defines,template(end).inputs,template(end).outputs,template(end).method);
 
     %% Declare 'gets' for output expressions

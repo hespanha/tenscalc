@@ -70,6 +70,24 @@ function varargout=class2optimizeCS(varargin)
     classname=regexprep(classname,'-','_');
     classname=regexprep(classname,'+','_');
 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %% Hardcoded parameters
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    switch 3
+      case 1
+        % Original with all the options
+        createCsparseFunctions=@ipmPD_CS;
+      case 2
+        % Same algorithm as original, but with fewer options
+        createCsparseFunctions=@ipmPD_CSsimple;skipAffine=true;
+      case 3
+        % multiplicative update for lambda
+        createCsparseFunctions=@ipmPD_CStimesLambda;skipAffine=true;
+    end
+
+    solverScript='ipmPD_CSsolver.m';
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% Check input parameters
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -196,8 +214,8 @@ function varargout=class2optimizeCS(varargin)
     isSensitivity=variableIndices(u,optimizationVariables,whereVariables,sensitivityVariables);
 
     %% Generate the code for the functions that do the raw computation
-    t_ipmPD=clock();
-    Tout=ipmPD_CS(struct(...
+    t_csparseDeclarations=clock();
+    Tout=createCsparseFunctions(struct(...
         'code',code,...
         'u',u,...            % single column vector
         'f',objective,...    % as a function of u
@@ -222,7 +240,7 @@ function varargout=class2optimizeCS(varargin)
         'cmexfunction',classname,...
         'allowSave',allowSave,...
         'debugConvergence',debugConvergence));
-    code.statistics.time.ipmPD=etime(clock,t_ipmPD);
+    code.statistics.time.csparseDeclarations=etime(clock,t_csparseDeclarations);
 
     % Replace solver variables into output expression
     fn=fields(Tout);
@@ -267,7 +285,7 @@ function varargout=class2optimizeCS(varargin)
     defines.verboseLevel=solverVerboseLevel;
 
     pth=fileparts(which('class2optimizeCS.m'));
-    declareFunction(code,fsfullfile(pth,'ipmPD_CSsolver.m'),'solve',defines,[],[],'solve');
+    declareFunction(code,fsfullfile(pth,solverScript),'solve',defines,[],[],'solve');
 
     %% Declare 'gets' for output expressions
     classhelp{end+1}='% Get outputs';
