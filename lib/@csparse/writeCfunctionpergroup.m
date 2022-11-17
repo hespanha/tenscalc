@@ -809,7 +809,7 @@ function writeCfunctionpergroup(obj,minInstructions4loop,maxInstructionsPerFunct
                 if strcmp(obj.copies(i).functionName,'initDualEqX__')
                     error('writeCfunctionpergroup: source and destination for Copy command ''%s'' with different sparsity structures, *most likely caused by equality constraints that do not involve optimization variables*',obj.copies(i).functionName);
                 else
-                    subscriptsDestination,subscriptsSource;
+                    subscriptsDestination,subscriptsSource,
                     error('writeCfunctionpergroup: source and destination for Copy command ''%s'' with different sparsity structures, you may need to use full() in the source\n',obj.copies(i).functionName);
                 end
             end
