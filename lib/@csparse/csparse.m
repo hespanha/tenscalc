@@ -449,7 +449,7 @@ classdef csparse < handle
 
             for i=1:length(TCsource)
                 if ~strcmp(type(TCdestination{i}),'variable')
-                    fprintf('declareCopy: ATTENTION destination ''%s'' is not a Tvariable, which may lead to unpredictable behavior\n',str(TCdestination{i}));
+                    fprintf('declareCopy: ATTENTION destination "%s" is not a Tvariable, which may lead to unpredictable behavior\n',str(TCdestination{i}));
                 end
 
                 if ~isequal(size(TCdestination{i}),size(TCsource{i}))
@@ -1456,13 +1456,12 @@ classdef csparse < handle
                 end
 
                 error('variables missing sets/copies');
-            end
-            if ~isequal(variables,sets)
+            elseif ~isequal(variables,sets)
                 variables
                 variable_names
                 sets
                 set_names
-                error('variables do not match sets/copies');
+                warning('some sets/copies do not refer to variables, which may lead to unpredictable behavior');
             end
         end
 
