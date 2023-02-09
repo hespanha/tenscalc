@@ -91,7 +91,7 @@ if 1
 
     % set parameters
     setP_measurement(obj,thisMeasurement);
-    %    setP_dt1(obj,thisDt1);
+    setP_dt1(obj,thisDt1);
     setP_weight2acceleration(obj,thisWeight2acceleration);
     % initialize primal
     setV_position(obj,position_0);
