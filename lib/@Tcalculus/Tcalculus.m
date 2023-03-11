@@ -1260,16 +1260,19 @@ classdef Tcalculus
             osize1=size(obj1);
             if length(osize1)==1
                 % vector->matrix
-                %obj=tprod(obj1,1,Teye([osize1,osize1]),[1,2]); % only for k=0
-
-                % in principle more efficient since it will never require
-                % multiplications, but tprod is also pretty good at
-                % handling multiplication by Teye;
-                if k>=0
-                    obj=vec2tensor(obj1,[osize1+k,osize1+k],[1:osize1;k+1:k+osize1]');
-                else
-                    obj=vec2tensor(obj1,[osize1-k,osize1-k],[1-k:osize1-k;1:osize1]');
-                end
+                %if k==0
+                %    % seems to scale bad for lasrge osize
+                %    obj=tprod(obj1,1,Teye([osize1,osize1]),[1,2]); % only for k=0
+                %else
+                    % in principle more efficient since it will never require
+                    % multiplications, but tprod is also pretty good at
+                    % handling multiplication by Teye;
+                    if k>=0
+                        obj=vec2tensor(obj1,[osize1+k,osize1+k],[1:osize1;k+1:k+osize1]');
+                    else
+                        obj=vec2tensor(obj1,[osize1-k,osize1-k],[1-k:osize1-k;1:osize1]');
+                    end
+                %end
                 updateFile2table(obj,1);
             elseif length(osize1)==2 && osize1(1)==osize1(2)
                 if nargin>1
