@@ -7,7 +7,10 @@
 if libisloaded('instructionsTable')
     unloadlibrary('instructionsTable');
 elseif exist('instructionsTable_load','file')
-    instructionsTable_load(0);
+    try
+        instructionsTable_load(0);
+    catch me
+    end
 end
 
 %% Go to csparse folder
