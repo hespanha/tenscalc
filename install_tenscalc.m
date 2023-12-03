@@ -41,4 +41,6 @@ fprintf('done!\n');
 pth=findSuiteSparse();
 if isempty(pth.include_paths)
     fprintf('The umfpack not installed or not in the path, ''umfpack'' option will not be available. This should not be a problem. However, if you have umfpack installed add ''SuiteSparse/UMFPACK/MATLAB/'' to your matlab path\n');
+else
+    fprintf('umfpack found at \"%s\"\n',pth)
 end
