@@ -304,7 +304,7 @@ function varargout=ipmPD_CSsolver(obj,mu0,maxIter,saveIter,addEye2Hessian)
                     updateAddEye2HessianEq=true; % update at next iteration
                 end
             else
-                for ii=1:20
+                for ii=1:1%20
                     change=false;
                     if curvature<0
                         if ~obj.useInertia
