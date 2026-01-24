@@ -5,5 +5,5 @@ function bool=isTcalculus(obj)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    bool=false;
+bool=false;
 end

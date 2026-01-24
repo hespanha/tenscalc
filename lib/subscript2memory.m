@@ -15,10 +15,10 @@ function linear=subscript2memory(tsize,subscript)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    linear=ones(1,size(subscript,2),'uint64');
-    k=uint64([1 cumprod(tsize(1:end-1))]);
-    subscript=uint64(subscript);
-    for i = length(tsize):-1:1,
-        linear=linear+(subscript(i,:)-1)*k(i);
-    end
+linear=ones(1,size(subscript,2),'uint64');
+k=uint64([1 cumprod(tsize(1:end-1))]);
+subscript=uint64(subscript);
+for i = length(tsize):-1:1,
+    linear=linear+(subscript(i,:)-1)*k(i);
+end
 end

@@ -13,11 +13,11 @@ function [alpha,k]=clp(x,dx)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    k=find(dx<0);
-    if isempty(k)
-        alpha=inf;
-    else
-        [alpha,kk]=min(-x(k)./dx(k));
-        k=k(kk);
-    end
+k=find(dx<0);
+if isempty(k)
+    alpha=inf;
+else
+    [alpha,kk]=min(-x(k)./dx(k));
+    k=k(kk);
+end
 end

@@ -23,40 +23,40 @@ function [y,ts]=tsDot(x1,x2,ts);
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if nargin<3
-        ts=(1:size(x1,2))';
-    else
-        ts=ts(:);
-    end
+if nargin<3
+    ts=(1:size(x1,2))';
+else
+    ts=ts(:);
+end
 
-    if length(size(x1))~=2 || length(size(x2))~=2
-        error('tsDot: inputs must be time series of vectors ([%s],[%s])\n',...
-              index2str(size(x1)),index2str(size(x2)));
-    end
+if length(size(x1))~=2 || length(size(x2))~=2
+    error('tsDot: inputs must be time series of vectors ([%s],[%s])\n',...
+        index2str(size(x1)),index2str(size(x2)));
+end
 
-    if length(ts)~=size(x1,2) || length(ts)~=size(x2,2)
-        error('tsDot: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
-              length(ts),index2str(size(x1)),index2str(size(x2)));
-    end
+if length(ts)~=size(x1,2) || length(ts)~=size(x2,2)
+    error('tsDot: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
+        length(ts),index2str(size(x1)),index2str(size(x2)));
+end
 
-    if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus')
-        y=tprod(x1,[-1,1],x2,[-1,1]);
-    else
-        %y=sum(x1.*x2,1);
-        y=mytprod(x1,[-1,1],x2,[-1,1])';
-    end
+if isequal(class(x1),'Tcalculus') || isequal(class(x2),'Tcalculus')
+    y=tprod(x1,[-1,1],x2,[-1,1]);
+else
+    %y=sum(x1.*x2,1);
+    y=mytprod(x1,[-1,1],x2,[-1,1])';
+end
 end
 
 function test
-    % Numeric
-    ts=pi/2:pi/10:4*pi+pi/2;
-    x=[sin(ts).*cos(ts);cos(ts).*cos(ts);sin(ts)];
-    y=tsDot(x,x,ts);
+% Numeric
+ts=pi/2:pi/10:4*pi+pi/2;
+x=[sin(ts).*cos(ts);cos(ts).*cos(ts);sin(ts)];
+y=tsDot(x,x,ts);
 
-    plot(ts,x','-x',ts,y','-+');
-    legend('x1','x2','x3','y')
+plot(ts,x','-x',ts,y','-+');
+legend('x1','x2','x3','y')
 
-    % Symbolic
-    Tvariable x [2,length(ts)]
-    y=tsDot(x,x,ts)
+% Symbolic
+Tvariable x [2,length(ts)]
+y=tsDot(x,x,ts)
 end

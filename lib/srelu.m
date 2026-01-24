@@ -11,5 +11,5 @@ function y=srelu(x)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    y=log(1+exp(x));
+y=log(1+exp(x));
 end

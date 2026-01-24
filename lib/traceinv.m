@@ -9,5 +9,5 @@ function y=traceinv(A)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    y=trace(inv(A));
+y=trace(inv(A));
 end

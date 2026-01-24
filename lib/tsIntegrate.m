@@ -26,47 +26,47 @@ function [intX,ts]=tsIntegrate(x,x0,ts,method);
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if nargin<4
-        method='trapesoidal';
-        method='euler';
-    end
+if nargin<4
+    method='trapesoidal';
+    method='euler';
+end
 
-    if isequal(class(ts),'Tcalculus') && length(size(ts))~=1 && ~isempty(size(ts))
-        error('tsIntegrate: requires times vector to be scalars or one-dimensional ([%s])\n',...
-              index2str(size(ts)));
-    end
+if isequal(class(ts),'Tcalculus') && length(size(ts))~=1 && ~isempty(size(ts))
+    error('tsIntegrate: requires times vector to be scalars or one-dimensional ([%s])\n',...
+        index2str(size(ts)));
+end
 
-    if ~isequal(class(ts),'Tcalculus') && size(ts,2)~=1
-        error('tsIntegrate: requires times vector to be a column vector ([%s])\n',...
-              index2str(size(ts)));
-    end
+if ~isequal(class(ts),'Tcalculus') && size(ts,2)~=1
+    error('tsIntegrate: requires times vector to be a column vector ([%s])\n',...
+        index2str(size(ts)));
+end
 
-    if length(size(x))~=2
-        error('tsIntegrate: only implemented for time series of vectors ([%s])\n',...
-              index2str(size(x)));
-    end
+if length(size(x))~=2
+    error('tsIntegrate: only implemented for time series of vectors ([%s])\n',...
+        index2str(size(x)));
+end
 
-    if length(ts)~=1 && length(ts)~=size(x,2)
-        error('tsIntegrate: length of sample times does not match size of input (%d,[%s])\n',...
-              length(ts),index2str(size(x)));
-    end
+if length(ts)~=1 && length(ts)~=size(x,2)
+    error('tsIntegrate: length of sample times does not match size of input (%d,[%s])\n',...
+        length(ts),index2str(size(x)));
+end
 
-    if length(ts)>1
-        switch (method)
-          case 'euler'
+if length(ts)>1
+    switch (method)
+        case 'euler'
             intX=[x0,x0+cumsum(repmat(diff(ts'),size(x,1),1).*x(:,1:end-1),2)];
-          otherwise
+        otherwise
             error('not implemented');
-        end
-    else % if length(ts)>1
-        switch (method)
-          case 'euler'
+    end
+else % if length(ts)>1
+    switch (method)
+        case 'euler'
             % causal but not quite symmetric
             intX=[x0,x0+ts'*cumsum(x(:,1:end-1),2)];
-          case 'trapesoidal'
+        case 'trapesoidal'
             % not quite causal, but more accurate
             intX=[x0,x0+(ts/2)*cumsum(x(:,1:end-1)+x(:,2:end),2)];
-          case 'invtsDerivative'
+        case 'invtsDerivative'
             % inverse of tsDerivative (up to an errorin sample
             % before last) -- introduces high frequency
             %x
@@ -77,23 +77,23 @@ function [intX,ts]=tsIntegrate(x,x0,ts,method);
             intX(:,2:2:end)=intXeven;
             intX(:,end)=(2*intX(:,end-1)-.5*intX(:,end-2)+ts*x(:,end))/1.5;
             %intX
-          otherwise
+        otherwise
             error('unknown mehtod %s',method);
-        end
     end
+end
 end
 
 function test
-    % Numeric
-    ts=pi/2:pi/10:4*pi+pi/2;
-    x=[sin(ts);cos(ts)];
-    intX1=tsIntegrate(x,[0;0],ts');
-    intX2=tsIntegrate(x,[0;0],ts(2)-ts(1));
+% Numeric
+ts=pi/2:pi/10:4*pi+pi/2;
+x=[sin(ts);cos(ts)];
+intX1=tsIntegrate(x,[0;0],ts');
+intX2=tsIntegrate(x,[0;0],ts(2)-ts(1));
 
-    plot(ts,x','-x',ts,intX1','-+',ts,intX2','-x');
-    legend('sin','cos','d sin','d cos','d sin','d cos')
+plot(ts,x','-x',ts,intX1','-+',ts,intX2','-x');
+legend('sin','cos','d sin','d cos','d sin','d cos')
 
-    % Symbolic
-    Tvariable x [2,length(ts)]
-    intX=tsIntegrate(x,[0;0],ts)
+% Symbolic
+Tvariable x [2,length(ts)]
+intX=tsIntegrate(x,[0;0],ts)
 end

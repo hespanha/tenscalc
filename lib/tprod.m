@@ -5,7 +5,7 @@ function y=tprod(varargin)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    y=mytprod(varargin{:});
+y=mytprod(varargin{:});
 
 end
 

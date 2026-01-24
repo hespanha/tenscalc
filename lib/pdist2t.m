@@ -22,29 +22,29 @@ function dist2=pdist2t(X,Y,method)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if nargin<3
-        method='euclidean';
-    end
+if nargin<3
+    method='euclidean';
+end
 
-    [N,Nx]=size(X);
-    [n,Ny]=size(Y);
+[N,Nx]=size(X);
+[n,Ny]=size(Y);
 
-    if ~isequal(N,n)
-        error('mismatch between dimensions of X ([%s]) and Y ([%s])\n',...
-              index2str(size(X)),index2str(size(Y)));
-    end
+if ~isequal(N,n)
+    error('mismatch between dimensions of X ([%s]) and Y ([%s])\n',...
+        index2str(size(X)),index2str(size(Y)));
+end
 
-    switch method
-      case 'squaredeuclidean'
+switch method
+    case 'squaredeuclidean'
         if isequal(class(X),'Tcalculus') || isequal(class(Y),'Tcalculus')
             relPos=repmat(reshape(X,[N,Nx,1]),[1,1,Ny])-repmat(reshape(Y,[N,1,Ny]),[1,Nx,1]);
             dist2=sum(sqr(relPos),1);
         else
             dist2=pdist2(X',Y',method);
         end
-      otherwise
+    otherwise
         fprintf('method ''%s'' not implemented for Tcalculus/pdist2t (use ''squaredeuclidean'')\n',...
-                method);
-    end
+            method);
+end
 
 end

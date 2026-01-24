@@ -14,12 +14,12 @@ function subscripts=memory2subscript(tsize,linear)
 %
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
-    
-    subscripts=zeros(length(tsize),length(linear),'uint64');
-    k=[1 cumprod(tsize(1:end-1))];
-    for i = length(tsize):-1:1,
-        vi = rem(linear-1, k(i)) + 1;
-        subscripts(i,:) = 1+(linear - vi)'/k(i) ;
-        linear = vi;
-    end
+
+subscripts=zeros(length(tsize),length(linear),'uint64');
+k=[1 cumprod(tsize(1:end-1))];
+for i = length(tsize):-1:1,
+    vi = rem(linear-1, k(i)) + 1;
+    subscripts(i,:) = 1+(linear - vi)'/k(i) ;
+    linear = vi;
+end
 end

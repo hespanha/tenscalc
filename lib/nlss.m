@@ -1,12 +1,12 @@
 classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
 
-% Class used to store a non-linear state space dynamical system and
-% perform numerical and symbolic (Tcalculus) simulations
-%
-% This file is part of Tencalc.
-%
-% Copyright (C) 2012-21 The Regents of the University of California
-% (author: Dr. Joao Hespanha).  All rights reserved.
+    % Class used to store a non-linear state space dynamical system and
+    % perform numerical and symbolic (Tcalculus) simulations
+    %
+    % This file is part of Tencalc.
+    %
+    % Copyright (C) 2012-21 The Regents of the University of California
+    % (author: Dr. Joao Hespanha).  All rights reserved.
 
     properties
         % system dynamics:
@@ -41,38 +41,38 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function obj=nlss(f,g,discrete,stateName,varargin)
-        % obj=nlss(f,g,discrete,stateName,x0,t0)
-        %
-        % Creates a non-linear state-space dynamical system with
-        %  . dynamics defined by the functions f and g
-        %    (output g is optional)
-        %  . discrete-time when discrete=true, continous-time otherwise
-        %  . initial condition x(t0)=x0 (column vector)
-        %  . "stateName" is a string with the name of the state
-        %    (must be a valid matlab variable name, which will be used
-        %     to represent the state as a symbolic variable in Tcalculus)
-        %    When omitted "x" will be used.
-        %
-        % For a continous-time system, the dynamics and output map are
-        %    \dot x(t) = f(x(t),u(t),t)  in  R^n
-        %         y(t) = g(x(t),u(t),t)  in  R^k
-        % and for a discrete-time system
-        %    x(k+1) = f(x(k),u(k),k)     in  R^n
-        %    y(k)   = g(x(k),u(k),k)     in  R^m
-        %
-        % The input u, state x, and output y are should be column vectors,
-        % but the function f & g must be vectorzed in the sense that
-        % they should be able to take as inputs matrices
-        %     x [n x N], u [k x N], t [N x 1]
-        % and
-        %     f(x,u,t) must return an [n x N] matrix with the ith column
-        %              equal to f(x(:,i),u(:,i),t(i))
-        %     g(x,u,t) must return an [m x N] matrix with the ith column
-        %              equal to g(x(:,i),u(:,i),t(i))
-        %
-        % For example, for a time-invariant linear system one would set
-        %     f=@(x,u,t)A*x+B*u;
-        %     g=@(x,u,t)C*x+D*u;
+            % obj=nlss(f,g,discrete,stateName,x0,t0)
+            %
+            % Creates a non-linear state-space dynamical system with
+            %  . dynamics defined by the functions f and g
+            %    (output g is optional)
+            %  . discrete-time when discrete=true, continous-time otherwise
+            %  . initial condition x(t0)=x0 (column vector)
+            %  . "stateName" is a string with the name of the state
+            %    (must be a valid matlab variable name, which will be used
+            %     to represent the state as a symbolic variable in Tcalculus)
+            %    When omitted "x" will be used.
+            %
+            % For a continous-time system, the dynamics and output map are
+            %    \dot x(t) = f(x(t),u(t),t)  in  R^n
+            %         y(t) = g(x(t),u(t),t)  in  R^k
+            % and for a discrete-time system
+            %    x(k+1) = f(x(k),u(k),k)     in  R^n
+            %    y(k)   = g(x(k),u(k),k)     in  R^m
+            %
+            % The input u, state x, and output y are should be column vectors,
+            % but the function f & g must be vectorzed in the sense that
+            % they should be able to take as inputs matrices
+            %     x [n x N], u [k x N], t [N x 1]
+            % and
+            %     f(x,u,t) must return an [n x N] matrix with the ith column
+            %              equal to f(x(:,i),u(:,i),t(i))
+            %     g(x,u,t) must return an [m x N] matrix with the ith column
+            %              equal to g(x(:,i),u(:,i),t(i))
+            %
+            % For example, for a time-invariant linear system one would set
+            %     f=@(x,u,t)A*x+B*u;
+            %     g=@(x,u,t)C*x+D*u;
 
             obj.f=f;
             if nargin>=2
@@ -95,13 +95,13 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         end % function nlss()
 
         function sz=size(obj,dim)
-        % sz=size(obj,dim)
-        %
-        % returns a row vectors containing: [# outputs, # inputs, # states]
-        %
-        % sz=size(obj,dim)
-        %
-        % returns entry 'dim' of the row evctor above.
+            % sz=size(obj,dim)
+            %
+            % returns a row vectors containing: [# outputs, # inputs, # states]
+            %
+            % sz=size(obj,dim)
+            %
+            % returns entry 'dim' of the row evctor above.
 
             sz=[obj.nOutputs,obj.nInputs,obj.nStates];
             if nargin>1
@@ -110,10 +110,10 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         end
 
         function setInitialState(obj,x0,t0)
-        % setInitialState(obj,x0,t0)
-        % Sets the initial state of a non-linear state-space dynamical
-        % system to x0 (column vector), at time t0.
-        % When t0 is omitted t0=0 is assumed.
+            % setInitialState(obj,x0,t0)
+            % Sets the initial state of a non-linear state-space dynamical
+            % system to x0 (column vector), at time t0.
+            % When t0 is omitted t0=0 is assumed.
             obj.x0=x0;
             if length(size(x0))~=2 || size(x0,2)~=1
                 error('setInitialState: initial state for a nlss system must be an [nx1] matrix ([%s] matrix instead)\n',index2str(size(x0)));
@@ -130,7 +130,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                     obj.nStates
                     x0
                     error('setInitialState: incorrect size for initial state (%d different than expected %d)',...
-                          size(x0,1),obj.nStates);
+                        size(x0,1),obj.nStates);
                 end
             end
         end % function setInitialState()
@@ -140,9 +140,9 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function s=char(obj)
-        % char(obj)
-        % Produces a string describing a non-linear state-space
-        % dynamical system.
+            % char(obj)
+            % Produces a string describing a non-linear state-space
+            % dynamical system.
             if obj.discrete
                 s=sprintf('  x^+=%s;\n',char(obj.f));
             else
@@ -164,8 +164,8 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         end % function char()
 
         function disp(obj)
-        % disp(obj)
-        % Displays a non-linear state-space dynamical system.
+            % disp(obj)
+            % Displays a non-linear state-space dynamical system.
             disp(char(obj))
         end % function disp()
 
@@ -174,37 +174,37 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
         function [y,x,constraint]=sim(obj,u,t,x0)
-        % [y,x,constraint]=sim(obj,u,t,x0)
-        % Simulates the time response of a non-linear state-space
-        % dynamical system for
-        %   t  [N] or [N x 1] = times at which the input was sampled
-        %   u  [k x N]   = input vector samples at times t(1), t(2), ..., t(end)
-        %   x0 [n x 1]   = initial value of the state at time t(1) (optional)
-        % provides
-        %   y  [m x N]   = values of the output at times t(1), t(2), ..., t(end)
-        %   x  [n x N-1] = for continuous-time:
-        %                    values of the state at times t(2), ..., t(end)
-        %   x  [n x N]   = for discrete-time
-        %                    values of the state at times t(2), ..., t(end),t(end)+1
-        % constraint  =   TC object expression a constraint on the state vector
-        %                 that enforces the dynamics.
-        % upon return the systems initial condition is set to
-        %   t0 = t(end), x0 = x(:,end) for continous-time
-        % and
-        %   t0 = t(end)+1, x0 = f(x(:,end),u(:,end),t(end)) for discrete-time
+            % [y,x,constraint]=sim(obj,u,t,x0)
+            % Simulates the time response of a non-linear state-space
+            % dynamical system for
+            %   t  [N] or [N x 1] = times at which the input was sampled
+            %   u  [k x N]   = input vector samples at times t(1), t(2), ..., t(end)
+            %   x0 [n x 1]   = initial value of the state at time t(1) (optional)
+            % provides
+            %   y  [m x N]   = values of the output at times t(1), t(2), ..., t(end)
+            %   x  [n x N-1] = for continuous-time:
+            %                    values of the state at times t(2), ..., t(end)
+            %   x  [n x N]   = for discrete-time
+            %                    values of the state at times t(2), ..., t(end),t(end)+1
+            % constraint  =   TC object expression a constraint on the state vector
+            %                 that enforces the dynamics.
+            % upon return the systems initial condition is set to
+            %   t0 = t(end), x0 = x(:,end) for continous-time
+            % and
+            %   t0 = t(end)+1, x0 = f(x(:,end),u(:,end),t(end)) for discrete-time
 
             if isnumeric(t) && size(t,2)~=1
                 error('sim: time must be a [Nx1] numeric column vector ([%s] matrix instead)\n',...
-                      index2str(size(t)));
+                    index2str(size(t)));
             end
             if ~isnumeric(t) && length(size(t))~=1
                 error('sim: time must be a [N] symbolic vector ([%s] matrix instead)\n',...
-                      index2str(size(t)));
+                    index2str(size(t)));
             end
             nT=size(t,1);
             if size(u,2)~=nT
                 error('sim: inconsistent sizes of time [%s] and input [%s]\n',...
-                      index2str(size(t)),index2str(size(u)));
+                    index2str(size(t)),index2str(size(u)));
             end
 
             %% Update/check size of input
@@ -215,7 +215,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                     obj.nInputs
                     u
                     error('setInitialState: incorrect size for input (%d different than expected %d)',...
-                          size(u,1),obj.nInputs);
+                        size(u,1),obj.nInputs);
                 end
             end
 
@@ -317,7 +317,7 @@ classdef nlss < matlab.mixin.Copyable % abstract handle class with a copy method
                     obj.nOutputs
                     u
                     error('setInitialState: incorrect size for initial state (%d different than expected %d)',...
-                          size(x0,1),obj.nOutputs);
+                        size(x0,1),obj.nOutputs);
                 end
             end
 
@@ -329,25 +329,25 @@ end % classdef
 
 function test()
 
-    clear all
-    A=[0,1;0,0];
-    B=[0;1];
-    C=[1,0];
-    D=0;
-    f=@(x,u,t)A*x+B*u;
-    g=@(x,u,t)C*x+D*u;
-    sys=nlss(f,g,0,[],[],'x')
+clear all
+A=[0,1;0,0];
+B=[0;1];
+C=[1,0];
+D=0;
+f=@(x,u,t)A*x+B*u;
+g=@(x,u,t)C*x+D*u;
+sys=nlss(f,g,0,[],[],'x')
 
-    u=(-2).^(1:5);
-    t=(1:4)';
+u=(-2).^(1:5);
+t=(1:4)';
 
-    x0=[.45;.54];
-    t0=0;
-    [y,t,x]=sim(sys,u,t,x0,t0)
+x0=[.45;.54];
+t0=0;
+[y,t,x]=sim(sys,u,t,x0,t0)
 
-    Tvariable x0 [2];
-    t0=0;
-    [y,t,x]=sim(sys,u,t,x0,t0)
+Tvariable x0 [2];
+t0=0;
+[y,t,x]=sim(sys,u,t,x0,t0)
 
 
 end

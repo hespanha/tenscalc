@@ -1,31 +1,31 @@
 classdef Tmpc < handle
-% Get help with
-%   Tmpc help;
-%
-% This file is part of Tencalc.
-%
-% Copyright (C) 2012-21 The Regents of the University of California
-% (author: Dr. Joao Hespanha).  All rights reserved.
+    % Get help with
+    %   Tmpc help;
+    %
+    % This file is part of Tencalc.
+    %
+    % Copyright (C) 2012-21 The Regents of the University of California
+    % (author: Dr. Joao Hespanha).  All rights reserved.
 
     properties (SetAccess = 'immutable');
 
         % properties set by constructor
 
         sampleTimeName=''  % When sampleTime is a symbolic
-                           % variable, this holds the name of the
-                           % variable; otherwise empty string.
+        % variable, this holds the name of the
+        % variable; otherwise empty string.
         stateDerivativeFunction  % anonymous function with the
-                                 % nominal state derivative
+        % nominal state derivative
         controlDelay       % controlDelay (in sampleTime units) before a control can be applied
 
         solverName         % name of solver class
         solverObject       % solver object
         parameters         % solver symbolic parameters
-                           % (including the parameters ones added
-                           % by Tmpc);
+        % (including the parameters ones added
+        % by Tmpc);
         objective          % MPC cost
         nOutputExpressions % number of output expressions
-                           % (exclusing the ones added by Tmpc)
+        % (exclusing the ones added by Tmpc)
 
         nStates            % length of state vector
         nControls          % length of control input vector
@@ -38,33 +38,33 @@ classdef Tmpc < handle
 
         currentStateName   % name of symbolic variable with the current state
         delayedControls    % symbolic variable with the future controls
-                           % that cannot be modified (only for controlDelay>0)
+        % that cannot be modified (only for controlDelay>0)
         optimizedControls  % symbolic variable with the future controls
-                           % that need to be optimized
+        % that need to be optimized
 
         times2add=1000;    % number of times to add to history
-                           % matrices, for each call to extendHistory
+        % matrices, for each call to extendHistory
     end
 
     properties %(GetAccess = {},SetAccess = 'immutable');
         history=struct('time',{[]},...      % vector of time instants
-                       'state',{[]},...     % matrix with state history
-                                    ...     % (one state per row, one time instant per column)
-                       'control',{[]},...   % matrix with control history
-                                      ...   % (one control per row, one time instant per column);
-                       'objective',{[]},... % vector of MPC costs
-                       'status',{[]},...    % vector of solver status
-                       'iter',{[]},...      % vector of # of solver iterations
-                       'stime',{[]},...     % vector of solver times
-                       'currentIndex',{0}); % index of current time (in History arrays)
-                         %   time has valid data from 1:currentIndex
-                         %   state has valid data from (:,1:currentIndex)
-                         %   control has valid data from (:,1:currentIndex+controlDelay-1)
-                         %      the control (:,currentIndex-1) is held
-                         %      from time(currentIndex-1) to time(currentIndex)
-                         %   status/iter/stime have valid data from
-                         %                (:,1:currentIndex+controlDelay-1)
-                         %   status/iter/stime indices match the index of the computed control
+            'state',{[]},...     % matrix with state history
+            ...     % (one state per row, one time instant per column)
+            'control',{[]},...   % matrix with control history
+            ...   % (one control per row, one time instant per column);
+            'objective',{[]},... % vector of MPC costs
+            'status',{[]},...    % vector of solver status
+            'iter',{[]},...      % vector of # of solver iterations
+            'stime',{[]},...     % vector of solver times
+            'currentIndex',{0}); % index of current time (in History arrays)
+        %   time has valid data from 1:currentIndex
+        %   state has valid data from (:,1:currentIndex)
+        %   control has valid data from (:,1:currentIndex+controlDelay-1)
+        %      the control (:,currentIndex-1) is held
+        %      from time(currentIndex-1) to time(currentIndex)
+        %   status/iter/stime have valid data from
+        %                (:,1:currentIndex+controlDelay-1)
+        %   status/iter/stime indices match the index of the computed control
 
         parameterValues={};
         parametersSet=[];
@@ -81,189 +81,189 @@ classdef Tmpc < handle
         %%%%%%%%%%%%%%%%%%%%%%%
 
         function obj=Tmpc(varargin)
-        % Creates a matlab class for
-        % 1) creating a Tcalculus solver for an MPC controller
-        % 2) running the MPC optimization
-        % 3) simulating the MPC controller
+            % Creates a matlab class for
+            % 1) creating a Tcalculus solver for an MPC controller
+            % 2) running the MPC optimization
+            % 3) simulating the MPC controller
 
             declareParameter(...
                 'Help', {
-                    'Creates a matlab class for';
-                    '1) creating a Tcalculus solver for an MPC controller';
-                    '2) calling the MPC solver';
-                    '3) simulating the MPC controller';
-                    ' ';
-                    'The MPC solver is designed to be executed after the "current state"'
-                    'x(t) has been measured in order to determined the optimal';
-                    'sequence of future states:';
-                    '   [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
-                    'and the corresponding future controls'
-                    '   [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
-                    'where ';
-                    '  Ts           = sampling time';
-                    '  controlDelay = # of time steps until the fist control can be applied';
-                    'The case controlDelay=0 corresponds to a scenario where';
-                    'the optimization runs sufficiently fast so that u(t) can basically be'
-                    'applied "simultaneously" with the measurement of x(t).';
-                    ' '
-                    'For positive values of controlDelay, the solver must be provided';
-                    'with the control input values';
-                    '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
-                    'that are scheduled to be applied before u(t+controlDelay*Ts).'
+                'Creates a matlab class for';
+                '1) creating a Tcalculus solver for an MPC controller';
+                '2) calling the MPC solver';
+                '3) simulating the MPC controller';
+                ' ';
+                'The MPC solver is designed to be executed after the "current state"'
+                'x(t) has been measured in order to determined the optimal';
+                'sequence of future states:';
+                '   [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
+                'and the corresponding future controls'
+                '   [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
+                'where ';
+                '  Ts           = sampling time';
+                '  controlDelay = # of time steps until the fist control can be applied';
+                'The case controlDelay=0 corresponds to a scenario where';
+                'the optimization runs sufficiently fast so that u(t) can basically be'
+                'applied "simultaneously" with the measurement of x(t).';
+                ' '
+                'For positive values of controlDelay, the solver must be provided';
+                'with the control input values';
+                '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
+                'that are scheduled to be applied before u(t+controlDelay*Ts).'
 
-                        });
+                });
 
             %% Declare input parameters
             declareParameter(...
                 'VariableName','solverClassname',...
                 'Description',{
-                    'Name of the solver class to be created.';
-                              });
+                'Name of the solver class to be created.';
+                });
 
             declareParameter(...
                 'VariableName','solverType',...
                 'DefaultValue','matlab',...
                 'AdmissibleValues',{'matlab','C'},...
                 'Description',{
-                    'Type of solver to be generated.';
-                              });
+                'Type of solver to be generated.';
+                });
             declareParameter(...
                 'VariableName','reuseSolver',...
                 'DefaultValue',true,...
                 'AdmissibleValues',{true,false},...
                 'Description',{
-                    'When true, tries to reuse a previously generated solver';
-                    'that was called with the same input parameters.';
-                    'In this case, a unique suffix is appended to the solverClassname';
-                              });
+                'When true, tries to reuse a previously generated solver';
+                'that was called with the same input parameters.';
+                'In this case, a unique suffix is appended to the solverClassname';
+                });
 
             declareParameter(...
                 'VariableName','sampleTime',...
                 'Description',{
-                    'Sample time for the time discretization of the dynamics.'
-                    'Can be either a double or a Tcalculus symbolic variable'
-                    });
+                'Sample time for the time discretization of the dynamics.'
+                'Can be either a double or a Tcalculus symbolic variable'
+                });
             declareParameter(...
                 'VariableName','stateVariable',...
                 'Description',{
-                    'Symbolic Tcalculus variable representing the system''s future state.';
-                    'Should be a matrix with size';
-                    '     [ # states , horizon length ]';
-                    'with value at time t equal to';
-                    '   [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
-                    'where Ts is the sample time.'
-                    ' ';
-                    'This variable can/should be used in the expressions';
-                    '  . objective';
-                    '  . constraints';
-                    '  . outputExpressions';
-                    ' '
-                    'ATTENTION: note the "mismatch" between the times of'
-                    '           stateVariable and controlVariable'
-                    });
+                'Symbolic Tcalculus variable representing the system''s future state.';
+                'Should be a matrix with size';
+                '     [ # states , horizon length ]';
+                'with value at time t equal to';
+                '   [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
+                'where Ts is the sample time.'
+                ' ';
+                'This variable can/should be used in the expressions';
+                '  . objective';
+                '  . constraints';
+                '  . outputExpressions';
+                ' '
+                'ATTENTION: note the "mismatch" between the times of'
+                '           stateVariable and controlVariable'
+                });
             declareParameter(...
                 'VariableName','controlVariable',...
                 'Description',{
-                    'Symbolic Tcalculus variable representing the current and future'
-                    'controls. Should be a matrix with size';
-                    '     [ # controls , horizon length ]';
-                    'with value at time t equal to';
-                    '   [ u(t), u(t+Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
-                    'where u(s) is applied from time s to time s+Ts';
-                    ' '
-                    'This variable can/should be used in the expressions';
-                    '  . objective';
-                    '  . constraints';
-                    '  . outputExpressions';
-                    'but care must be placed in not having constraints on';
-                    '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
-                    'that are scheduled to be applied before u(t+controlDelay*Ts)'
-                    'and are therefore not optimization variables.'
-                    ' '
-                    'ATTENTION: note the "mismatch" between the times of'
-                    '           stateVariable and controlVariable'
-                    });
+                'Symbolic Tcalculus variable representing the current and future'
+                'controls. Should be a matrix with size';
+                '     [ # controls , horizon length ]';
+                'with value at time t equal to';
+                '   [ u(t), u(t+Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
+                'where u(s) is applied from time s to time s+Ts';
+                ' '
+                'This variable can/should be used in the expressions';
+                '  . objective';
+                '  . constraints';
+                '  . outputExpressions';
+                'but care must be placed in not having constraints on';
+                '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
+                'that are scheduled to be applied before u(t+controlDelay*Ts)'
+                'and are therefore not optimization variables.'
+                ' '
+                'ATTENTION: note the "mismatch" between the times of'
+                '           stateVariable and controlVariable'
+                });
             declareParameter(...
                 'VariableName','otherOptimizationVariables',...
                 'DefaultValue',{},...
                 'Description',{
-                    'Cell array with any auxiliary optimization variables'
-                    });
+                'Cell array with any auxiliary optimization variables'
+                });
             declareParameter(...
                 'VariableName','controlDelay',...
                 'DefaultValue',0,...
                 'Description',{
-                    'Delay in sampleTime units before a control can be applied,';
-                    'i.e., the first control that uses x(t) is ';
-                    '          u(t + controlDelay * Ts),';
-                    'This means that controlVariable has two distinct components:';
-                    '1) one component that must have been determined before time t'
-                    '   and cannot be changed by the optimization executed at time t'
-                    '   that uses x(t):'
-                    '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
-                    '2) one component that will be determined by the optimization';
-                    '   executed at time t that uses x(t):'
-                    '   [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
-                    });
+                'Delay in sampleTime units before a control can be applied,';
+                'i.e., the first control that uses x(t) is ';
+                '          u(t + controlDelay * Ts),';
+                'This means that controlVariable has two distinct components:';
+                '1) one component that must have been determined before time t'
+                '   and cannot be changed by the optimization executed at time t'
+                '   that uses x(t):'
+                '   [ u(t), u(t+Ts),  ... , u(t+(controlDelay-1)*Ts) ]';
+                '2) one component that will be determined by the optimization';
+                '   executed at time t that uses x(t):'
+                '   [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
+                });
             declareParameter(...
                 'VariableName','stateDerivativeFunction',...
                 'Description',{
-                    'Anonymous function';
-                    '     f(x,u,parameter1,parameter2,...)';
-                    'that, for any integer N, must take as inputs'
-                    '  . the state,'
-                    '        [ x(t), x(t+Ts),  ... , x(t+(N-1) * Ts)] ';
-                    '  . the control,'
-                    '        [ u(t), u(t+Ts),  ... , u(t+(N-1) * Ts)] ';
-                    '  . any parameters defined in ''parameters''';
-                    'and returns the corresponding state derivatives';
-                    '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
-                    'that is used to obtain the stateVariable'
-                    '        [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
-                    'through trapesoidal integration with ZOH for u.'
-                    ' '
-                    'The function must accept all inputs to be either'
-                    '  . matrices of doubles of appropriate sizes, or'
-                    '  . Tcalculus symbolic matrices also of appropriate size.';
-                    ' ';
-                    'This derivative is used by MPC and should correspond to the'
-                    'nominal dynamics.'
-                    });
+                'Anonymous function';
+                '     f(x,u,parameter1,parameter2,...)';
+                'that, for any integer N, must take as inputs'
+                '  . the state,'
+                '        [ x(t), x(t+Ts),  ... , x(t+(N-1) * Ts)] ';
+                '  . the control,'
+                '        [ u(t), u(t+Ts),  ... , u(t+(N-1) * Ts)] ';
+                '  . any parameters defined in ''parameters''';
+                'and returns the corresponding state derivatives';
+                '        [ dx(t), dx(t+Ts),  ... , dx(t+(N-1) * Ts)] ';
+                'that is used to obtain the stateVariable'
+                '        [ x(t+Ts), x(t+2*Ts),  ... , x(t+nHorizon * Ts) ] ';
+                'through trapesoidal integration with ZOH for u.'
+                ' '
+                'The function must accept all inputs to be either'
+                '  . matrices of doubles of appropriate sizes, or'
+                '  . Tcalculus symbolic matrices also of appropriate size.';
+                ' ';
+                'This derivative is used by MPC and should correspond to the'
+                'nominal dynamics.'
+                });
             declareParameter(...
                 'VariableName','objective',...
                 'Description',{
-                    'Scalar Tcalculus symbolic expression with the MPC criteria'
-                    'to be minimized.';
-                              });
+                'Scalar Tcalculus symbolic expression with the MPC criteria'
+                'to be minimized.';
+                });
             declareParameter(...
                 'VariableName','constraints',...
                 'DefaultValue',{},...
                 'Description',{
-                    'Cell-array of Tcalculus symbolic objects representing MPC';
-                    'constraints. Both equality and inequality constraints';
-                    'are allowed.';
-                              });
+                'Cell-array of Tcalculus symbolic objects representing MPC';
+                'constraints. Both equality and inequality constraints';
+                'are allowed.';
+                });
 
             declareParameter(...
                 'VariableName','parameters',...
                 'DefaultValue',{},...
                 'Description',{
-                    'Cell-array of Tcalculus symbolic objects representing the MPC ';
-                    'parameters (must be given, not optimized).';
-                      });
+                'Cell-array of Tcalculus symbolic objects representing the MPC ';
+                'parameters (must be given, not optimized).';
+                });
             declareParameter(...
                 'VariableName','outputExpressions',...
                 'Description',{
-                    'Cell-array of Tcalculus symbolic objects representing the ';
-                    'variables to be returned.';
-                      });
+                'Cell-array of Tcalculus symbolic objects representing the ';
+                'variables to be returned.';
+                });
             declareParameter(...
                 'VariableName','solverParameters',...
                 'DefaultValue',{},...
                 'Description',{
-                    'Cell-array of parameter names/values to be passed to the Tcalculus';
-                    'solver generator.'
-                      });
+                'Cell-array of parameter names/values to be passed to the Tcalculus';
+                'solver generator.'
+                });
 
 
             %% Retrieve parameters and inputs
@@ -295,48 +295,48 @@ classdef Tmpc < handle
             end
             if controlDelay>=obj.nHorizon
                 error('controlDelay %d must be smaller than horizon length %s',...
-                      controlDelay,obj.nHorizon);
+                    controlDelay,obj.nHorizon);
             end
             % check sampleTime
             switch class(sampleTime)
-              case 'double'
-                if ~isequal(size(sampleTime),[1,1])
-                    sampleTime,
-                    error('sampleTime must be a scalar');
-                end
-                obj.sampleTimeValue=sampleTime;
-              case 'Tcalculus'
-                if ~isempty(size(sampleTime))
-                    sampleTime,
-                    error('sampleTime must be a scalar');
-                end
-                if ~strcmp(type(sampleTime),'variable')
-                    sampleTime,
-                    error('symbolic sampleTime must be a variable');
-                end
-                obj.sampleTimeName=name(sampleTime);
-                found=false;
-                for i=1:length(parameters)
-                    if ~strcmp(class(parameters{i}),'Tcalculus')
-                        disp(parameters{i})
-                        error('Tmpc: parameter %d not of class Tcalculus',i);
+                case 'double'
+                    if ~isequal(size(sampleTime),[1,1])
+                        sampleTime,
+                        error('sampleTime must be a scalar');
                     end
-                    if ~strcmp(type(parameters{i}),'variable')
-                        disp(parameters{i})
-                        error('Tmpc: parameter %d not a Tcalculus variable',i);
+                    obj.sampleTimeValue=sampleTime;
+                case 'Tcalculus'
+                    if ~isempty(size(sampleTime))
+                        sampleTime,
+                        error('sampleTime must be a scalar');
                     end
-                    if strcmp(name(parameters{i}),obj.sampleTimeName)
-                        found=true;
-                        break;
+                    if ~strcmp(type(sampleTime),'variable')
+                        sampleTime,
+                        error('symbolic sampleTime must be a variable');
                     end
-                end
-                if ~found
-                    sampleTime,parameters
-                    error('symbolic sampleTime must be one of the parameters');
-                end
-              otherwise
-                sampleTime,
-                error('sampleTime must be a double or a Tcalculus object');
+                    obj.sampleTimeName=name(sampleTime);
+                    found=false;
+                    for i=1:length(parameters)
+                        if ~strcmp(class(parameters{i}),'Tcalculus')
+                            disp(parameters{i})
+                            error('Tmpc: parameter %d not of class Tcalculus',i);
+                        end
+                        if ~strcmp(type(parameters{i}),'variable')
+                            disp(parameters{i})
+                            error('Tmpc: parameter %d not a Tcalculus variable',i);
+                        end
+                        if strcmp(name(parameters{i}),obj.sampleTimeName)
+                            found=true;
+                            break;
+                        end
+                    end
+                    if ~found
+                        sampleTime,parameters
+                        error('symbolic sampleTime must be one of the parameters');
+                    end
+                otherwise
+                    sampleTime,
+                    error('sampleTime must be a double or a Tcalculus object');
             end
             % check sample time
 
@@ -376,10 +376,10 @@ classdef Tmpc < handle
                 % first controlDelay controls are parameters, whereas remaining are
                 % optimization variables
                 obj.delayedControls=Tvariable([name(controlVariable),'_delayed'],...
-                                              [obj.nControls,obj.controlDelay]);
+                    [obj.nControls,obj.controlDelay]);
                 obj.delayedControlName=name(obj.delayedControls);
                 obj.optimizedControls=Tvariable([name(controlVariable),'_optimized'],...
-                                                [obj.nControls,obj.nHorizon-obj.controlDelay]);
+                    [obj.nControls,obj.nHorizon-obj.controlDelay]);
                 obj.futureControlName=name(obj.optimizedControls);
                 thisControl=[obj.delayedControls,obj.optimizedControls];
                 obj.objective=substitute(obj.objective,controlVariable,thisControl);
@@ -404,21 +404,21 @@ classdef Tmpc < handle
                     %    (x_{k+1} - x_k)/Ts == (f(x_{k+1},u_k)+f(x_k,u_k))/2
                     dynamics=(stateVariable-thisState)==.5*sampleTime*(...
                         stateDerivativeFunction(stateVariable,...
-                                                thisControl,...
-                                                parameters{:})...
+                        thisControl,...
+                        parameters{:})...
                         +stateDerivativeFunction(thisState,...
-                                                 thisControl,...
-                                                 parameters{:}));
+                        thisControl,...
+                        parameters{:}));
                 else
                     %% Forward Euler integration
                     dynamics=(stateVariable==thisState+...
-                              sampleTime*stateDerivativeFunction(thisState,...
-                                                                 thisControl,...
-                                                                 parameters{:}));
+                        sampleTime*stateDerivativeFunction(thisState,...
+                        thisControl,...
+                        parameters{:}));
                     Jdynamics=norm2(stateVariable-thisState-...
-                                    sampleTime*stateDerivativeFunction(thisState,...
-                                                                      thisControl,...
-                                                                      parameters{:}));
+                        sampleTime*stateDerivativeFunction(thisState,...
+                        thisControl,...
+                        parameters{:}));
                 end
 
                 % add output expressions for debug
@@ -442,12 +442,12 @@ classdef Tmpc < handle
 
             %% Call solver
             switch solverType
-              case 'matlab'
-                solver=@class2optimizeCS;
-              case 'C'
-                solver=@cmex2optimizeCS;
-              otherwise
-                error('unknown solver type "%s"',solverType);
+                case 'matlab'
+                    solver=@class2optimizeCS;
+                case 'C'
+                    solver=@cmex2optimizeCS;
+                otherwise
+                    error('unknown solver type "%s"',solverType);
             end
 
             if reuseSolver
@@ -474,14 +474,14 @@ classdef Tmpc < handle
             end
 
             [classname,code]=solver('pedigreeClass',solverClassname,...
-                                    'executeScript',executeScript,...
-                                    'objective',obj.objective,...
-                                    'optimizationVariables',...
-                                    {obj.optimizedControls,stateVariable,otherOptimizationVariables{:}},...
-                                    'constraints',constraints,...
-                                    'parameters',obj.parameters,...
-                                    'outputExpressions',outputExpressions,...
-                                    solverParameters{:});
+                'executeScript',executeScript,...
+                'objective',obj.objective,...
+                'optimizationVariables',...
+                {obj.optimizedControls,stateVariable,otherOptimizationVariables{:}},...
+                'constraints',constraints,...
+                'parameters',obj.parameters,...
+                'outputExpressions',outputExpressions,...
+                solverParameters{:});
 
             obj.solverName=getValue(classname);
             obj.solverObject=feval(obj.solverName);
@@ -493,9 +493,9 @@ classdef Tmpc < handle
         %%%%%%%%%%%%%%%%%%%
 
         function extendHistory(obj)
-        % extendHistory(obj)
-        %
-        % adds time-steps to the History matrices
+            % extendHistory(obj)
+            %
+            % adds time-steps to the History matrices
 
             obj.history.time=[obj.history.time;nan(obj.times2add,1)];
             obj.history.state=[obj.history.state,nan(obj.nStates,obj.times2add)];
@@ -507,9 +507,9 @@ classdef Tmpc < handle
         end
 
         function setParameter(obj,name,value)
-        % setParameter(obj,name,value);
-        %
-        % Sets the value of parameter called 'name' with the given value
+            % setParameter(obj,name,value);
+            %
+            % Sets the value of parameter called 'name' with the given value
 
             k=find(strcmp(name,obj.parameterNames));
             if isempty(k)
@@ -540,26 +540,26 @@ classdef Tmpc < handle
         end
 
         function setSolverInputStart(obj,value)
-        % setSolverInputStart(obj,value)
-        %
-        % Sets the value for the input that will be used to initialize
-        % the solver.
-        %
-        % A warm start from the previous MPC optimization often helps.
+            % setSolverInputStart(obj,value)
+            %
+            % Sets the value for the input that will be used to initialize
+            % the solver.
+            %
+            % A warm start from the previous MPC optimization often helps.
 
             feval(['setV_',obj.futureControlName],obj.solverObject,...
-                  value(:,obj.controlDelay+1:end));
+                value(:,obj.controlDelay+1:end));
             obj.controlSet=true;
         end
 
         function setSolverStateStart(obj,value)
-        % setSolverStateStart(obj,value)
-        %
-        % Sets the value for the state that will be used to
-        % initialize the solver.
-        %
-        % A warm start compatible with the value given to
-        % |setInputStart| often helps.
+            % setSolverStateStart(obj,value)
+            %
+            % Sets the value for the state that will be used to
+            % initialize the solver.
+            %
+            % A warm start compatible with the value given to
+            % |setInputStart| often helps.
 
 
             feval(['setV_',obj.stateName],obj.solverObject,value(:,2:end));
@@ -568,15 +568,15 @@ classdef Tmpc < handle
 
 
         function setInitialState(obj,tinit,xinit,uinit);
-        % setInitialState(obj,tinit,xinit);
-        %  or
-        % setInitialState(obj,tinit,xinit,uinit);
-        %
-        % Initilizes the system with
-        %   tinit - initial time
-        %   xinit - state at time tinit
-        %   uinit - control at times tinit..tinit+Ts*(controlDelay-1)
-        %           (only needed if controlDelay>0)
+            % setInitialState(obj,tinit,xinit);
+            %  or
+            % setInitialState(obj,tinit,xinit,uinit);
+            %
+            % Initilizes the system with
+            %   tinit - initial time
+            %   xinit - state at time tinit
+            %   uinit - control at times tinit..tinit+Ts*(controlDelay-1)
+            %           (only needed if controlDelay>0)
             if ~isequal(size(tinit),[1,1]);
                 error('time value value must be a scalar');
             end
@@ -588,7 +588,7 @@ classdef Tmpc < handle
             end
             if ~isequal(size(uinit),[obj.nControls,obj.controlDelay])
                 error('control value must be a column %dx%d array',...
-                      obj.nControls,obj.controlDelay);
+                    obj.nControls,obj.controlDelay);
             end
             obj.history.time(1)=tinit;
             obj.history.state(:,1)=xinit;
@@ -597,40 +597,40 @@ classdef Tmpc < handle
         end
 
         function state=setSolverWarmStart(obj,control)
-        % state=setSolverWarmStart(obj,control)
-        %
-        % Given
-        %    control = Sequence of future controls (past the delay).
-        %            Should be a matrix with size
-        %                  # controls x (horizon length - controlDelay)
-        %            with values
-        %                 [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
-        %            where t is the current time and u(s) is applied from time s to time s+Ts
-        % Computes
-        %    state = Sequence of future states.
-        %            Should be a matrix with size
-        %                  # states x (horizon length)
-        %            with values
-        %               [ x(t), x(t+Ts),  ... , x(t+(nHorizon-1)*Ts) ]% ;
-        % and initializes the solver with these sequences.
-        %
-        % The differential equation is integrated using forward
-        % Euler.
-        %
-        % ATTENTION: This function does not enforce state
-        % constraints. If state constraints are being used one
-        % should move the output |state| away from the constraints
-        % and reset it using |setSolverStateStart|
+            % state=setSolverWarmStart(obj,control)
+            %
+            % Given
+            %    control = Sequence of future controls (past the delay).
+            %            Should be a matrix with size
+            %                  # controls x (horizon length - controlDelay)
+            %            with values
+            %                 [ u(t+controlDelay*Ts),  ... , u(t+(nHorizon-1)*Ts) ]';
+            %            where t is the current time and u(s) is applied from time s to time s+Ts
+            % Computes
+            %    state = Sequence of future states.
+            %            Should be a matrix with size
+            %                  # states x (horizon length)
+            %            with values
+            %               [ x(t), x(t+Ts),  ... , x(t+(nHorizon-1)*Ts) ]% ;
+            % and initializes the solver with these sequences.
+            %
+            % The differential equation is integrated using forward
+            % Euler.
+            %
+            % ATTENTION: This function does not enforce state
+            % constraints. If state constraints are being used one
+            % should move the output |state| away from the constraints
+            % and reset it using |setSolverStateStart|
 
             if ~isequal(size(control),[obj.nControls,obj.nHorizon-obj.controlDelay])
                 error('size of control [%d,%d] does not match expected size [%d,%d]',...
-                      size(control,1),size(control,2),obj.nControls,obj.nHorizon-obj.controlDelay);
+                    size(control,1),size(control,2),obj.nControls,obj.nHorizon-obj.controlDelay);
             end
             if ~all(obj.parametersSet(1:length(obj.parameterValues)))
                 fprintf('did not set values for:');
                 obj.parametersSet
                 disp(obj.parameterNames(~obj.parametersSet &...
-                                        (1:length(obj.parameterNames))<=length(obj.parameterValues)));
+                    (1:length(obj.parameterNames))<=length(obj.parameterValues)));
                 error('must set all parameter values before calling setSolverWarmStart');
             end
             if obj.history.currentIndex<1
@@ -647,7 +647,7 @@ classdef Tmpc < handle
                     % Forward Euler integration for the dynamics
                     state(:,k+1)=state(:,k)+obj.sampleTimeValue*...
                         obj.stateDerivativeFunction(state(:,k),control(:,k),...
-                                                    obj.parameterValues{:});
+                        obj.parameterValues{:});
                 catch me
                     fprintf('error in appyling ''stateDerivativeFunction'' to numerical values\n');
                     rethrow(me);
@@ -657,30 +657,30 @@ classdef Tmpc < handle
             obj.stateSet=true;
             if obj.controlDelay>0
                 setParameter(obj,obj.delayedControlName,...
-                                 control(:,1:obj.controlDelay));
+                    control(:,1:obj.controlDelay));
             end
             feval(['setV_',obj.futureControlName],obj.solverObject,...
-                  control(:,obj.controlDelay+1:end));
+                control(:,obj.controlDelay+1:end));
             obj.controlSet=true;
         end
 
         function [solution,varargout]=solve(obj,mu0,maxIter,saveIter,addEye2Hessian)
-        % [solution,y1,y2,...]=solve(obj,mu0,maxIter,saveIter,addEye2Hessian)
-        %
-        % Given
-        %   mu0      - initial value for the gap variable
-        %   maxIter  - maximum number of iterations
-        %   saveIter - iteration # when to save the "hessian" matrix
-        %              (see class2optimizeCS/cmex2optimizeCS)
-        % Calls the solver and returns:
-        %   solution.control  - optimal control signals (past controlDelay)
-        %   solution.state  - optimal state
-        %   solution.status - solver exit status
-        %   solution.iter   - number of solver iterations
-        %   solution.time   - time taken by solver
-        %   y1,y2,...       - output expressions (passed to the constructor)
-        %
-        % Should check if all parameters have been set
+            % [solution,y1,y2,...]=solve(obj,mu0,maxIter,saveIter,addEye2Hessian)
+            %
+            % Given
+            %   mu0      - initial value for the gap variable
+            %   maxIter  - maximum number of iterations
+            %   saveIter - iteration # when to save the "hessian" matrix
+            %              (see class2optimizeCS/cmex2optimizeCS)
+            % Calls the solver and returns:
+            %   solution.control  - optimal control signals (past controlDelay)
+            %   solution.state  - optimal state
+            %   solution.status - solver exit status
+            %   solution.iter   - number of solver iterations
+            %   solution.time   - time taken by solver
+            %   y1,y2,...       - output expressions (passed to the constructor)
+            %
+            % Should check if all parameters have been set
             if ~all(obj.parametersSet)
                 fprintf('did not set values for:');
                 disp(obj.parameterNames(~obj.parametersSet));
@@ -705,16 +705,16 @@ classdef Tmpc < handle
         end
 
         function [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
-        % [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
-        %
-        % Given a solver solution
-        % . applies the first control
-        % . computed the state evolution using ODE23
-        % and returns
-        % . time for the first state value for the next MPC optimization
-        %   (usefull to set up reference signals)
-        % . warm start for the next MPC optimization,
-        %   inserting the control 'ufinal' at the end of the interval.
+            % [t,u0_warm,u_applied]=applyControls(obj,solution,ufinal,stateDerivativeFunctionReal);
+            %
+            % Given a solver solution
+            % . applies the first control
+            % . computed the state evolution using ODE23
+            % and returns
+            % . time for the first state value for the next MPC optimization
+            %   (usefull to set up reference signals)
+            % . warm start for the next MPC optimization,
+            %   inserting the control 'ufinal' at the end of the interval.
 
             if (nargin<4)
                 stateDerivativeFunctionReal=obj.stateDerivativeFunction;
@@ -743,8 +743,8 @@ classdef Tmpc < handle
                     % Integration for the dynamics using ode23
                     [tout,yout]=ode23(...
                         @(t,x)stateDerivativeFunctionReal(x,...
-                                                          obj.history.control(:,obj.history.currentIndex-1),...
-                                                          obj.parameterValues{:}),...
+                        obj.history.control(:,obj.history.currentIndex-1),...
+                        obj.parameterValues{:}),...
                         [obj.history.time(obj.history.currentIndex-1),obj.history.time(obj.history.currentIndex)],...
                         obj.history.state(:,obj.history.currentIndex-1));
                     obj.history.state(:,obj.history.currentIndex)=yout(end,:)';
@@ -753,8 +753,8 @@ classdef Tmpc < handle
                     obj.history.state(:,obj.history.currentIndex)=...
                         obj.history.state(:,obj.history.currentIndex-1)+obj.sampleTimeValue*...
                         stateDerivativeFunctionReal(obj.history.state(:,obj.history.currentIndex-1),...
-                                                    obj.history.control(:,obj.history.currentIndex-1),...
-                                                    obj.parameterValues{:});
+                        obj.history.control(:,obj.history.currentIndex-1),...
+                        obj.parameterValues{:});
                 end
             catch me
                 fprintf('error in appyling ''stateDerivativeFunctionReal'' to numerical values\n');
@@ -770,15 +770,15 @@ classdef Tmpc < handle
         end
 
         function history=getHistory(obj);
-        % [t,x,u,status,iter,stime]=getHistory(obj);
-        %
-        % Returns the history of
-        %    history.t      - sampling times
-        %    history.u      - control values
-        %    history.x      - state values
-        %    history.status - solver status
-        %    history.iter   - # of solver iterations
-        %    history.stime  - solver times
+            % [t,x,u,status,iter,stime]=getHistory(obj);
+            %
+            % Returns the history of
+            %    history.t      - sampling times
+            %    history.u      - control values
+            %    history.x      - state values
+            %    history.status - solver status
+            %    history.iter   - # of solver iterations
+            %    history.stime  - solver times
 
             history.t=obj.history.time(1:obj.history.currentIndex-1);
             history.u=obj.history.control(:,1:obj.history.currentIndex-1);

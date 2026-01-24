@@ -10,17 +10,17 @@ function varargout=toCalculus(varargin)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    varargout=varargin;
-    for i=1:length(varargin)
-        if isa(varargin{i},'Tcalculus')
-            continue;
-        elseif isnumeric(varargin{i})
-            varargout{i}=Tconstant(varargin{i});
-            updateFile2table(varargout{i},2);
-        else
-            varargin{i}
-            error('toCalculus: cannot convert class ''%s'' to ''Tcalculus''',class(varargin{i}));
-        end
+varargout=varargin;
+for i=1:length(varargin)
+    if isa(varargin{i},'Tcalculus')
+        continue;
+    elseif isnumeric(varargin{i})
+        varargout{i}=Tconstant(varargin{i});
+        updateFile2table(varargout{i},2);
+    else
+        varargin{i}
+        error('toCalculus: cannot convert class ''%s'' to ''Tcalculus''',class(varargin{i}));
     end
+end
 end
 

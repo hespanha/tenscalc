@@ -9,6 +9,6 @@ function y=logdet(A)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    warning('this is a very bad way to cpmpute log-det\n');
-    y=log(det(A));
+warning('this is a very bad way to cpmpute log-det\n');
+y=log(det(A));
 end

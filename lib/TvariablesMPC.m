@@ -39,16 +39,16 @@ function [Ts,xMeas,xFut,uPast,uFut,dynamics]=TvariablesMPC(nX,nU,T,delay,fun,var
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    Tvariable Ts     [];
+Tvariable Ts     [];
 
-    Tvariable xMeas  [nX,1];
-    Tvariable xFut   [nX,T];
+Tvariable xMeas  [nX,1];
+Tvariable xFut   [nX,T];
 
-    Tvariable uPast  [nU,delay];
-    Tvariable uFut   [nU,T-delay];
+Tvariable uPast  [nU,delay];
+Tvariable uFut   [nU,T-delay];
 
-    xPast=[xMeas,xFut(:,1:end-1)];
-    uAll=[uPast,uFut];
-    dynamics = xFut-xPast==.5*Ts*(fun(xFut,uAll,varargin{:})+fun(xPast,uAll,varargin{:}));
+xPast=[xMeas,xFut(:,1:end-1)];
+uAll=[uPast,uFut];
+dynamics = xFut-xPast==.5*Ts*(fun(xFut,uAll,varargin{:})+fun(xPast,uAll,varargin{:}));
 
 end

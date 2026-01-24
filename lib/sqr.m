@@ -8,6 +8,6 @@ function y=sqr(x)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    y=x.^2;
+y=x.^2;
 end
 

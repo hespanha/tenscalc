@@ -28,46 +28,46 @@ function [stateConstraints,y,z]=TltiConstraints(A,B,C,D,G,H,x0,x,u,Ty,Tz);
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if ismember(class(B),{'Tvariable','Tcalculus'})
-        nx=msize(B,1);
-        nu=msize(B,2);
+if ismember(class(B),{'Tvariable','Tcalculus'})
+    nx=msize(B,1);
+    nu=msize(B,2);
+else
+    nx=size(B,1);
+    nu=size(B,2);
+end
+if ismember(class(u),{'Tvariable','Tcalculus'})
+    Tu=msize(u,2);
+else
+    Tu=size(u,2);
+end
+
+u=reshape(u,[nu,Tu]);
+A=reshape(A,[nx,nx]);
+B=reshape(B,[nx,nu]);
+stateConstraints=(x==A*[x0,x(:,1:Tu-1)]+B*u);
+
+
+if ~isempty(C)
+    if ismember(class(C),{'Tvariable','Tcalculus'})
+        ny=msize(C,1);
     else
-        nx=size(B,1);
-        nu=size(B,2);
+        ny=size(C,1);
     end
-    if ismember(class(u),{'Tvariable','Tcalculus'})
-        Tu=msize(u,2);
+    C=reshape(C,[ny,nx]);
+    D=reshape(D,[ny,nu]);
+    y=C*[x0,x(:,1:Ty-1)]+D*u(:,1:Ty);
+end
+
+
+if ~isempty(G)
+    if ismember(class(G),{'Tvariable','Tcalculus'})
+        nz=msize(G,1);
     else
-        Tu=size(u,2);
+        nz=size(G,1);
     end
-
-    u=reshape(u,[nu,Tu]);
-    A=reshape(A,[nx,nx]);
-    B=reshape(B,[nx,nu]);
-    stateConstraints=(x==A*[x0,x(:,1:Tu-1)]+B*u);
-
-
-    if ~isempty(C)
-        if ismember(class(C),{'Tvariable','Tcalculus'})
-            ny=msize(C,1);
-        else
-            ny=size(C,1);
-        end
-        C=reshape(C,[ny,nx]);
-        D=reshape(D,[ny,nu]);
-        y=C*[x0,x(:,1:Ty-1)]+D*u(:,1:Ty);
-    end
-
-
-    if ~isempty(G)
-        if ismember(class(G),{'Tvariable','Tcalculus'})
-            nz=msize(G,1);
-        else
-            nz=size(G,1);
-        end
-        G=reshape(G,[nz,nx]);
-        H=reshape(H,[nz,nu]);
-        z=G*[x0,x(:,1:Tz-1)]+H*u(:,1:Tz);
-    end
+    G=reshape(G,[nz,nx]);
+    H=reshape(H,[nz,nu]);
+    z=G*[x0,x(:,1:Tz-1)]+H*u(:,1:Tz);
+end
 
 end

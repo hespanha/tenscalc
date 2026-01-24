@@ -13,10 +13,10 @@ function obj=Tones(varargin)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if nargin==1
-        osize=varargin{1};
-    else
-        osize=[varargin{:}];
-    end
-    obj=Tcalculus('ones',osize,[],[],{},1);
+if nargin==1
+    osize=varargin{1};
+else
+    osize=[varargin{:}];
+end
+obj=Tcalculus('ones',osize,[],[],{},1);
 end

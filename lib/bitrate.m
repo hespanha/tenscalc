@@ -11,10 +11,10 @@ function br=bitrate(snr)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if isequal(class(snr),'Tcalculus')
-        br=compose(snr,@(x__)log(1+x__)/log(2),@(x__)1./(1+x__)/log(2),@(x__)-1./(1+x__).^2);
-    else
-        br=log(1+snr)/log(2);
-    end
+if isequal(class(snr),'Tcalculus')
+    br=compose(snr,@(x__)log(1+x__)/log(2),@(x__)1./(1+x__)/log(2),@(x__)-1./(1+x__).^2);
+else
+    br=log(1+snr)/log(2);
+end
 end
 

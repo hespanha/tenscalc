@@ -28,43 +28,43 @@ function [outVariable,whereVariables,packCmd,unpackCmd,varargout]=packVariables(
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    nowarningsamesize=true;
-    nowarningever=true;
+nowarningsamesize=true;
+nowarningever=true;
 
-    verboseLevel=0;
+verboseLevel=0;
 
-    n=0;
-    packCmd=sprintf('%s=[',outVariableName);
-    unpackCmd='';
-    whereVariables=cell(length(inVariables),1);
-    for i=1:length(inVariables)
-        if ~isequal(inVariables{i}.type,'variable')
-            inVariables{i}
-            inVariables{i}.type
-            error('Can only pack variables (not %s)',        inVariables{i}.type);
-        end
-        len=prod(size(inVariables{i}));
-        packCmd=sprintf('%sreshape(%s,%d,1);',packCmd,name(inVariables{i}),len);
-        unpackCmd=sprintf('%s%s=reshape(%s(%d:%d),%s);',...
-                       unpackCmd,inVariables{i}.name,outVariableName,n+1,n+len,...
-                       index2str(msize(inVariables{i})));
-        whereVariables{i}=n+1:n+len;
-        n=n+len;
+n=0;
+packCmd=sprintf('%s=[',outVariableName);
+unpackCmd='';
+whereVariables=cell(length(inVariables),1);
+for i=1:length(inVariables)
+    if ~isequal(inVariables{i}.type,'variable')
+        inVariables{i}
+        inVariables{i}.type
+        error('Can only pack variables (not %s)',        inVariables{i}.type);
     end
-    packCmd=[packCmd,']'];
+    len=prod(size(inVariables{i}));
+    packCmd=sprintf('%sreshape(%s,%d,1);',packCmd,name(inVariables{i}),len);
+    unpackCmd=sprintf('%s%s=reshape(%s(%d:%d),%s);',...
+        unpackCmd,inVariables{i}.name,outVariableName,n+1,n+len,...
+        index2str(msize(inVariables{i})));
+    whereVariables{i}=n+1:n+len;
+    n=n+len;
+end
+packCmd=[packCmd,']'];
 
-    outVariable=Tvariable(outVariableName,n,nowarningsamesize,nowarningever);
+outVariable=Tvariable(outVariableName,n,nowarningsamesize,nowarningever);
 
-    if verboseLevel>0
-        global substituteCounter;
-        substituteCounter=0;
-    end
+if verboseLevel>0
+    global substituteCounter;
+    substituteCounter=0;
+end
 
-    varargout={};
-    for i=1:length(varargin)
-        varargout{i}=substitute(varargin{i},inVariables,outVariable);
-    end
-    if verboseLevel>0
-        fprintf('  packVariables: %d substitutions\n',substituteCounter);
-    end
+varargout={};
+for i=1:length(varargin)
+    varargout{i}=substitute(varargin{i},inVariables,outVariable);
+end
+if verboseLevel>0
+    fprintf('  packVariables: %d substitutions\n',substituteCounter);
+end
 end

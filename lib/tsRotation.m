@@ -30,95 +30,95 @@ function [y,ts]=tsRotation(q,x,ts);
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if nargin<3
-        ts=(1:size(q,2))';
-    else
-        ts=ts(:);
-    end
+if nargin<3
+    ts=(1:size(q,2))';
+else
+    ts=ts(:);
+end
 
-    if ~isequal(class(q),'Tcalculus') && ~isequal(class(x),'Tcalculus')
-        whichtprod=@mytprod;
-    else
-        whichtprod=@tprod;
-    end
+if ~isequal(class(q),'Tcalculus') && ~isequal(class(x),'Tcalculus')
+    whichtprod=@mytprod;
+else
+    whichtprod=@tprod;
+end
 
-    if length(size(q))~=2 || size(q,1)~=4
-        error('tsRotation: first input must be a time series of 4-vectors ([%s])\n',...
-              index2str(size(q)));
-    end
+if length(size(q))~=2 || size(q,1)~=4
+    error('tsRotation: first input must be a time series of 4-vectors ([%s])\n',...
+        index2str(size(q)));
+end
 
-    if length(size(x))~=2 || size(x,1)~=3
-        error('tsRotation: second input must be a time series of 3-vectors ([%s])\n',...
-              index2str(size(x)));
-    end
+if length(size(x))~=2 || size(x,1)~=3
+    error('tsRotation: second input must be a time series of 3-vectors ([%s])\n',...
+        index2str(size(x)));
+end
 
-    if length(ts)~=size(x,2) || length(ts)~=size(q,2)
-        error('tsRotation: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
-              length(ts),index2str(size(q)),index2str(size(x)));
-    end
+if length(ts)~=size(x,2) || length(ts)~=size(q,2)
+    error('tsRotation: length of sample times does not match size of inputs (%d,[%s],[%s])\n',...
+        length(ts),index2str(size(q)),index2str(size(x)));
+end
 
-    % pq=[p0*q0-p'*q;
-    %     q0*p+p0*q+cross(p,q)];
-    if isequal(class(q),'Tcalculus')
-        q0=reshape(q(1,:),length(ts));
-    else
-        q0=q(1,:)';
-    end
-    minus_qx0=tsDot(q(2:4,:),x,ts);
-    if ~isequal(class(minus_qx0),'Tcalculus')
-        minus_qx0=minus_qx0';
-    end
-    qx1=whichtprod(q0,[2],x,[1,2])+tsCross(q(2:4,:),x,ts);
-    y=whichtprod(minus_qx0,[2],q(2:4,:),[1,2])...
-      +whichtprod(q0,[2],qx1,[1,2])...
-      +tsCross(q(2:4,:),qx1,ts);
+% pq=[p0*q0-p'*q;
+%     q0*p+p0*q+cross(p,q)];
+if isequal(class(q),'Tcalculus')
+    q0=reshape(q(1,:),length(ts));
+else
+    q0=q(1,:)';
+end
+minus_qx0=tsDot(q(2:4,:),x,ts);
+if ~isequal(class(minus_qx0),'Tcalculus')
+    minus_qx0=minus_qx0';
+end
+qx1=whichtprod(q0,[2],x,[1,2])+tsCross(q(2:4,:),x,ts);
+y=whichtprod(minus_qx0,[2],q(2:4,:),[1,2])...
+    +whichtprod(q0,[2],qx1,[1,2])...
+    +tsCross(q(2:4,:),qx1,ts);
 
-    % y1=whichtprod(minus_qx0,[2],q(2:4,:),[1,2]);
-    % y2=whichtprod(q0,[2],qx1,[1,2]);
-    % y3=tsCross(q(2:4,:),qx1,ts);
-    % whos
+% y1=whichtprod(minus_qx0,[2],q(2:4,:),[1,2]);
+% y2=whichtprod(q0,[2],qx1,[1,2]);
+% y3=tsCross(q(2:4,:),qx1,ts);
+% whos
 end
 
 function test
-    % Numeric
-    ts=pi/2:pi/10:4*pi+pi/2;
-    x=ones(3,length(ts))
-    omega=rand(3,1);
+% Numeric
+ts=pi/2:pi/10:4*pi+pi/2;
+x=ones(3,length(ts))
+omega=rand(3,1);
 
-    %x=[0;0;1];x=repmat(x,1,length(ts));
-    %omega=[0;1;0]
+%x=[0;0;1];x=repmat(x,1,length(ts));
+%omega=[0;1;0]
 
-    omega=omega/norm(omega,2);
-    theta=ts;
-    q=[cos(theta/2);omega*sin(theta/2)];
-    y=tsRotation(q,x,ts)
+omega=omega/norm(omega,2);
+theta=ts;
+q=[cos(theta/2);omega*sin(theta/2)];
+y=tsRotation(q,x,ts)
 
-    % Compare with rotation matrix
-    yy=y;
-    for i=1:length(ts)
-        th=theta(i);
-        % exponential formula
-        R=expm(th*[0,-omega(3),omega(2);omega(3),0,-omega(1);-omega(2),omega(1),0]);
-        % explicit formula (http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation)
+% Compare with rotation matrix
+yy=y;
+for i=1:length(ts)
+    th=theta(i);
+    % exponential formula
+    R=expm(th*[0,-omega(3),omega(2);omega(3),0,-omega(1);-omega(2),omega(1),0]);
+    % explicit formula (http://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation)
 
-        qi=q(:,i);
-        R=[qi(1)^2+qi(2)^2-qi(3)^2-qi(4)^2,2*qi(2)*qi(3)-2*qi(1)*qi(4),2*qi(2)*qi(4)+2*qi(1)*qi(3);
-           2*qi(2)*qi(3)+2*qi(1)*qi(4),qi(1)^2-qi(2)^2+qi(3)^2-qi(4)^2,2*qi(3)*qi(4)-2*qi(1)*qi(2);
-           2*qi(2)*qi(4)-2*qi(1)*qi(3),2*qi(3)*qi(4)+2*qi(1)*qi(2),qi(1)^2-qi(2)^2-qi(3)^2+qi(4)^2];
+    qi=q(:,i);
+    R=[qi(1)^2+qi(2)^2-qi(3)^2-qi(4)^2,2*qi(2)*qi(3)-2*qi(1)*qi(4),2*qi(2)*qi(4)+2*qi(1)*qi(3);
+        2*qi(2)*qi(3)+2*qi(1)*qi(4),qi(1)^2-qi(2)^2+qi(3)^2-qi(4)^2,2*qi(3)*qi(4)-2*qi(1)*qi(2);
+        2*qi(2)*qi(4)-2*qi(1)*qi(3),2*qi(3)*qi(4)+2*qi(1)*qi(2),qi(1)^2-qi(2)^2-qi(3)^2+qi(4)^2];
 
-        yy(:,i)=R*x(:,i);
-    end
-    y
-    yy
-    if norm(y-yy)>sqrt(eps)
-        error('tsRotation error %g\n',norm(y-yy))
-    end
+    yy(:,i)=R*x(:,i);
+end
+y
+yy
+if norm(y-yy)>sqrt(eps)
+    error('tsRotation error %g\n',norm(y-yy))
+end
 
-    plot(ts,x','-x',ts,y','-+');
-    legend('x1','x2','x3','y1','y2','y3')
+plot(ts,x','-x',ts,y','-+');
+legend('x1','x2','x3','y1','y2','y3')
 
-    % Symbolic
-    Tvariable x [3,length(ts)]
-    Tvariable q [4,length(ts)]
-    y=tsRotation(q,x,ts)
+% Symbolic
+Tvariable x [3,length(ts)]
+Tvariable q [4,length(ts)]
+y=tsRotation(q,x,ts)
 end
