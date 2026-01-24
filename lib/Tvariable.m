@@ -20,48 +20,48 @@ function obj=Tvariable(name,osize,nowarningsamesize,nowarningever)
 % Copyright (C) 2012-21 The Regents of the University of California
 % (author: Dr. Joao Hespanha).  All rights reserved.
 
-    if ~ischar(name)
-        error('Tvariable: 1st parameter must be a string (variable name)')
-    end
+if ~ischar(name)
+    error('Tvariable: 1st parameter must be a string (variable name)')
+end
 
-    if nargin==1
-        % variable name together with size
-        s=regexp(name,'(\w+)(\[[^\]]*\])','tokens');
-        if length(s)==1 && length(s{1})==2
-            osize=s{1}{2};
-            name=s{1}{1};
-        end
+if nargin==1
+    % variable name together with size
+    s=regexp(name,'(\w+)(\[[^\]]*\])','tokens');
+    if isscalar(s) && length(s{1})==2
+        osize=s{1}{2};
+        name=s{1}{1};
     end
+end
 
-    if ~isvarname(name)
-        error('Tvariable: 1st parameter must be a valid variable name (not ''%s'')',name)
-    end
+if ~isvarname(name)
+    error('Tvariable: 1st parameter must be a valid variable name (not ''%s'')',name)
+end
 
-    if ~exist('osize','var')
-        osize=[];
-    end
+if ~exist('osize','var')
+    osize=[];
+end
 
-    if nargin<3
-        nowarningsamesize=false;
-    end
-    if ~islogical(nowarningsamesize)
-        error('Tvariable: (optional) 3rd argument must be boolean');
-    end
+if nargin<3
+    nowarningsamesize=false;
+end
+if ~islogical(nowarningsamesize)
+    error('Tvariable: (optional) 3rd argument must be boolean');
+end
 
-    if nargin<4
-        nowarningever=false;
-    end
-    if ~islogical(nowarningever)
-        error('Tvariable: (optional) 4rd argument must be boolean');
-    end
+if nargin<4
+    nowarningever=false;
+end
+if ~islogical(nowarningever)
+    error('Tvariable: (optional) 4rd argument must be boolean');
+end
 
-    if ischar(osize)
-        osize=evalin('caller',osize);
-    end
+if ischar(osize)
+    osize=evalin('caller',osize);
+end
 
-    obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize,nowarningever);
+obj=Tcalculus('variable',osize,name,[],{},1,nowarningsamesize,nowarningever);
 
-    if nargout==0
-        assignin('caller',name,obj);
-    end
+if nargout==0
+    assignin('caller',name,obj);
+end
 end
