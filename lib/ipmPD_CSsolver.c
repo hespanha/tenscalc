@@ -34,7 +34,7 @@ extern void getDirectionError__(double *derr);
 extern void updatePrimalDual__();
 extern void scaleIneq__();
 extern void scaleCost__();
-extern void getScale4Cost__(double *scale4Cost);
+extern void getScale4Cost__(double *scale4cost);
 extern void setAlphaPrimal__(const double *alpha);
 extern void setAlphaDualEq__(const double *alpha);
 extern void setAlphaDualIneq__(const double *alpha);
@@ -205,10 +205,12 @@ EXPORT void ipmPD_CSsolver(
 
 #if scaleCost != 0
     scaleCost__();
-#if nF > 0
     getScale4Cost__(&scale4cost);
+#if nF > 0
     desiredDualityGapVar *= scale4cost;
 #endif
+#else
+    scale4cost = 0.0;
 #endif
 
 #if nF > 0
@@ -236,11 +238,11 @@ EXPORT void ipmPD_CSsolver(
      ** Print and initialize headings **
      ***********************************/
 
-    printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,useInertia=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
+    printf2("%s.c (coupledAlphas=%d,skipAffine=%d,delta=%g,allowSave=%d,addEye2Hessian=%d,adjustAddEye2Hessian=%d,useInertia=%d,muFactorAggresive=%g,muFactorConservative=%g,LDL=%d,umfpack=%d,scale4cost=%g):\n   %d primal variables, %d eq. constr., %d ineq. constr.\n",
             __FUNCTION__, coupledAlphas, skipAffine, (double)delta, allowSave,
             setAddEye2Hessian, adjustAddEye2Hessian, useInertia,
             muFactorAggressive, muFactorConservative,
-            useLDL, useUmfpack,
+            useLDL, useUmfpack, scale4cost,
             nU, nG, nF);
 #if verboseLevel >= 3
     char *header = "Iter      cost   |grad|   |eq|    ineq.    dual    gap   l(mu) "
@@ -282,7 +284,23 @@ EXPORT void ipmPD_CSsolver(
         (*iter)++;
 #if verboseLevel >= 3
         if ((*iter) % 50 == 0)
+        {
             printf3(header);
+#if nF > 0
+            printf3("%4d:<-mx tol.->%8.1e%8.1e                %8.1e%6.1f",
+                    *maxIter, gradTolerance, equalTolerance, desiredDualityGapVar, log10(muMin));
+#else
+            printf3("%4d:<-mx tol.->%8.1e%8.1e                              ", *maxIter, gradTolerance, equalTolerance);
+#endif
+#if (setAddEye2Hessian != 0) && (adjustAddEye2Hessian != 0)
+            printf3("%6.1f", log10(addEye2HessianUtolerance));
+#if (useInertia != 0)
+            printf3("      %5d%5d%8.1e", mpDesired, mnDesired, maxDirectionError);
+#else
+            printf3("                %8.1e", maxDirectionError);
+#endif
+#endif
+        }
         printf3("%4d:", *iter);
 #endif
 
