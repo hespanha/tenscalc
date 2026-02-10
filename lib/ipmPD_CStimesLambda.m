@@ -212,7 +212,7 @@ if nG>0
     WW0=[Teye(nU,nU),G_u';G_u,-addEye2HessianEq*Teye(nG,nG)];
     factor_ww0=ldl(WW0,[cmexfunction,'_WW0.subscripts'],[cmexfunction,'_WW0.values']);
     b0=[F_u'*lambda-f_u;Tzeros(nG)];
-    wnu0=factor_ww0\b0
+    wnu0=factor_ww0\b0;
     wnu0=full(wnu0); % can easily get sparse when cost is linear on opt. variables
     declareCopy(code,nu,wnu0(nU+1:end),'initDualEqX__');
 
