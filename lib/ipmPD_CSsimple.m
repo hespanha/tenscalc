@@ -213,6 +213,7 @@ if nG>0
     factor_ww0=ldl(WW0,[cmexfunction,'_WW0.subscripts'],[cmexfunction,'_WW0.values']);
     b0=[F_u'*lambda-f_u;Tzeros(nG)];
     wnu0=factor_ww0\b0;
+    wnu0=full(wnu0(nU+1:end)); % can easily get sparse when cost is linear on opt. variables
     declareCopy(code,nu,wnu0(nU+1:end),'initDualEqX__');
 
     %% Error in equality constraints

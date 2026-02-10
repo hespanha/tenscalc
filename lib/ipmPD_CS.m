@@ -235,6 +235,7 @@ if nG>0
     end
     b0=[F_u'*lambda-f_u;Tzeros(nG)];
     wnu0=factor_ww0\b0;
+    wnu0=full(wnu0(nU+1:end)); % can easily get sparse when cost is linear on opt. variables
     declareCopy(code,nu,wnu0(nU+1:end),'initDualEqX__');
 
     declareGet(code,norminf(G),'getNorminf_G__');

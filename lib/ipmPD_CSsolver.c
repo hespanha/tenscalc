@@ -168,11 +168,11 @@ EXPORT void ipmPD_CSsolver(
 #define mnDesired (nF + nG)
 #endif
 
-    double norminf_grad, alphaMax_ = alphaMax;
+    double norminf_grad, scale4cost, alphaMax_ = alphaMax;
 
 #if nF > 0
     double mu = *mu0, stepback = .99, muMin, gap, ineq, ineq1, dual,
-           scale4cost, desiredDualityGapVar = desiredDualityGap, alphaPrimal = 0, alphaDualEq = 0, alphaDualIneq = 0;
+           desiredDualityGapVar = desiredDualityGap, alphaPrimal = 0, alphaDualEq = 0, alphaDualIneq = 0;
 #if skipAffine != 1
     double sigma;
 #endif
