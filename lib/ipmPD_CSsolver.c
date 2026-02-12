@@ -300,6 +300,7 @@ EXPORT void ipmPD_CSsolver(
             printf3("                %8.1e", maxDirectionError);
 #endif
 #endif
+            printf3("\n");
         }
         printf3("%4d:", *iter);
 #endif
